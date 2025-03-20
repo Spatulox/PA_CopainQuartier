@@ -1,0 +1,46 @@
+TrocLocal
+	•Présentation :
+	Une plateforme dédiée au troc d’objets et de services entre voisins. L’utilisateur peut proposer un objet à échanger ou rechercher une offre dans sa zone géographique.
+	•Idées de traitement : 
+oMise en place d’un système de publication et de recherche par catégorie et localisation.
+
+VoisinExpress
+	•Présentation :
+	Une application de mise en relation pour l’entraide quotidienne (sortir le chien, récupérer un colis, faire les courses, etc.).
+	•Idées de traitement : 
+	oGéolocalisation pour identifier les voisins proches.
+	oInterface de réservation et calendrier pour planifier les services.
+	oSystème de vérification d’identité et de notation après service pour renforcer la sécurité.
+
+SortieEnsemble
+	•Présentation :
+	Une application dédiée à l’organisation d’activités et de sorties entre voisins (cinéma, pique-nique, randonnée, etc.).
+	•Idées de traitement : 
+	oCréation d’événements avec un nombre de participants limité et gestion automatique de l’annulation si le seuil n’est pas atteint.
+	oSystème d’inscription et de confirmation par email .
+	oCalendrier partagé et rappels automatiques pour les activités programmées par mails.
+
+MessagerieQuartier
+	•Présentation :
+	Une application de messagerie instantanée dédiée aux habitants du quartier, avec une option d’appels vidéo pour des échanges plus directs.
+	•Idées de traitement : 
+	oSystème de chat en temps réel intégrant la gestion du statut (en ligne/hors ligne).
+	oPossibilité d’organiser des groupes de discussion par thématique (entraide, événements, troc…).
+	• 
+
+ChroniquesDuQuartier
+	•Présentation :
+	Un journal numérique où les habitants peuvent publier des actualités, des témoignages , contribuant à créer un esprit de communauté.
+	•Idées de traitement : 
+	oSystème de publication d’articles avec modération et catégorisation des contenus.
+	oStockage des pages dans une base MongoDB pour une gestion efficace des documents.
+	oFonctionnalités de recherche et de filtrage par thème ou date.
+
+
+Art & Culture du Quartier
+	•Présentation :
+	Une plateforme numérique qui met en avant les initiatives artistiques et culturelles locales. Elle permet aux artistes et passionnés de partager leurs créations et d’annoncer des événements culturels dans le quartier.
+	•Idées de traitement : 
+	oDévelopper une interface de gestion de contenus multimédias (photos, vidéos, textes).Enregistre sur AWS.
+	oCréer un calendrier interactif recensant les expositions, spectacles et ateliers.
+	oIntégrer une fonctionnalité de géolocalisation pour découvrir les événements à proximité.
