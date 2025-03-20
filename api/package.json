@@ -1,0 +1,14 @@
+{
+  "name": "api-copain-quartier",
+  "version": "1.0.0",
+  "description": "pa deuxieme annee",
+  "main": "index.js",
+  "scripts": {
+    "compile":"npx tsc",
+    "startjs":"node dist/index.js",
+    "start":"npx tsc && node dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
