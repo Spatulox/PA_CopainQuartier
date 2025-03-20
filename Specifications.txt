@@ -6,6 +6,8 @@ API Principale :
 	- JSON Web Tokens ? (+ double authentification ?) avec Passport.js
 	- Ajout/MaJ/Suppression d'une donnée, le faire dans MongoDB seulement
 	- Mettre en place en CDC qui synchronise les données entre Mongo et Redis automatiquement (MaJ et Suppression)
+	- ZOD => Librairie de validation des entrées API
+	- JEST => Tests Unitaires / Tests Intégrations
 
 TrocLocal :
 	- Rien de particulier (Api principale + MongoDB)
@@ -31,4 +33,7 @@ ChroniquesDuQuartier :
 
 Art & Culture du Quartier :
 	- FullCalendar (JS lib) pour visualiser les expositions, spectacles et ateliers
+	
+Github : https://github.com/Spatulox/PA_CopainQuartier
+Trello : https://trello.com/invite/656ef7fe038b30bb9a2d0493/ATTI3125cafa219c290533bbd322c002f9c26A4A67ED
 
