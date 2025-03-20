@@ -1,0 +1,8 @@
+- Docker:
+	- Redis
+	- MongoDO
+	- Serveur TypeScript Express
+
+- Redirection sur les ports dockers en fonctions de l'URL :- 
+	test.com => Interface
+	- api.test.com => API
