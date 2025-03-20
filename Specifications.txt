@@ -1,0 +1,34 @@
+API Principale :
+	- TypeScript avec ExpressJS
+	- MongoDB & Redis (Pour différents services)
+	- Mongoose (TypeScript <=> MongoDB)
+	- Redis OM (TypeScript <=> Redis)
+	- JSON Web Tokens ? (+ double authentification ?) avec Passport.js
+	- Ajout/MaJ/Suppression d'une donnée, le faire dans MongoDB seulement
+	- Mettre en place en CDC qui synchronise les données entre Mongo et Redis automatiquement (MaJ et Suppression)
+
+TrocLocal :
+	- Rien de particulier (Api principale + MongoDB)
+
+VoisinExpress :
+	- FullCalendar (JS lib) pour visualiser les réservations
+
+SortieEnsemble :
+	- Redis (pour charger les calendrier du jour plus rapidement ?)
+	- FullCalendar (JS lib) pour visualiser les activités
+	- Cron event avec node-schedule pour annuler les activités automatiquement si besoin
+
+MessagerieQuartier :
+	- WebSocket
+	- Accès par défaut aux ressources dans Redis PUIS dans MongoDB si pas trouvé
+	- Redis (DB ultra rapide temporaire) / Mise en cache des information de connexion / messages récents / etc...
+	- MongoDB pour la persistance des conversations
+	- WebRTC (par exemple) pour le flux vidéos si besoin
+	- Cron event avec node-schedule pour synchroniser REDIS et MongoDB (messages du chat)
+
+ChroniquesDuQuartier :
+	- Rien de particulier (Api principale + MongoDB)
+
+Art & Culture du Quartier :
+	- FullCalendar (JS lib) pour visualiser les expositions, spectacles et ateliers
+
