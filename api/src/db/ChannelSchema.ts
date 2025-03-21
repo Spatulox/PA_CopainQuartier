@@ -1,6 +1,7 @@
 import { Schema, model } from 'mongoose';
+import { Channel } from '../Channel/ChannelModel';
 
-const ChannelSchema = new Schema({
+const ChannelSchema = new Schema<Channel>({
     name: {type: String, required: true},
     type: { type: String, _type: ['text', 'vocal'], required: true},
     description : {type: String, required: true},
@@ -17,4 +18,4 @@ const ChannelSchema = new Schema({
     timestamps: { createdAt: 'created_at'}
 });
 
-export const Channel = model('Channel', ChannelSchema);
+export const ChannelRepository = model('Channel', ChannelSchema);

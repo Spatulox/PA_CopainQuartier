@@ -1,6 +1,7 @@
 import { Schema, model } from 'mongoose';
+import { Publication } from '../Publication/PublicationModel';
 
-const PublicationSchema = new Schema({
+const PublicationSchema = new Schema<Publication>({
     name: {type: String, required: true},
     created_at: { type: Date, default: Date.now, required: true },
     updated_at: { type: Date, default: null },
@@ -20,4 +21,4 @@ PublicationSchema.pre('validate', function(next) {
     }
 });
 
-export const Publication = model('Publication', PublicationSchema);
+export const PublicationRepository = model('Publication', PublicationSchema);
