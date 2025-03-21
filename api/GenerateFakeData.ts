@@ -7,12 +7,13 @@ import { ActivityRepository } from "./src/db/ActivitiesSchema";
 import { User as UserModel } from "./src/User/UserModel";
 import { Channel as ChannelModel} from './src/Channel/ChannelModel'
 import { Troc as TrocModel } from "./src/Troc/TrocModel";
-//import { Publication as PublicationModel} from './src/Publication/PublicationModel'
-import { Activity as ActivityModel} from './src/Activity/ActivityModel'
+import { Publication as PublicationModel} from './src/Publication/PublicationModel'
+import { Activity as ActivityModel } from './src/Activity/ActivityModel'
 
-import { mongoose } from "./src/connexion";
+import { closeDB, openDB } from "./src/connexion";
 
 export async function GenerateFakeData(){
+    await openDB()
     console.log("Generating fake data")
     const users = await FakeUser()
     console.log("Users generated...")
@@ -22,22 +23,24 @@ export async function GenerateFakeData(){
 
     // Update the user part to reflect the channels
     await UpdateUserChannel(channels)
+    console.log("Users and Channels linked...")
 
     const trocs = await FakeTroc(users)
     console.log("Trocs generated...")
 
     await UpdateUserTrocs(trocs)
+    console.log("User and Trocs linked...")
 
-    const activities = await FakeActivity(users, channels)
+    const publications = await FakePublication(users)
+    console.log("Publications generated...")
+
+    const activities = await FakeActivity(users, channels, publications)
     console.log("Activity generated...")
 
-    /*
-    console.log(users)
+    await UpdateActivityPublicationChannelLink(activities, publications, channels)
+    console.log("Publication, activity and channels linked...")
     
-    FakePublication(users, activities, trocs)
-    console.log("Publications generated...")*/
-    
-    mongoose.connection.close()
+    closeDB()
 }
 
 GenerateFakeData()
@@ -99,7 +102,9 @@ async function FakeTroc(users: UserModel[]) {
     return lesTrocs
 }
 
-async function FakePublication(users: UserModel[], activities: ActivityModel[], troc: TrocModel[]) {
+
+async function FakePublication(users: UserModel[]) {
+    let publications = [];
     for (let i = 0; i < 30; i++) {
         const publication = new PublicationRepository({
             name: faker.lorem.sentence(),
@@ -107,10 +112,11 @@ async function FakePublication(users: UserModel[], activities: ActivityModel[], 
             author_id: faker.helpers.arrayElement(users)._id,
             created_at: faker.date.past(),
             updated_at: faker.date.recent(),
-            activity_id: faker.helpers.arrayElement(activities)._id
         });
         await publication.save();
+        publications.push(publication);
     }
+    return publications;
 }
 
 async function FakeChannel(users: UserModel[]) {
@@ -137,7 +143,7 @@ async function FakeChannel(users: UserModel[]) {
     return channels;
 }
 
-async function FakeActivity(users: UserModel[], channels: ChannelModel[]) {
+async function FakeActivity(users: UserModel[], channels: ChannelModel[], publication: PublicationModel[]) {
     let activities = []
     for (let i = 0; i < 50; i++) {
         let author = faker.helpers.arrayElement(users)._id
@@ -145,15 +151,16 @@ async function FakeActivity(users: UserModel[], channels: ChannelModel[]) {
         if(!members.includes(author)){
             members.push(author)
         }
-        let chatId = faker.helpers.maybe(() => faker.helpers.arrayElement(channels)._id)
+        let chatId = faker.helpers.arrayElement(channels)._id
+        let publicationId = faker.helpers.arrayElement(publication)._id
         const activity = new ActivityRepository({
             title: faker.word.noun() + " Activity",
             description: faker.lorem.sentence(),
             created_at: faker.date.past(),
             date_reservation: faker.date.future(),
-            publication_id: null,
             author_id: author,
             channel_chat_id: chatId,
+            publication_id: publicationId,
             participants_id: members
         });
         await activity.save();
@@ -205,5 +212,48 @@ async function UpdateUserTrocs(trocs: TrocModel[]) {
                 trocs_reserved: { $each: userTrocData.reserved }
             }
         });
+    }
+}
+
+async function UpdateActivityPublicationChannelLink(
+    activities: ActivityModel[],
+    publications: PublicationModel[],
+    channels: ChannelModel[]
+) {
+    // Créer une copie des publications pour pouvoir les retirer au fur et à mesure
+    let availablePublications = [...publications];
+    let availableChannels = [...channels];
+
+    for (const activity of activities) {
+        // Associer une publication si disponible
+        if (availablePublications.length > 0) {
+            const randomIndex = Math.floor(Math.random() * availablePublications.length);
+            const publication = availablePublications[randomIndex];
+
+            // Mettre à jour l'activité avec l'ID de la publication
+            await ActivityRepository.findByIdAndUpdate(activity._id, {
+                publication_id: publication._id
+            });
+
+            // Mettre à jour la publication avec l'ID de l'activité
+            await PublicationRepository.findByIdAndUpdate(publication._id, {
+                activity_id: activity._id
+            });
+
+            // Retirer la publication utilisée de la liste des disponibles
+            availablePublications.splice(randomIndex, 1);
+        }
+
+        // Associer un channel obligatoirement
+        if (availableChannels.length > 0) {
+            const randomChannel = faker.helpers.arrayElement(availableChannels);
+
+            // Mettre à jour l'activité avec l'ID du channel
+            await ActivityRepository.findByIdAndUpdate(activity._id, {
+                channel_chat_id: randomChannel._id
+            });
+        } else {
+            throw new Error("Pas assez de channels disponibles pour associer toutes les activités.");
+        }
     }
 }
