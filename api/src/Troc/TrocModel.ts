@@ -7,5 +7,6 @@ export interface Troc {
     author_id: mongoose.Types.ObjectId,
     reserved_at: Date,
     reserved_by: mongoose.Types.ObjectId,
+    status: string,
     type: string,
 }
