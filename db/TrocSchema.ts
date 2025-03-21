@@ -6,7 +6,7 @@ export const TrocSchema = new Schema({
     author_id: { type: Schema.Types.ObjectId, ref: "User" },
     reserved_at : { type: Date, default: null },
     reserved_by: { type: Schema.Types.ObjectId, ref: "User" },
-    type: { type: String, enum: ['service', 'item'] }
+    type: { type: String, _type: ['service', 'item'] }
 }, {
     timestamps: { createdAt: 'created_at', updatedAt: 'reserved_at' }
 });

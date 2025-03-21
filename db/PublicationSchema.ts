@@ -5,7 +5,7 @@ const PublicationSchema = new Schema({
     created_at: { type: Date, default: Date.now, required: true },
     updated_at: { type: Date, default: null },
     author_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    activity_id : { type: Schema.Types.ObjectId, ref: "Activities", required: false },
+    activity_id : { type: Schema.Types.ObjectId, ref: "Activity", required: false },
     troc_id: { type: Schema.Types.ObjectId, ref: "Troc", required: false },
     body: {type: String, required: true}
 }, {
