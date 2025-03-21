@@ -7,7 +7,9 @@ export const TrocSchema = new Schema({
     reserved_at : { type: Date, default: null },
     reserved_by: { type: Schema.Types.ObjectId, ref: "User" },
     type: { type: String, enum: ['service', 'item'] }
+}, {
+    timestamps: { createdAt: 'created_at', updatedAt: 'reserved_at' }
 });
 
 
-const Troc = model('Troc', TrocSchema);
+export const Troc = model('Troc', TrocSchema);
