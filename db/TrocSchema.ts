@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
 
 export const TrocSchema = new Schema({
-    title: String,
+    title: {type: String, required: true},
     created_at: { type: Date, default: Date.now },
     author_id: { type: Schema.Types.ObjectId, ref: "User" },
     reserved_at : { type: Date, default: null },
