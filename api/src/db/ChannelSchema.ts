@@ -9,6 +9,7 @@ const MessageSchema = new Schema<Message>({
 
 const ChannelSchema = new Schema<Channel>({
     name: {type: String, required: true},
+    publication_id : { type: Schema.Types.ObjectId, ref: "Publication"},
     type: { type: String, _type: ['text', 'vocal'], required: true},
     description : {type: String, required: true},
     admin_id: { type: Schema.Types.ObjectId, ref: "User", required: true },

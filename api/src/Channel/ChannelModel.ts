@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 export interface Channel {
     _id: mongoose.Types.ObjectId,
     name: string,
+    publication_id : mongoose.Types.ObjectId,
     type: string,
     description: string,
     admin_id: mongoose.Types.ObjectId,
