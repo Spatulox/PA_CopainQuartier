@@ -7,7 +7,7 @@ import { ActivityRepository } from "./src/db/ActivitiesSchema";
 import { User as UserModel } from "./src/User/UserModel";
 import { Channel as ChannelModel} from './src/Channel/ChannelModel'
 import { Troc as TrocModel } from "./src/Troc/TrocModel";
-import { Publication as PublicationModel} from './src/Publication/PublicationModel'
+//import { Publication as PublicationModel} from './src/Publication/PublicationModel'
 import { Activity as ActivityModel} from './src/Activity/ActivityModel'
 
 import { mongoose } from "./src/connexion";
@@ -20,7 +20,10 @@ export async function GenerateFakeData(){
     const channels = await FakeChannel(users)
     console.log("Channels generated...")
 
-    const activities = await FakeActivity(users, channels)
+    // Update the user part to reflect the channels
+    await UpdateUserChannel(channels)
+
+    /*const activities = await FakeActivity(users, channels)
     console.log("Activity generated...")
 
     console.log(users)
@@ -29,7 +32,7 @@ export async function GenerateFakeData(){
     console.log("Trocs generated...")
     
     FakePublication(users, activities, trocs)
-    console.log("Publications generated...")
+    console.log("Publications generated...")*/
     
     mongoose.connection.close()
 }
@@ -39,6 +42,21 @@ GenerateFakeData()
 async function FakeUser(){
     const users = [];
 
+    const user = new UserRepository({
+        name: faker.person.firstName(),
+        lastname: faker.person.lastName(),
+        email: faker.internet.email(),
+        address: faker.location.streetAddress(),
+        verified: faker.datatype.boolean(),
+        role: 'admin',
+        group_chat_list_ids: [], // Nous le laisserons vide pour l'instant
+        troc_score: faker.helpers.maybe(() => faker.number.int({ min: 0, max: 100 }).toString(), { probability: 0.7 }),
+        phone: faker.phone.number(),
+    });
+
+    const savedUser = await user.save();
+    users.push(savedUser);
+
     for (let i = 0; i < 10; i++) {
         const user = new UserRepository({
             name: faker.person.firstName(),
@@ -46,7 +64,7 @@ async function FakeUser(){
             email: faker.internet.email(),
             address: faker.location.streetAddress(),
             verified: faker.datatype.boolean(),
-            role: faker.helpers.arrayElement(['admin', 'member']),
+            role: 'member',
             group_chat_list_ids: [], // Nous le laisserons vide pour l'instant
             troc_score: faker.helpers.maybe(() => faker.number.int({ min: 0, max: 100 }).toString(), { probability: 0.7 }),
             phone: faker.phone.number(),
@@ -55,8 +73,6 @@ async function FakeUser(){
         const savedUser = await user.save();
         users.push(savedUser);
     }
-
-    console.log(users)
 
     return users;
 }
@@ -105,13 +121,13 @@ async function FakeChannel(users: UserModel[]) {
         }
         const channel = new ChannelRepository({
             name: faker.word.noun() + " Channel",
-            type: faker.helpers.arrayElements(['text', 'vocal']),
+            type: faker.helpers.arrayElement(['text', 'vocal']),
             description: faker.lorem.sentence(),
             admin_id: author,
             message: [],
             members: members,
             created_at: faker.date.past(),
-            member_auth: faker.helpers.arrayElements(['read_only', 'read_send'])
+            member_auth: faker.helpers.arrayElement(['read_send', 'read_only'])
         });
         const savedChannel = await channel.save();
         channels.push(savedChannel);
@@ -119,7 +135,7 @@ async function FakeChannel(users: UserModel[]) {
     return channels;
 }
 
-async function FakeActivity(users: UserModel[], channels: ChannelModel[], publication: PublicationModel[]) {
+async function FakeActivity(users: UserModel[], channels: ChannelModel[]) {
     let activities = []
     for (let i = 0; i < 50; i++) {
         let author = faker.helpers.arrayElement(users)._id
@@ -133,7 +149,7 @@ async function FakeActivity(users: UserModel[], channels: ChannelModel[], public
             description: faker.lorem.sentence(),
             created_at: faker.date.past(),
             date_reservation: faker.date.future(),
-            publication_id: faker.helpers.arrayElement(publication)._id,
+            publication_id: null,
             author_id: author,
             channel_chat_id: chatId,
             participants_id: members
@@ -142,4 +158,29 @@ async function FakeActivity(users: UserModel[], channels: ChannelModel[], public
         activities.push(activity)
     }
     return activities
+}
+
+
+async function UpdateUserChannel(channels: ChannelModel[]) {
+
+    // Parcourir chaque channel
+    for (const channel of channels) {
+        const channelId = channel._id;
+
+        // Parcourir les membres du channel
+        for (const memberId of channel.members) {
+            // Trouver l'utilisateur correspondant
+            const user = await UserRepository.findById(memberId);
+
+            if (user) {
+                // Ajouter l'ID du channel à "group_chat_list_ids" s'il n'est pas déjà présent
+                if (!user.group_chat_list_ids.includes(channelId)) {
+                    user.group_chat_list_ids.push(channelId);
+                    await user.save(); // Sauvegarder les modifications
+                }
+            }
+        }
+    }
+
+    console.log("Users updated with group_chat_list_ids!");
 }
