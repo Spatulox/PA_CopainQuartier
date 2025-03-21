@@ -23,13 +23,16 @@ export async function GenerateFakeData(){
     // Update the user part to reflect the channels
     await UpdateUserChannel(channels)
 
-    /*const activities = await FakeActivity(users, channels)
-    console.log("Activity generated...")
-
-    console.log(users)
-    
     const trocs = await FakeTroc(users)
     console.log("Trocs generated...")
+
+    await UpdateUserTrocs(trocs)
+
+    const activities = await FakeActivity(users, channels)
+    console.log("Activity generated...")
+
+    /*
+    console.log(users)
     
     FakePublication(users, activities, trocs)
     console.log("Publications generated...")*/
@@ -104,8 +107,7 @@ async function FakePublication(users: UserModel[], activities: ActivityModel[], 
             author_id: faker.helpers.arrayElement(users)._id,
             created_at: faker.date.past(),
             updated_at: faker.date.recent(),
-            activity_id: faker.helpers.arrayElement(activities)._id,
-            troc_id: faker.helpers.arrayElement(troc)._id,
+            activity_id: faker.helpers.arrayElement(activities)._id
         });
         await publication.save();
     }
@@ -163,24 +165,45 @@ async function FakeActivity(users: UserModel[], channels: ChannelModel[]) {
 
 async function UpdateUserChannel(channels: ChannelModel[]) {
 
-    // Parcourir chaque channel
     for (const channel of channels) {
         const channelId = channel._id;
 
-        // Parcourir les membres du channel
         for (const memberId of channel.members) {
-            // Trouver l'utilisateur correspondant
             const user = await UserRepository.findById(memberId);
 
             if (user) {
-                // Ajouter l'ID du channel à "group_chat_list_ids" s'il n'est pas déjà présent
                 if (!user.group_chat_list_ids.includes(channelId)) {
                     user.group_chat_list_ids.push(channelId);
-                    await user.save(); // Sauvegarder les modifications
+                    await user.save();
                 }
             }
         }
     }
 
     console.log("Users updated with group_chat_list_ids!");
+}
+
+async function UpdateUserTrocs(trocs: TrocModel[]) {
+    const userTrocs = new Map();
+
+    for (const troc of trocs) {
+        if (!userTrocs.has(troc.author_id.toString())) {
+            userTrocs.set(troc.author_id.toString(), { created: [], reserved: [] });
+        }
+        userTrocs.get(troc.author_id.toString()).created.push(troc._id);
+
+        if (!userTrocs.has(troc.reserved_by.toString())) {
+            userTrocs.set(troc.reserved_by.toString(), { created: [], reserved: [] });
+        }
+        userTrocs.get(troc.reserved_by.toString()).reserved.push(troc._id);
+    }
+
+    for (const [userId, userTrocData] of userTrocs) {
+        await UserRepository.findByIdAndUpdate(userId, {
+            $push: {
+                trocs_created: { $each: userTrocData.created },
+                trocs_reserved: { $each: userTrocData.reserved }
+            }
+        });
+    }
 }
