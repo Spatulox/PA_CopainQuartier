@@ -1,11 +1,10 @@
-// this shim is required
 import { createExpressServer } from 'routing-controllers';
 import { UserController } from './src/User/UserController';
+import { ApiKeyCheckMiddleware } from './middlewares';
 
-// creates express app, registers all controller routes and returns you express app instance
 const app = createExpressServer({
-  controllers: [UserController], // we specify controllers we want to use
+  middlewares: [ApiKeyCheckMiddleware],
+  controllers: [UserController],
 });
 
-// run express application on port 3000
 app.listen(3000);
