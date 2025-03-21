@@ -4,3 +4,5 @@
 DB.drawio
 
 node_modules/
+
+db/*.js
