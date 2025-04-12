@@ -1,6 +1,12 @@
 import axios, { AxiosInstance } from 'axios';
 import config from '../config.json'
 
+export type User = {
+  id: string,
+  email: string,
+  username: string,
+}
+
 class ApiClient {
   private client: AxiosInstance;
   private tokenKey = 'authToken';
@@ -16,7 +22,7 @@ class ApiClient {
     this.login(username, password);
   }
 
-  private setupInterceptors() {
+  private setupInterceptors(): void {
     this.client.interceptors.request.use(config => {
       const token = localStorage.getItem(this.tokenKey);
       config.headers.Authorization = token ? `Bearer ${token}` : '';
@@ -24,7 +30,7 @@ class ApiClient {
     });
   }
 
-  private async login(username: string, password: string) {
+  private async login(username: string, password: string): Promise<void> {
     try {
       const response = await this.client.post('/auth/login', {
         username: username,
@@ -40,23 +46,23 @@ class ApiClient {
     }
   }
 
-  deconnection(){
+  deconnection(): void{
     this.clearAuthToken()
   }
 
-  private setAuthToken(token: string) {
+  private setAuthToken(token: string): void {
     localStorage.setItem(this.tokenKey, token);
   }
 
-  private clearAuthToken() {
+  private clearAuthToken(): void {
     localStorage.removeItem(this.tokenKey);
   }
 
-  async getMe() {
+  async getMe(): Promise<User> {
     return this.client.get('/users/me');
   }
 
-  async updateUser(id: string, data: any) {
+  async updateUser(id: string, data: any): Promise<User> {
     return this.client.patch(`/users/${id}`, data);
   }
 }
