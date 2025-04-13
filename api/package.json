@@ -1,17 +1,39 @@
 {
   "name": "api-copain-quartier",
   "version": "1.0.0",
-  "description": "pa deuxieme annee",
-  "main": "index.js",
+  "description": "pa troisième annee",
+  "main": "main.js",
   "scripts": {
     "compile": "npx tsc",
-    "startjs": "node dist/index.js",
-    "start": "npx tsc && node dist/index.js",
+    "startjs": "node dist/main.js",
+    "start": "npx tsc && node dist/main.js",
+    "dev": "nodemon -e ts --exec ts-node src/main.ts",
+    "generate_data": "tsc && node dist/GenerateFakeData.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "routing-controllers": "^0.11.2"
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "routing-controllers": "^0.11.2",
+    "routing-controllers-openapi": "^5.0.0",
+    "zod": "^3.24.2",
+    "zod-openapi": "^4.2.4"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^9.6.0",
+    "@types/bcrypt": "^5.0.2",
+    "@types/express": "^5.0.1",
+    "@types/faker": "^6.6.8",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/node": "^22.14.0",
+    "faker": "^6.6.6",
+    "mongoose": "^8.12.1",
+    "nodemon": "^3.1.9",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   }
 }
