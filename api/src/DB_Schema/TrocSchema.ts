@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { Troc } from '../Troc/TrocModel';
+import { Troc } from '../Models/TrocModel';
 
 const TrocSchema = new Schema<Troc>({
     title: {type: String, required: true},
@@ -14,4 +14,4 @@ const TrocSchema = new Schema<Troc>({
 });
 
 
-export const TrocRepository = model('Troc', TrocSchema);
+export const TrocTable = model('Troc', TrocSchema);

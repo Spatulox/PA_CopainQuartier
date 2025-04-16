@@ -1,6 +1,6 @@
 import { JsonController, Param, Body, Get, Post, Put, Delete, HeaderParam } from 'routing-controllers';
-import { User } from "./UserModel"
-import { ApiKey } from '../utils/apikey';
+import { User } from "../Models/UserModel"
+import { ApiKey } from '../Utils/apikey';
 
 @JsonController()
 export class UserController {

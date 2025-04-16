@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { Channel, Message } from '../Channel/ChannelModel';
+import { Channel, Message } from '../Models/ChannelModel';
 
 const MessageSchema = new Schema<Message>({
     date: {type: Date, required: true},
@@ -21,4 +21,4 @@ const ChannelSchema = new Schema<Channel>({
     timestamps: { createdAt: 'created_at'}
 });
 
-export const ChannelRepository = model('Channel', ChannelSchema);
+export const ChannelTable = model('Channel', ChannelSchema);

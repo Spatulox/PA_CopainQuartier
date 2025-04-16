@@ -1,10 +1,11 @@
 import { Schema, model } from 'mongoose';
-import { User } from '../User/UserModel';
+import { User } from '../Models/UserModel';
 
 const UserSchema = new Schema<User>({
     name: {type: String, required: true},
     lastname: {type: String, required: true},
     email: {type: String, required: true},
+    password: {type: String, required: true},
     address: {type: String, required: true},
     verified: {type: Boolean, default: false, required: true},
     role: {type: String, required: true, value: ['admin', 'member']},
@@ -14,4 +15,4 @@ const UserSchema = new Schema<User>({
 });
 
 
-export const UserRepository = model('User', UserSchema);
+export const UserTable = model('User', UserSchema);

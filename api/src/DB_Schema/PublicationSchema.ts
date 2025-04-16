@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { Publication } from '../Publication/PublicationModel';
+import { Publication } from '../Models/PublicationModel';
 
 const PublicationSchema = new Schema<Publication>({
     name: {type: String, required: true},
@@ -12,4 +12,4 @@ const PublicationSchema = new Schema<Publication>({
     timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }
 });
 
-export const PublicationRepository = model('Publication', PublicationSchema);
+export const PublicationTable = model('Publication', PublicationSchema);

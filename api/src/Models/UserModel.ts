@@ -5,6 +5,7 @@ export interface User{
     name: string,
     lastname: string,
     email: string,
+    password: string,
     address: string,
     verified: boolean,
     role: string,

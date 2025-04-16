@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { Activity } from '../Activity/ActivityModel';
+import { Activity } from '../Models/ActivityModel';
 
 const ActivitySchema = new Schema<Activity>({
     title: { type: String, required: true },
@@ -14,4 +14,4 @@ const ActivitySchema = new Schema<Activity>({
     { createdAt: 'created_at', updatedAt: 'updated_at' }
 });
 
-export const ActivityRepository = model('Activity', ActivitySchema);
+export const ActivityTable = model('Activity', ActivitySchema);
