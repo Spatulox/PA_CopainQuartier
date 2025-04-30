@@ -31,7 +31,11 @@ export class PublicationsController {
     async updateContentPublication(@CurrentUser() user: User, @Param("id") pub_id: number, @Body() body: any): Promise<boolean>{
         const validId = zId.parse(pub_id)
         const validBody = zUpdatePublication.parse(body)
-        return await updatePublicationcontent(user, pub_id, body)
+        const pub = await getPublicationById(validId)
+        if(pub && (pub.author_id != user._id && user.role != UserRole.admin) ){
+            throw new ForbiddenError("This publication isn't yours")
+        }
+        return await updatePublicationcontent(user, pub_id, validBody)
     }
 
     @Delete("/publications/:id")
