@@ -13,3 +13,8 @@ export interface User{
     troc_score?: string | null,
     phone: string,
 }
+
+export type PublicUser = Omit<User, "password" | "email" | "address" | "phone"> & {
+    common_channels: mongoose.Types.ObjectId[];
+};
+

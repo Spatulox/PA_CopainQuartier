@@ -16,3 +16,8 @@ const UserSchema = new Schema<User>({
 
 
 export const UserTable = model('User', UserSchema);
+
+export enum UserRole {
+    admin = "admin",
+    member = "member",
+}
