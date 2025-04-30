@@ -7,6 +7,19 @@ export async function getAllUsers(): Promise<User[]>{
     return await UserTable.find().populate("group_chat_list_ids").exec()
 }
 
+export async function getUnverifiedUser(): Promise<User[] | null> {
+    return await UserTable.find({ verified: false }).exec();
+}
+
+export async function verifyUser(user_id: ID): Promise<boolean> {
+    const res = await UserTable.updateOne(
+        { _id: user_id },
+        { $set: { verified: true } }
+    ).exec();
+    return res.modifiedCount > 0;
+}
+
+
 export async function deleteUser(user_id: ID): Promise<boolean>{
     const result = await UserTable.deleteOne({ _id: user_id }).exec();
     return result.deletedCount > 0;

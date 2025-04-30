@@ -1,7 +1,7 @@
-import { JsonController, Param, Body, Get, Post, Put, Delete, HeaderParam, Authorized, CurrentUser } from 'routing-controllers';
+import { JsonController, Param, Body, Get, Post, Put, Delete, HeaderParam, Authorized, CurrentUser, Patch } from 'routing-controllers';
 import { User } from "../Models/UserModel"
-import { deleteUser, getAllUsers } from '../Services/users/usersAdmin';
-import { zObjectId } from '../Validators/utils';
+import { deleteUser, getAllUsers, getUnverifiedUser, verifyUser } from '../Services/users/usersAdmin';
+import { zId, zObjectId } from '../Validators/utils';
 import { getPublicUserById, getUserById } from '../Services/users/usersPublic';
 import { UserRole } from '../DB_Schema/UserSchema';
 
@@ -16,6 +16,7 @@ export class UserController {
   }
 
   // --------- ADMIN --------- //
+
   @Get('/admin/users/all')
   @Authorized(UserRole.admin)
   async getAll(): Promise<User[]> {
@@ -27,6 +28,19 @@ export class UserController {
   async getUserByIdAdmin(@Param('id') user_id: number): Promise<User | null> {
     const validId = zObjectId.parse(user_id)
     return await getUserById(validId);
+  }
+
+  @Get('/admin/users/unverified')
+  @Authorized(UserRole.admin)
+  async getUnverifiedUser(): Promise<User[] | null> {
+    return await getUnverifiedUser();
+  }
+
+  @Patch('/admin/users/:id/verify')
+  @Authorized(UserRole.admin)
+  async verifyUser(@Param('id') user_id: number): Promise<boolean> {
+    const validId = zId.parse(user_id)
+    return await verifyUser(validId);
   }
 
   @Delete('/admin/user/:id')
