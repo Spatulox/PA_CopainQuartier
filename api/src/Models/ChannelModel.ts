@@ -14,8 +14,20 @@ export interface Channel {
     created_at: Date,
 }
 
+export type PublicChannel = Omit<Channel, "admin_id" | "messages" | "members" | "member_auth"> & {
+    common_channels: mongoose.Types.ObjectId[];
+};
+
 export interface Message {
     date: Date,
     content: string,
     author_id: mongoose.Types.ObjectId
 }
+
+
+
+export function ChannelToPublicChannel(channel: Channel): PublicChannel {
+    const { admin_id, messages, members, member_auth, ...publicFields } = channel;
+    return publicFields as PublicChannel;
+}
+  
