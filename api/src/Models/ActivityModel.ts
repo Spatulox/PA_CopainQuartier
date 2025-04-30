@@ -11,3 +11,6 @@ export interface Activity {
     publication_id: mongoose.Types.ObjectId,
     participants_id: mongoose.Types.ObjectId
 }
+
+
+export type PublicActivity = Omit<Activity, "channel_chat_id" | "participants_id">;
