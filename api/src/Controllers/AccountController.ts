@@ -1,4 +1,4 @@
-import { JsonController, Param, Body, Get, Post, Put, Delete, HeaderParam, CurrentUser, Authorized } from 'routing-controllers';
+import { JsonController, Param, Body, Get, Post, Put, Delete, HeaderParam, CurrentUser, Authorized, Patch } from 'routing-controllers';
 import { User } from "../Models/UserModel"
 import { deleteMyAccount, getUserById } from '../Services/users/usersPublic';
 
