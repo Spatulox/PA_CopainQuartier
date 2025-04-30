@@ -11,7 +11,13 @@ export const zTransferChannel = z.object({
     new_admin_id: z.number().int().positive(),
 })
 
+export const zCreateChannel = z.object({
+    name: z.string(),
+    type: z.enum(["text", "vocal"]),
+    description: z.string()
+})
 
 
 export type TransferChannelParam = z.infer<typeof zTransferChannel>
 export type UpdateChannelParam = z.infer<typeof zUpdateChannel>
+export type CreateChannelParam = z.infer<typeof zCreateChannel>

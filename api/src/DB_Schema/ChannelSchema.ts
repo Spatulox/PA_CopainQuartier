@@ -4,7 +4,8 @@ import { Channel, Message } from '../Models/ChannelModel';
 const MessageSchema = new Schema<Message>({
     date: {type: Date, required: true},
     content: {type: String, required: true},
-    author_id: { type: Schema.Types.ObjectId, ref: "User", required: true }
+    author_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    type: { type: String, enum: ['system', 'user'], required: true },
 })
 
 const ChannelSchema = new Schema<Channel>({
@@ -22,3 +23,8 @@ const ChannelSchema = new Schema<Channel>({
 });
 
 export const ChannelTable = model('Channel', ChannelSchema);
+
+export enum ChannelAuth {
+    read_send = "read_send",
+    read_only = "read_only"
+}
