@@ -32,7 +32,7 @@ export class PublicationsController {
         const validId = zId.parse(pub_id)
         const validBody = zUpdatePublication.parse(body)
         const pub = await getPublicationById(validId)
-        if(pub && (pub.author_id != user._id && user.role != UserRole.admin) ){
+        if(pub && pub.author_id != user._id){
             throw new ForbiddenError("This publication isn't yours")
         }
         return await updatePublicationcontent(user, pub_id, validBody)
