@@ -55,7 +55,7 @@ export class ChannelsController {
 
         const channel = await getChannelById(validChannelId)
         if(channel && (channel.admin_id != user._id || user.role != UserRole.admin)){
-            throw new ForbiddenError("You can't add someone to the chat unless you are the admin")
+            throw new ForbiddenError("You can't remove someone to the chat unless you are the admin")
         }
         return await removeSomeoneFromChannel(validChannelId, validUserId)
     }
