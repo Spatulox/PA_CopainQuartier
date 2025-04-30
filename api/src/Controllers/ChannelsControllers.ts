@@ -1,9 +1,9 @@
 import { Authorized, Body, BodyParam, CurrentUser, Delete, ForbiddenError, Get, JsonController, Param, Patch, Post, Put } from "routing-controllers";
 import { zId, zObjectId } from "../Validators/utils";
-import { addSomeoneFromChannel, createChannel, deleteChannel, getChannelById, getPublicChannelById, removeSomeoneFromChannel, updateChannelAdmin, updateChannelAttribute } from "../Services/channels/channels";
+import { addSomeoneFromChannel, createChannel, deleteChannel, deleteMessageFromChannel, getChannelById, getPublicChannelById, postMessageToChannel, removeSomeoneFromChannel, updateChannelAdmin, updateChannelAttribute } from "../Services/channels/channels";
 import { User } from "../Models/UserModel";
 import { UserRole } from "../DB_Schema/UserSchema";
-import { zCreateChannel, zTransferChannel, zUpdateChannel } from "../Validators/channels";
+import { zCreateChannel, zPostMessage, zTransferChannel, zUpdateChannel } from "../Validators/channels";
 import { Channel, PublicChannel } from "../Models/ChannelModel";
 import { ID } from "../Utils/IDType";
 import { BlobOptions } from "buffer";
@@ -58,6 +58,30 @@ export class ChannelsController {
             throw new ForbiddenError("You can't remove someone to the chat unless you are the admin")
         }
         return await removeSomeoneFromChannel(validChannelId, validUserId)
+    }
+
+    @Patch("/channel/:channel_id/message/create")
+    @Authorized()
+    async sendMessageToChannel(@CurrentUser() user: User, @Param("channel_id") channel_id: number, @Body() body: any): Promise<boolean>{
+        const validChannelId = zId.parse(channel_id)
+        const validMessageBody = zPostMessage.parse(body)
+        const channel = await getChannelById(validChannelId)
+        if(channel && !channel.members.includes(user._id)){
+            throw new ForbiddenError("You don't have acces to this channe")
+        }
+        return await postMessageToChannel(user, channel_id, validMessageBody)
+    }
+
+    @Delete("/channel/:channel_id/message/:message_id")
+    @Authorized()
+    async deleteMessageToChannel(@CurrentUser() user: User, @Param("channel_id") channel_id: number, @Param("message_id") message_id: number): Promise<boolean>{
+        const validChannelId = zId.parse(channel_id)
+        const validMessageId = zId.parse(message_id)
+        const channel = await getChannelById(validChannelId)
+        if(channel && !channel.members.includes(user._id)){
+            throw new ForbiddenError("You don't have acces to this channe")
+        }
+        return await deleteMessageFromChannel(validChannelId, validMessageId)
     }
 
     @Patch('/channels/:id')

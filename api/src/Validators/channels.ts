@@ -17,7 +17,12 @@ export const zCreateChannel = z.object({
     description: z.string()
 })
 
+export const zPostMessage = z.object({
+    message: z.string()
+})
+
 
 export type TransferChannelParam = z.infer<typeof zTransferChannel>
 export type UpdateChannelParam = z.infer<typeof zUpdateChannel>
 export type CreateChannelParam = z.infer<typeof zCreateChannel>
+export type PostMessageParam = z.infer<typeof zPostMessage>

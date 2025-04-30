@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { Channel, ChannelToPublicChannel, createMessage, Message, MessageType, PublicChannel } from "../../Models/ChannelModel";
 import { ChannelAuth, ChannelTable } from "../../DB_Schema/ChannelSchema";
-import { CreateChannelParam, TransferChannelParam, UpdateChannelParam } from "../../Validators/channels";
+import { CreateChannelParam, PostMessageParam, TransferChannelParam, UpdateChannelParam } from "../../Validators/channels";
 import { ID } from "../../Utils/IDType";
 import { User } from "../../Models/UserModel";
 
@@ -65,6 +65,23 @@ export async function removeSomeoneFromChannel(channel_id: ID, user_id: ID): Pro
     const result = await ChannelTable.updateOne(
         { _id: channel_id },
         { $pull: { members: user_id } }
+    ).exec();
+    return result.modifiedCount > 0;
+}
+
+export async function postMessageToChannel(user: User, channel_id: ID, content: PostMessageParam): Promise<boolean>{
+    const message = createMessage(content.message, user)
+    const result = await ChannelTable.updateOne(
+        { _id: channel_id },
+        { $push: { messages: message } }
+    ).exec();
+    return result.modifiedCount > 0
+}
+
+export async function deleteMessageFromChannel(channel_id: ID, message_id: ID): Promise<boolean> {
+    const result = await ChannelTable.updateOne(
+        { _id: channel_id },
+        { $pull: { messages: { _id: message_id } } }
     ).exec();
     return result.modifiedCount > 0;
 }
