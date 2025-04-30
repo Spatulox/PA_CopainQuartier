@@ -1,5 +1,5 @@
 import { type Action, UnauthorizedError } from "routing-controllers";
-import { decodeJwt, type JwtPayload, JwtType } from "../services/auth/jwt";
+import { decodeJwt, type JwtPayload, JwtType } from "../Services/auth/jwt";
 import { TokenExpiredError } from "jsonwebtoken";
 import { ObjectId } from "mongodb";
 import { User } from "../Models/UserModel";
