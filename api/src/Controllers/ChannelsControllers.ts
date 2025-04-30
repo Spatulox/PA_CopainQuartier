@@ -41,7 +41,7 @@ export class ChannelsController {
         const validChannelId = zId.parse(channel_id)
 
         const channel = await getChannelById(validChannelId)
-        if(channel && (channel.admin_id != user._id || user.role != UserRole.admin)){
+        if(channel && (channel.admin_id != user._id && user.role != UserRole.admin)){
             throw new ForbiddenError("You can't add someone to the chat unless you are the admin")
         }
         return await addSomeoneFromChannel(validChannelId, validUserId)
@@ -54,7 +54,7 @@ export class ChannelsController {
         const validChannelId = zId.parse(channel_id)
 
         const channel = await getChannelById(validChannelId)
-        if(channel && (channel.admin_id != user._id || user.role != UserRole.admin)){
+        if(channel && (channel.admin_id != user._id && user.role != UserRole.admin)){
             throw new ForbiddenError("You can't remove someone to the chat unless you are the admin")
         }
         return await removeSomeoneFromChannel(validChannelId, validUserId)
@@ -89,7 +89,7 @@ export class ChannelsController {
     async updateChannel(@CurrentUser() user: User, @Param('id') channel_id: number, @Body() body: any): Promise<boolean> {
         const validId = zObjectId.parse(channel_id)
         const channel = await getChannelById(validId)
-        if (channel && (channel.admin_id != user._id || user.role != UserRole.admin)){
+        if (channel && (channel.admin_id != user._id && user.role != UserRole.admin)){
             throw new ForbiddenError("You are not the admin of the channel")
         }
         const validBody = zUpdateChannel.parse(body)
@@ -102,7 +102,7 @@ export class ChannelsController {
     async transferChannel(@CurrentUser() user: User, @Param('id') channel_id: number, @Body() body: any): Promise<boolean> {
         const validId = zObjectId.parse(channel_id)
         const channel = await getChannelById(validId)
-        if (channel && (channel.admin_id != user._id || user.role != UserRole.admin)){
+        if (channel && (channel.admin_id != user._id && user.role != UserRole.admin)){
             throw new ForbiddenError("You can't transfer the admin right to another person")
         }
         const validBody = zTransferChannel.parse(body)
@@ -117,7 +117,7 @@ export class ChannelsController {
         const validId= zId.parse(channel_id)
         
         const channel = await getChannelById(validId)
-        if(channel && (channel.admin_id!= user._id || user.role != UserRole.admin)){
+        if(channel && (channel.admin_id!= user._id && user.role != UserRole.admin)){
             throw new ForbiddenError("You can't delete a channel you don't own")
         }
 
