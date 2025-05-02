@@ -1,6 +1,7 @@
 import { WebSocketServer, WebSocket, RawData } from 'ws';
 import { ChannelTable } from '../DB_Schema/ChannelSchema';
 import { getChannelById, saveMessageToChannel } from '../Services/channels/channels';
+import { getCurrentUserByToken } from '../Middleware/auth';
 
 // Will store each client connection to know if they already request the WS with the INIT message
 // If yes, the client can do everything it wants
@@ -8,6 +9,9 @@ import { getChannelById, saveMessageToChannel } from '../Services/channels/chann
 const initAccessMap = new Map<WebSocket, number>();
 const INIT_TIMEOUT = 60 * 60 * 1000; // 1h in ms
 
+function createErrorMsg(content: string){
+    return JSON.stringify({"err":content})
+}
 
 type INIT = {
     connection: string;
@@ -28,48 +32,76 @@ function isMSG(obj: any): obj is MSG {
 }
 
 export async function handleMessage(wss: WebSocketServer, fromClient: WebSocket, data: RawData, channel_id: string) {
-    const msgRaw = JSON.parse(data.toString());
-    console.log(`Message reçu pour le channel ${channel_id}:`, msgRaw);
+    try{
+        const msgRaw = JSON.parse(data.toString());
+        console.log(`Message reçu pour le channel ${channel_id}:`, msgRaw);
 
-    if (isINIT(msgRaw)) {
-        const msg: INIT = msgRaw;
-        initAccessMap.set(fromClient, Date.now());
-        const jwt = msg.connection;
-        const channel = await getChannelById(channel_id);
-        console.log(channel);
-        if (channel_id && fromClient.readyState === WebSocket.OPEN) {
-            fromClient.send(JSON.stringify(channel?.messages));
+        // check if channel exist
+        const channel = await getChannelById(channel_id)
+        if(!channel){
+            fromClient.send(createErrorMsg("This channel don't exist"))
+            return
         }
-        return;
-    }
 
-    const lastInit = initAccessMap.get(fromClient);
-    if (!lastInit || Date.now() - lastInit > INIT_TIMEOUT) {
-        const err = { err: "Accès refusé : veuillez vous \"reconnecter\" (INIT message)." };
-        if (fromClient.readyState === WebSocket.OPEN) {
-          fromClient.send(JSON.stringify(err));
-        }
-        return;
-    }
+        if (isINIT(msgRaw)) {
+            const msg: INIT = msgRaw;
+            initAccessMap.set(fromClient, Date.now());
+            const jwt = msg.connection;
 
-    if (isMSG(msgRaw)) {
-        const msg: MSG = msgRaw;
-        wss.clients.forEach((client) => {
-            if (channel_id && client.readyState === WebSocket.OPEN) {
-                client.send(JSON.stringify(msg));
+            // Get the user with the jwt
+            const user = await getCurrentUserByToken(jwt)
+            console.log(user)
+            if (
+                !user ||
+                !channel ||
+                !Array.isArray(channel.members) ||
+                !channel.members.map(id => id.toString()).includes(user._id.toString())
+            ) {
+                fromClient.send(createErrorMsg("You don't have access to this channel"));
+                return;
             }
-        });
 
-        return await saveMessageToChannel(msg.user_id, channel_id, msg);
-    }
+            if (channel_id && fromClient.readyState === WebSocket.OPEN) {
+                fromClient.send(JSON.stringify(channel?.messages));
+            }
+            return;
+        }
 
-    const err = {
-        err: "Message type inconnu, plz check the input"
-    };
-    if (fromClient.readyState === WebSocket.OPEN) {
-        fromClient.send(JSON.stringify(err));
+        const lastInit = initAccessMap.get(fromClient);
+        if (!lastInit || Date.now() - lastInit > INIT_TIMEOUT) {
+            const err = "Accès refusé : veuillez vous \"reconnecter\" (INIT message).";
+            if (fromClient.readyState === WebSocket.OPEN) {
+            fromClient.send(createErrorMsg(err));
+            }
+            return;
+        }
+
+        if (isMSG(msgRaw)) {
+
+            const msg: MSG = msgRaw;
+            if(!channel?.members.includes(msg.user_id)){
+                fromClient.send(createErrorMsg("You don't have access to it"))
+                return
+            }
+
+            wss.clients.forEach((client) => {
+                if (channel_id && client.readyState === WebSocket.OPEN) {
+                    client.send(JSON.stringify(msg));
+                }
+            });
+
+            return await saveMessageToChannel(msg.user_id, channel_id, msg);
+        }
+
+        const err ="Unknow Message Type, plz check the input";
+        if (fromClient.readyState === WebSocket.OPEN) {
+            fromClient.send(createErrorMsg(err));
+        }
+        console.log("Le message ne correspond à aucun type")
+    } catch (e: any){
+        fromClient.send(createErrorMsg("Something went wrong"))
+        console.log(e)
     }
-    console.log("Le message ne correspond à aucun type")
 }
 
 setInterval(() => {
