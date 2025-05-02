@@ -1,19 +1,19 @@
 import {faker } from "@faker-js/faker"
-import { UserRepository } from "./src/db/UserSchema";
-import { TrocRepository } from "./src/db/TrocSchema";
-import { PublicationRepository } from "./src/db/PublicationSchema";
-import { ChannelRepository } from "./src/db/ChannelSchema";
-import { ActivityRepository } from "./src/db/ActivitiesSchema";
-import { User as UserModel } from "./src/User/UserModel";
-import { Channel as ChannelModel} from './src/Channel/ChannelModel'
-import { Troc as TrocModel } from "./src/Troc/TrocModel";
-import { Publication as PublicationModel} from './src/Publication/PublicationModel'
-import { Activity as ActivityModel } from './src/Activity/ActivityModel'
+import { UserTable } from "./src/DB_Schema/UserSchema";
+import { TrocTable } from "./src/DB_Schema/TrocSchema";
+import { PublicationTable } from "./src/DB_Schema/PublicationSchema";
+import { ChannelTable } from "./src/DB_Schema/ChannelSchema";
+import { ActivityTable } from "./src/DB_Schema/ActivitiesSchema";
+import { User as UserModel } from "./src/Models/UserModel";
+import { Channel as ChannelModel} from './src/Models/ChannelModel'
+import { Troc as TrocModel } from "./src/Models/TrocModel";
+import { Publication as PublicationModel} from './src/Models/PublicationModel'
+import { Activity as ActivityModel } from './src/Models/ActivityModel'
 
-import { closeDB, openDB } from "./src/connexion";
+import { closeDB, connectDB } from "./src/DB_Schema/connexion";
 
 export async function GenerateFakeData(){
-    await openDB()
+    await connectDB()
     console.log("Generating fake data")
     const users = await FakeUser()
     console.log("Users generated...")
@@ -48,7 +48,7 @@ GenerateFakeData()
 async function FakeUser(){
     const users = [];
 
-    const user = new UserRepository({
+    const user = new UserTable({
         name: faker.person.firstName(),
         lastname: faker.person.lastName(),
         email: faker.internet.email(),
@@ -64,7 +64,7 @@ async function FakeUser(){
     users.push(savedUser);
 
     for (let i = 0; i < 10; i++) {
-        const user = new UserRepository({
+        const user = new UserTable({
             name: faker.person.firstName(),
             lastname: faker.person.lastName(),
             email: faker.internet.email(),
@@ -86,7 +86,7 @@ async function FakeUser(){
 async function FakeTroc(users: UserModel[]) {
     let lesTrocs = []
     for (let i = 0; i < 20; i++) {
-        const troc = new TrocRepository({
+        const troc = new TrocTable({
             title: faker.commerce.productName(),
             description: faker.commerce.productDescription(),
             author_id: faker.helpers.arrayElement(users)._id,
@@ -106,7 +106,7 @@ async function FakeTroc(users: UserModel[]) {
 async function FakePublication(users: UserModel[]) {
     let publications = [];
     for (let i = 0; i < 30; i++) {
-        const publication = new PublicationRepository({
+        const publication = new PublicationTable({
             name: faker.lorem.sentence(),
             body: faker.lorem.paragraphs(),
             author_id: faker.helpers.arrayElement(users)._id,
@@ -127,7 +127,7 @@ async function FakeChannel(users: UserModel[]) {
         if(!members.includes(author)){
             members.push(author)
         }
-        const channel = new ChannelRepository({
+        const channel = new ChannelTable({
             name: faker.word.noun() + " Channel",
             type: faker.helpers.arrayElement(['text', 'vocal']),
             description: faker.lorem.sentence(),
@@ -153,7 +153,7 @@ async function FakeActivity(users: UserModel[], channels: ChannelModel[], public
         }
         let chatId = faker.helpers.arrayElement(channels)._id
         let publicationId = faker.helpers.arrayElement(publication)._id
-        const activity = new ActivityRepository({
+        const activity = new ActivityTable({
             title: faker.word.noun() + " Activity",
             description: faker.lorem.sentence(),
             created_at: faker.date.past(),
@@ -176,7 +176,7 @@ async function UpdateUserChannel(channels: ChannelModel[]) {
         const channelId = channel._id;
 
         for (const memberId of channel.members) {
-            const user = await UserRepository.findById(memberId);
+            const user = await UserTable.findById(memberId);
 
             if (user) {
                 if (!user.group_chat_list_ids.includes(channelId)) {
@@ -206,7 +206,7 @@ async function UpdateUserTrocs(trocs: TrocModel[]) {
     }
 
     for (const [userId, userTrocData] of userTrocs) {
-        await UserRepository.findByIdAndUpdate(userId, {
+        await UserTable.findByIdAndUpdate(userId, {
             $push: {
                 trocs_created: { $each: userTrocData.created },
                 trocs_reserved: { $each: userTrocData.reserved }
@@ -231,12 +231,12 @@ async function UpdateActivityPublicationChannelLink(
             const publication = availablePublications[randomIndex];
 
             // Mettre à jour l'activité avec l'ID de la publication
-            await ActivityRepository.findByIdAndUpdate(activity._id, {
+            await ActivityTable.findByIdAndUpdate(activity._id, {
                 publication_id: publication._id
             });
 
             // Mettre à jour la publication avec l'ID de l'activité
-            await PublicationRepository.findByIdAndUpdate(publication._id, {
+            await PublicationTable.findByIdAndUpdate(publication._id, {
                 activity_id: activity._id
             });
 
@@ -249,7 +249,7 @@ async function UpdateActivityPublicationChannelLink(
             const randomChannel = faker.helpers.arrayElement(availableChannels);
 
             // Mettre à jour l'activité avec l'ID du channel
-            await ActivityRepository.findByIdAndUpdate(activity._id, {
+            await ActivityTable.findByIdAndUpdate(activity._id, {
                 channel_chat_id: randomChannel._id
             });
         } else {

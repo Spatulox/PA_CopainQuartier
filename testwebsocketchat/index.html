@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vieux Chat Pourri</title>
+    <style>
+        body { background: #eee; font-family: monospace; }
+        #messages { border: 1px solid #888; height: 200px; width: 400px; overflow-y: scroll; background: #fff; margin-bottom: 8px; }
+        #status { color: red; font-size: 12px; }
+        #formulaire { margin-top: 8px; }
+        input[type="text"] { width: 300px; }
+        input[type="submit"] { background: #ccc; }
+    </style>
+</head>
+<body>
+    <h2>💬 Vieux Chat Pourri</h2>
+    <div id="status" style="color: red">Déconnecté</div>
+    <div id="messages"></div>
+    <form id="formulaire">
+        <input type="text" id="input" autocomplete="off" placeholder="Tape ton message..." />
+        <input type="submit" value="Envoyer" />
+    </form>
+    <script defer>
+        // Remplace l'URL par celle de ton API WebSocket perso
+        const channel_id = "67dd8c0cd57af0aee1e921f6"
+        const user_id = "67dd8c0cd57af0aee1e921f2"
+        const ws = new WebSocket(`ws://localhost:3000/channel/${channel_id}`);
+        const messagesDiv = document.getElementById("messages");
+        const status = document.getElementById("status");
+        const form = document.getElementById("formulaire");
+        const input = document.getElementById("input");
+
+        ws.onopen = function() {
+            status.textContent = "Connecté";
+            status.style.color = "green";
+            const data = {
+                connection:"jwt_token"
+            }
+            ws.send(JSON.stringify(data))
+        };
+
+        ws.onclose = function() {
+            status.textContent = "Déconnecté";
+            status.style.color = "red";
+        };
+
+        ws.onerror = function() {
+            status.textContent = "Erreur de connexion";
+            status.style.color = "orange";
+        };
+
+        ws.onmessage = function(event) {
+            
+            const res = JSON.parse(event.data)
+            
+            console.log(res)
+
+            if(res.hasOwnProperty("err")){
+                alert(res.err.toString())
+                ws.close()
+                return
+            }
+
+            if(Array.isArray(res)){
+                for (let index = 0; index < res.length; index++) {
+                    var div = document.createElement("div");
+                    const element = res[index];
+                    div.textContent = element.content;
+                    messagesDiv.appendChild(div);
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;    
+                }
+            }
+
+            if(res.hasOwnProperty("message")){
+                var div = document.createElement("div");
+                div.textContent = res.message;
+                messagesDiv.appendChild(div);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }
+        };
+
+        form.onsubmit = function(e) {
+            e.preventDefault();
+            if (input.value && ws.readyState === 1) {
+                const data = {
+                    message : input.value,
+                    user_id: user_id
+                }
+                ws.send(JSON.stringify(data));
+                input.value = "";
+            }
+        };
+    </script>
+</body>
+</html>
