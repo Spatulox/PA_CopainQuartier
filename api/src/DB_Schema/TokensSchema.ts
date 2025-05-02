@@ -3,7 +3,7 @@ import { Token } from '../Models/TokenModel';
 
 const TokenSchema = new Schema<Token>({
     token: {type: String, required: true},
-    userID: { type: Schema.Types.ObjectId, ref: "User" },
+    userID: { type: Schema.Types.ObjectId as any, ref: "User" },
 })
 
 export const TokenTable = model('Token', TokenSchema);
