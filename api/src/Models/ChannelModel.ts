@@ -10,7 +10,7 @@ export interface Channel {
     type: string,
     description: string,
     admin_id: string,
-    messages?: [Message],
+    messages?: Message[],
     members: string[],
     member_auth: string,
     created_at: Date,
@@ -57,13 +57,7 @@ export function createMessage(content: string, user: User | ID | null = null): M
         type: MessageType.system,
     };
     if (user != null) {
-        /* if (typeof user === 'object' && '_id' in user) {
-            data.author_id = user._id.toString();
-        } else {
-            // Supposons que ID soit un alias de string ou number
-            data.author_id = user.toString();
-        } */
-       
+
         let author_id: mongoose.Types.ObjectId | null = null;
         if (typeof user === 'object' && '_id' in user) {
             author_id = new mongoose.Types.ObjectId(user._id);

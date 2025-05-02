@@ -36,9 +36,9 @@ export class ChannelsController {
 
     @Patch("/channels/:channel_id/adduser/:user_id")
     @Authorized()
-    async addUserFromChannel(@CurrentUser() user: User, @Param('user_id') user_id: number, @Param('channel_id') channel_id: number):Promise<boolean>{
-        const validUserId = zId.parse(user_id)
-        const validChannelId = zId.parse(channel_id)
+    async addUserFromChannel(@CurrentUser() user: User, @Param('user_id') user_id: string, @Param('channel_id') channel_id: string):Promise<boolean>{
+        const validUserId = zObjectId.parse(user_id)
+        const validChannelId = zObjectId.parse(channel_id)
 
         const channel = await getChannelById(validChannelId)
         if(channel && (channel.admin_id != user._id && user.role != UserRole.admin)){
@@ -47,11 +47,11 @@ export class ChannelsController {
         return await addSomeoneFromChannel(validChannelId, validUserId)
     }
 
-    @Patch("/channels/:channel_id/removeuser/:id")
+    @Patch("/channels/:channel_id/removeuser/:user_id")
     @Authorized()
-    async removeUserFromChannel(@CurrentUser() user: User, @Param('user_id') user_id: number, @Param('channel_id') channel_id: number):Promise<boolean>{
-        const validUserId = zId.parse(user_id)
-        const validChannelId = zId.parse(channel_id)
+    async removeUserFromChannel(@CurrentUser() user: User, @Param('user_id') user_id: string, @Param('channel_id') channel_id: string):Promise<boolean>{
+        const validUserId = zObjectId.parse(user_id)
+        const validChannelId = zObjectId.parse(channel_id)
 
         const channel = await getChannelById(validChannelId)
         if(channel && (channel.admin_id != user._id && user.role != UserRole.admin)){
@@ -60,6 +60,7 @@ export class ChannelsController {
         return await removeSomeoneFromChannel(validChannelId, validUserId)
     }
 
+    /*
     @Patch("/channel/:channel_id/message/create")
     @Authorized()
     async sendMessageToChannel(@CurrentUser() user: User, @Param("channel_id") channel_id: number, @Body() body: any): Promise<boolean>{
@@ -82,7 +83,7 @@ export class ChannelsController {
             throw new ForbiddenError("You don't have acces to this channe")
         }
         return await deleteMessageFromChannel(validChannelId, validMessageId)
-    }
+    }*/
 
     @Patch('/channels/:id')
     @Authorized()
@@ -97,9 +98,9 @@ export class ChannelsController {
         return true
     }
 
-    @Patch('/channels/:id/transfer')
+    @Patch('/channels/transfer/:id')
     @Authorized()
-    async transferChannel(@CurrentUser() user: User, @Param('id') channel_id: number, @Body() body: any): Promise<boolean> {
+    async transferChannel(@CurrentUser() user: User, @Param('id') channel_id: string, @Body() body: any): Promise<boolean> {
         const validId = zObjectId.parse(channel_id)
         const channel = await getChannelById(validId)
         if (channel && (channel.admin_id != user._id && user.role != UserRole.admin)){
@@ -113,8 +114,8 @@ export class ChannelsController {
 
     @Delete("/channels/delete/:id")
     @Authorized()
-    async deleteChannel(@CurrentUser() user: User, @Param("id") channel_id: ID): Promise<boolean>{
-        const validId= zId.parse(channel_id)
+    async deleteChannel(@CurrentUser() user: User, @Param("id") channel_id: string): Promise<boolean>{
+        const validId= zObjectId.parse(channel_id)
         
         const channel = await getChannelById(validId)
         if(channel && (channel.admin_id!= user._id && user.role != UserRole.admin)){

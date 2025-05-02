@@ -32,7 +32,9 @@ export async function createChannel(user: User, data: CreateChannelParam): Promi
         created_at: new Date()
 
     }
-    return await ChannelTable.create(dataToSave)
+
+    const channelDoc = await ChannelTable.create(dataToSave);
+    return objectToChannel(channelDoc)
 }
 
 export async function updateChannelAttribute(channel_id: ID, update: UpdateChannelParam): Promise<boolean> {
@@ -90,4 +92,46 @@ export async function deleteMessageFromChannel(channel_id: ID, message_id: ID): 
 export async function deleteChannel(channel_id: ID): Promise<boolean>{
     const res = await ChannelTable.deleteOne({_id: channel_id})
     return res.deletedCount > 0
+}
+
+
+
+
+
+
+
+/**
+ * Convertit un objet brut (plain object ou document Mongoose) en Channel typé.
+ * @param obj L'objet provenant de la DB (plain object ou document Mongoose)
+ * @returns Un objet Channel typé
+ */
+export function objectToChannel(obj: any): Channel {
+    return {
+        _id: obj._id?.toString(),
+        name: obj.name,
+        publication_id: obj.publication_id ? obj.publication_id.toString() : null,
+        type: obj.type,
+        description: obj.description,
+        admin_id: obj.admin_id?.toString(),
+        messages: obj.messages?.map(objectToMessage) ?? [],
+        members: Array.isArray(obj.members)
+            ? obj.members.map((m: any) => m?.toString())
+            : [],
+        member_auth: obj.member_auth,
+        created_at: obj.created_at ? new Date(obj.created_at) : new Date(),
+    };
+}
+
+/**
+ * Convertit un objet brut en Message typé.
+ * @param obj L'objet message provenant de la DB
+ * @returns Un objet Message typé
+ */
+function objectToMessage(obj: any): Message {
+    return {
+        date: obj.date ? new Date(obj.date) : new Date(),
+        content: obj.content,
+        author_id: obj.author_id ? obj.author_id.toString() : undefined,
+        type: obj.type,
+    };
 }
