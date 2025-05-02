@@ -1,15 +1,15 @@
 import mongoose from "mongoose";
 
 export interface Activity {
-    _id: mongoose.Types.ObjectId,
+    _id: string,
     title: string,
     description: string,
     created_at: Date,
     date_reservation: Date,
-    author_id: mongoose.Types.ObjectId,
-    channel_chat_id: mongoose.Types.ObjectId,
-    publication_id: mongoose.Types.ObjectId,
-    participants_id: mongoose.Types.ObjectId
+    author_id: string,
+    channel_chat_id: string,
+    publication_id: string,
+    participants_id: string
 }
 
 

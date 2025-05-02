@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 export interface User{
-    _id: mongoose.Types.ObjectId,
+    _id: string,
     name: string,
     lastname: string,
     email: string,
@@ -9,7 +9,7 @@ export interface User{
     address: string,
     verified: boolean,
     role: string,
-    group_chat_list_ids: mongoose.Types.ObjectId[],
+    group_chat_list_ids: string[],
     troc_score?: string | null,
     phone: string,
 }

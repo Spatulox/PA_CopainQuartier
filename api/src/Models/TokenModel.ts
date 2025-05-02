@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 export interface Token {
-    _id: mongoose.Types.ObjectId,
+    _id: string,
     token: string,
-    userID: mongoose.Types.ObjectId
+    userID: string
 }
