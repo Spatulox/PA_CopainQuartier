@@ -62,7 +62,7 @@ export class ActivityController{
         if(!acti){
             throw new NotFoundError("Activity not found")
         }
-        if(user._id != acti.author_id && user.role != UserRole.admin ){
+        if(user._id.toString() != acti.author_id.toString() && user.role != UserRole.admin ){
             throw new ForbiddenError("You can't delete an Activity if you are not the owner")
         }
         return await deleteActivity(acti)
