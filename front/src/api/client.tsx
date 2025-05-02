@@ -1,5 +1,4 @@
 import axios, { AxiosInstance } from 'axios';
-import config from '../config.json'
 
 export type User = {
   id: string,
@@ -10,17 +9,21 @@ export type User = {
 export class ApiClient {
   private client: AxiosInstance;
   private tokenKey = 'authToken';
-  private baseURL = "https://locahost:3000"
+  private baseURL = "http://localhost:3000"
+  private username = ""
+  private password = ""
 
-  constructor(username: string, password: string) {
+  constructor(username: string | null, password: string | null) {
     this.client = axios.create({
-      baseURL: config.baseUrl,
+      baseURL: this.baseURL,
       headers: { 'Content-Type': 'application/json' },
     });
 
-    // Configuration des intercepteurs
     this.setupInterceptors();
-    this.login(username, password);
+    if(username && password){
+      this.username = username
+      this.password = password
+    }
   }
 
   private setupInterceptors(): void {
@@ -34,16 +37,23 @@ export class ApiClient {
   private async login(username: string, password: string): Promise<void> {
     try {
       const response = await this.client.post('/auth/login', {
-        username: username,
+        email: username,
         password: password
       });
       
-      if (response.data.token) {
-        this.setAuthToken(response.data.token);
+      if (response.data.accessToken) {
+        this.setAuthToken(response.data.accessToken);
       }
     } catch (error) {
       console.error('Login failed:', error);
       throw error;
+    }
+  }
+
+  async connect(): Promise<void> {
+    const token = localStorage.getItem(this.tokenKey);
+    if (!token) {
+      await this.login(this.username, this.password);
     }
   }
 
@@ -60,7 +70,8 @@ export class ApiClient {
   }
 
   async getMe(): Promise<User> {
-    return this.client.get('/users/@me');
+    const data = await this.client.get('/users/@me');
+    return data.data
   }
 
   async updateUser(id: string, data: any): Promise<User> {
