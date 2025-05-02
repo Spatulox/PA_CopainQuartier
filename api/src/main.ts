@@ -39,7 +39,7 @@ async function main(){
   const wss = new WebSocketServer({ server });
 
   server.listen(port);
-  wss.on('connection', (ws, req) => {
+  wss.on('connection', async (ws, req) => {
     console.log('Client connecté');
   
     const pathname = parse(req.url || '').pathname;
