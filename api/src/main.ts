@@ -13,6 +13,7 @@ import { WebSocketServer } from 'ws';
 import http from 'http';
 import { handleMessage } from './Controllers/ChannelsWebsoketController';
 import { parse } from 'url';
+import { AuthController } from './Controllers/AuthController';
 
 
 async function main(){
@@ -27,6 +28,7 @@ async function main(){
     middlewares: [ErrorHandler],
     controllers: [AccountController,
       ActivityController,
+      AuthController,
       ChannelsController,
       PublicationsController,
       TrocController,
