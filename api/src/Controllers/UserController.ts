@@ -16,6 +16,12 @@ export class UserController {
     return await getPublicUserById(user, validId);
   }
 
+  @Get('/users/@me')
+  @Authorized()
+  async getMe(@CurrentUser() user: User) {
+    return await getUserById(user._id);
+  }
+
   // --------- ADMIN --------- //
 
   @Get('/admin/users/all')
