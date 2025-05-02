@@ -7,9 +7,10 @@ export type User = {
   username: string,
 }
 
-class ApiClient {
+export class ApiClient {
   private client: AxiosInstance;
   private tokenKey = 'authToken';
+  private baseURL = "https://locahost:3000"
 
   constructor(username: string, password: string) {
     this.client = axios.create({
@@ -59,7 +60,7 @@ class ApiClient {
   }
 
   async getMe(): Promise<User> {
-    return this.client.get('/users/me');
+    return this.client.get('/users/@me');
   }
 
   async updateUser(id: string, data: any): Promise<User> {
