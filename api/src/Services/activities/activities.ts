@@ -7,29 +7,50 @@ import { ChannelAuth, ChannelTable } from "../../DB_Schema/ChannelSchema";
 import { PublicationTable } from "../../DB_Schema/PublicationSchema";
 import { CreateActivityParam } from "../../Validators/activities";
 
-export async function getActivityById(id: ID): Promise<Activity | null> {
+export async function getActivityById(id: string): Promise<Activity | null> {
     const activity = await ActivityTable.findById(id).exec();
-    return activity;
+    return activity ? normalizeActivity(activity) : null;
 }
+
 
 export async function getPublicActivityById(id: ID): Promise<PublicActivity | null> {
     const activity = await ActivityTable.findById(id).exec();
     if (!activity) return null;
     const { channel_chat_id, participants_id, ...publicFields } = activity.toObject();
-    return publicFields as PublicActivity;
+    return normalizeActivity(publicFields)
 }
 
 export async function getAllActivities(): Promise<Activity[]> {
-    return await ActivityTable.find().sort({ created_at: -1 }).exec();
+    const activities = await ActivityTable.find().sort({ created_at: -1 }).exec();
+    return activities.map(normalizeActivity);
+}
+
+export async function getMyActivities(user: User): Promise<Activity[]> {
+    const activities = await ActivityTable
+        .find({ participants_id: user._id })
+        .sort({ created_at: -1 })
+        .exec();
+    return activities.map(normalizeActivity);
+}
+
+export async function getMyActivitiesAdmin(user: User): Promise<Activity[]> {
+    const activities = await ActivityTable
+        .find({ author_id: user._id })
+        .sort({ created_at: -1 })
+        .exec();
+
+    return activities.map(normalizeActivity);
 }
 
 export async function getAllPublicActivities(): Promise<PublicActivity[]> {
     const activities = await ActivityTable.find().sort({ created_at: -1 }).exec();
     return activities.map(activity => {
-        const { channel_chat_id, participants_id, ...publicFields } = activity.toObject();
+        const normalized = normalizeActivity(activity);
+        const { channel_chat_id, participants_id, ...publicFields } = normalized;
         return publicFields as PublicActivity;
     });
 }
+
 
 export async function createActivity(user: User, activity: CreateActivityParam): Promise<Activity | null> {
     const session = await mongoose.startSession();
@@ -97,6 +118,8 @@ export async function createActivity(user: User, activity: CreateActivityParam):
     }
 }
 
+// Mongo DB + transaction are pain in the ass to setup
+/*
 export async function joinActivityById(user: User, activity: Activity): Promise<boolean> {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -196,4 +219,77 @@ export async function deleteActivity(activity: Activity): Promise<boolean> {
     } finally {
         session.endSession();
     }
+}
+*/
+
+export async function joinActivityById(user: User, activity: Activity): Promise<boolean> {
+    const activityResult = await ActivityTable.updateOne(
+        { _id: activity._id },
+        { $addToSet: { participants_id: user._id } }
+    );
+
+    const channelResult = await ChannelTable.updateOne(
+        { _id: activity.channel_chat_id },
+        { $addToSet: { members: user._id } }
+    );
+
+    return activityResult.modifiedCount > 0 && channelResult.modifiedCount > 0;
+}
+
+export async function leaveActivityById(user: User, activity: Activity): Promise<boolean> {
+    const activityResult = await ActivityTable.updateOne(
+        { _id: activity._id },
+        { $pull: { participants_id: user._id } }
+    );
+
+    const channelResult = await ChannelTable.updateOne(
+        { _id: activity.channel_chat_id },
+        { $pull: { members: user._id } }
+    );
+
+    return activityResult.modifiedCount > 0 && channelResult.modifiedCount > 0;
+}
+
+export async function deleteActivity(activity: Activity): Promise<boolean> {
+    const activityResult = await ActivityTable.deleteOne(
+        { _id: activity._id }
+    );
+
+    const channelResult = await ChannelTable.deleteOne(
+        { _id: activity.channel_chat_id }
+    );
+
+    const publicationResult = await PublicationTable.deleteOne(
+        { _id: activity.publication_id }
+    );
+
+    return (
+        activityResult.deletedCount > 0 &&
+        channelResult.deletedCount > 0 &&
+        publicationResult.deletedCount > 0
+    );
+}
+
+
+
+
+
+
+
+
+
+function normalizeActivity(activityDoc: any): Activity {
+    const obj = activityDoc.toObject ? activityDoc.toObject() : activityDoc;
+
+    return {
+        _id: obj._id.toString(),
+        title: obj.title,
+        description: obj.description,
+        created_at: obj.created_at,
+        date_reservation: obj.date_reservation,
+        author_id: obj.author_id?.toString(),
+        channel_chat_id: obj.channel_chat_id?.toString(),
+        publication_id: obj.publication_id?.toString(),
+        participants_id: obj.participants_id?.toString(),
+    };
 }
