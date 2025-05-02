@@ -3,7 +3,7 @@ import { User } from "../Models/UserModel"
 import { deleteMyAccount, getUserById } from '../Services/users/usersPublic';
 
 @JsonController()
-export class UserController {
+export class AccountController {
 
   @Get('/account')
   @Authorized()
