@@ -79,7 +79,7 @@ export async function handleMessage(wss: WebSocketServer, fromClient: WebSocket,
         if (isMSG(msgRaw)) {
 
             const msg: MSG = msgRaw;
-            if(!channel?.members.includes(msg.user_id)){
+            if(!channel.members.map(id => id.toString()).includes(msg.user_id.toString())){
                 fromClient.send(createErrorMsg("You don't have access to it"))
                 return
             }
