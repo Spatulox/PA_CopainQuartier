@@ -32,7 +32,10 @@
         ws.onopen = function() {
             status.textContent = "Connecté";
             status.style.color = "green";
-            ws.send(JSON.stringify({"connection":"jwt_token"}))
+            const data = {
+                connection:"jwt_token"
+            }
+            ws.send(JSON.stringify(data))
         };
 
         ws.onclose = function() {
@@ -49,7 +52,14 @@
             
             const res = JSON.parse(event.data)
             
-            console.log(res)    
+            console.log(res)
+
+            if(res.hasOwnProperty("err")){
+                alert(res.err.toString())
+                ws.close()
+                return
+            }
+
             if(Array.isArray(res)){
                 for (let index = 0; index < res.length; index++) {
                     var div = document.createElement("div");
