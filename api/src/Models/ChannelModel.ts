@@ -50,6 +50,20 @@ export function ChannelToPublicChannel(channel: Channel): PublicChannel {
     };
 }
 
+export function ObjectToChannel(channel: any): Channel {
+    return {
+        _id: channel._id.toString(),
+        name: channel.name,
+        publication_id: channel.publication_id ? channel.publication_id.toString() : null,
+        type: channel.type,
+        description: channel.description,
+        created_at: channel.created_at,
+        admin_id: channel.admin_id,
+        members : channel.members,
+        member_auth: channel.member_auth
+    };
+}
+
 export function createMessage(content: string, user: User | ID | null = null): Message {
     const data: Message = {
         date: new Date(),
