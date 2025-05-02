@@ -7,7 +7,7 @@ export const zCreatePublication = z.object({
 });
 
 export const zUpdatePublication = z.object({
-    name: z.string().min(1).optional(),
+    name: z.string().min(1),
     activity_id: z.string().optional(),
     body: z.string().min(1).optional()
 });

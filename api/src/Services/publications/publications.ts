@@ -5,20 +5,41 @@ import { Publication } from "../../Models/PublicationModel";
 import { User } from "../../Models/UserModel";
 import { ID } from "../../Utils/IDType";
 import { CreatePublicationParam, UpdatePublicationParam } from "../../Validators/publications";
+import { getActivityById } from "../activities/activities";
 
 export async function getAllPublications(): Promise<Publication[]> {
-    return await PublicationTable.find().sort({ created_at: -1 }).exec();
+    const res = await PublicationTable.find().sort({ created_at: -1 }).exec();
+    const finaleRes: Publication[] = []
+    res.forEach(re => {
+        finaleRes.push(objectToPublication(re))
+    })
+    return finaleRes
+}
+
+export async function getAllMyPublications(user: User): Promise<Publication[]> {
+    const res = await PublicationTable.find(
+        { author_id: user._id }
+    ).sort({ created_at: -1 }).exec();
+
+    return res.map(objectToPublication);
 }
 
 export async function getPublicationById(pub_id: ID): Promise<Publication | null>{
-    return await PublicationTable.findById(pub_id)
+    const res = await PublicationTable.findById(pub_id)
+    return objectToPublication(res)
 }
 
 export async function createPublication(user: User, content: CreatePublicationParam): Promise<boolean> {
+    let acti: string | undefined = ""
+    if(content.activity_id){
+        const activity = await getActivityById(content.activity_id)
+        acti = activity?._id
+    }
+
     const dataToSave = {
         name: content.name,
         author_id: user._id,
-        activity_id: content.activity_id ? new mongoose.Types.ObjectId(content.activity_id) : undefined,
+        activity_id: acti ? new mongoose.Types.ObjectId(acti) : undefined,
         body: content.body,
         created_at: new Date(),
         updated_at: new Date()
@@ -52,4 +73,17 @@ export async function deletePublicationById(user: User, pub_id: ID): Promise<boo
 
     const result = await PublicationTable.deleteOne(condition).exec();
     return result.deletedCount > 0;
+}
+
+
+export function objectToPublication(obj: any): Publication {
+    return {
+        _id: obj._id?.toString(),
+        name: obj.name,
+        created_at: obj.created_at ? new Date(obj.created_at) : new Date(),
+        updated_at: obj.updated_at ? new Date(obj.updated_at) : new Date(),
+        author_id: obj.author_id?.toString(),
+        activity_id: obj.activity_id ? obj.activity_id.toString() : undefined,
+        body: obj.body,
+    };
 }
