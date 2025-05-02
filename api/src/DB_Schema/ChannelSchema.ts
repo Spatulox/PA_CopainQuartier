@@ -13,7 +13,7 @@ const ChannelSchema = new Schema<Channel>({
     publication_id : { type: Schema.Types.ObjectId, ref: "Publication"},
     type: { type: String, _type: ['text', 'vocal'], required: true},
     description : {type: String, required: true},
-    admin_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    admin_id: { type: Schema.Types.ObjectId as any, ref: "User", required: true },
     messages: [MessageSchema],
     members: [{ type: Schema.Types.ObjectId, ref: "User", required: true }],
     member_auth: { type: String, _type: ['read_send', 'read_only'], required: true },

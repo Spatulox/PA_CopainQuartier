@@ -1,6 +1,6 @@
 import { Authorized, Body, BodyParam, CurrentUser, Delete, ForbiddenError, Get, JsonController, Param, Patch, Post, Put } from "routing-controllers";
 import { zId, zObjectId } from "../Validators/utils";
-import { addSomeoneFromChannel, createChannel, deleteChannel, deleteMessageFromChannel, getChannelById, getPublicChannelById, postMessageToChannel, removeSomeoneFromChannel, updateChannelAdmin, updateChannelAttribute } from "../Services/channels/channels";
+import { addSomeoneFromChannel, createChannel, deleteChannel, deleteMessageFromChannel, getChannelById, getPublicChannelById, saveMessageToChannel, removeSomeoneFromChannel, updateChannelAdmin, updateChannelAttribute } from "../Services/channels/channels";
 import { User } from "../Models/UserModel";
 import { UserRole } from "../DB_Schema/UserSchema";
 import { zCreateChannel, zPostMessage, zTransferChannel, zUpdateChannel } from "../Validators/channels";
@@ -14,7 +14,7 @@ export class ChannelsController {
 
     @Get('/channels/:id')
     @Authorized()
-    async getChannelById(@CurrentUser() user: User, @Param('id') channel_id: number): Promise<Channel | PublicChannel | null> {
+    async getChannelById(@CurrentUser() user: User, @Param('id') channel_id: string): Promise<Channel | PublicChannel | null> {
         const validId = zObjectId.parse(channel_id)
         // If the user is inside the channel, can see all data
         if (user.group_chat_list_ids.map(id => id.toString()).includes(validId)) {
@@ -69,7 +69,7 @@ export class ChannelsController {
         if(channel && !channel.members.includes(user._id)){
             throw new ForbiddenError("You don't have acces to this channe")
         }
-        return await postMessageToChannel(user, channel_id, validMessageBody)
+        return await saveMessageToChannel(user, channel_id, validMessageBody)
     }
 
     @Delete("/channel/:channel_id/message/:message_id")

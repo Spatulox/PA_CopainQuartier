@@ -10,7 +10,7 @@ export async function getChannelById(channel_id: ID): Promise<Channel | null>{
 }
 
 export async function getPublicChannelById(channel_id: ID): Promise<PublicChannel | null>{
-    const channels = await ChannelTable.findById(channel_id)
+    const channels = await ChannelTable.findById(channel_id).lean()
     if(!channels){
         return null
     }
@@ -69,7 +69,7 @@ export async function removeSomeoneFromChannel(channel_id: ID, user_id: ID): Pro
     return result.modifiedCount > 0;
 }
 
-export async function postMessageToChannel(user: User, channel_id: ID, content: PostMessageParam): Promise<boolean>{
+export async function saveMessageToChannel(user: User | ID, channel_id: ID, content: PostMessageParam): Promise<boolean>{
     const message = createMessage(content.message, user)
     const result = await ChannelTable.updateOne(
         { _id: channel_id },
