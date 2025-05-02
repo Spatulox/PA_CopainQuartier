@@ -2,13 +2,25 @@ import mongoose from "mongoose";
 import { UserTable } from "../../DB_Schema/UserSchema";
 import { User } from "../../Models/UserModel";
 import { ID } from "../../Utils/IDType";
+import { toUserObject } from "./usersPublic";
 
 export async function getAllUsers(): Promise<User[]>{
-    return await UserTable.find().populate("group_chat_list_ids").exec()
+    const users =  await UserTable.find().exec()
+    const finalUsers: User[] = []
+
+    users.forEach(user => {
+        finalUsers.push(toUserObject(user))
+    })
+    return finalUsers
 }
 
 export async function getUnverifiedUser(): Promise<User[] | null> {
-    return await UserTable.find({ verified: false }).exec();
+    const users = await UserTable.find({ verified: false }).exec();
+    const finalUsers: User[] = []
+    users.forEach(user => {
+        finalUsers.push(toUserObject(user))
+    })
+    return finalUsers
 }
 
 export async function verifyUser(user_id: ID): Promise<boolean> {
