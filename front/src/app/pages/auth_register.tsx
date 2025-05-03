@@ -1,8 +1,14 @@
 // app/pages/auth_register.tsx
 import { useState } from 'react';
 import '../css/pages/auth_register.css';
+import { ApiClient } from '../../api/client';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../shared/auth-context';
 
 function AuthForm() {
+
+  const { updateHeaderConnected } = useAuth();
+
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: '',
@@ -10,8 +16,10 @@ function AuthForm() {
     confirmPassword: '',
   });
   const [errors, setErrors] = useState<string[]>([]);
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+
     e.preventDefault();
     const newErrors = [];
 
@@ -33,7 +41,11 @@ function AuthForm() {
 
     // Logique de soumission
     console.log('Soumission du formulaire :', formData);
+    const client = new ApiClient(formData.email, formData.password)
+    await client.connect()
+    updateHeaderConnected()
     setErrors([]);
+    navigate('/account');
   };
 
   return (

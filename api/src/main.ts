@@ -11,7 +11,7 @@ import { PublicationsController } from './Controllers/PublicationsController';
 import { TrocController } from './Controllers/TrocsController';
 import { WebSocketServer } from 'ws';
 import http from 'http';
-import { handleMessage } from './Controllers/ChannelsWebsoketController';
+import { channelSubscriptions, handleMessage, initAccessMap } from './Controllers/ChannelsWebsoketController';
 import { parse } from 'url';
 import { AuthController } from './Controllers/AuthController';
 
@@ -65,6 +65,11 @@ async function main(){
   
     ws.on('close', () => {
       console.log('Client déconnecté');
+      // Nettoyage des abonnements
+      for (const clients of channelSubscriptions.values()) {
+        clients.delete(ws);
+      }
+      initAccessMap.delete(ws);
     });
   });
 }

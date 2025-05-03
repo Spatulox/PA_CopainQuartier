@@ -9,6 +9,12 @@ import { ZodObject } from 'zod';
 @JsonController()
 export class UserController {
 
+  @Get('/users/@me')
+  @Authorized()
+  async getMe(@CurrentUser() user: User) {
+    return await getUserById(user._id);
+  }
+
   @Get('/users/:id')
   @Authorized()
   async getUserById(@CurrentUser() user: User, @Param('id') user_id: string) {

@@ -40,8 +40,8 @@ export async function generateToken(
 
   // Création et sauvegarde du token dans MongoDB via Mongoose
   await TokenTable.create({
-    token,
-    userId,
+    token : token,
+    userID : userId,
   });
 
   return token;

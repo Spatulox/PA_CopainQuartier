@@ -1,6 +1,6 @@
 import { Authorized, Body, BodyParam, CurrentUser, Delete, ForbiddenError, Get, JsonController, Param, Patch, Post, Put } from "routing-controllers";
 import { zId, zObjectId } from "../Validators/utils";
-import { addSomeoneFromChannel, createChannel, deleteChannel, deleteMessageFromChannel, getChannelById, getPublicChannelById, saveMessageToChannel, removeSomeoneFromChannel, updateChannelAdmin, updateChannelAttribute } from "../Services/channels/channels";
+import { addSomeoneFromChannel, createChannel, deleteChannel, deleteMessageFromChannel, getChannelById, getPublicChannelById, saveMessageToChannel, removeSomeoneFromChannel, updateChannelAdmin, updateChannelAttribute, getMyChannel } from "../Services/channels/channels";
 import { User } from "../Models/UserModel";
 import { UserRole } from "../DB_Schema/UserSchema";
 import { zCreateChannel, zPostMessage, zTransferChannel, zUpdateChannel } from "../Validators/channels";
@@ -11,6 +11,12 @@ import { BlobOptions } from "buffer";
 
 @JsonController()
 export class ChannelsController {
+
+    @Get('/channels/@me')
+    @Authorized()
+    async getMyChannel(@CurrentUser() user: User): Promise<Channel[] | null> {
+        return await getMyChannel(user)
+    }
 
     @Get('/channels/:id')
     @Authorized()
