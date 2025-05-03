@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from './auth-context';
 import { ApiClient } from '../../api/client';
+import { Route } from '../constantes';
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -39,13 +40,16 @@ function Header() {
         {/* Partie droite */}
         <div className={`header-section nav-links ${isMenuOpen ? 'active' : ''}`}>
           <nav>
-            <a href="/">Accueil</a>
-            <a href="/services">Services</a>
-            <a href="/contact">Contact</a>
+            <Link to="/">Accueil</Link>
             {isConnected ? (
-              <a href="" onClick={handleLogout}>Se déconnecter</a>
+              <>
+                <Link to={Route.chat}>Chat</Link>
+                <Link to={Route.publications}>Publications</Link>
+                <Link to={Route.account}>Compte</Link>
+                <a href={Route.base} onClick={handleLogout}>Se déconnecter</a>
+              </>
             ) : (
-              <Link to="/auth">Se connecter</Link>
+              <Link to={Route.auth}>Se connecter</Link>
             )}
           </nav>
         </div>

@@ -9,7 +9,10 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isConnected, setIsConnected] = useState(false);
+  const [isConnected, setIsConnected] = useState(() => {
+    const user = new ApiClient();
+    return user.isConnected();
+  });
 
   useEffect(() => {
     const handler = () => {
