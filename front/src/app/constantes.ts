@@ -2,5 +2,6 @@ export const enum Route {
     base= "/",
     auth = "/auth",
     account = "/account",
-    chat = "/chat"
+    chat = "/chat",
+    publications = "publications"
 }

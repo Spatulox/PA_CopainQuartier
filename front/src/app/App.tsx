@@ -1,4 +1,7 @@
 // App.tsx
+import './css/App.css'
+import './css/index.css'
+
 import { AuthProvider } from "./shared/auth-context";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Header from './shared/header';
@@ -8,9 +11,7 @@ import Account from './pages/account';
 import HomePage from './pages/home_page';
 import Chat from './pages/chat';
 import { Route as CRoute } from './constantes';
-
-import './css/App.css'
-import './css/index.css'
+import Publications from "./pages/publications";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path={CRoute.base} element={<HomePage />} />
           <Route path={CRoute.auth} element={<AuthForm />} />
           <Route path={CRoute.account} element={<Account />} />
+          <Route path={`${CRoute.publications}`} element={<Publications />} />
           <Route path={`${CRoute.chat}`} element={<Chat />} />
           <Route path={`${CRoute.chat}/:id`} element={<Chat />} />
           {/* ... autres routes */}
