@@ -71,7 +71,7 @@ export class ChannelsController {
         const validChannelId = zObjectId.parse(channel_id)
 
         const channel = await getChannelById(validChannelId)
-        if(channel && (channel.admin_id.toString() != user._id.toString() && user.role != UserRole.admin)){
+        if(channel && user._id.toString() != user_id &&(channel.admin_id.toString() != user._id.toString() && user.role != UserRole.admin)){
             throw new ForbiddenError("You can't remove someone to the chat unless you are the admin")
         }
         return await removeSomeoneFromChannel(validChannelId, validUserId)
@@ -130,7 +130,7 @@ export class ChannelsController {
     }
 
 
-    @Delete("/delete/:id")
+    @Delete("/:id")
     @Authorized()
     async deleteChannel(@CurrentUser() user: User, @Param("id") channel_id: string): Promise<boolean>{
         const validId= zObjectId.parse(channel_id)
