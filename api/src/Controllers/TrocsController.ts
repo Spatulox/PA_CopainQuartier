@@ -28,7 +28,7 @@ export class AdminTrocController {
         return await getWaitingTrocs();
     }
 
-    @Patch("/")
+    @Patch("/:id")
     @Authorized(UserRole.admin)
     async approveTroc(@CurrentUser() user: User, @Param("id") id: string): Promise<Troc | null> {
         const validID = zObjectId.parse(id)
