@@ -3,7 +3,7 @@ export const enum Route {
 
     login = "/login",
     register = "/register",
-
+    resetPassword = "/reset",
 
     account = "/account",
     chat = "/chat",
