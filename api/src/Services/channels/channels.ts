@@ -117,7 +117,7 @@ export function objectToChannel(obj: any): Channel {
     return {
         _id: obj._id?.toString(),
         name: obj.name,
-        publication_id: obj.publication_id ? obj.publication_id.toString() : null,
+        activity_id: obj.activity_id ? obj.activity_id.toString() : null,
         type: obj.type,
         description: obj.description,
         admin_id: obj.admin_id?.toString(),

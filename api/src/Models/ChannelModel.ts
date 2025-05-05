@@ -6,7 +6,7 @@ import { ID } from "../Utils/IDType";
 export interface Channel {
     _id: string,
     name: string,
-    publication_id : string | null,
+    activity_id : string | null,
     type: string,
     description: string,
     admin_id: string,
@@ -20,7 +20,7 @@ export interface Channel {
 export interface PublicChannel {
     _id: string;
     name: string;
-    publication_id: string | null;
+    activity_id: string | null;
     type: string;
     description: string;
     created_at: Date;
@@ -43,7 +43,7 @@ export function ChannelToPublicChannel(channel: Channel): PublicChannel {
     return {
         _id: channel._id.toString(),
         name: channel.name,
-        publication_id: channel.publication_id ? channel.publication_id.toString() : null,
+        activity_id: channel.activity_id ? channel.activity_id.toString() : null,
         type: channel.type,
         description: channel.description,
         created_at: channel.created_at,
@@ -54,7 +54,7 @@ export function ObjectToChannel(channel: any): Channel {
     return {
         _id: channel._id.toString(),
         name: channel.name,
-        publication_id: channel.publication_id ? channel.publication_id.toString() : null,
+        activity_id: channel.activity_id ? channel.activity_id.toString() : null,
         type: channel.type,
         messages: channel.messages,
         description: channel.description,

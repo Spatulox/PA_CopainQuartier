@@ -5,7 +5,8 @@ import { User } from "../../Models/UserModel";
 import { ID } from "../../Utils/IDType";
 import { ChannelAuth, ChannelTable } from "../../DB_Schema/ChannelSchema";
 import { PublicationTable } from "../../DB_Schema/PublicationSchema";
-import { CreateActivityParam } from "../../Validators/activities";
+import { CreateActivityParam, UpdateActivityParam } from "../../Validators/activities";
+import { ForbiddenError } from "routing-controllers";
 
 export async function getActivityById(id: string): Promise<Activity | null> {
     const activity = await ActivityTable.findById(id).exec();
@@ -51,7 +52,8 @@ export async function getAllPublicActivities(): Promise<PublicActivity[]> {
     });
 }
 
-
+// Mongo transaction are pain in the ass to sutup
+/*
 export async function createActivity(user: User, activity: CreateActivityParam): Promise<Activity | null> {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -116,6 +118,81 @@ export async function createActivity(user: User, activity: CreateActivityParam):
     } finally {
         session.endSession();
     }
+}
+*/
+export async function createActivity(user: User, activity: CreateActivityParam): Promise<Activity | null> {
+    // Créer le channel chat
+    const channelParam = {
+        name: activity.title + " - Chat",
+        type: "text",
+        description: "Chat : " + activity.title,
+        publication_id: null,
+        admin_id: user._id,
+        messages: [],
+        members: [user._id],
+        member_auth: ChannelAuth.read_send,
+        created_at: new Date()
+    };
+    const channel = await ChannelTable.create(channelParam);
+    if (!channel || !channel._id) throw new Error("Channel creation failed");
+
+    // Créer la publication
+    const publicationParam = {
+        name: activity.title,
+        activity_id: null, // temporaire
+        body: activity.description,
+        author_id: user._id,
+        created_at: new Date(),
+        updated_at: new Date()
+    };
+    const publication = await PublicationTable.create(publicationParam);
+    if (!publication || !publication._id) throw new Error("Publication creation failed");
+
+    // Créer l'activité avec les IDs du channel et de la publication
+    const activityToSave = {
+        title: activity.title,
+        description: activity.description,
+        date_reservation: activity.date_reservation,
+        created_at: new Date(),
+        author_id: user._id,
+        channel_chat_id: channel._id,
+        publication_id: publication._id,
+        participants_id: [user._id]
+    };
+    const activityDoc = await ActivityTable.create(activityToSave);
+    if (!activityDoc || !activityDoc._id) throw new Error("Activity creation failed");
+
+    // Mettre à jour la publication avec l'ID de l'activité
+    await PublicationTable.updateOne(
+        { _id: publication._id },
+        { $set: { activity_id: activityDoc._id } }
+    );
+
+    return normalizeActivity(activityDoc);
+}
+
+
+export async function updateActivity(
+    user: User, body: UpdateActivityParam, act_id: ID): Promise<Activity | null> {
+    if (!act_id) {
+        throw new ForbiddenError("Missing activity ID");
+    }
+
+    const doc = await ActivityTable.findOneAndUpdate(
+        { _id: act_id, author_id: user._id },
+        {
+            title: body.title,
+            description: body.description,
+            date_reservation: body.date_reservation,
+        },
+        { new: true }
+    ).exec();
+    
+    if (!doc) {
+        throw new ForbiddenError("You are not allowed to update this activity or it does not exist.");
+    }
+
+    return normalizeActivity(doc);
 }
 
 // Mongo DB + transaction are pain in the ass to setup
