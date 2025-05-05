@@ -108,6 +108,14 @@ export class ApiClient {
     }
   }
 
+  async resetPassword(options: any){
+    const res = await this.client.post("/auth/reset", options)
+    if (res) {
+      return true;
+    }
+    return false;
+  }
+
   deconnection(): void{
     this.clearAuthToken()
   }
