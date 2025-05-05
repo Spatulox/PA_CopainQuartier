@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 
 export type User = {
   _id: string,
@@ -14,134 +14,133 @@ export type User = {
   phone: string
 } | null
 
+type AuthResponse = {
+  accessToken: string,
+  refreshToken: string
+}
+
 export class ApiClient {
   protected client: AxiosInstance;
-  protected tokenKey = 'authToken';
+  protected readonly accessTokenKey = 'accessToken';
+  protected readonly refreshTokenKey = 'refreshToken';
+  protected readonly userKey = 'user';
   baseURL = "http://localhost:3000"
   private username = ""
   private password = ""
-  user : User = null
+  user: User = null
 
+  // You can create an ApiClient instance in two way :
+  // new ApiClient(username, password) => Get the token from the API
+  // new ApiClient() => Get the Token from the localStorage
   constructor(username: string | null = null, password: string | null = null) {
     this.client = axios.create({
       baseURL: this.baseURL,
       headers: { 'Content-Type': 'application/json' },
     });
-
     this.setupInterceptors();
-    if(username && password){
-      this.username = username
-      this.password = password
+    if (username && password) {
+      this.username = username;
+      this.password = password;
     }
   }
 
-  private setupInterceptors(): void {
+  private setupInterceptors() {
     this.client.interceptors.request.use(config => {
-      const token = localStorage.getItem(this.tokenKey);
-      config.headers.Authorization = token ? `Bearer ${token}` : '';
+      const token = this.getAuthToken();
+      if (token && config.headers) {
+        config.headers.set('Authorization', `Bearer ${token}`);
+      }
       return config;
     });
-  }
+  }  
 
-  private async login(username: string, password: string): Promise<boolean> {
+  private async handleAuth(endpoint: string, payload: any): Promise<boolean> {
     try {
-      const response = await this.client.post('/auth/login', {
-        email: username,
-        password: password
-      });
-      
-      if (response.data.accessToken) {
-        this.setAuthToken(response.data.accessToken);
-        // Récupère l'utilisateur après login et stocke-le
-        this.user = await this.getMe();
-        if(this.user){
-          localStorage.setItem("user", JSON.stringify(this.user));
-        }
+      const res = await this.client.post<AuthResponse>(endpoint, payload);
+      if (res.data.accessToken) {
+        this.setAuthToken(res.data.accessToken, res.data.refreshToken);
+        await this.refreshUser();
         return true;
       }
       return false;
     } catch (error) {
-      //console.error('Login failed:', error);
       throw error;
     }
   }
-  
-  async register(options: any): Promise<boolean> {
-    const res = await this.client.post("/auth/register", options)
-    if (res.data.accessToken) {
-      this.setAuthToken(res.data.accessToken);
-      this.user = await this.getMe();
-      if(this.user){
-        localStorage.setItem("user", JSON.stringify(this.user));
-      }
-      return true;
+
+  private async refreshUser() {
+    this.user = await this.getMe();
+    if (this.user) {
+      localStorage.setItem(this.userKey, JSON.stringify(this.user));
     }
-    return false;
+  }
+
+  async login(username: string, password: string): Promise<boolean> {
+    return this.handleAuth('/auth/login', { email: username, password });
+  }
+
+  async register(options: any): Promise<boolean> {
+    return this.handleAuth('/auth/register', options);
   }
 
   async connect(): Promise<boolean> {
-    try{
-      const token = localStorage.getItem(this.tokenKey);
-      if (!token) {
+    try {
+      if (!this.getAuthToken()) {
         return await this.login(this.username, this.password);
       }
-      // Toujours rafraîchir le user depuis l'API pour être à jour (optionnel)
-      // this.user = await this.getMe();
-      // localStorage.setItem("user", JSON.stringify(this.user));
-      // return true;
-    
-      // Sinon, utilise le cache localStorage
-      const user = localStorage.getItem("user");
-      if(!user) {
-        this.user = await this.getMe();
-        if(this.user){
-          localStorage.setItem("user", JSON.stringify(this.user));
-        }
+      const userCache = localStorage.getItem(this.userKey);
+      if (!userCache) {
+        await this.refreshUser();
       } else {
-        this.user = JSON.parse(user);
+        this.user = JSON.parse(userCache);
       }
       return true;
-    } catch(e){
-      console.error(e)
-      //return false
-      throw e
+    } catch (e) {
+      console.error(e);
+      throw e;
     }
   }
 
-  async resetPassword(options: any){
-    const res = await this.client.post("/auth/reset", options)
-    if (res) {
+  async resetPassword(options: any): Promise<boolean> {
+    try {
+      await this.client.post("/auth/reset", options);
       return true;
+    } catch {
+      return false;
     }
-    return false;
   }
 
-  deconnection(): void{
-    this.clearAuthToken()
+  deconnection(): void {
+    this.clearAuthToken();
   }
 
-  private setAuthToken(token: string): void {
-    localStorage.setItem(this.tokenKey, token);
+  private setAuthToken(accessToken: string, refreshToken: string): void {
+    localStorage.setItem(this.accessTokenKey, accessToken);
+    localStorage.setItem(this.refreshTokenKey, refreshToken);
   }
 
   getAuthToken(): string | null {
-    return localStorage.getItem(this.tokenKey);
+    return localStorage.getItem(this.accessTokenKey);
   }
 
   isConnected(): boolean {
-    return localStorage.getItem(this.tokenKey) ? true : false
+    return !!this.getAuthToken();
   }
 
   clearAuthToken(): void {
-    localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.accessTokenKey);
+    localStorage.removeItem(this.refreshTokenKey);
+    localStorage.removeItem(this.userKey);
+    this.user = null;
   }
 
   async getMe(): Promise<User> {
-    const data = await this.client.get('/users/@me');
-    return data.data
+    const res = await this.client.get('/users/@me');
+    return res.data;
   }
 
   async updateUser(id: string, data: any): Promise<User> {
-    return this.client.patch(`/users/${id}`, data);
+    const res = await this.client.patch(`/users/${id}`, data);
+    return res.data;
   }
 }
