@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { ApiClient } from "../../api/client";
+import { ApiClient } from "../../../api/client";
 
 type AuthContextType = {
   isConnected: boolean;

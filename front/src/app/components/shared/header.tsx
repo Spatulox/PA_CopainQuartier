@@ -1,9 +1,9 @@
-import '../css/shared/header.css';
+import './header.css';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from './auth-context';
-import { ApiClient } from '../../api/client';
-import { Route } from '../constantes';
+import { ApiClient } from '../../../api/client';
+import { Route } from '../../constantes';
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

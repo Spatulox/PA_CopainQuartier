@@ -4,11 +4,12 @@ export const enum Route {
     login = "/login",
     register = "/register",
 
-    
+
     account = "/account",
     chat = "/chat",
     publications = "/publications",
-
+    activity = "/activity",
+    troc = "/trocs",
 
     manageActivity = "/activity/manage",
     managePublications = "/publications/manage",

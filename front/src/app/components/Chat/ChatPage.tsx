@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Chat as ChatClass, Channel, Message } from "../../../api/chat";
-import ChannelList from "./ChannelList";
+import ChannelList from "./ChatList";
 import ChatRoom from "./ChatRoom";
 import { Route } from "../../constantes";
 

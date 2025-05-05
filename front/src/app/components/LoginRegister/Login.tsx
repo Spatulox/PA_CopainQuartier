@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import '../css/pages/auth_register.css';
+import '../Forms/form.css';
 import { ApiClient } from '../../../api/client';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../shared/auth-context';
