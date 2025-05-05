@@ -1,4 +1,4 @@
-import { Authorized, Body, BodyParam, CurrentUser, Delete, ForbiddenError, Get, JsonController, Param, Patch, Post, Put } from "routing-controllers";
+import { Authorized, Body, BodyParam, CurrentUser, Delete, ForbiddenError, Get, JsonController, NotFoundError, Param, Patch, Post, Put } from "routing-controllers";
 import { zId, zObjectId } from "../Validators/utils";
 import { addSomeoneFromChannel, createChannel, deleteChannel, deleteMessageFromChannel, getChannelById, getPublicChannelById, saveMessageToChannel, removeSomeoneFromChannel, updateChannelAdmin, updateChannelAttribute, getMyChannel } from "../Services/channels/channels";
 import { User } from "../Models/UserModel";
@@ -38,6 +38,17 @@ export class ChannelsController {
     async createChannel(@CurrentUser() user: User, @Body() body: any):Promise<Channel | null>{
         const validData = zCreateChannel.parse(body)
         return await createChannel(user, validData)
+    }
+
+    @Post("/invite/:id")
+    @Authorized()
+    async inviteChannel(@CurrentUser() user: User, @Param("id")id: string):Promise<boolean>{
+        const validID = zObjectId.parse(id)
+        const channel = getChannelById(validID)
+        if(!channel){
+            throw new NotFoundError("This channel doesn't exist")
+        }
+        return await addSomeoneFromChannel(validID, user._id)
     }
 
     @Patch("/:channel_id/adduser/:user_id")
@@ -127,6 +138,10 @@ export class ChannelsController {
         const channel = await getChannelById(validId)
         if(channel && (channel.admin_id.toString() != user._id.toString() && user.role != UserRole.admin)){
             throw new ForbiddenError("You can't delete a channel you don't own")
+        }
+
+        if(channel && channel.activity_id){
+            throw new ForbiddenError("Impossible to delete a channel linked to an activity")
         }
 
         return await deleteChannel(channel_id)
