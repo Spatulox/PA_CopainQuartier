@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Chat as ChatClass, Channel, Message } from "../../../api/chat";
-import { ManageChannelList } from "./ChatList";
+import { CreateChannel, ManageChannelList } from "./ChatList";
 import ChatRoom from "./ChatRoom";
 import { Route } from "../../constantes";
 
@@ -153,7 +153,11 @@ const ChatPage: React.FC = () => {
       setChannels(channels)
   }
 
-    return <ManageChannelList channels={channels} action={leaveDeleteGroup} user={userRef.current.user} />;
+    return (<>
+      <ManageChannelList channels={channels} action={leaveDeleteGroup} user={userRef.current.user} />
+      <CreateChannel />
+    </>
+    );
   }
 
   return (

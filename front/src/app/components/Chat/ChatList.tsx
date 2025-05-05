@@ -13,11 +13,6 @@ type ListSimpleProps = {
   channels: Channel[];
 };
 
-type CreateProps = {
-  name: string,
-  description: string
-};
-
 export function ChannelList({ channels }: ListSimpleProps) {
   return (
   <div>
@@ -55,7 +50,7 @@ export function ManageChannelList({ channels, action, user }: ListProps) {
 };
 
 
-export function CreateChannel({}: CreateProps){
+export function CreateChannel(){
 
   function createChannel(){
     alert("Crée !")
