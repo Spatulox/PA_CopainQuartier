@@ -135,12 +135,57 @@ export class ApiClient {
   }
 
   async getMe(): Promise<User> {
-    const res = await this.client.get('/users/@me');
+    const res = await this.Get('/users/@me');
     return res.data;
   }
 
   async updateUser(id: string, data: any): Promise<User> {
-    const res = await this.client.patch(`/users/${id}`, data);
+    const res = await this.Patch(`/users/${id}`, data);
     return res.data;
+  }
+
+  protected async Get(endpoint: string): Promise<any> {
+    try{
+      return await this.client.get(endpoint)
+    } catch(e){
+      console.error(e)
+      throw e
+    }
+  }
+
+  protected async Post(endpoint: string, options: any): Promise<any> {
+    try{
+      return await this.client.post(endpoint, options)
+    } catch(e){
+      console.error(e)
+      throw e
+    }
+  }
+
+  protected async Patch(endpoint: string, options: any): Promise<any> {
+    try{
+      return await this.client.patch(endpoint, options)
+    } catch(e){
+      console.error(e)
+      throw e
+    }
+  }
+
+  protected async Put(endpoint: string, options: any): Promise<any> {
+    try{
+      return await this.client.put(endpoint, options)
+    } catch(e){
+      console.error(e)
+      throw e
+    }
+  }
+
+  protected async Delete(endpoint: string): Promise<any> {
+    try{
+      return await this.client.delete(endpoint)
+    } catch(e){
+      console.error(e)
+      throw e
+    }
   }
 }
