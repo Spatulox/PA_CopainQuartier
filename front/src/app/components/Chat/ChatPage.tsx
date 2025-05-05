@@ -4,6 +4,7 @@ import { Chat as ChatClass, Channel, Message } from "../../../api/chat";
 import { CreateChannel, ManageChannelList } from "./ChatList";
 import ChatRoom from "./ChatRoom";
 import { Route } from "../../constantes";
+import { PopupConfirm } from "../Popup/PopupConfirm";
 
 const ChatPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -15,6 +16,7 @@ const ChatPage: React.FC = () => {
   const wsRef = useRef<WebSocket | null>(null);
   const messagesDivRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<ChatClass>(new ChatClass());
+  const [confirmChannelDeletion, setChannelDeletion] = useState<{ id: string, isDelete: boolean } | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -118,6 +120,15 @@ const ChatPage: React.FC = () => {
     }
   }, [messages]);
 
+  function handleAskConfirmation(id_channel: string, user_id: string | undefined) {
+    const channel = channels.find(c => c._id === id_channel);
+    if (channel && user_id && channel.admin_id.toString() === user_id) {
+      setChannelDeletion({ id: id_channel, isDelete: true });
+    } else {
+      setChannelDeletion({ id: id_channel, isDelete: false });
+    }
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const user = userRef.current;
@@ -140,23 +151,45 @@ const ChatPage: React.FC = () => {
 
   if (!id) {
 
-    async function leaveDeleteGroup(id_channel: string, user_id: string | undefined){
-      const chat = new ChatClass()
-      
-      const channel = await chat.getChannelById(id_channel)
-      if(channel && user_id && channel.admin_id.toString() == user_id){
-        await chat.deleteChat(id_channel)
-        return
+    async function leaveDeleteGroup(id_channel: string, user_id: string | undefined) {
+      const chat = new ChatClass();
+      const channel = await chat.getChannelById(id_channel);
+      if (channel && user_id && channel.admin_id.toString() === user_id) {
+        await chat.deleteChat(id_channel);
+      } else {
+        await chat.leaveChat(id_channel);
       }
-      const res = await chat.leaveChat(id_channel)
-      const channels = await chat.getChannel()
-      setChannels(channels)
-  }
+      const updatedChannels = await chat.getChannel();
+      setChannels(updatedChannels);
+    }
 
-    return (<>
-      <ManageChannelList channels={channels} action={leaveDeleteGroup} user={userRef.current.user} />
-      <CreateChannel />
-    </>
+    return (
+      <>
+        <ManageChannelList
+          channels={channels}
+          action={handleAskConfirmation}
+          user={userRef.current.user}
+        />
+        <CreateChannel />
+        {confirmChannelDeletion && (
+          <PopupConfirm
+            title={confirmChannelDeletion.isDelete ? "Supprimer le chat" : "Quitter le chat"}
+            description={
+              confirmChannelDeletion.isDelete
+                ? "Êtes-vous sûr de vouloir supprimer ce chat ? Cette action est irréversible."
+                : "Êtes-vous sûr de vouloir quitter ce chat ?"
+            }
+            onConfirm={async () => {
+              await leaveDeleteGroup(confirmChannelDeletion.id, userRef.current.user!._id);
+              setChannelDeletion(null);
+            }}
+            onCancel={() => setChannelDeletion(null)}
+            confirmLabel={confirmChannelDeletion.isDelete ? "Supprimer" : "Quitter"}
+            cancelLabel="Annuler"
+            buttonLabel="" // pas de bouton d'ouverture
+          />
+        )}
+      </>
     );
   }
 

@@ -1,7 +1,10 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import { Channel } from "../../../api/chat";
 import { User } from "../../../api/client";
+import React, { useState } from "react";
+import Form from "../Forms/Forms";
+import "../shared/popup.css"
+import { PopupForm } from "../Popup/PopupForm";
 
 type ListProps = {
   channels: Channel[];
@@ -41,7 +44,9 @@ export function ManageChannelList({ channels, action, user }: ListProps) {
         <p key={channel._id}>
           <button><Link to={`/chat/${channel._id}`}>{channel.name}</Link></button>
           <span>{channel.description}</span>
-          <button onClick={()=>action(channel._id, user?._id)}>{user?._id == channel.admin_id ? "Supprimer le Chat" : "Quitter le Chat"}</button>
+          <button onClick={()=>action(channel._id, user?._id)}>
+              {user?._id == channel.admin_id ? "Supprimer le Chat" : "Quitter le Chat"}
+          </button>
         </p>
       ))
     )}
@@ -51,14 +56,32 @@ export function ManageChannelList({ channels, action, user }: ListProps) {
 
 
 export function CreateChannel(){
+  const fields = [
+    { name: "name", label: "Nom du channel", type: "text", required: true },
+    { name: "description", label: "Description", type: "text", required: true },
+  ];
+  
+  type ChannelForm = {
+    name: string;
+    description: string;
+  };
 
-  function createChannel(){
-    alert("Crée !")
+  const [open, setOpen] = useState(false);
+  const [formData, setFormData] = useState<ChannelForm>({ name: "", description: "" });
+  const [errors, setErrors] = useState<string[]>([]);
+
+  async function handleCreateChannel(formData: ChannelForm): Promise<void> {
+    alert("Channel créé !\nNom: " + formData.name + "\nDescription: " + formData.description);
   }
 
   return (
-    <div>
-      <button onClick={createChannel}>Créer un channel</button>
-    </div>
-  )
+    <PopupForm<ChannelForm>
+      title="Créer un channel"
+      fields={fields}
+      initialFormData={{ name: "", description: "" }}
+      onSubmit={handleCreateChannel}
+      submitLabel="Créer"
+      buttonLabel="Créer un channel"
+    />
+  );
 }
