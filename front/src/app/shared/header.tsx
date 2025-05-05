@@ -49,7 +49,7 @@ function Header() {
                 <a href={Route.base} onClick={handleLogout}>Se déconnecter</a>
               </>
             ) : (
-              <Link to={Route.auth}>Se connecter</Link>
+              <Link to={Route.login}>Se connecter</Link>
             )}
           </nav>
         </div>

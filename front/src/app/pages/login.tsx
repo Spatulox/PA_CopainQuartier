@@ -5,7 +5,7 @@ import { ApiClient } from '../../api/client';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../shared/auth-context';
 
-function AuthForm() {
+function Login() {
 
   const { updateHeaderConnected } = useAuth();
 
@@ -30,28 +30,41 @@ function AuthForm() {
     if (formData.password.length < 6) {
       newErrors.push('Le mot de passe doit contenir au moins 6 caractères');
     }
-    if (!isLogin && formData.password !== formData.confirmPassword) {
-      newErrors.push('Les mots de passe ne correspondent pas');
-    }
 
     if (newErrors.length > 0) {
       setErrors(newErrors);
       return;
     }
 
-    // Logique de soumission
-    console.log('Soumission du formulaire :', formData);
-    const client = new ApiClient(formData.email, formData.password)
-    await client.connect()
-    updateHeaderConnected()
-    setErrors([]);
-    navigate('/account');
+    let res
+    try{
+      const client = new ApiClient(formData.email, formData.password)
+      res = await client.connect()
+        
+    } catch (e: any){
+      console.log(e.response.data)
+        for (const err in e.response.data){
+          if(err !== "message"){
+            newErrors.push(`${err} : ${e.response.data[err]}`)
+          } else {
+            newErrors.push(`${e.response.data[err]}`)
+          }
+        }
+        setErrors(newErrors)
+        return
+    }
+
+    if(res){
+      updateHeaderConnected()
+      setErrors([]);
+      navigate('/account');
+    }
   };
 
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h2>{isLogin ? 'Connexion' : 'Inscription'}</h2>
+        <h2>Connexion</h2>
         
         {errors.length > 0 && (
           <div className="error-messages">
@@ -82,36 +95,20 @@ function AuthForm() {
             />
           </div>
 
-          {!isLogin && (
-            <div className="form-group">
-              <label>Confirmer le mot de passe</label>
-              <input
-                type="password"
-                value={formData.confirmPassword}
-                onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
-                required
-              />
-            </div>
-          )}
-
-          <button type="submit" className="submit-btn">
-            {isLogin ? 'Se connecter' : 'S\'inscrire'}
-          </button>
+          <button type="submit" className="submit-btn">Se connecter</button>
         </form>
 
         <div className="switch-mode">
           <p>
-            {isLogin ? 'Pas encore de compte ? ' : 'Déjà un compte ? '}
+            Pas encore de compte ? 
             <button 
               type="button" 
               className="link-btn"
               onClick={() => {
-                setIsLogin(!isLogin);
-                setErrors([]);
-                setFormData({...formData, confirmPassword: ''});
+                navigate("/register")
               }}
             >
-              {isLogin ? 'Créer un compte' : 'Se connecter'}
+              Créer un compte
             </button>
           </p>
         </div>
@@ -120,4 +117,4 @@ function AuthForm() {
   );
 }
 
-export default AuthForm;
+export default Login;
