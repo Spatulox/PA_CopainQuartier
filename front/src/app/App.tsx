@@ -6,13 +6,13 @@ import { AuthProvider } from "./shared/auth-context";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Header from './shared/header';
 import Footer from './shared/footer';
-import Login from './pages/login';
-import Register from './pages/register';
 import Account from './components/AccountPage/AccountPage';
 import HomePage from './pages/home_page';
 import Chat from './components/ChatPage/ChatPage';
 import { Route as CRoute } from './constantes';
 import Publications from "./pages/publications";
+import Register from './components/LoginRegister/Register';
+import Login from './components/LoginRegister/Login';
 
 function App() {
   return (
