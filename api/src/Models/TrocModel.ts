@@ -9,4 +9,25 @@ export interface Troc {
     reserved_by: string,
     status: string,
     type: string,
+    visibility : string
+}
+
+export enum TrocType {
+    service = "service",
+    serviceMorethanOnePerson = "serviceMorethanOnePerson",
+    item = "item"
+}
+
+export enum TrocVisibility {
+    hide = "hide",
+    visible = "visible"
+}
+
+export enum TrocStatus {
+    completed = "completed",
+    cancelled = "cancelled",
+    hide = "hide",
+    pending = "pending",
+    reserved = "reserved",
+    waitingForApproval = "waitingforapproval",
 }
