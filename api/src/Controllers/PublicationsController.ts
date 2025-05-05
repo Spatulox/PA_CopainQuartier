@@ -7,34 +7,34 @@ import { zCreatePublication, zUpdatePublication } from "../Validators/publicatio
 import { UserRole } from "../DB_Schema/UserSchema";
 
 
-@JsonController()
+@JsonController("/publications")
 export class PublicationsController {
 
-    @Get("/publications")
+    @Get("/")
     async getAllPublications(): Promise<Publication[]>{
         return await getAllPublications()
     }
 
-    @Get("/publications/@me")
+    @Get("/@me")
     @Authorized()
     async getAllMyPublications(@CurrentUser() user: User): Promise<Publication[]>{
         return await getAllMyPublications(user)
     }
 
-    @Get("/publications/:id")
+    @Get("/:id")
     async getPublicationById(@Param("id") pub_id: string): Promise<Publication | null>{
         const validId = zObjectId.parse(pub_id)
         return await getPublicationById(validId)
     }
 
-    @Post("/publications")
+    @Post("/")
     @Authorized()
     async createPublication(@CurrentUser() user: User, @Body() body: any): Promise<boolean>{
         const validBody = zCreatePublication.parse(body)
         return await createPublication(user, validBody)
     }
 
-    @Patch("/publications/:id")
+    @Patch("/:id")
     @Authorized()
     async updateContentPublication(@CurrentUser() user: User, @Param("id") pub_id: string, @Body() body: any): Promise<boolean>{
         const validId = zObjectId.parse(pub_id)
@@ -48,7 +48,7 @@ export class PublicationsController {
         return await updatePublicationcontent(user, pub_id, validBody)
     }
 
-    @Delete("/publications/:id")
+    @Delete("/:id")
     @Authorized()
     async deletePublicationById(@CurrentUser() user: User, @Param("id") pub_id: string): Promise<boolean>{
         const validId = zObjectId.parse(pub_id)

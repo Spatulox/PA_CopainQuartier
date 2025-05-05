@@ -9,16 +9,16 @@ import { ID } from "../Utils/IDType";
 import { BlobOptions } from "buffer";
 
 
-@JsonController()
+@JsonController("/channels")
 export class ChannelsController {
 
-    @Get('/channels/@me')
+    @Get('/@me')
     @Authorized()
     async getMyChannel(@CurrentUser() user: User): Promise<Channel[] | null> {
         return await getMyChannel(user)
     }
 
-    @Get('/channels/:id')
+    @Get('/:id')
     @Authorized()
     async getChannelById(@CurrentUser() user: User, @Param('id') channel_id: string): Promise<Channel | PublicChannel | null> {
         const validId = zObjectId.parse(channel_id)
@@ -33,14 +33,14 @@ export class ChannelsController {
         
     }
 
-    @Post("/channels/create")
+    @Post("/create")
     @Authorized()
     async createChannel(@CurrentUser() user: User, @Body() body: any):Promise<Channel | null>{
         const validData = zCreateChannel.parse(body)
         return await createChannel(user, validData)
     }
 
-    @Patch("/channels/:channel_id/adduser/:user_id")
+    @Patch("/:channel_id/adduser/:user_id")
     @Authorized()
     async addUserFromChannel(@CurrentUser() user: User, @Param('user_id') user_id: string, @Param('channel_id') channel_id: string):Promise<boolean>{
         const validUserId = zObjectId.parse(user_id)
@@ -53,7 +53,7 @@ export class ChannelsController {
         return await addSomeoneFromChannel(validChannelId, validUserId)
     }
 
-    @Patch("/channels/:channel_id/removeuser/:user_id")
+    @Patch("/:channel_id/removeuser/:user_id")
     @Authorized()
     async removeUserFromChannel(@CurrentUser() user: User, @Param('user_id') user_id: string, @Param('channel_id') channel_id: string):Promise<boolean>{
         const validUserId = zObjectId.parse(user_id)
@@ -66,8 +66,9 @@ export class ChannelsController {
         return await removeSomeoneFromChannel(validChannelId, validUserId)
     }
 
+    /* Useless, messages are now websockets */
     /*
-    @Patch("/channel/:channel_id/message/create")
+    @Patch("/:channel_id/message/create")
     @Authorized()
     async sendMessageToChannel(@CurrentUser() user: User, @Param("channel_id") channel_id: number, @Body() body: any): Promise<boolean>{
         const validChannelId = zId.parse(channel_id)
@@ -91,7 +92,7 @@ export class ChannelsController {
         return await deleteMessageFromChannel(validChannelId, validMessageId)
     }*/
 
-    @Patch('/channels/:id')
+    @Patch('/:id')
     @Authorized()
     async updateChannel(@CurrentUser() user: User, @Param('id') channel_id: number, @Body() body: any): Promise<boolean> {
         const validId = zObjectId.parse(channel_id)
@@ -104,7 +105,7 @@ export class ChannelsController {
         return true
     }
 
-    @Patch('/channels/transfer/:id')
+    @Patch('/transfer/:id')
     @Authorized()
     async transferChannel(@CurrentUser() user: User, @Param('id') channel_id: string, @Body() body: any): Promise<boolean> {
         const validId = zObjectId.parse(channel_id)
@@ -118,7 +119,7 @@ export class ChannelsController {
     }
 
 
-    @Delete("/channels/delete/:id")
+    @Delete("/delete/:id")
     @Authorized()
     async deleteChannel(@CurrentUser() user: User, @Param("id") channel_id: string): Promise<boolean>{
         const validId= zObjectId.parse(channel_id)
