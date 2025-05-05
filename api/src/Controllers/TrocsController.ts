@@ -21,7 +21,7 @@ import { getWaitingTrocs, updateWaitingTrocStatus } from "../Services/trocs/troc
   
 
 @JsonController("/admin/trocs")
-export class TrocAdmincontroller {
+export class AdminTrocController {
     @Get("/")
     @Authorized(UserRole.admin)
     async getNonApprovedTroc(): Promise<Troc[] | null> {
@@ -30,7 +30,7 @@ export class TrocAdmincontroller {
 
     @Patch("/")
     @Authorized(UserRole.admin)
-    async approveTroc(@CurrentUser() user: User @Param("id") id: string): Promise<Troc | null> {
+    async approveTroc(@CurrentUser() user: User, @Param("id") id: string): Promise<Troc | null> {
         const validID = zObjectId.parse(id)
         return await updateWaitingTrocStatus(validID, TrocStatus.pending, user);
     }
