@@ -10,7 +10,7 @@ import Login from './pages/login';
 import Register from './pages/register';
 import Account from './pages/account';
 import HomePage from './pages/home_page';
-import Chat from './pages/chat';
+import Chat from './components/ChatPage/ChatPage';
 import { Route as CRoute } from './constantes';
 import Publications from "./pages/publications";
 
