@@ -5,34 +5,34 @@ import { getAllPublicActivities, getPublicActivityById, deleteActivity, joinActi
 import { UserRole } from "../DB_Schema/UserSchema";
 import { User } from "../Models/UserModel";
 
-@JsonController()
+@JsonController("/activities")
 export class ActivityController{
 
-    @Get("/activities")
+    @Get("/")
     async getAllActivities(): Promise<PublicActivity[]>{
         return await getAllPublicActivities()
     }
 
-    @Get("/activities/@me")
+    @Get("/@me")
     @Authorized()
     async getMyActivities(@CurrentUser() user: User): Promise<Activity[]>{
         return await getMyActivities(user)
     }
 
-    @Get("/activities/@me/admin")
+    @Get("/@me/admin")
     @Authorized()
     async getMyAdminActivities(@CurrentUser() user: User): Promise<Activity[]>{
         return await getMyActivitiesAdmin(user)
     }
 
-    @Get("/activities/:id")
+    @Get("/:id")
     async getActivityById(@Param("id") act_id: string): Promise<PublicActivity | null>{
         const validId = zObjectId.parse(act_id)
         return await getPublicActivityById(validId)
     }
 
 
-    @Patch("/activities/:id/join")
+    @Patch("/:id/join")
     @Authorized()
     async joinActivityById(@CurrentUser() user: User, @Param("id") act_id: string): Promise<boolean>{
         const validId = zObjectId.parse(act_id)
@@ -43,7 +43,7 @@ export class ActivityController{
         return await joinActivityById(user, activity)
     }
 
-    @Patch("/activities/:id/leave")
+    @Patch("/:id/leave")
     @Authorized()
     async leaveActivityById(@CurrentUser() user: User, @Param("id") act_id: string): Promise<boolean>{
         const validId = zObjectId.parse(act_id)
@@ -54,7 +54,7 @@ export class ActivityController{
         return await leaveActivityById(user, activity)
     }
 
-    @Delete("/activities/:id")
+    @Delete("/:id")
     @Authorized()
     async deleteActivity(@CurrentUser() user: User, @Param("id") act_id: string): Promise<boolean>{
         const validId = zObjectId.parse(act_id)

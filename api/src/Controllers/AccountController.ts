@@ -2,16 +2,16 @@ import { JsonController, Param, Body, Get, Post, Put, Delete, HeaderParam, Curre
 import { User } from "../Models/UserModel"
 import { deleteMyAccount, getUserById } from '../Services/users/usersPublic';
 
-@JsonController()
+@JsonController("/account")
 export class AccountController {
 
-  @Get('/account')
+  @Get('/')
   @Authorized()
   async getMyAccount(@CurrentUser() user: User): Promise<User | null> {
     return await getUserById(user._id);
   }
 
-  @Delete('/account')
+  @Delete('/')
   @Authorized()
   async deleteMyAccount(@CurrentUser() user: User): Promise<boolean>{
     return await deleteMyAccount(user);

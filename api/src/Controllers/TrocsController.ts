@@ -10,9 +10,8 @@ import {
     CurrentUser,
     Patch
   } from "routing-controllers";
-  import { Troc, TrocStatus } from "../Models/TrocModel";
-  import { User } from "../Models/UserModel";
-import { TrocTable } from "../DB_Schema/TrocSchema";
+import { Troc, TrocStatus } from "../Models/TrocModel";
+import { User } from "../Models/UserModel";
 import { CreateTrocBody, UpdateTrocBody, zCreateTrocSchema, zUpdateTrocSchema } from "../Validators/trocs";
 import { zObjectId } from "../Validators/utils";
 import { cancelTroc, completeTroc, createTroc, deleteTroc, getAllTrocs, getTrocById, reserveTroc, updateTroc } from "../Services/trocs/trocs";
