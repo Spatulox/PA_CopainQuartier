@@ -56,6 +56,7 @@ export function ObjectToChannel(channel: any): Channel {
         name: channel.name,
         publication_id: channel.publication_id ? channel.publication_id.toString() : null,
         type: channel.type,
+        messages: channel.messages,
         description: channel.description,
         created_at: channel.created_at,
         admin_id: channel.admin_id,

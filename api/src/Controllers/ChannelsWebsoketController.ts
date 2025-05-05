@@ -6,8 +6,12 @@ import { getCurrentUserByToken } from '../Middleware/auth';
 // Will store each client connection to know if they already request the WS with the INIT message
 // If yes, the client can do everything it wants
 // If no, nothing will be accessible
-const initAccessMap = new Map<WebSocket, number>();
+export const initAccessMap = new Map<WebSocket, number>();
 const INIT_TIMEOUT = 60 * 60 * 1000; // 1h in ms
+
+export const channelSubscriptions = new Map<string, Set<WebSocket>>(); // to avoid sending al message to all users
+
+
 
 function createErrorMsg(content: string){
     return JSON.stringify({"err":content})
@@ -20,6 +24,7 @@ type INIT = {
 type MSG = {
     message: string;
     user_id: string;
+    channel_id: string
 };
 
 // Type guards
@@ -47,10 +52,9 @@ export async function handleMessage(wss: WebSocketServer, fromClient: WebSocket,
             const msg: INIT = msgRaw;
             initAccessMap.set(fromClient, Date.now());
             const jwt = msg.connection;
-
+        
             // Get the user with the jwt
             const user = await getCurrentUserByToken(jwt)
-            console.log(user)
             if (
                 !user ||
                 !channel ||
@@ -60,12 +64,19 @@ export async function handleMessage(wss: WebSocketServer, fromClient: WebSocket,
                 fromClient.send(createErrorMsg("You don't have access to this channel"));
                 return;
             }
-
+        
+            // Subscribing to channel
+            if (!channelSubscriptions.has(channel_id)) {
+                channelSubscriptions.set(channel_id, new Set());
+            }
+            channelSubscriptions.get(channel_id)!.add(fromClient);
+        
             if (channel_id && fromClient.readyState === WebSocket.OPEN) {
-                fromClient.send(JSON.stringify(channel?.messages));
+                console.log(channel)
+                fromClient.send(JSON.stringify(channel.messages));
             }
             return;
-        }
+        }        
 
         const lastInit = initAccessMap.get(fromClient);
         if (!lastInit || Date.now() - lastInit > INIT_TIMEOUT) {
@@ -77,21 +88,22 @@ export async function handleMessage(wss: WebSocketServer, fromClient: WebSocket,
         }
 
         if (isMSG(msgRaw)) {
-
             const msg: MSG = msgRaw;
             if(!channel.members.map(id => id.toString()).includes(msg.user_id.toString())){
                 fromClient.send(createErrorMsg("You don't have access to it"))
                 return
             }
-
-            wss.clients.forEach((client) => {
-                if (channel_id && client.readyState === WebSocket.OPEN) {
+        
+            // Send message only to subscribed users
+            const clients = channelSubscriptions.get(channel_id) || new Set();
+            clients.forEach((client) => {
+                if (client.readyState === WebSocket.OPEN) {
                     client.send(JSON.stringify(msg));
                 }
             });
-
+        
             return await saveMessageToChannel(msg.user_id, channel_id, msg);
-        }
+        }        
 
         const err ="Unknow Message Type, plz check the input";
         if (fromClient.readyState === WebSocket.OPEN) {
@@ -110,6 +122,10 @@ setInterval(() => {
     for (const [ws, timestamp] of initAccessMap.entries()) {
       if (now - timestamp > INIT_TIMEOUT) {
         initAccessMap.delete(ws);
+        for (const clients of channelSubscriptions.values()) {
+          clients.delete(ws);
+        }
       }
     }
-  }, 10 * 60 * 1000);
+}, 10 * 60 * 1000);
+
