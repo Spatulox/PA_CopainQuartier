@@ -53,7 +53,6 @@ export async function createChannel(user: User, data: CreateChannelParam): Promi
 
     return channel;
 }
-}
 
 export async function updateChannelAttribute(channel_id: ID, update: UpdateChannelParam): Promise<boolean> {
     const result = await ChannelTable.updateOne(

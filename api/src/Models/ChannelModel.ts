@@ -56,11 +56,24 @@ export function ObjectToChannel(channel: any): Channel {
         name: channel.name,
         activity_id: channel.activity_id ? channel.activity_id.toString() : null,
         type: channel.type,
-        messages: channel.messages,
+        messages: Array.isArray(channel.messages)
+        ? channel.messages.map((msg: any): Message => ({
+            date: msg.date,
+            content: msg.content,
+            author_id: msg.author_id
+                ? typeof msg.author_id === "object" && "toString" in msg.author_id
+                    ? msg.author_id.toString()
+                    : msg.author_id
+                : "null",
+            type: msg.type
+        }))
+        : [],
         description: channel.description,
         created_at: channel.created_at,
-        admin_id: channel.admin_id,
-        members : channel.members,
+        admin_id: channel.admin_id.toString(),
+        members: Array.isArray(channel.members)
+            ? channel.members.map((m: any) => typeof m === 'object' ? { _id: m._id.toString(), name: m.name } : m.toString())
+            : [],
         member_auth: channel.member_auth
     };
 }
