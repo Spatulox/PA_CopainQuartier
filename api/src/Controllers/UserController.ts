@@ -8,33 +8,33 @@ import { ZodObject } from 'zod';
 
 @JsonController("/admin/users")
 export class AdminUserController {
-  @Get('/admin/users/all')
+  @Get('/all')
   @Authorized(UserRole.admin)
   async getAll(): Promise<User[]> {
     return await getAllUsers()
   }
 
-  @Get('/admin/users/unverified')
+  @Get('/unverified')
   @Authorized(UserRole.admin)
   async getUnverifiedUser(): Promise<User[] | null> {
     return await getUnverifiedUser();
   }
 
-  @Get('/admin/users/:id')
+  @Get('/:id')
   @Authorized(UserRole.admin)
   async getUserByIdAdmin(@Param('id') user_id: string): Promise<User | null> {
     const validId = zObjectId.parse(user_id)
     return await getUserById(validId);
   }
 
-  @Patch('/admin/users/:id/verify')
+  @Patch('/:id/verify')
   @Authorized(UserRole.admin)
   async verifyUser(@Param('id') user_id: string): Promise<boolean> {
     const validId = zObjectId.parse(user_id)
     return await verifyUser(validId);
   }
 
-  @Delete('/admin/users/:id')
+  @Delete('/:id')
   @Authorized(UserRole.admin)
   async deleteUserById(@Param('id') user_id: string): Promise<boolean> {
     const validId = zObjectId.parse(user_id)
