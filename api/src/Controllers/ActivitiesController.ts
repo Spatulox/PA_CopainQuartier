@@ -1,9 +1,10 @@
-import { Authorized, CurrentUser, Delete, ForbiddenError, Get, JsonController, NotFoundError, Param, Patch } from "routing-controllers";
+import { Authorized, Body, CurrentUser, Delete, ForbiddenError, Get, JsonController, NotFoundError, Param, Patch, Post } from "routing-controllers";
 import { zId, zObjectId } from "../Validators/utils";
 import { Activity, PublicActivity } from "../Models/ActivityModel";
-import { getAllPublicActivities, getPublicActivityById, deleteActivity, joinActivityById, leaveActivityById, getActivityById, getMyActivities, getMyActivitiesAdmin } from "../Services/activities/activities";
+import { getAllPublicActivities, getPublicActivityById, deleteActivity, joinActivityById, leaveActivityById, getActivityById, getMyActivities, getMyActivitiesAdmin, createActivity, updateActivity } from "../Services/activities/activities";
 import { UserRole } from "../DB_Schema/UserSchema";
 import { User } from "../Models/UserModel";
+import { CreateActivityParam, UpdateActivityParam, zCreateActivity } from "../Validators/activities";
 
 @JsonController("/activities")
 export class ActivityController{
@@ -31,6 +32,20 @@ export class ActivityController{
         return await getPublicActivityById(validId)
     }
 
+    @Post("/")
+    @Authorized()
+    async createActivity(@CurrentUser() user: User, @Body() body: CreateActivityParam): Promise<Activity | null>{
+        const validBody = zCreateActivity.parse(body)
+        return await createActivity(user, validBody)
+    }
+
+    @Patch("/:id")
+    @Authorized()
+    async udpdateActivity(@CurrentUser() user: User, @Param("id") id: string, @Body() body: UpdateActivityParam): Promise<Activity | null>{
+        const validBody = zCreateActivity.parse(body)
+        const validID = zObjectId.parse(id)
+        return await updateActivity(user, validBody, validID)
+    }
 
     @Patch("/:id/join")
     @Authorized()
