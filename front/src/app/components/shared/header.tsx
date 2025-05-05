@@ -23,9 +23,20 @@ function Header() {
   return (
     <header className="header">
       <div className="header-content">
+
+        {/* Menu burger */}
+        <div 
+          className={`burger-menu ${isMenuOpen ? 'open' : ''}`} 
+          onClick={toggleMenu}
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+
         {/* Partie gauche */}
-        <div className="header-section">
-          <img src="/logo.png" alt="Logo entreprise" className="logo" />
+        <div className="header-section logo">
+          <img src="/logo.png" alt="Logo" className="logo" />
         </div>
 
         {/* Partie centrale */}
@@ -52,16 +63,6 @@ function Header() {
               <Link to={Route.login}>Se connecter</Link>
             )}
           </nav>
-        </div>
-
-        {/* Menu burger */}
-        <div 
-          className={`burger-menu ${isMenuOpen ? 'open' : ''}`} 
-          onClick={toggleMenu}
-        >
-          <span></span>
-          <span></span>
-          <span></span>
         </div>
       </div>
     </header>
