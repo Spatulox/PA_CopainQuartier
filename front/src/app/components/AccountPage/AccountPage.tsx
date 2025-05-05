@@ -2,15 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { Link, Links, useNavigate } from "react-router-dom";
-import { ApiClient, User } from "../../api/client";
-import Chat from "../components/ChatPage/ChatPage";
-import Publications from "./publications";
-import { Route } from "../constantes";
+import { ApiClient, User } from "../../../api/client";
+import Chat from "../ChatPage/ChatPage";
+import { Route } from "../../constantes";
 
 function Account(){
     const [user, setUserData] = useState<User>({} as User);
     const [errors, setErrors] = useState<string[]>([]);
-    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchUser = async () => {

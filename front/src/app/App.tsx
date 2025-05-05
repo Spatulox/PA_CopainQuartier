@@ -8,7 +8,7 @@ import Header from './shared/header';
 import Footer from './shared/footer';
 import Login from './pages/login';
 import Register from './pages/register';
-import Account from './pages/account';
+import Account from './components/AccountPage/AccountPage';
 import HomePage from './pages/home_page';
 import Chat from './components/ChatPage/ChatPage';
 import { Route as CRoute } from './constantes';
