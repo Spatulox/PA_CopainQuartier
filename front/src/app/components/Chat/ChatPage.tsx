@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Chat as ChatClass, Channel, Message } from "../../../api/chat";
-import ChannelList from "./ChatList";
+import { ManageChannelList } from "./ChatList";
 import ChatRoom from "./ChatRoom";
 import { Route } from "../../constantes";
 
@@ -139,7 +139,21 @@ const ChatPage: React.FC = () => {
   };
 
   if (!id) {
-    return <ChannelList channels={channels} />;
+
+    async function leaveDeleteGroup(id_channel: string, user_id: string | undefined){
+      const chat = new ChatClass()
+      
+      const channel = await chat.getChannelById(id_channel)
+      if(channel && user_id && channel.admin_id.toString() == user_id){
+        await chat.deleteChat(id_channel)
+        return
+      }
+      const res = await chat.leaveChat(id_channel)
+      const channels = await chat.getChannel()
+      setChannels(channels)
+  }
+
+    return <ManageChannelList channels={channels} action={leaveDeleteGroup} user={userRef.current.user} />;
   }
 
   return (
