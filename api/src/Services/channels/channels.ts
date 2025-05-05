@@ -108,6 +108,12 @@ export async function deleteMessageFromChannel(channel_id: ID, message_id: ID): 
 
 export async function deleteChannel(channel_id: ID): Promise<boolean>{
     const res = await ChannelTable.deleteOne({_id: channel_id})
+
+    await UserTable.updateMany(
+        { group_channel_list: channel_id },
+        { $pull: { group_channel_list: channel_id } }
+    );
+
     return res.deletedCount > 0
 }
 
