@@ -39,7 +39,7 @@ function isMSG(obj: any): obj is MSG {
 export async function handleMessage(wss: WebSocketServer, fromClient: WebSocket, data: RawData, channel_id: string) {
     try{
         const msgRaw = JSON.parse(data.toString());
-        console.log(`Message reçu pour le channel ${channel_id}:`, msgRaw);
+        //console.log(`Message reçu pour le channel ${channel_id}:`, msgRaw);
 
         // check if channel exist
         const channel = await getChannelById(channel_id)
@@ -72,7 +72,6 @@ export async function handleMessage(wss: WebSocketServer, fromClient: WebSocket,
             channelSubscriptions.get(channel_id)!.add(fromClient);
         
             if (channel_id && fromClient.readyState === WebSocket.OPEN) {
-                console.log(channel)
                 fromClient.send(JSON.stringify(channel.messages));
             }
             return;
