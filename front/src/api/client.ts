@@ -17,7 +17,7 @@ export type User = {
 export class ApiClient {
   protected client: AxiosInstance;
   protected tokenKey = 'authToken';
-  protected baseURL = "http://localhost:3000"
+  baseURL = "http://localhost:3000"
   private username = ""
   private password = ""
   user : User = null
@@ -61,11 +61,24 @@ export class ApiClient {
       }
       return false;
     } catch (error) {
-      console.error('Login failed:', error);
+      //console.error('Login failed:', error);
       throw error;
     }
   }
   
+  async register(options: any): Promise<boolean> {
+    const res = await this.client.post("/auth/register", options)
+    if (res.data.accessToken) {
+      this.setAuthToken(res.data.accessToken);
+      this.user = await this.getMe();
+      if(this.user){
+        localStorage.setItem("user", JSON.stringify(this.user));
+      }
+      return true;
+    }
+    return false;
+  }
+
   async connect(): Promise<boolean> {
     try{
       const token = localStorage.getItem(this.tokenKey);
@@ -90,8 +103,17 @@ export class ApiClient {
       return true;
     } catch(e){
       console.error(e)
-      return false
+      //return false
+      throw e
     }
+  }
+
+  async resetPassword(options: any){
+    const res = await this.client.post("/auth/reset", options)
+    if (res) {
+      return true;
+    }
+    return false;
   }
 
   deconnection(): void{

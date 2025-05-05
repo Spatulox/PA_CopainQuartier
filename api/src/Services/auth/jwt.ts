@@ -21,7 +21,7 @@ export function decodeJwt(token: string): JwtPayload {
 }
 
 function encodeJwt(payload: JwtPayload): string {
-  const expiresIn = payload.type === JwtType.AccessToken ? "5d" : "7d"
+  const expiresIn = payload.type === JwtType.AccessToken ? "5m" : "7d"
   return jwt.sign(payload, config.jwtSalt, { expiresIn })
 }
 

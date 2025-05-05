@@ -1,7 +1,7 @@
 // app/pages/publications.tsx
 
 function Publications(){
-    return <h1>Publications</h1>
+    return <h2>Publications</h2>
 }
 
 export default Publications;

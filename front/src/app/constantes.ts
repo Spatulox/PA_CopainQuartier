@@ -1,7 +1,18 @@
 export const enum Route {
     base= "/",
-    auth = "/auth",
+
+    login = "/login",
+    register = "/register",
+    resetPassword = "/reset",
+
     account = "/account",
     chat = "/chat",
-    publications = "publications"
+    publications = "/publications",
+    activity = "/activity",
+    troc = "/trocs",
+
+    manageActivity = "/activity/manage",
+    managePublications = "/publications/manage",
+    manageTrocs = "/trocs/manage",
+    manageChannels = "/chat",
 }
