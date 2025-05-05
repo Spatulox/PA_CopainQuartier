@@ -4,6 +4,7 @@ import { ChannelAuth, ChannelTable } from "../../DB_Schema/ChannelSchema";
 import { CreateChannelParam, PostMessageParam, TransferChannelParam, UpdateChannelParam } from "../../Validators/channels";
 import { ID } from "../../Utils/IDType";
 import { User } from "../../Models/UserModel";
+import { UserTable } from "../../DB_Schema/UserSchema";
 
 export async function getChannelById(channel_id: ID): Promise<Channel | null>{
     const res = await ChannelTable.findById(channel_id)
@@ -41,8 +42,17 @@ export async function createChannel(user: User, data: CreateChannelParam): Promi
 
     }
 
-    const channelDoc = await ChannelTable.create(dataToSave);
-    return objectToChannel(channelDoc)
+    const channel = objectToChannel(dataToSave);
+
+    if (channel && channel._id) {
+        await UserTable.updateOne(
+            { _id: user._id },
+            { $addToSet: { group_chat_list_ids: channel._id } }
+        );
+    }
+
+    return channel;
+}
 }
 
 export async function updateChannelAttribute(channel_id: ID, update: UpdateChannelParam): Promise<boolean> {

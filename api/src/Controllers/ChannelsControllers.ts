@@ -1,12 +1,10 @@
-import { Authorized, Body, BodyParam, CurrentUser, Delete, ForbiddenError, Get, JsonController, NotFoundError, Param, Patch, Post, Put } from "routing-controllers";
+import { Authorized, Body, CurrentUser, Delete, ForbiddenError, Get, JsonController, NotFoundError, Param, Patch, Post } from "routing-controllers";
 import { zId, zObjectId } from "../Validators/utils";
 import { addSomeoneFromChannel, createChannel, deleteChannel, deleteMessageFromChannel, getChannelById, getPublicChannelById, saveMessageToChannel, removeSomeoneFromChannel, updateChannelAdmin, updateChannelAttribute, getMyChannel } from "../Services/channels/channels";
 import { User } from "../Models/UserModel";
 import { UserRole } from "../DB_Schema/UserSchema";
-import { zCreateChannel, zPostMessage, zTransferChannel, zUpdateChannel } from "../Validators/channels";
+import { zCreateChannel, zTransferChannel, zUpdateChannel } from "../Validators/channels";
 import { Channel, PublicChannel } from "../Models/ChannelModel";
-import { ID } from "../Utils/IDType";
-import { BlobOptions } from "buffer";
 
 
 @JsonController("/channels")
