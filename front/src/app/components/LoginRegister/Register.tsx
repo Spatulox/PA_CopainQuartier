@@ -4,6 +4,7 @@ import { ApiClient } from '../../../api/client';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../shared/auth-context';
 import Form from '../Forms/Forms';
+import { Route } from '../../constantes';
 
 const registerFields = [
   { name: "lastname", label: "Nom", type: "text" },
@@ -56,8 +57,18 @@ function Register() {
       setFormData={setFormData}
       errors={errors}
       onSubmit={handleSubmit}
-      switchText="Déjà un compte ?"
-      onSwitch={() => navigate("/login")}
+      switchButtons={[
+        {
+          text: "Déjà un compte? ",
+          buttonLabel: "Se connecter",
+          onClick: () => navigate(Route.login),
+        },
+        {
+          text: "Mot de passe oublié ? ",
+          buttonLabel: "Réinitialiser",
+          onClick: () => navigate(Route.resetPassword),
+        },
+      ]}
       submitLabel="S'inscrire"
     />
   );

@@ -4,6 +4,7 @@ import { ApiClient } from '../../../api/client';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../shared/auth-context';
 import Form from '../Forms/Forms';
+import { Route } from '../../constantes';
 
 const loginFields = [
   { name: "email", label: "Email", type: "email" },
@@ -42,16 +43,26 @@ function Login() {
 
   return (
     <Form
-      title="Connexion"
-      fields={loginFields}
-      formData={formData}
-      setFormData={setFormData}
-      errors={errors}
-      onSubmit={handleSubmit}
-      switchText="Pas encore de compte ?"
-      onSwitch={() => navigate("/register")}
-      submitLabel="Se connecter"
-    />
+    title="Connexion"
+    fields={loginFields}
+    formData={formData}
+    setFormData={setFormData}
+    errors={errors}
+    onSubmit={handleSubmit}
+    switchButtons={[
+      {
+        text: "Pas encore de compte ? ",
+        buttonLabel: "Créer un compte",
+        onClick: () => navigate(Route.register),
+      },
+      {
+        text: "Mot de passe oublié ? ",
+        buttonLabel: "Réinitialiser",
+        onClick: () => navigate(Route.resetPassword),
+      },
+    ]}
+    submitLabel="Se connecter"
+  />
   );
 }
 
