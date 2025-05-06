@@ -59,7 +59,7 @@ export async function handleMessage(wss: WebSocketServer, fromClient: WebSocket,
                 !user ||
                 !channel ||
                 !Array.isArray(channel.members) ||
-                !channel.members.map(id => id.toString()).includes(user._id.toString())
+                !channel.members.map((m: any) => m._id.toString()).includes(user._id.toString())
             ) {
                 fromClient.send(createErrorMsg("You don't have access to this channel"));
                 return;
@@ -88,7 +88,7 @@ export async function handleMessage(wss: WebSocketServer, fromClient: WebSocket,
 
         if (isMSG(msgRaw)) {
             const msg: MSG = msgRaw;
-            if(!channel.members.map(id => id.toString()).includes(msg.user_id.toString())){
+            if(!channel.members.map((m: any) => m._id.toString()).includes(msg.user_id.toString())){
                 fromClient.send(createErrorMsg("You don't have access to it"))
                 return
             }
