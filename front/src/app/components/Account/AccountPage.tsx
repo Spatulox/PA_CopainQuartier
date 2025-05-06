@@ -49,7 +49,7 @@ function Account(){
                     <p><Link to={Route.manageActivity}>Activités</Link></p>
                     <p><Link to={Route.managePublications}>Publications</Link></p>
                     <p><Link to={Route.manageTrocs}>Trocs</Link></p>
-                    <p><Link to={Route.manageChannels}>Channnels</Link></p>
+                    <p><Link to={Route.manageChannels}>Channels</Link></p>
                 </div>
                 <div>
                     <ChannelList channels={channels}/>
