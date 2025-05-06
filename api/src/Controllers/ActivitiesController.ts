@@ -4,7 +4,7 @@ import { Activity, PublicActivity } from "../Models/ActivityModel";
 import { getAllPublicActivities, getPublicActivityById, deleteActivity, joinActivityById, leaveActivityById, getActivityById, getMyActivities, getMyActivitiesAdmin, createActivity, updateActivity } from "../Services/activities/activities";
 import { UserRole } from "../DB_Schema/UserSchema";
 import { User } from "../Models/UserModel";
-import { CreateActivityParam, UpdateActivityParam, zCreateActivity } from "../Validators/activities";
+import { CreateActivityParam, UpdateActivityParam, zCreateActivity, zUpdateActivity } from "../Validators/activities";
 
 @JsonController("/activities")
 export class ActivityController{
@@ -42,7 +42,7 @@ export class ActivityController{
     @Patch("/:id")
     @Authorized()
     async udpdateActivity(@CurrentUser() user: User, @Param("id") id: string, @Body() body: UpdateActivityParam): Promise<Activity | null>{
-        const validBody = zCreateActivity.parse(body)
+        const validBody = zUpdateActivity.parse(body)
         const validID = zObjectId.parse(id)
         return await updateActivity(user, validBody, validID)
     }
