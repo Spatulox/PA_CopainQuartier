@@ -20,25 +20,33 @@ export type Channel = {
   };
 
 export class Chat extends ApiClient {
-    async getChannelById(id: string): Promise<Channel> {
-        const response = await this.Get(`/channels/${id}`);
-        return response.data;
-    }
 
-    async getChannel(): Promise<Channel[]> {
-        const response = await this.Get(`/channels/@me`);
-        return response.data;
-    }
+  private url ="/channels"
+  
+  async getChannelById(id: string): Promise<Channel> {
+      const response = await this.Get(`${this.url}/${id}`);
+      return response.data;
+  }
 
-    async deleteChat(channel_id: string): Promise<boolean>{
-      return await this.Delete(`/channels/${channel_id}`)
-    }
+  async getChannel(): Promise<Channel[]> {
+      const response = await this.Get(`${this.url}/@me`);
+      return response.data;
+  }
 
-    async leaveChat(id: string): Promise<boolean>{
-      return await this.Patch(`/channels/${id}/removeuser/${this.user?._id}`, {})
-    }
+  async createChat(option: any): Promise<Channel | null> {
+    const response = await this.Post(`${this.url}/create`, option)
+    return response.data
+  }
 
-    async joinChat(channel_id: string, user_id_to_add: string): Promise<boolean>{
-      return await this.Patch(`/channels/${channel_id}/adduser/${user_id_to_add}`, {})
-    }
+  async deleteChat(channel_id: string): Promise<boolean>{
+    return await this.Delete(`${this.url}/${channel_id}`)
+  }
+
+  async leaveChat(id: string): Promise<boolean>{
+    return await this.Patch(`${this.url}/${id}/removeuser/${this.user?._id}`, {})
+  }
+
+  async joinChat(channel_id: string, user_id_to_add: string): Promise<boolean>{
+    return await this.Patch(`${this.url}/${channel_id}/adduser/${user_id_to_add}`, {})
+  }
 }
