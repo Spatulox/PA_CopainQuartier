@@ -1,18 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
-
-export type User = {
-  _id: string,
-  name: string,
-  lastname: string,
-  email: string,
-  password: string,
-  address: string,
-  verified: boolean,
-  role: string,
-  group_chat_list_ids: [],
-  troc_score: string | number | null,
-  phone: string
-} | null
+import { User } from "./user"
 
 type AuthResponse = {
   accessToken: string,
