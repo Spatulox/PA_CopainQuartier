@@ -1,9 +1,7 @@
 import { Link } from "react-router-dom";
-import { Channel, Chat } from "../../../api/chat";
-import { User } from "../../../api/client";
-import React, { useState } from "react";
-import Form from "../Forms/Forms";
-import { PopupForm } from "../Popup/PopupForm";
+import { Channel, ChatClass } from "../../../api/chat";
+import { User } from "../../../api/user";
+import { FieldForm, PopupForm } from "../Popup/PopupForm";
 
 type ListProps = {
   channels: Channel[];
@@ -59,7 +57,7 @@ export function ManageChannelList({ channels, action, user }: ListProps) {
 
 
 export function CreateChannel({action} : CreateProps){
-  const fields = [
+  const fields: FieldForm[] = [
     { name: "name", label: "Nom du channel", type: "text", required: true },
     { name: "description", label: "Description", type: "text", required: true },
     { name: "type", label: "Type", type: "select", value: ["text", "vocal"], required: true },
@@ -71,7 +69,7 @@ export function CreateChannel({action} : CreateProps){
   };
 
   async function handleCreateChannel(formData: ChannelForm): Promise<void> {
-    const client = new Chat()
+    const client = new ChatClass()
     const resp = await client.createChat(formData)
     if(resp){
       action()
