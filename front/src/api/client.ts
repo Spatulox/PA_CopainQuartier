@@ -71,7 +71,11 @@ export class ApiClient {
           } else {
             this.deconnection();
           }
+        } else if(error.response.status !== 401) {
+            alert(error.code + " " + error.response.statusText)
+            console.log(error.response.data)
         }
+
         return Promise.reject(error);
       }
     );
@@ -130,7 +134,7 @@ export class ApiClient {
 
   async resetPassword(options: any): Promise<boolean> {
     try {
-      await this.client.post("/auth/reset", options);
+      await this.Post("/auth/reset", options);
       return true;
     } catch {
       return false;
@@ -201,7 +205,7 @@ export class ApiClient {
     try{
       return await this.client.get(endpoint)
     } catch(e){
-      console.error(e)
+      //console.error(e)
       throw e
     }
   }
@@ -210,7 +214,7 @@ export class ApiClient {
     try{
       return await this.client.post(endpoint, options)
     } catch(e){
-      console.error(e)
+      //console.error(e)
       throw e
     }
   }
@@ -219,7 +223,7 @@ export class ApiClient {
     try{
       return await this.client.patch(endpoint, options)
     } catch(e){
-      console.error(e)
+      //console.error(e)
       throw e
     }
   }
@@ -228,7 +232,7 @@ export class ApiClient {
     try{
       return await this.client.put(endpoint, options)
     } catch(e){
-      console.error(e)
+      //console.error(e)
       throw e
     }
   }
@@ -237,7 +241,7 @@ export class ApiClient {
     try{
       return await this.client.delete(endpoint)
     } catch(e){
-      console.error(e)
+      //console.error(e)
       throw e
     }
   }
