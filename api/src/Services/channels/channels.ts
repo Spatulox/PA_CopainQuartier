@@ -42,16 +42,15 @@ export async function createChannel(user: User, data: CreateChannelParam): Promi
 
     }
 
-    const channel = objectToChannel(dataToSave);
-
-    if (channel && channel._id) {
+    const channeltmp = await ChannelTable.create(dataToSave)
+    if (channeltmp && channeltmp._id) {
         await UserTable.updateOne(
             { _id: user._id },
-            { $addToSet: { group_chat_list_ids: channel._id } }
+            { $addToSet: { group_chat_list_ids: channeltmp._id } }
         );
     }
 
-    return channel;
+    return objectToChannel(channeltmp);
 }
 
 export async function updateChannelAttribute(channel_id: ID, update: UpdateChannelParam): Promise<boolean> {
