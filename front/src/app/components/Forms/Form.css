@@ -8,7 +8,8 @@
   }
   
   .auth-card {
-    background: lightgray;
+    background: #313537;
+    color:lightgrey !important;
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     padding: 2rem;
@@ -29,7 +30,7 @@
   }
   
   h2 {
-    color: #333;
+    /*color: #333;*/
     text-align: center;
     margin-bottom: 1.5rem;
   }
@@ -44,18 +45,20 @@
     color: #666;
   }
   
-  .form-group input {
+  .form-group input, .form-group select {
     padding: 0.8rem;
     border: 1px solid #ddd;
     border-radius: 8px;
     font-size: 1rem;
     transition: border-color 0.3s;
+    width: 300px;
+    box-sizing: border-box;
   }
   
-  .form-group input:focus {
+  .form-group input:focus, .form-group select:focus {
     outline: none;
     border-color: #6a11cb;
-  }
+  } 
   
   .submit-btn {
     width: 100%;
