@@ -143,6 +143,10 @@ export class ApiClient {
     return res.data;
   }
 
+  isAdmin(){
+    return this.user?.role === "admin"
+  }
+
 
   // ----------- CONNECTION ----------- //
 
