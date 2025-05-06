@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Link, Links, useNavigate } from "react-router-dom";
 import { ApiClient, User } from "../../../api/client";
-import { Chat as ChatClass } from "../../../api/chat";
+import { ChatClass } from "../../../api/chat";
 import Chat from "../Chat/ChatPage";
 import { Route } from "../../constantes";
 import { ChannelList } from "../Chat/ChatList";
