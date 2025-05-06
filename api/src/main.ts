@@ -4,7 +4,7 @@ import { AdminUserController, UserController } from './Controllers/UserControlle
 import { connectDB } from './DB_Schema/connexion';
 import { ErrorHandler } from './Middleware/error-handling';
 import { authMiddleware, getCurrentUser } from './Middleware/auth';
-import { ActivityController } from './Controllers/ActivitiesController';
+import { ActivityController, AdminActivityController } from './Controllers/ActivitiesController';
 import { AccountController } from './Controllers/AccountController';
 import { ChannelsController } from './Controllers/ChannelsControllers';
 import { PublicationsController } from './Controllers/PublicationsController';
@@ -29,6 +29,7 @@ async function main(){
     controllers: [
       AdminTrocController,
       AdminUserController,
+      AdminActivityController,
 
       AccountController,
       ActivityController,
