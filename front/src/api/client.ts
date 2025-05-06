@@ -59,10 +59,10 @@ export class ApiClient {
     this.client.interceptors.response.use(
       response => response,
       async error => {
-        alert("Refresh Token")
         const originalRequest = error.config;
   
         if (error.response && error.response.status === 401 && !originalRequest._retry) {
+          alert("Refresh Token")
           originalRequest._retry = true;
           const newAccessToken = await this.refreshAccessToken();
           if (newAccessToken) {
