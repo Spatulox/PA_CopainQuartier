@@ -56,7 +56,9 @@ export class ApiClient {
             originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
             return this.client(originalRequest);
           } else {
+            alert("Déconnexion forcée")
             this.deconnection();
+            
           }
         } else if(error.response.status !== 401) {
             alert(error.code + " " + error.response.statusText)
@@ -67,7 +69,10 @@ export class ApiClient {
       }
     );
   }
-    
+  
+  private goToLogin(): void{
+    window.location.href = window.location.origin+"/login"
+  }
 
   private async handleAuth(endpoint: string, payload: any): Promise<boolean> {
     try {
@@ -147,6 +152,7 @@ export class ApiClient {
 
   deconnection(): void {
     this.clearAuthToken();
+    this.goToLogin()
   }
 
   private setAuthToken(accessToken: string, refreshToken: string): void {
@@ -175,8 +181,14 @@ export class ApiClient {
     try {
       const response = await this.client.post<AuthResponse>('/auth/refresh', { refreshToken });
       if (response.data.accessToken) {
-        this.setAuthToken(response.data.accessToken, response.data.refreshToken);
-        return response.data.accessToken;
+        const refreshToken = localStorage.getItem(this.refreshTokenKey)
+        if(refreshToken){
+          this.setAuthToken(response.data.accessToken, refreshToken);
+          return response.data.accessToken;
+        } else {
+          this.deconnection()
+          return null
+        }
       }
       return null;
     } catch (error) {
