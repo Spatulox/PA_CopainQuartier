@@ -2,6 +2,8 @@ import { act, useEffect, useState } from "react";
 import { Activity, ActivityClass } from "../../../api/activity";
 import CreateActivity from "./CreateActivity";
 import { UserClass } from "../../../api/user";
+import { Route } from "../../constantes";
+import { useNavigate } from "react-router-dom";
 
 type ActivityListMessage = {
     message: string
@@ -10,6 +12,7 @@ type ActivityListMessage = {
 function ActivityList({message}: ActivityListMessage){
 
     const [activity, setActivity] = useState<Activity[]>([])
+    const navigate = useNavigate()
 
 
     useEffect(() => {
@@ -35,7 +38,10 @@ function ActivityList({message}: ActivityListMessage){
                     <span>
                         Date de participation : {new Date(acti.date_reservation).toLocaleDateString()}
                     </span><br></br>
-                    <button id={acti.publication._id}>Voir la publication : {acti.publication.name}</button>
+                    <div>
+                        <button onClick={() => navigate(`${Route.activity}/${acti._id}`)}>Voir l'activité</button>
+                        <button onClick={() => navigate(`${Route.publications}/${acti.publication._id}`)}>Voir la publication lié</button>
+                    </div>
                 </div>
             )))
         }
