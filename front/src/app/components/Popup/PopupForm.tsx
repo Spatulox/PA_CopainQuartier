@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Form from "../Forms/Forms";
 import "./Popup.css"
 
-type Field = {
+export type FieldForm = {
   name: string;
   label: string;
   type: string;
@@ -12,7 +12,7 @@ type Field = {
 
 type PopupFormProps<T extends Record<string, string>> = {
   title: string;
-  fields: Field[];
+  fields: FieldForm[];
   initialFormData: T;
   onSubmit: (formData: T) => Promise<void> | void;
   submitLabel: string;
