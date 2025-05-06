@@ -22,6 +22,7 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Header />
+        <main>
         <Routes>
           <Route path={CRoute.account} element={<Account />} />
           <Route path={CRoute.activity} element={<Activity />} />
@@ -35,6 +36,7 @@ function App() {
           <Route path={CRoute.troc} element={<Trocs />} />
           {/* ... autres routes */}
         </Routes>
+        </main>
         <Footer />
       </BrowserRouter>
     </AuthProvider>
