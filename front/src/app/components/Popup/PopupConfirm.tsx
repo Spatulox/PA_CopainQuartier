@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "./Popup.css"
 
 type PopupConfirmProps = {
   title: string;
@@ -7,7 +8,6 @@ type PopupConfirmProps = {
   onCancel?: () => void;
   confirmLabel?: string;
   cancelLabel?: string;
-  buttonLabel?: string;
   children?: React.ReactNode;
 };
 
@@ -18,7 +18,6 @@ export function PopupConfirm({
   onCancel,
   confirmLabel = "Confirmer",
   cancelLabel = "Annuler",
-  buttonLabel = "Ouvrir la confirmation",
   children,
 }: PopupConfirmProps) {
   const [open, setOpen] = useState(false);
@@ -37,7 +36,7 @@ export function PopupConfirm({
     <div>
       {(
         <div className="popup-form">
-          <div className="popup-confirm-card" style={{ position: "relative", minWidth: 300, background: "#fff", borderRadius: 8, padding: 24 }}>
+          <div className="popup-confirm-card">
             <h2>{title}</h2>
             <p>{description}</p>
             {children}

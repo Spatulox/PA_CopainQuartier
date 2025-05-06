@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import Form from "../Forms/Forms";
+import "./Popup.css"
 
 type Field = {
   name: string;
   label: string;
   type: string;
+  value?: string[];
   required?: boolean;
 };
 
