@@ -3,8 +3,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, #6a11cb, #2575fc);
-    padding: 2rem;
+    height: 100%;
   }
   
   .auth-card {
