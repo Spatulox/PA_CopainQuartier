@@ -29,6 +29,12 @@ export async function registerUser(params: RegisterParams): Promise<ConnectionTo
 async function saveUser(params: RegisterParams) {
   const hashedPassword = await hashPassword(params.password);
   try {
+
+    const existingUser = await UserTable.findOne({email: params.email})
+    if(existingUser){
+      throw new BadRequestError("Email already exists");
+    }
+
     const user = await UserTable.create({
       email: params.email,
       password: hashedPassword,
