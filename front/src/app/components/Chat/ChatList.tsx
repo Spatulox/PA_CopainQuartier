@@ -3,7 +3,6 @@ import { Channel } from "../../../api/chat";
 import { User } from "../../../api/client";
 import React, { useState } from "react";
 import Form from "../Forms/Forms";
-import "../shared/popup.css"
 import { PopupForm } from "../Popup/PopupForm";
 
 type ListProps = {
