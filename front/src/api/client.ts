@@ -163,7 +163,7 @@ export class ApiClient {
     localStorage.setItem(this.refreshTokenKey, refreshToken);
   }
 
-  private getAuthToken(): string | null {
+  getAuthToken(): string | null {
     return localStorage.getItem(this.accessTokenKey);
   }
 
