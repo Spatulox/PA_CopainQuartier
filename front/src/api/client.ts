@@ -44,6 +44,9 @@ export class ApiClient {
     }
   }
 
+
+  // ----------- INIT CLASS ----------- //
+
   private setupInterceptors() {
     this.client.interceptors.request.use(config => {
       const token = this.getAuthToken();
@@ -52,7 +55,28 @@ export class ApiClient {
       }
       return config;
     });
-  }  
+  
+    this.client.interceptors.response.use(
+      response => response,
+      async error => {
+        alert("Refresh Token")
+        const originalRequest = error.config;
+  
+        if (error.response && error.response.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true;
+          const newAccessToken = await this.refreshAccessToken();
+          if (newAccessToken) {
+            originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+            return this.client(originalRequest);
+          } else {
+            this.deconnection();
+          }
+        }
+        return Promise.reject(error);
+      }
+    );
+  }
+    
 
   private async handleAuth(endpoint: string, payload: any): Promise<boolean> {
     try {
@@ -66,21 +90,6 @@ export class ApiClient {
     } catch (error) {
       throw error;
     }
-  }
-
-  private async refreshUser() {
-    this.user = await this.getMe();
-    if (this.user) {
-      localStorage.setItem(this.userKey, JSON.stringify(this.user));
-    }
-  }
-
-  async login(username: string, password: string): Promise<boolean> {
-    return this.handleAuth('/auth/login', { email: username, password });
-  }
-
-  async register(options: any): Promise<boolean> {
-    return this.handleAuth('/auth/register', options);
   }
 
   async connect(): Promise<boolean> {
@@ -101,6 +110,24 @@ export class ApiClient {
     }
   }
 
+
+  // ----------- USER ----------- //
+
+  async login(username: string, password: string): Promise<boolean> {
+    return this.handleAuth('/auth/login', { email: username, password });
+  }
+
+  async register(options: any): Promise<boolean> {
+    return this.handleAuth('/auth/register', options);
+  }
+
+  private async refreshUser() {
+    this.user = await this.getMe();
+    if (this.user) {
+      localStorage.setItem(this.userKey, JSON.stringify(this.user));
+    }
+  }
+
   async resetPassword(options: any): Promise<boolean> {
     try {
       await this.client.post("/auth/reset", options);
@@ -108,30 +135,6 @@ export class ApiClient {
     } catch {
       return false;
     }
-  }
-
-  deconnection(): void {
-    this.clearAuthToken();
-  }
-
-  private setAuthToken(accessToken: string, refreshToken: string): void {
-    localStorage.setItem(this.accessTokenKey, accessToken);
-    localStorage.setItem(this.refreshTokenKey, refreshToken);
-  }
-
-  getAuthToken(): string | null {
-    return localStorage.getItem(this.accessTokenKey);
-  }
-
-  isConnected(): boolean {
-    return !!this.getAuthToken();
-  }
-
-  clearAuthToken(): void {
-    localStorage.removeItem(this.accessTokenKey);
-    localStorage.removeItem(this.refreshTokenKey);
-    localStorage.removeItem(this.userKey);
-    this.user = null;
   }
 
   async getMe(): Promise<User> {
@@ -143,6 +146,56 @@ export class ApiClient {
     const res = await this.Patch(`/users/${id}`, data);
     return res.data;
   }
+
+
+  // ----------- CONNECTION ----------- //
+
+  isConnected(): boolean {
+    return !!this.getAuthToken();
+  }
+
+  deconnection(): void {
+    this.clearAuthToken();
+  }
+
+  private setAuthToken(accessToken: string, refreshToken: string): void {
+    localStorage.setItem(this.accessTokenKey, accessToken);
+    localStorage.setItem(this.refreshTokenKey, refreshToken);
+  }
+
+  private getAuthToken(): string | null {
+    return localStorage.getItem(this.accessTokenKey);
+  }
+
+  private clearAuthToken(): void {
+    localStorage.removeItem(this.accessTokenKey);
+    localStorage.removeItem(this.refreshTokenKey);
+    localStorage.removeItem(this.userKey);
+    this.user = null;
+  }
+
+  private async refreshAccessToken(): Promise<string | null> {
+    const refreshToken = localStorage.getItem(this.refreshTokenKey);
+    if (!refreshToken){
+      this.deconnection();
+      return null;
+    }
+  
+    try {
+      const response = await this.client.post<AuthResponse>('/auth/refresh', { refreshToken });
+      if (response.data.accessToken) {
+        this.setAuthToken(response.data.accessToken, response.data.refreshToken);
+        return response.data.accessToken;
+      }
+      return null;
+    } catch (error) {
+      this.deconnection();
+      return null;
+    }
+  }
+
+
+  // ----------- INTERNET REQUESTS ----------- //
 
   protected async Get(endpoint: string): Promise<any> {
     try{
