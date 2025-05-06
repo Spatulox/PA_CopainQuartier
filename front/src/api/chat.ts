@@ -19,7 +19,7 @@ export type Channel = {
     messages: string[]
   };
 
-export class Chat extends ApiClient {
+export class ChatClass extends ApiClient {
 
   private url ="/channels"
   
