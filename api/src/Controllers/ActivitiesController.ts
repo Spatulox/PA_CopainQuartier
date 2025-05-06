@@ -1,10 +1,27 @@
 import { Authorized, Body, CurrentUser, Delete, ForbiddenError, Get, JsonController, NotFoundError, Param, Patch, Post } from "routing-controllers";
 import { zId, zObjectId } from "../Validators/utils";
 import { Activity, PublicActivity } from "../Models/ActivityModel";
-import { getAllPublicActivities, getPublicActivityById, deleteActivity, joinActivityById, leaveActivityById, getActivityById, getMyActivities, getMyActivitiesAdmin, createActivity, updateActivity } from "../Services/activities/activities";
+import { getAllPublicActivities, getPublicActivityById, deleteActivity, joinActivityById, leaveActivityById, getActivityById, getMyActivities, getMyActivitiesAdmin, createActivity, updateActivity, getAllActivities } from "../Services/activities/activities";
 import { UserRole } from "../DB_Schema/UserSchema";
 import { User } from "../Models/UserModel";
 import { CreateActivityParam, UpdateActivityParam, zCreateActivity, zUpdateActivity } from "../Validators/activities";
+import { ID } from "../Utils/IDType";
+
+
+
+@JsonController("/admin/activities")
+export class AdminActivityController{
+    @Get("/")
+    async getAllActivities(): Promise<PublicActivity[]>{
+        return await getAllActivities()
+    }
+
+    @Get("/:id")
+    async getActivityAdminByID(@Param("id") id: string): Promise<Activity | null>{
+        const validID = zObjectId.parse(id)
+        return await getActivityById(validID)
+    }
+}
 
 @JsonController("/activities")
 export class ActivityController{

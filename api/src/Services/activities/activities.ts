@@ -10,10 +10,13 @@ import { ForbiddenError } from "routing-controllers";
 import { objectToPublication } from "../publications/publications";
 import { toUserObject } from "../users/usersPublic";
 import { objectToChannel } from "../channels/channels";
+import { UserTable } from "../../DB_Schema/UserSchema";
 
 export async function getActivityById(id: string): Promise<Activity | null> {
     const activity = await ActivityTable.findById(id)
     .populate("publication_id")
+    .populate("participants_id")
+    .populate("author_id")
     .exec();
     return activity ? normalizeActivity(activity) : null;
 }
@@ -32,6 +35,8 @@ export async function getAllActivities(): Promise<Activity[]> {
     const activities = await ActivityTable.find()
     .sort({ created_at: -1 })
     .populate("publication_id")
+    .populate("participants_id")
+    .populate("author_id")
     .exec();
     return activities.map(normalizeActivity);
 }
@@ -177,6 +182,11 @@ export async function createActivity(user: User, activity: CreateActivityParam):
     };
     const activityDoc = await ActivityTable.create(activityToSave);
     if (!activityDoc || !activityDoc._id) throw new Error("Activity creation failed");
+
+    await UserTable.updateOne(
+        {_id: user._id},
+        {$addToSet: {group_chat_list_ids: channel._id}}
+    )
 
     // Mettre à jour la publication avec l'ID de l'activité
     await PublicationTable.updateOne(
@@ -380,8 +390,8 @@ function normalizeActivity(activityDoc: any): any {
         created_at: obj.created_at,
         date_reservation: obj.date_reservation,
         author_id: obj.author_id,
-        channel_chat_id: objectToChannel(obj.channel_chat_id),
-        publication: objectToPublication(obj.publication_id),
-        participants: obj.participants_id.map((user: any) => toUserObject(user)),
+        channel_chat_id: obj.channel_chat_id ? objectToChannel(obj.channel_chat_id) : null,
+        publication: obj.publication_id ? objectToPublication(obj.publication_id): null,
+        participants: obj.participants_id ? obj.participants_id.map((user: any) => toUserObject(user)) : null,
     };
 }
