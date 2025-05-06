@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Channel } from "../../../api/chat";
+import { Channel, Chat } from "../../../api/chat";
 import { User } from "../../../api/client";
 import React, { useState } from "react";
 import Form from "../Forms/Forms";
@@ -10,6 +10,10 @@ type ListProps = {
   action: (channel_id:string, user_id: string | undefined) => void;
   user : User
 };
+
+type CreateProps = {
+  action: () => void
+}
 
 type ListSimpleProps = {
   channels: Channel[];
@@ -54,10 +58,11 @@ export function ManageChannelList({ channels, action, user }: ListProps) {
 };
 
 
-export function CreateChannel(){
+export function CreateChannel({action} : CreateProps){
   const fields = [
     { name: "name", label: "Nom du channel", type: "text", required: true },
     { name: "description", label: "Description", type: "text", required: true },
+    { name: "type", label: "Type", type: "select", value: ["text", "vocal"], required: true },
   ];
   
   type ChannelForm = {
@@ -65,11 +70,12 @@ export function CreateChannel(){
     description: string;
   };
 
-  const [open, setOpen] = useState(false);
-  const [formData, setFormData] = useState<ChannelForm>({ name: "", description: "" });
-  const [errors, setErrors] = useState<string[]>([]);
-
   async function handleCreateChannel(formData: ChannelForm): Promise<void> {
+    const client = new Chat()
+    const resp = await client.createChat(formData)
+    if(resp){
+      action()
+    }
     alert("Channel créé !\nNom: " + formData.name + "\nDescription: " + formData.description);
   }
 

@@ -2,12 +2,13 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Chat as ChatClass, Channel, Message } from "../../../api/chat";
 import { CreateChannel, ManageChannelList } from "./ChatList";
-import ChatRoom from "./ChatRoom";
+import ChatRoom, { ChannelRight } from "./ChatRoom";
 import { Route } from "../../constantes";
 import { PopupConfirm } from "../Popup/PopupConfirm";
 
 const ChatPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const [thechannelAuth, setChannelAuth] = useState<ChannelRight>(ChannelRight.read_only);
   const [status, setStatus] = useState("Déconnecté");
   const [statusColor, setStatusColor] = useState("red");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -48,6 +49,8 @@ const ChatPage: React.FC = () => {
         setStatusColor("orange");
         return;
       }
+
+      setChannelAuth(channel.member_auth == ChannelRight.read_send ? ChannelRight.read_send : ChannelRight.read_only)
 
       const ws = new WebSocket(`ws://localhost:3000/channel/${channel._id}`);
       wsRef.current = ws;
@@ -163,6 +166,11 @@ const ChatPage: React.FC = () => {
       setChannels(updatedChannels);
     }
 
+    async function refreshChannel() {
+      const channels = await userRef.current.getChannel();
+      setChannels(channels)
+    }
+
     return (
       <>
         <ManageChannelList
@@ -170,7 +178,7 @@ const ChatPage: React.FC = () => {
           action={handleAskConfirmation}
           user={userRef.current.user}
         />
-        <CreateChannel />
+        <CreateChannel action={refreshChannel} />
         {confirmChannelDeletion && (
           <PopupConfirm
             title={confirmChannelDeletion.isDelete ? "Supprimer le chat" : "Quitter le chat"}
@@ -186,18 +194,18 @@ const ChatPage: React.FC = () => {
             onCancel={() => setChannelDeletion(null)}
             confirmLabel={confirmChannelDeletion.isDelete ? "Supprimer" : "Quitter"}
             cancelLabel="Annuler"
-            buttonLabel="" // pas de bouton d'ouverture
           />
         )}
       </>
     );
   }
-
+  
   return (
     <ChatRoom
       id={id}
       status={status}
       statusColor={statusColor}
+      memberRight={thechannelAuth}
       messages={messages}
       input={input}
       setInput={setInput}
