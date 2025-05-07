@@ -25,19 +25,32 @@ function App() {
         <Header />
         <main>
         <Routes>
-          <Route path={CRoute.account} element={<Account />} />
-          <Route path={CRoute.activity} element={<ActivityComponent />} />
-          <Route path={`${CRoute.activity}/:id`} element={<ActivityComponent />} />
-          <Route path={`${CRoute.chat}`} element={<Chat />} />
           <Route path={`${CRoute.chat}/:id`} element={<Chat />} />
           <Route path={CRoute.base} element={<HomePage />} />
           <Route path={CRoute.login} element={<Login />} />
-          <Route path={CRoute.manageActivity} element={<ManageActivity />} />
-          <Route path={`${CRoute.manageActivity}/:id`} element={<ManageActivity />} />
-          <Route path={`${CRoute.publications}`} element={<Publications />} />
           <Route path={CRoute.register} element={<Register />} />
           <Route path={CRoute.resetPassword} element={<ResetPassword />} />
+
+
+          <Route path={CRoute.account} element={<Account />} />
+          <Route path={`${CRoute.chat}`} element={<Chat />} />
+
+
+          <Route path={CRoute.activity} element={<ActivityComponent />} />
+          <Route path={`${CRoute.activity}/:id`} element={<ActivityComponent />} />
+          <Route path={CRoute.manageActivity} element={<ManageActivity />} />
+          <Route path={`${CRoute.manageActivity}/:id`} element={<ManageActivity />} />
+
+
+          <Route path={`${CRoute.publications}`} element={<Publications />} />
+          <Route path={`${CRoute.publications}/:id`} element={<Publications />} />
+          <Route path={`${CRoute.managePublications}`} element={<Publications />} />
+          <Route path={`${CRoute.managePublications}/:id`} element={<Publications />} />
+
           <Route path={CRoute.troc} element={<Trocs />} />
+          <Route path={`${CRoute.troc}/:id`} element={<Trocs />} />
+          <Route path={CRoute.manageTrocs} element={<Trocs />} />
+          <Route path={`${CRoute.manageTrocs}/:id`} element={<Trocs />} />
           {/* ... autres routes */}
         </Routes>
         </main>

@@ -7,12 +7,14 @@ export const enum Route {
 
     account = "/account",
     chat = "/chat",
-    publications = "/publications",
-    activity = "/activity",
-    troc = "/trocs",
+    manageChannels = "/chat/manage",
 
+    activity = "/activity",
     manageActivity = "/activity/manage",
+
+    publications = "/publications",
     managePublications = "/publications/manage",
+
+    troc = "/trocs",
     manageTrocs = "/trocs/manage",
-    manageChannels = "/chat",
 }
