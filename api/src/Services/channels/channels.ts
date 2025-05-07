@@ -4,6 +4,7 @@ import { ChannelAuth, ChannelTable } from "../../DB_Schema/ChannelSchema";
 import { CreateChannelParam, PostMessageParam, TransferChannelParam, UpdateChannelParam } from "../../Validators/channels";
 import { ID } from "../../Utils/IDType";
 import { User } from "../../Models/UserModel";
+import { UserTable } from "../../DB_Schema/UserSchema";
 
 export async function getChannelById(channel_id: ID): Promise<Channel | null>{
     const res = await ChannelTable.findById(channel_id)
@@ -41,8 +42,15 @@ export async function createChannel(user: User, data: CreateChannelParam): Promi
 
     }
 
-    const channelDoc = await ChannelTable.create(dataToSave);
-    return objectToChannel(channelDoc)
+    const channeltmp = await ChannelTable.create(dataToSave)
+    if (channeltmp && channeltmp._id) {
+        await UserTable.updateOne(
+            { _id: user._id },
+            { $addToSet: { group_chat_list_ids: channeltmp._id } }
+        );
+    }
+
+    return objectToChannel(channeltmp);
 }
 
 export async function updateChannelAttribute(channel_id: ID, update: UpdateChannelParam): Promise<boolean> {
@@ -99,6 +107,12 @@ export async function deleteMessageFromChannel(channel_id: ID, message_id: ID): 
 
 export async function deleteChannel(channel_id: ID): Promise<boolean>{
     const res = await ChannelTable.deleteOne({_id: channel_id})
+
+    await UserTable.updateMany(
+        { group_channel_list: channel_id },
+        { $pull: { group_channel_list: channel_id } }
+    );
+
     return res.deletedCount > 0
 }
 

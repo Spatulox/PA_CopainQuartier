@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import '../Forms/form.css';
+import '../Forms/Form.css';
 import { ApiClient } from '../../../api/client';
 import { useNavigate } from 'react-router-dom';
 import Form from '../Forms/Forms';

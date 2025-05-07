@@ -1,10 +1,16 @@
 import React, { useRef, useEffect } from "react";
 import { Message } from "../../../api/chat";
 
+export enum ChannelRight {
+  read_send = "read_send",
+  read_only = "read_only"
+}
+
 type Props = {
   id: string;
   status: string;
   statusColor: string;
+  memberRight: ChannelRight,
   messages: Message[];
   input: string;
   setInput: (value: string) => void;
@@ -13,7 +19,7 @@ type Props = {
 };
 
 const ChatRoom: React.FC<Props> = ({
-  id, status, statusColor, messages, input, setInput, handleSubmit, messagesDivRef
+  id, status, statusColor, memberRight, messages, input, setInput, handleSubmit, messagesDivRef
 }) => (
   <div>
     <div>
@@ -35,18 +41,20 @@ const ChatRoom: React.FC<Props> = ({
         <div key={idx}>{msg.content}</div>
       ))}
     </div>
-    <form id="formulaire" onSubmit={handleSubmit} style={{ display: "flex", gap: 8 }}>
-      <input
-        type="text"
-        id="input"
-        autoComplete="off"
-        placeholder="Tape ton message..."
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        style={{ flex: 1 }}
-      />
-      <input type="submit" value="Envoyer" />
-    </form>
+    {memberRight === ChannelRight.read_send && (
+      <form id="formulaire" onSubmit={handleSubmit} style={{ display: "flex", gap: 8 }}>
+        <input
+          type="text"
+          id="input"
+          autoComplete="off"
+          placeholder="Tape ton message..."
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          style={{ flex: 1 }}
+        />
+        <input type="submit" value="Envoyer" />
+      </form>
+    )}
   </div>
 );
 

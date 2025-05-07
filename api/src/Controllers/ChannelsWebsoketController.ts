@@ -39,7 +39,7 @@ function isMSG(obj: any): obj is MSG {
 export async function handleMessage(wss: WebSocketServer, fromClient: WebSocket, data: RawData, channel_id: string) {
     try{
         const msgRaw = JSON.parse(data.toString());
-        console.log(`Message reçu pour le channel ${channel_id}:`, msgRaw);
+        //console.log(`Message reçu pour le channel ${channel_id}:`, msgRaw);
 
         // check if channel exist
         const channel = await getChannelById(channel_id)
@@ -59,7 +59,7 @@ export async function handleMessage(wss: WebSocketServer, fromClient: WebSocket,
                 !user ||
                 !channel ||
                 !Array.isArray(channel.members) ||
-                !channel.members.map(id => id.toString()).includes(user._id.toString())
+                !channel.members.map((m: any) => m._id.toString()).includes(user._id.toString())
             ) {
                 fromClient.send(createErrorMsg("You don't have access to this channel"));
                 return;
@@ -72,7 +72,6 @@ export async function handleMessage(wss: WebSocketServer, fromClient: WebSocket,
             channelSubscriptions.get(channel_id)!.add(fromClient);
         
             if (channel_id && fromClient.readyState === WebSocket.OPEN) {
-                console.log(channel)
                 fromClient.send(JSON.stringify(channel.messages));
             }
             return;
@@ -89,7 +88,7 @@ export async function handleMessage(wss: WebSocketServer, fromClient: WebSocket,
 
         if (isMSG(msgRaw)) {
             const msg: MSG = msgRaw;
-            if(!channel.members.map(id => id.toString()).includes(msg.user_id.toString())){
+            if(!channel.members.map((m: any) => m._id.toString()).includes(msg.user_id.toString())){
                 fromClient.send(createErrorMsg("You don't have access to it"))
                 return
             }

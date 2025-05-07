@@ -1,18 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
-
-export type User = {
-  _id: string,
-  name: string,
-  lastname: string,
-  email: string,
-  password: string,
-  address: string,
-  verified: boolean,
-  role: string,
-  group_chat_list_ids: [],
-  troc_score: string | number | null,
-  phone: string
-} | null
+import { User } from "./user"
 
 type AuthResponse = {
   accessToken: string,
@@ -44,6 +31,9 @@ export class ApiClient {
     }
   }
 
+
+  // ----------- INIT CLASS ----------- //
+
   private setupInterceptors() {
     this.client.interceptors.request.use(config => {
       const token = this.getAuthToken();
@@ -52,7 +42,37 @@ export class ApiClient {
       }
       return config;
     });
-  }  
+  
+    this.client.interceptors.response.use(
+      response => response,
+      async error => {
+        const originalRequest = error.config;
+  
+        if (error.response && error.response.status === 401 && !originalRequest._retry) {
+          alert("Refresh Token")
+          originalRequest._retry = true;
+          const newAccessToken = await this.refreshAccessToken();
+          if (newAccessToken) {
+            originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+            return this.client(originalRequest);
+          } else {
+            alert("Déconnexion forcée")
+            this.deconnection();
+            
+          }
+        } else if(error.response.status !== 401) {
+            alert(error.code + " " + error.response.statusText)
+            console.log(error.response.data)
+        }
+
+        return Promise.reject(error);
+      }
+    );
+  }
+  
+  private goToLogin(): void{
+    window.location.href = window.location.origin+"/login"
+  }
 
   private async handleAuth(endpoint: string, payload: any): Promise<boolean> {
     try {
@@ -66,21 +86,6 @@ export class ApiClient {
     } catch (error) {
       throw error;
     }
-  }
-
-  private async refreshUser() {
-    this.user = await this.getMe();
-    if (this.user) {
-      localStorage.setItem(this.userKey, JSON.stringify(this.user));
-    }
-  }
-
-  async login(username: string, password: string): Promise<boolean> {
-    return this.handleAuth('/auth/login', { email: username, password });
-  }
-
-  async register(options: any): Promise<boolean> {
-    return this.handleAuth('/auth/register', options);
   }
 
   async connect(): Promise<boolean> {
@@ -101,37 +106,31 @@ export class ApiClient {
     }
   }
 
+
+  // ----------- USER ----------- //
+
+  async login(username: string, password: string): Promise<boolean> {
+    return this.handleAuth('/auth/login', { email: username, password });
+  }
+
+  async register(options: any): Promise<boolean> {
+    return this.handleAuth('/auth/register', options);
+  }
+
+  private async refreshUser() {
+    this.user = await this.getMe();
+    if (this.user) {
+      localStorage.setItem(this.userKey, JSON.stringify(this.user));
+    }
+  }
+
   async resetPassword(options: any): Promise<boolean> {
     try {
-      await this.client.post("/auth/reset", options);
+      await this.Post("/auth/reset", options);
       return true;
     } catch {
       return false;
     }
-  }
-
-  deconnection(): void {
-    this.clearAuthToken();
-  }
-
-  private setAuthToken(accessToken: string, refreshToken: string): void {
-    localStorage.setItem(this.accessTokenKey, accessToken);
-    localStorage.setItem(this.refreshTokenKey, refreshToken);
-  }
-
-  getAuthToken(): string | null {
-    return localStorage.getItem(this.accessTokenKey);
-  }
-
-  isConnected(): boolean {
-    return !!this.getAuthToken();
-  }
-
-  clearAuthToken(): void {
-    localStorage.removeItem(this.accessTokenKey);
-    localStorage.removeItem(this.refreshTokenKey);
-    localStorage.removeItem(this.userKey);
-    this.user = null;
   }
 
   async getMe(): Promise<User> {
@@ -144,11 +143,72 @@ export class ApiClient {
     return res.data;
   }
 
+  isAdmin(){
+    return this.user?.role === "admin"
+  }
+
+
+  // ----------- CONNECTION ----------- //
+
+  isConnected(): boolean {
+    return !!this.getAuthToken();
+  }
+
+  deconnection(): void {
+    this.clearAuthToken();
+    this.goToLogin()
+  }
+
+  private setAuthToken(accessToken: string, refreshToken: string): void {
+    localStorage.setItem(this.accessTokenKey, accessToken);
+    localStorage.setItem(this.refreshTokenKey, refreshToken);
+  }
+
+  getAuthToken(): string | null {
+    return localStorage.getItem(this.accessTokenKey);
+  }
+
+  private clearAuthToken(): void {
+    localStorage.removeItem(this.accessTokenKey);
+    localStorage.removeItem(this.refreshTokenKey);
+    localStorage.removeItem(this.userKey);
+    this.user = null;
+  }
+
+  private async refreshAccessToken(): Promise<string | null> {
+    const refreshToken = localStorage.getItem(this.refreshTokenKey);
+    if (!refreshToken){
+      this.deconnection();
+      return null;
+    }
+  
+    try {
+      const response = await this.client.post<AuthResponse>('/auth/refresh', { refreshToken });
+      if (response.data.accessToken) {
+        const refreshToken = localStorage.getItem(this.refreshTokenKey)
+        if(refreshToken){
+          this.setAuthToken(response.data.accessToken, refreshToken);
+          return response.data.accessToken;
+        } else {
+          this.deconnection()
+          return null
+        }
+      }
+      return null;
+    } catch (error) {
+      this.deconnection();
+      return null;
+    }
+  }
+
+
+  // ----------- INTERNET REQUESTS ----------- //
+
   protected async Get(endpoint: string): Promise<any> {
     try{
       return await this.client.get(endpoint)
     } catch(e){
-      console.error(e)
+      //console.error(e)
       throw e
     }
   }
@@ -157,7 +217,7 @@ export class ApiClient {
     try{
       return await this.client.post(endpoint, options)
     } catch(e){
-      console.error(e)
+      //console.error(e)
       throw e
     }
   }
@@ -166,7 +226,7 @@ export class ApiClient {
     try{
       return await this.client.patch(endpoint, options)
     } catch(e){
-      console.error(e)
+      //console.error(e)
       throw e
     }
   }
@@ -175,7 +235,7 @@ export class ApiClient {
     try{
       return await this.client.put(endpoint, options)
     } catch(e){
-      console.error(e)
+      //console.error(e)
       throw e
     }
   }
@@ -184,7 +244,7 @@ export class ApiClient {
     try{
       return await this.client.delete(endpoint)
     } catch(e){
-      console.error(e)
+      //console.error(e)
       throw e
     }
   }

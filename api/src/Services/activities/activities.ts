@@ -7,22 +7,38 @@ import { ChannelAuth, ChannelTable } from "../../DB_Schema/ChannelSchema";
 import { PublicationTable } from "../../DB_Schema/PublicationSchema";
 import { CreateActivityParam, UpdateActivityParam } from "../../Validators/activities";
 import { ForbiddenError } from "routing-controllers";
+import { objectToPublication } from "../publications/publications";
+import { toUserObject } from "../users/usersPublic";
+import { objectToChannel } from "../channels/channels";
+import { UserTable } from "../../DB_Schema/UserSchema";
 
 export async function getActivityById(id: string): Promise<Activity | null> {
-    const activity = await ActivityTable.findById(id).exec();
+    const activity = await ActivityTable.findById(id)
+    .populate("publication_id")
+    .populate("participants_id")
+    .populate("author_id")
+    .exec();
     return activity ? normalizeActivity(activity) : null;
 }
 
 
 export async function getPublicActivityById(id: ID): Promise<PublicActivity | null> {
-    const activity = await ActivityTable.findById(id).exec();
+    const activity = await ActivityTable.findById(id)
+    .populate("publication_id")
+    .populate("author_id")
+    .exec();
     if (!activity) return null;
     const { channel_chat_id, participants_id, ...publicFields } = activity.toObject();
     return normalizeActivity(publicFields)
 }
 
 export async function getAllActivities(): Promise<Activity[]> {
-    const activities = await ActivityTable.find().sort({ created_at: -1 }).exec();
+    const activities = await ActivityTable.find()
+    .sort({ created_at: -1 })
+    .populate("publication_id")
+    .populate("participants_id")
+    .populate("author_id")
+    .exec();
     return activities.map(normalizeActivity);
 }
 
@@ -30,6 +46,9 @@ export async function getMyActivities(user: User): Promise<Activity[]> {
     const activities = await ActivityTable
         .find({ participants_id: user._id })
         .sort({ created_at: -1 })
+        .populate("publication_id")
+        .populate("participants_id")
+        .populate("author_id")
         .exec();
     return activities.map(normalizeActivity);
 }
@@ -38,13 +57,19 @@ export async function getMyActivitiesAdmin(user: User): Promise<Activity[]> {
     const activities = await ActivityTable
         .find({ author_id: user._id })
         .sort({ created_at: -1 })
+        .populate("publication_id")
+        .populate("participants_id")
+        .populate("author_id")
         .exec();
 
     return activities.map(normalizeActivity);
 }
 
 export async function getAllPublicActivities(): Promise<PublicActivity[]> {
-    const activities = await ActivityTable.find().sort({ created_at: -1 }).exec();
+    const activities = await ActivityTable.find().sort({ created_at: -1 })
+    .populate("author_id")
+    .populate("publication_id")
+    .exec()
     return activities.map(activity => {
         const normalized = normalizeActivity(activity);
         const { channel_chat_id, participants_id, ...publicFields } = normalized;
@@ -161,6 +186,11 @@ export async function createActivity(user: User, activity: CreateActivityParam):
     };
     const activityDoc = await ActivityTable.create(activityToSave);
     if (!activityDoc || !activityDoc._id) throw new Error("Activity creation failed");
+
+    await UserTable.updateOne(
+        {_id: user._id},
+        {$addToSet: {group_chat_list_ids: channel._id}}
+    )
 
     // Mettre à jour la publication avec l'ID de l'activité
     await PublicationTable.updateOne(
@@ -355,18 +385,17 @@ export async function deleteActivity(activity: Activity): Promise<boolean> {
 
 
 
-function normalizeActivity(activityDoc: any): Activity {
+function normalizeActivity(activityDoc: any): any {
     const obj = activityDoc.toObject ? activityDoc.toObject() : activityDoc;
-
     return {
         _id: obj._id.toString(),
         title: obj.title,
         description: obj.description,
         created_at: obj.created_at,
         date_reservation: obj.date_reservation,
-        author_id: obj.author_id?.toString(),
-        channel_chat_id: obj.channel_chat_id?.toString(),
-        publication_id: obj.publication_id?.toString(),
-        participants_id: obj.participants_id?.toString(),
+        author_id: obj.author_id ? toUserObject(obj.author_id) : null,
+        channel_chat_id: obj.channel_chat_id ? objectToChannel(obj.channel_chat_id) : null,
+        publication: obj.publication_id ? objectToPublication(obj.publication_id): null,
+        participants: obj.participants_id ? obj.participants_id.map((user: any) => toUserObject(user)) : null,
     };
 }

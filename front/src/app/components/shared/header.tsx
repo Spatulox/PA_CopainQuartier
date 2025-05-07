@@ -42,7 +42,7 @@ function Header() {
         {/* Partie centrale */}
         <div className="header-section search-section">
           <input
-            type="text"
+            type="search"
             placeholder="Rechercher..."
             className="search-bar"
           />
@@ -55,7 +55,9 @@ function Header() {
             {isConnected ? (
               <>
                 <Link to={Route.chat}>Chat</Link>
+                <Link to={Route.activity}>Activity</Link>
                 <Link to={Route.publications}>Publications</Link>
+                <Link to={Route.troc}>Troc</Link>
                 <Link to={Route.account}>Compte</Link>
                 <a href={Route.base} onClick={handleLogout}>Se déconnecter</a>
               </>

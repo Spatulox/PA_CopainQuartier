@@ -5,6 +5,7 @@ type Field = {
   name: string;
   label: string;
   type: string;
+  value?: string[]
   required?: boolean;
 };
 
@@ -50,17 +51,35 @@ function Form<T extends Record<string, string>>({
               {fields.map((field) => (
                 <div className="form-group" key={field.name}>
                   <label>{field.label}</label>
-                  <input
-                    type={field.type}
-                    value={formData[field.name] || ""}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        [field.name]: e.target.value,
-                      }))
-                    }
-                    required={field.required !== false}
-                  />
+                  {field.type === "select" && Array.isArray((field as any).value) ? (
+                    <select
+                      value={formData[field.name] || ""}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          [field.name]: e.target.value,
+                        }))
+                      }
+                      required={field.required !== false}
+                    >
+                      <option value="">-- Sélectionner --</option>
+                      {(field as any).value.map((option: string) => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type={field.type}
+                      value={formData[field.name] || ""}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          [field.name]: e.target.value,
+                        }))
+                      }
+                      required={field.required !== false}
+                    />
+                  )}
                 </div>
               ))}
               <button type="submit" className="submit-btn">{submitLabel}</button>

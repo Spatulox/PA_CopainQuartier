@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { Publication } from "./PublicationModel";
 
 export interface Activity {
     _id: string,

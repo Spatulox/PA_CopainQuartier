@@ -1,12 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Chat as ChatClass, Channel, Message } from "../../../api/chat";
-import ChannelList from "./ChatList";
-import ChatRoom from "./ChatRoom";
+import { ChatClass, Channel, Message } from "../../../api/chat";
+import { CreateChannel, ManageChannelList } from "./ChatList";
+import ChatRoom, { ChannelRight } from "./ChatRoom";
 import { Route } from "../../constantes";
+import { PopupConfirm } from "../Popup/PopupConfirm";
 
 const ChatPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const [thechannelAuth, setChannelAuth] = useState<ChannelRight>(ChannelRight.read_only);
   const [status, setStatus] = useState("Déconnecté");
   const [statusColor, setStatusColor] = useState("red");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -15,6 +17,7 @@ const ChatPage: React.FC = () => {
   const wsRef = useRef<WebSocket | null>(null);
   const messagesDivRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<ChatClass>(new ChatClass());
+  const [confirmChannelDeletion, setChannelDeletion] = useState<{ id: string, isDelete: boolean } | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,6 +49,8 @@ const ChatPage: React.FC = () => {
         setStatusColor("orange");
         return;
       }
+
+      setChannelAuth(channel.member_auth == ChannelRight.read_send ? ChannelRight.read_send : ChannelRight.read_only)
 
       const ws = new WebSocket(`ws://localhost:3000/channel/${channel._id}`);
       wsRef.current = ws;
@@ -118,6 +123,15 @@ const ChatPage: React.FC = () => {
     }
   }, [messages]);
 
+  function handleAskConfirmation(id_channel: string, user_id: string | undefined) {
+    const channel = channels.find(c => c._id === id_channel);
+    if (channel && user_id && channel.admin_id.toString() === user_id) {
+      setChannelDeletion({ id: id_channel, isDelete: true });
+    } else {
+      setChannelDeletion({ id: id_channel, isDelete: false });
+    }
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const user = userRef.current;
@@ -139,14 +153,59 @@ const ChatPage: React.FC = () => {
   };
 
   if (!id) {
-    return <ChannelList channels={channels} />;
-  }
 
+    async function leaveDeleteGroup(id_channel: string, user_id: string | undefined) {
+      const chat = new ChatClass();
+      const channel = await chat.getChannelById(id_channel);
+      if (channel && user_id && channel.admin_id.toString() === user_id) {
+        await chat.deleteChat(id_channel);
+      } else {
+        await chat.leaveChat(id_channel);
+      }
+      const updatedChannels = await chat.getChannel();
+      setChannels(updatedChannels);
+    }
+
+    async function refreshChannel() {
+      const channels = await userRef.current.getChannel();
+      setChannels(channels)
+    }
+
+    return (
+      <>
+        <ManageChannelList
+          channels={channels}
+          action={handleAskConfirmation}
+          user={userRef.current.user}
+        />
+        <CreateChannel action={refreshChannel} />
+        {confirmChannelDeletion && (
+          <PopupConfirm
+            title={confirmChannelDeletion.isDelete ? "Supprimer le chat" : "Quitter le chat"}
+            description={
+              confirmChannelDeletion.isDelete
+                ? "Êtes-vous sûr de vouloir supprimer ce chat ? Cette action est irréversible."
+                : "Êtes-vous sûr de vouloir quitter ce chat ?"
+            }
+            onConfirm={async () => {
+              await leaveDeleteGroup(confirmChannelDeletion.id, userRef.current.user!._id);
+              setChannelDeletion(null);
+            }}
+            onCancel={() => setChannelDeletion(null)}
+            confirmLabel={confirmChannelDeletion.isDelete ? "Supprimer" : "Quitter"}
+            cancelLabel="Annuler"
+          />
+        )}
+      </>
+    );
+  }
+  
   return (
     <ChatRoom
       id={id}
       status={status}
       statusColor={statusColor}
+      memberRight={thechannelAuth}
       messages={messages}
       input={input}
       setInput={setInput}
