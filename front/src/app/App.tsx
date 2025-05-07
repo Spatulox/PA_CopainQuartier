@@ -16,7 +16,7 @@ import Publications from './components/Publications/PublicationsPage';
 import ActivityComponent from './components/Activity/ActivityPage';
 import Trocs from './components/Trocs/TrocsPage';
 import ResetPassword from './components/LoginRegister/ResetPassword';
-import ManageActivity from './components/Activity/ManageActivity';
+import ManageActivity from './components/Activity/ActivityManage';
 
 function App() {
   return (

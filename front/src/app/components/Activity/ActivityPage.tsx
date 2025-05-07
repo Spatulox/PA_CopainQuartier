@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import ActivityList from "./ActivityList";
-import CreateActivity from "./CreateActivity";
+import CreateActivity from "./ActivityCreate";
 import { useNavigate, useParams } from "react-router-dom";
 import { Route } from "../../constantes";
 import { Activity, ActivityClass } from "../../../api/activity";
