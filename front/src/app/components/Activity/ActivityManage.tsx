@@ -185,7 +185,7 @@ export function ManageActivity(){
     }, [])
 
     useEffect(() => {
-        if (userIsAdmin === false) {
+        if (userIsAdmin === false && !id) {
             navigate(`${Route.manageMyActivity}`);
         }
     }, [userIsAdmin, navigate]);
