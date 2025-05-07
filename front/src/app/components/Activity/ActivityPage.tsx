@@ -1,16 +1,18 @@
 // app/pages/activity.tsx
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ActivityList from "./ActivityList";
 import CreateActivity from "./CreateActivity";
 import { useNavigate, useParams } from "react-router-dom";
 import { Route } from "../../constantes";
 import { Activity, ActivityClass } from "../../../api/activity";
+import { User } from "../../../api/user";
 
 
 function ShowActivity(){
     const { id } = useParams<{ id: string }>();
     const [activity, setActivity] = useState<Activity>()
+    const [user, setUser] = useState<User>()
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -18,7 +20,9 @@ function ShowActivity(){
             const client = new ActivityClass()
             if(id){
                 const activity = await client.getActivityByID(id)
+                const user = await client.getMe()
                 setActivity(activity)
+                setUser(user)
             }
         })()
     }, [id])
@@ -48,6 +52,7 @@ function ShowActivity(){
                 <div>
                 <strong>Publication :</strong> {activity.publication?.name}
                 <button onClick={() => navigate(`${Route.publications}/${activity.publication._id}`)}>Voir la Publication associée</button>
+                {(activity.author_id?._id && activity.author_id?._id == user?._id ) ? <button onClick={() => navigate(`${Route.manageActivity}/${activity._id}`)}>Gérer l'activité</button> : ""}
                 </div>
             </div>
         )
