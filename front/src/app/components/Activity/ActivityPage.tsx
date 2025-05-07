@@ -84,7 +84,7 @@ function ActivityComponent(){
     <ActivityList message={message} />
     <div>
         <CreateActivity onUpdate={handleUpdate} />
-        <button onClick={() => navigate(Route.manageActivity)}>Gérer mes Activités</button>
+        <button onClick={() => navigate(Route.manageMyActivity)}>Gérer mes Activités</button>
     </div>
     </>
 }

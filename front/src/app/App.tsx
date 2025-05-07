@@ -16,7 +16,7 @@ import Publications from './components/Publications/PublicationsPage';
 import ActivityComponent from './components/Activity/ActivityPage';
 import Trocs from './components/Trocs/TrocsPage';
 import ResetPassword from './components/LoginRegister/ResetPassword';
-import ManageActivity from './components/Activity/ActivityManage';
+import ManageActivity, { ManageMyActivity } from './components/Activity/ActivityManage';
 
 function App() {
   return (
@@ -40,6 +40,7 @@ function App() {
           <Route path={`${CRoute.activity}/:id`} element={<ActivityComponent />} />
           <Route path={CRoute.manageActivity} element={<ManageActivity />} />
           <Route path={`${CRoute.manageActivity}/:id`} element={<ManageActivity />} />
+          <Route path={`${CRoute.manageMyActivity}`} element={<ManageMyActivity />} />
 
 
           <Route path={`${CRoute.publications}`} element={<Publications />} />
