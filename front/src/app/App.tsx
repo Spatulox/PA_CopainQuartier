@@ -17,6 +17,7 @@ import ActivityComponent from './components/Activity/ActivityPage';
 import Trocs from './components/Trocs/TrocsPage';
 import ResetPassword from './components/LoginRegister/ResetPassword';
 import ManageActivity, { ManageMyActivity } from './components/Activity/ActivityManage';
+import ManagePublication, { ManageMyPublications } from './components/Publications/PublicationManage';
 
 function App() {
   return (
@@ -45,13 +46,15 @@ function App() {
 
           <Route path={`${CRoute.publications}`} element={<Publications />} />
           <Route path={`${CRoute.publications}/:id`} element={<Publications />} />
-          <Route path={`${CRoute.managePublications}`} element={<Publications />} />
-          <Route path={`${CRoute.managePublications}/:id`} element={<Publications />} />
+          <Route path={`${CRoute.managePublications}`} element={<ManagePublication />} />
+          <Route path={`${CRoute.managePublications}/:id`} element={<ManagePublication />} />
+          <Route path={`${CRoute.manageMyPublications}`} element={<ManageMyPublications />} />
 
           <Route path={CRoute.troc} element={<Trocs />} />
           <Route path={`${CRoute.troc}/:id`} element={<Trocs />} />
           <Route path={CRoute.manageTrocs} element={<Trocs />} />
           <Route path={`${CRoute.manageTrocs}/:id`} element={<Trocs />} />
+          <Route path={`${CRoute.manageMyTrocs}`} element={<Trocs />} />
           {/* ... autres routes */}
         </Routes>
         </main>
