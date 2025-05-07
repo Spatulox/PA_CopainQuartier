@@ -74,7 +74,6 @@ export function CreateChannel({action} : CreateProps){
     if(resp){
       action()
     }
-    alert("Channel créé !\nNom: " + formData.name + "\nDescription: " + formData.description);
   }
 
   return (

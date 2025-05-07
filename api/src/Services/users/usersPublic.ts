@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { UserTable } from "../../DB_Schema/UserSchema";
 import { User, PublicUser } from "../../Models/UserModel";
 import { ID } from "../../Utils/IDType";
+import { objectToChannel } from "../channels/channels";
 
 export async function getUserById(user: User | ID): Promise<User | null> {
     let userId: ID;
@@ -66,7 +67,7 @@ export function toUserObject(doc: any): User {
         address: doc.address,
         verified: doc.verified,
         role: doc.role,
-        group_chat_list_ids: (doc.group_chat_list_ids || []).map((id: any) => id.toString()),
+        group_chat_list_ids: (doc.group_chat_list_ids || []).map((item: any) => objectToChannel(item)),
         troc_score: doc.troc_score ? doc.troc_score.toString() : null,
         phone: doc.phone,
     };
