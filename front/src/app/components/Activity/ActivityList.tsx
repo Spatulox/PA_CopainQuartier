@@ -19,7 +19,6 @@ function ActivityList({message}: ActivityListMessage){
         (async () => {
             const client = new ActivityClass()
             const activities = await client.getActivities()
-            console.log(activities)
             setActivity(activities)
         })()
     }, [message])
