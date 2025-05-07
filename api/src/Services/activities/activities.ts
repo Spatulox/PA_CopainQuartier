@@ -71,7 +71,6 @@ export async function getAllPublicActivities(): Promise<PublicActivity[]> {
     .populate("publication_id")
     .exec()
     return activities.map(activity => {
-        console.log(activity)
         const normalized = normalizeActivity(activity);
         const { channel_chat_id, participants_id, ...publicFields } = normalized;
         return publicFields as PublicActivity;
