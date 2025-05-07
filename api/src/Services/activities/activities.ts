@@ -25,6 +25,7 @@ export async function getActivityById(id: string): Promise<Activity | null> {
 export async function getPublicActivityById(id: ID): Promise<PublicActivity | null> {
     const activity = await ActivityTable.findById(id)
     .populate("publication_id")
+    .populate("author_id")
     .exec();
     if (!activity) return null;
     const { channel_chat_id, participants_id, ...publicFields } = activity.toObject();
@@ -65,8 +66,12 @@ export async function getMyActivitiesAdmin(user: User): Promise<Activity[]> {
 }
 
 export async function getAllPublicActivities(): Promise<PublicActivity[]> {
-    const activities = await ActivityTable.find().sort({ created_at: -1 }).populate("author_id").populate("publication_id").exec()
+    const activities = await ActivityTable.find().sort({ created_at: -1 })
+    .populate("author_id")
+    .populate("publication_id")
+    .exec()
     return activities.map(activity => {
+        console.log(activity)
         const normalized = normalizeActivity(activity);
         const { channel_chat_id, participants_id, ...publicFields } = normalized;
         return publicFields as PublicActivity;
@@ -389,7 +394,7 @@ function normalizeActivity(activityDoc: any): any {
         description: obj.description,
         created_at: obj.created_at,
         date_reservation: obj.date_reservation,
-        author_id: obj.author_id,
+        author_id: obj.author_id ? toUserObject(obj.author_id) : null,
         channel_chat_id: obj.channel_chat_id ? objectToChannel(obj.channel_chat_id) : null,
         publication: obj.publication_id ? objectToPublication(obj.publication_id): null,
         participants: obj.participants_id ? obj.participants_id.map((user: any) => toUserObject(user)) : null,
