@@ -11,10 +11,13 @@ export const enum Route {
 
     activity = "/activity",
     manageActivity = "/activity/manage",
+    manageMyActivity = "/activity/manage/me",
 
     publications = "/publications",
     managePublications = "/publications/manage",
+    manageMyPublications = "/publications/manage/me",
 
     troc = "/trocs",
     manageTrocs = "/trocs/manage",
+    manageMyTrocs = "/trocs/manage/me",
 }
