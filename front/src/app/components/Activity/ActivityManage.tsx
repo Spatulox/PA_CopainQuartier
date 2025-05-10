@@ -3,7 +3,7 @@ import { Activity, ActivityClass } from "../../../api/activity"
 import { useNavigate, useParams } from "react-router-dom";
 import { Route } from "../../constantes";
 
-function ManageMyActivity() {
+export function ManageMyActivity() {
     const [activities, setActivities] = useState<Activity[] | null>(null);
     const navigate = useNavigate()
   
@@ -176,6 +176,7 @@ function ManageOneActivity(){
 export function ManageActivity(){
     const [userIsAdmin, setUserAdmin] = useState(false)
     const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate()
     useEffect(() => {
         (async () => {
             const client = new ActivityClass()
@@ -183,19 +184,18 @@ export function ManageActivity(){
         })
     }, [])
 
+    useEffect(() => {
+        if (userIsAdmin === false && !id) {
+            navigate(`${Route.manageMyActivity}`);
+        }
+    }, [userIsAdmin, navigate]);
+
     if(id){
         return <><ManageOneActivity/></>
     }
     return <>
-        {userIsAdmin ?
-            (
-                <ManageActivityAdmin />
-            ) : 
-
-            (
-                <ManageMyActivity />
-            )
-        }
+      <button onClick={() => navigate(`${Route.manageActivity}/me`)}>Manage My Activies</button>
+        <ManageActivityAdmin />
     </>
 }
 

@@ -1,6 +1,6 @@
 import { act, useEffect, useState } from "react";
 import { Activity, ActivityClass } from "../../../api/activity";
-import CreateActivity from "./CreateActivity";
+import CreateActivity from "./ActivityCreate";
 import { UserClass } from "../../../api/user";
 import { Route } from "../../constantes";
 import { useNavigate } from "react-router-dom";

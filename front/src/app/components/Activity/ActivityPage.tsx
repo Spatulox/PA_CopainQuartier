@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import ActivityList from "./ActivityList";
-import CreateActivity from "./CreateActivity";
+import CreateActivity from "./ActivityCreate";
 import { useNavigate, useParams } from "react-router-dom";
 import { Route } from "../../constantes";
 import { Activity, ActivityClass } from "../../../api/activity";
@@ -84,7 +84,7 @@ function ActivityComponent(){
     <ActivityList message={message} />
     <div>
         <CreateActivity onUpdate={handleUpdate} />
-        <button onClick={() => navigate(Route.manageActivity)}>Gérer mes Activités</button>
+        <button onClick={() => navigate(Route.manageMyActivity)}>Gérer mes Activités</button>
     </div>
     </>
 }

@@ -13,7 +13,7 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     padding: 2rem;
     width: 100%;
-    max-width: 400px;
+    /*max-width: 400px;*/
     animation: slide-up 0.4s ease;
   }
   
@@ -53,8 +53,23 @@
     width: 300px;
     box-sizing: border-box;
   }
+
+  .form-group textarea {
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+    width: 550px;
+    height: 310px;
+    box-sizing: border-box;
+  }
+
+  .form-group input, .form-group select, .form-group textarea {
+    border-color: #1a1a1a;
+  }
   
-  .form-group input:focus, .form-group select:focus {
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
     outline: none;
     border-color: #6a11cb;
   } 
@@ -62,18 +77,21 @@
   .submit-btn {
     width: 100%;
     padding: 0.8rem;
-    background-color: #6a11cb;
+    background: linear-gradient(120deg, #6a11cb, #2575fc, #6a11cb);
+    background-size: 200% 100%;
+    background-position: 100% 0;
     color: white;
     border: none;
     border-radius: 8px;
     font-size: 1rem;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-position 0.5s;
   }
   
   .submit-btn:hover {
-    background-color: #2575fc;
+    background-position: 0 0;
   }
+  
   
   .switch-mode {
     text-align: center;
