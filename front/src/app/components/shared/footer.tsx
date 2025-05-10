@@ -1,5 +1,5 @@
 // shared/footer.tsx
-import '../css/shared/footer.css';
+import './footer.css';
 
 function Footer() {
   return (

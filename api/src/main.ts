@@ -1,17 +1,17 @@
 import 'reflect-metadata';
 import { createExpressServer, RoutingControllersOptions } from 'routing-controllers';
-import { UserController } from './Controllers/UserController';
+import { AdminUserController, UserController } from './Controllers/UserController';
 import { connectDB } from './DB_Schema/connexion';
 import { ErrorHandler } from './Middleware/error-handling';
 import { authMiddleware, getCurrentUser } from './Middleware/auth';
-import { ActivityController } from './Controllers/ActivitiesController';
+import { ActivityController, AdminActivityController } from './Controllers/ActivitiesController';
 import { AccountController } from './Controllers/AccountController';
 import { ChannelsController } from './Controllers/ChannelsControllers';
 import { PublicationsController } from './Controllers/PublicationsController';
-import { TrocController } from './Controllers/TrocsController';
+import { AdminTrocController, TrocController } from './Controllers/TrocsController';
 import { WebSocketServer } from 'ws';
 import http from 'http';
-import { handleMessage } from './Controllers/ChannelsWebsoketController';
+import { channelSubscriptions, handleMessage, initAccessMap } from './Controllers/ChannelsWebsoketController';
 import { parse } from 'url';
 import { AuthController } from './Controllers/AuthController';
 
@@ -26,7 +26,12 @@ async function main(){
     authorizationChecker: authMiddleware,
     currentUserChecker: getCurrentUser,
     middlewares: [ErrorHandler],
-    controllers: [AccountController,
+    controllers: [
+      AdminTrocController,
+      AdminUserController,
+      AdminActivityController,
+
+      AccountController,
       ActivityController,
       AuthController,
       ChannelsController,
@@ -65,6 +70,11 @@ async function main(){
   
     ws.on('close', () => {
       console.log('Client déconnecté');
+      // Nettoyage des abonnements
+      for (const clients of channelSubscriptions.values()) {
+        clients.delete(ws);
+      }
+      initAccessMap.delete(ws);
     });
   });
 }

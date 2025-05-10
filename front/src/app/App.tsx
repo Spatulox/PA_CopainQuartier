@@ -1,24 +1,49 @@
 // App.tsx
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Header from './shared/header';
-import Footer from './shared/footer';
-import AuthForm from './pages/auth_register';
-import HomePage from './pages/home_page';
-
 import './css/App.css'
 import './css/index.css'
 
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Account from './components/Account/AccountPage';
+import Chat from './components/Chat/ChatPage';
+import { Route as CRoute } from './constantes';
+import Register from './components/LoginRegister/Register';
+import Login from './components/LoginRegister/Login';
+import Header from './components/shared/header';
+import Footer from './components/shared/footer';
+import { AuthProvider } from './components/shared/auth-context';
+import HomePage from './components/HomePage/HomePage';
+import Publications from './components/Publications/PublicationsPage';
+import ActivityComponent from './components/Activity/ActivityPage';
+import Trocs from './components/Trocs/TrocsPage';
+import ResetPassword from './components/LoginRegister/ResetPassword';
+import ManageActivity from './components/Activity/ManageActivity';
+
 function App() {
   return (
-    <BrowserRouter>
-      <Header />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/auth" element={<AuthForm />} />
-        {/* ... autres routes */}
-      </Routes>
-      <Footer />
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Header />
+        <main>
+        <Routes>
+          <Route path={CRoute.account} element={<Account />} />
+          <Route path={CRoute.activity} element={<ActivityComponent />} />
+          <Route path={`${CRoute.activity}/:id`} element={<ActivityComponent />} />
+          <Route path={`${CRoute.chat}`} element={<Chat />} />
+          <Route path={`${CRoute.chat}/:id`} element={<Chat />} />
+          <Route path={CRoute.base} element={<HomePage />} />
+          <Route path={CRoute.login} element={<Login />} />
+          <Route path={CRoute.manageActivity} element={<ManageActivity />} />
+          <Route path={`${CRoute.manageActivity}/:id`} element={<ManageActivity />} />
+          <Route path={`${CRoute.publications}`} element={<Publications />} />
+          <Route path={CRoute.register} element={<Register />} />
+          <Route path={CRoute.resetPassword} element={<ResetPassword />} />
+          <Route path={CRoute.troc} element={<Trocs />} />
+          {/* ... autres routes */}
+        </Routes>
+        </main>
+        <Footer />
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

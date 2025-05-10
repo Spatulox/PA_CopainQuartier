@@ -2,9 +2,8 @@ import {Authorized, Body, BodyParam, CurrentUser, HttpCode, JsonController, Post
 import { logout } from "../Services/auth/logout";
 import { loginUser, refreshToken } from "../Services/auth/login";
 import { registerUser } from "../Services/auth/register";
-import { zLoginParams, zRegisterParams, zTokens } from "../Validators/auth";
+import { zLoginParams, zRegisterParams, zRefreshToken } from "../Validators/auth";
 import { User } from "../Models/UserModel"
-
 @JsonController('/auth')
 export class AuthController {
 
@@ -23,23 +22,17 @@ export class AuthController {
 
 	@Post('/register')
 	@HttpCode(201)
-	async register(
-		@Body() body: unknown
-	): Promise<{
-		accessToken: string
-		refreshToken: string
-	}> {
+	async register(@Body() body: unknown): Promise<{accessToken: string, refreshToken: string}> {
 		const registerParams = zRegisterParams.parse(body)
 		const {accessToken, refreshToken} = await registerUser(registerParams)
 
 		return {accessToken, refreshToken}
 	}
-
+	
 	@Post('/refresh')
-	async refresh(
-		@BodyParam('refreshToken', {type: String}) token: string
-	): Promise<{ accessToken: string }> {
-		const accessToken = await refreshToken(token)
+	async refresh(@Body() token: string): Promise<{ accessToken: string }> {
+		const validRefresh = zRefreshToken.parse(token)
+		const accessToken = await refreshToken(validRefresh)
 		return {accessToken}
 	}
 

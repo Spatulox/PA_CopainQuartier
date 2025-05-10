@@ -1,12 +1,14 @@
 import mongoose from "mongoose";
-import { Channel, ChannelToPublicChannel, createMessage, Message, MessageType, PublicChannel } from "../../Models/ChannelModel";
+import { Channel, ChannelToPublicChannel, createMessage, Message, MessageType, ObjectToChannel, PublicChannel } from "../../Models/ChannelModel";
 import { ChannelAuth, ChannelTable } from "../../DB_Schema/ChannelSchema";
 import { CreateChannelParam, PostMessageParam, TransferChannelParam, UpdateChannelParam } from "../../Validators/channels";
 import { ID } from "../../Utils/IDType";
 import { User } from "../../Models/UserModel";
+import { UserTable } from "../../DB_Schema/UserSchema";
 
 export async function getChannelById(channel_id: ID): Promise<Channel | null>{
-    return await ChannelTable.findById(channel_id)
+    const res = await ChannelTable.findById(channel_id)
+    return ObjectToChannel(res)
 }
 
 export async function getPublicChannelById(channel_id: ID): Promise<PublicChannel | null>{
@@ -15,6 +17,13 @@ export async function getPublicChannelById(channel_id: ID): Promise<PublicChanne
         return null
     }
     return ChannelToPublicChannel(channels)
+}
+
+export async function getMyChannel(user: User): Promise<Channel[] | null>{
+    const res = await ChannelTable.find({
+        admin_id: user._id
+    }).lean().exec()
+    return res.map(objectToChannel);
 }
 
 export async function createChannel(user: User, data: CreateChannelParam): Promise<Channel | null>{
@@ -33,8 +42,15 @@ export async function createChannel(user: User, data: CreateChannelParam): Promi
 
     }
 
-    const channelDoc = await ChannelTable.create(dataToSave);
-    return objectToChannel(channelDoc)
+    const channeltmp = await ChannelTable.create(dataToSave)
+    if (channeltmp && channeltmp._id) {
+        await UserTable.updateOne(
+            { _id: user._id },
+            { $addToSet: { group_chat_list_ids: channeltmp._id } }
+        );
+    }
+
+    return objectToChannel(channeltmp);
 }
 
 export async function updateChannelAttribute(channel_id: ID, update: UpdateChannelParam): Promise<boolean> {
@@ -91,6 +107,12 @@ export async function deleteMessageFromChannel(channel_id: ID, message_id: ID): 
 
 export async function deleteChannel(channel_id: ID): Promise<boolean>{
     const res = await ChannelTable.deleteOne({_id: channel_id})
+
+    await UserTable.updateMany(
+        { group_channel_list: channel_id },
+        { $pull: { group_channel_list: channel_id } }
+    );
+
     return res.deletedCount > 0
 }
 
@@ -109,7 +131,7 @@ export function objectToChannel(obj: any): Channel {
     return {
         _id: obj._id?.toString(),
         name: obj.name,
-        publication_id: obj.publication_id ? obj.publication_id.toString() : null,
+        activity_id: obj.activity_id ? obj.activity_id.toString() : null,
         type: obj.type,
         description: obj.description,
         admin_id: obj.admin_id?.toString(),

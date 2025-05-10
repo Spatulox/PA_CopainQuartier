@@ -1,15 +1,17 @@
 /* components/header.css */
 .header {
-    background-color: #ffffff;
+    background-color: #444;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     padding: 1rem 2rem;
+    color: white;
+    z-index: 10;
+    position: relative;
   }
   
   .header-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    max-width: 1200px;
     margin: 0 auto;
   }
   
@@ -46,14 +48,15 @@
   }
   
   .nav-links a {
+    align-content: center;
     text-decoration: none;
-    color: #333;
+    color: white;
     font-weight: 500;
     transition: color 0.3s;
   }
   
   .nav-links a:hover {
-    color: #007bff;
+    text-decoration: underline;
   }
   
   .burger-menu {
@@ -79,21 +82,35 @@
     .search-section {
       order: 3;
       width: 100%;
-      margin-top: 1rem;
     }
   
     .search-bar {
       width: 100%;
     }
+
+    .logo {
+      display: none;
+    }
   
     .nav-links {
-      display: none;
+      display: block;
+      position: absolute;
+      /*transform: translateY(-100%);*/
+      transform: translateY(66px);
       width: 100%;
-      padding: 1rem 0;
+      height: 0px;
+      overflow: hidden;
+      padding: 0;
+      transition: all 0.5s ease-in-out;
+      background-color: #444;
+      z-index: 1;
+      left: 0;
+      top: 0;
     }
   
     .nav-links.active {
-      display: block;
+      height: 250px;
+      transition: all 0.5s ease-in-out;
     }
   
     .nav-links nav {

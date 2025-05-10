@@ -27,3 +27,11 @@ export const zTokens = z.object({
 	accessToken: z.string(),
 	refreshToken: z.string()
 })
+
+
+export const zRefreshToken = z.object({
+  refreshToken: z.string()
+})
+
+export type Refreshtoken = z.infer<typeof zRefreshToken>
+export type ConnectionToken = z.infer<typeof zTokens>

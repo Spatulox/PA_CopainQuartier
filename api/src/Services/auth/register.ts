@@ -1,13 +1,10 @@
 import { UserRole, UserTable } from "../../DB_Schema/UserSchema";
-import type { RegisterParams } from "../../Validators/auth";
+import type { ConnectionToken, RegisterParams } from "../../Validators/auth";
 import { generateToken, JwtType } from "./jwt";
 import { hashPassword } from "./password";
 import { BadRequestError } from "routing-controllers";
 
-export async function registerUser(params: RegisterParams): Promise<{
-  accessToken: string;
-  refreshToken: string;
-}> {
+export async function registerUser(params: RegisterParams): Promise<ConnectionToken> {
   const user = await saveUser(params);
 
   const [accessToken, refreshToken] = await Promise.all([
@@ -32,6 +29,12 @@ export async function registerUser(params: RegisterParams): Promise<{
 async function saveUser(params: RegisterParams) {
   const hashedPassword = await hashPassword(params.password);
   try {
+
+    const existingUser = await UserTable.findOne({email: params.email})
+    if(existingUser){
+      throw new BadRequestError("Email already exists");
+    }
+
     const user = await UserTable.create({
       email: params.email,
       password: hashedPassword,

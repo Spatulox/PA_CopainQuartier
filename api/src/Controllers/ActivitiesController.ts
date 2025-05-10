@@ -1,38 +1,70 @@
-import { Authorized, CurrentUser, Delete, ForbiddenError, Get, JsonController, NotFoundError, Param, Patch } from "routing-controllers";
+import { Authorized, Body, CurrentUser, Delete, ForbiddenError, Get, JsonController, NotFoundError, Param, Patch, Post } from "routing-controllers";
 import { zId, zObjectId } from "../Validators/utils";
 import { Activity, PublicActivity } from "../Models/ActivityModel";
-import { getAllPublicActivities, getPublicActivityById, deleteActivity, joinActivityById, leaveActivityById, getActivityById, getMyActivities, getMyActivitiesAdmin } from "../Services/activities/activities";
+import { getAllPublicActivities, getPublicActivityById, deleteActivity, joinActivityById, leaveActivityById, getActivityById, getMyActivities, getMyActivitiesAdmin, createActivity, updateActivity, getAllActivities } from "../Services/activities/activities";
 import { UserRole } from "../DB_Schema/UserSchema";
 import { User } from "../Models/UserModel";
+import { CreateActivityParam, UpdateActivityParam, zCreateActivity, zUpdateActivity } from "../Validators/activities";
+import { ID } from "../Utils/IDType";
 
-@JsonController()
+
+
+@JsonController("/admin/activities")
+export class AdminActivityController{
+    @Get("/")
+    async getAllActivities(): Promise<PublicActivity[]>{
+        return await getAllActivities()
+    }
+
+    @Get("/:id")
+    async getActivityAdminByID(@Param("id") id: string): Promise<Activity | null>{
+        const validID = zObjectId.parse(id)
+        return await getActivityById(validID)
+    }
+}
+
+@JsonController("/activities")
 export class ActivityController{
 
-    @Get("/activities")
+    @Get("/")
     async getAllActivities(): Promise<PublicActivity[]>{
         return await getAllPublicActivities()
     }
 
-    @Get("/activities/@me")
+    @Get("/@me")
     @Authorized()
     async getMyActivities(@CurrentUser() user: User): Promise<Activity[]>{
         return await getMyActivities(user)
     }
 
-    @Get("/activities/@me/admin")
+    @Get("/@me/admin")
     @Authorized()
     async getMyAdminActivities(@CurrentUser() user: User): Promise<Activity[]>{
         return await getMyActivitiesAdmin(user)
     }
 
-    @Get("/activities/:id")
+    @Get("/:id")
     async getActivityById(@Param("id") act_id: string): Promise<PublicActivity | null>{
         const validId = zObjectId.parse(act_id)
         return await getPublicActivityById(validId)
     }
 
+    @Post("/")
+    @Authorized()
+    async createActivity(@CurrentUser() user: User, @Body() body: CreateActivityParam): Promise<Activity | null>{
+        const validBody = zCreateActivity.parse(body)
+        return await createActivity(user, validBody)
+    }
 
-    @Patch("/activities/:id/join")
+    @Patch("/:id")
+    @Authorized()
+    async udpdateActivity(@CurrentUser() user: User, @Param("id") id: string, @Body() body: UpdateActivityParam): Promise<Activity | null>{
+        const validBody = zUpdateActivity.parse(body)
+        const validID = zObjectId.parse(id)
+        return await updateActivity(user, validBody, validID)
+    }
+
+    @Patch("/:id/join")
     @Authorized()
     async joinActivityById(@CurrentUser() user: User, @Param("id") act_id: string): Promise<boolean>{
         const validId = zObjectId.parse(act_id)
@@ -43,7 +75,7 @@ export class ActivityController{
         return await joinActivityById(user, activity)
     }
 
-    @Patch("/activities/:id/leave")
+    @Patch("/:id/leave")
     @Authorized()
     async leaveActivityById(@CurrentUser() user: User, @Param("id") act_id: string): Promise<boolean>{
         const validId = zObjectId.parse(act_id)
@@ -54,7 +86,7 @@ export class ActivityController{
         return await leaveActivityById(user, activity)
     }
 
-    @Delete("/activities/:id")
+    @Delete("/:id")
     @Authorized()
     async deleteActivity(@CurrentUser() user: User, @Param("id") act_id: string): Promise<boolean>{
         const validId = zObjectId.parse(act_id)
