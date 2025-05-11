@@ -2,11 +2,10 @@ package com.example.scraper;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-
-import java.io.IOException;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 public class EvousScraper implements SiteScraper {
-
     private static final String URL = "https://www.evous.fr/paris/concerts/";
 
     @Override
@@ -17,33 +16,28 @@ public class EvousScraper implements SiteScraper {
                     .userAgent("Mozilla/5.0")
                     .get();
 
-            System.out.println("✅ Page téléchargée ! Extraction des événements...\n");
+            Elements eventElements = doc.select("h3.event-title");
 
+            for (Element h3 : eventElements) {
+                Element link = h3.selectFirst("a");
+                if (link == null) continue;
 
-            var eventElements = doc.select("h3.event-title");
-
-            for (var h3 : eventElements) {
-                var link = h3.selectFirst("a");
-                var title = link.text();
-                var href = link.absUrl("href");
-
-
-                var dateElement = h3.nextElementSibling();
+                String title = link.text();
+                String href = link.absUrl("href");
+                Element dateElement = h3.nextElementSibling();
                 String date = (dateElement != null && dateElement.hasClass("date")) ? dateElement.text() : "Date non trouvée";
 
                 System.out.println("🎵 Titre : " + title);
                 System.out.println("🔗 Lien  : " + href);
                 System.out.println("📅 Date  : " + date);
                 System.out.println("--------------------------");
+
+                // Enregistrement
+                Database.saveEvent(title, href, date, "concert", "evous.fr");
             }
 
-        } catch (IOException e) {
-            System.err.println("Erreur lors du téléchargement : " + e.getMessage());
-
+        } catch (Exception e) {
+            System.err.println("Erreur scraping : " + e.getMessage());
         }
-    }
-
-    public static void main(String[] args) {
-        new EvousScraper().scrape();
     }
 }
