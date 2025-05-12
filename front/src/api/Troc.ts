@@ -71,9 +71,13 @@ export class AdminTrocClass extends TrocClass{
             throw new Error("User is not admin");
         }
     }
-    
-    async getAdminTroc(){
+
+    async getWaitingTroc(){
         return await this.Get(`${this.url}`)
+    }
+
+    async getAllAdminTroc(){
+        return await this.Get(`${this.url}/all`)
     }
     
     async getAdminTrocByID(id: string){
