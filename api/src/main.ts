@@ -14,6 +14,7 @@ import http from 'http';
 import { channelSubscriptions, handleMessage, initAccessMap } from './Controllers/ChannelsWebsoketController';
 import { parse } from 'url';
 import { AuthController } from './Controllers/AuthController';
+import cors from 'cors'
 
 
 async function main(){
