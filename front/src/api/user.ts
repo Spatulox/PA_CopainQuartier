@@ -22,7 +22,7 @@ export type User = {
 
 
 export class UserClass extends ApiClient{
-    private url = "/users"
+    protected url = "/users"
 
     async getUsers(): Promise<User>{
         console.log( await this.Get(this.url))
@@ -32,5 +32,29 @@ export class UserClass extends ApiClient{
     async getUserByID(id: string): Promise<User>{
         console.log( await this.Get(`${this.url}/${id}`))
         return {} as User
+    }
+}
+
+export class AdminUserClass extends ApiClient{
+    protected url = "/admin/users"
+
+    async getUsers(): Promise<User>{
+        return await this.Get(this.url)
+    }
+
+    async getUserByID(id: string): Promise<User>{
+        return await this.Get(`${this.url}/${id}`)
+    }
+    
+    async getUnverifiedUsers(): Promise<User>{
+        return await this.Get(`${this.url}/unverified`)
+    }
+
+    async verifyUser(id: string): Promise<Boolean>{
+        return await this.Patch(`${this.url}/${id}/verify`, {})
+    }
+
+    async deleteUser(id: string): Promise<Boolean>{
+        return await this.Delete(`${this.url}/${id}`)
     }
 }
