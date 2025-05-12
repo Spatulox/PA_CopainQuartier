@@ -3,7 +3,7 @@ import { Activity, ActivityClass } from "../../../api/activity"
 import { useNavigate, useParams } from "react-router-dom";
 import { Route } from "../../constantes";
 import Loading from "../shared/loading";
-import { ShowActivity } from "./SimpleActivity";
+import { ShowActivity, ShowActivityButton } from "./SimpleActivity";
 import { User } from "../../../api/user";
 
 export function ManageMyActivity() {
@@ -99,6 +99,7 @@ function ManageActivityAdmin(){
                 user={user}
                 onViewPublication={(pubId) => navigate(`${Route.publications}/${pubId}`)}
                 onManage={(actId) => navigate(`${Route.manageActivity}/${actId}`)}
+                buttonShow={ShowActivityButton.All}
             />
           ))}
         </div>
@@ -139,6 +140,7 @@ function ManageOneActivity(){
             user={user}
             onViewPublication={() => navigate(`${Route.publications}/${activity.publication._id}`)}
             onManage={() => navigate(`${Route.manageActivity}/${activity._id}`)}
+            buttonShow={ShowActivityButton.None}
         />
       </div>
     );

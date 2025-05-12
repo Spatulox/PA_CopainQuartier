@@ -7,7 +7,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Route } from "../../constantes";
 import { Activity, ActivityClass } from "../../../api/activity";
 import { User } from "../../../api/user";
-import { ShowActivity } from "./SimpleActivity";
+import { ShowActivity, ShowActivityButton } from "./SimpleActivity";
+import Loading from "../shared/loading";
 
 
 function ShowActivityPage() {
@@ -29,7 +30,7 @@ function ShowActivityPage() {
     }, [id]);
 
     if (!activity) {
-        return <>Loading</>;
+        return <Loading title="Chargement de l'activité" />;
     }
 
     return (
@@ -38,6 +39,7 @@ function ShowActivityPage() {
             user={user}
             onViewPublication={(pubId) => navigate(`${Route.publications}/${pubId}`)}
             onManage={(actId) => navigate(`${Route.manageActivity}/${actId}`)}
+            buttonShow={ShowActivityButton.ViewPublication | ShowActivityButton.Manage}
         />
     );
 }

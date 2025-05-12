@@ -4,7 +4,7 @@ import CreateActivity from "./ActivityCreate";
 import { User, UserClass } from "../../../api/user";
 import { Route } from "../../constantes";
 import { useNavigate } from "react-router-dom";
-import { ShowActivity } from "./SimpleActivity";
+import { ShowActivity, ShowActivityButton } from "./SimpleActivity";
 import Loading from "../shared/loading";
 
 type ActivityListMessage = {
@@ -46,6 +46,7 @@ function ActivityList({message}: ActivityListMessage){
                 user={user}
                 onViewPublication={(pubId) => navigate(`${Route.publications}/${pubId}`)}
                 onManage={(actId) => navigate(`${Route.manageActivity}/${actId}`)}
+                buttonShow={ShowActivityButton.All}
             />
         ))}
         
