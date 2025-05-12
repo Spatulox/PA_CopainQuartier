@@ -15,7 +15,7 @@ function Trocs(){
     };
     
     return <>
-        <TrocList message={message}/>
+        <TrocList message={message} />
         <div>
             <CreateTroc onUpdate={handleUpdate} />
             <button onClick={() => navigate(Route.manageMyTrocs)}>
