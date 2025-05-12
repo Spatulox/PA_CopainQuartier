@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Activity, ActivityClass } from "../../../api/activity"
+import { Activity, ActivityClass, AdminActivityClass } from "../../../api/activity"
 import { useNavigate, useParams } from "react-router-dom";
 import { Route } from "../../constantes";
 import Loading from "../shared/loading";
@@ -57,7 +57,7 @@ function ManageActivityAdmin(){
   
     useEffect(() => {
       (async () => {
-        const client = new ActivityClass();
+        const client = new AdminActivityClass();
         if(!client.isAdmin()){
           return
         }
@@ -103,7 +103,7 @@ function ManageOneActivity(){
   
     useEffect(() => {
       (async () => {
-        const client = new ActivityClass();
+        const client = new AdminActivityClass();
         if(id){
           const activitie = await client.getactivityAdminById(id);
           setActivities(activitie);
