@@ -2,6 +2,9 @@ import { useEffect, useState } from "react"
 import { Activity, ActivityClass } from "../../../api/activity"
 import { useNavigate, useParams } from "react-router-dom";
 import { Route } from "../../constantes";
+import Loading from "../shared/loading";
+import { ShowActivity } from "./SimpleActivity";
+import { User } from "../../../api/user";
 
 export function ManageMyActivity() {
     const [activities, setActivities] = useState<Activity[] | null>(null);
@@ -16,7 +19,7 @@ export function ManageMyActivity() {
     }, []);
   
     if (activities === null) {
-      return <div>Chargement des activités...</div>;
+      return <Loading title="Chargement des activités" />
     }
   
     if (activities.length === 0) {
@@ -63,6 +66,7 @@ export function ManageMyActivity() {
 function ManageActivityAdmin(){
     const [activities, setActivities] = useState<Activity[] | null>(null);
     const navigate = useNavigate()
+    const [user, setUser] = useState<User | null>(null)
   
     useEffect(() => {
       (async () => {
@@ -72,60 +76,42 @@ function ManageActivityAdmin(){
         }
         const activities = await client.getAllActivitiesAdmin();
         setActivities(activities);
+        
+        const use = await client.getMe()
+        setUser(use)
       })();
     }, []);
   
     if (activities === null) {
-      return <div>Chargement des activités...</div>;
+      return <Loading title="Chargement des activités" />
     }
   
     if (activities.length === 0) {
       return <div>Aucune activité trouvée.</div>;
     }
-  
     return (
       <div>
         <h1>Activités</h1>
         <div>
           {activities.map((activity) => (
-            <div key={activity._id}>
-              <h2>{activity.title}</h2>
-              <div>
-                Créée le {new Date(activity.created_at).toLocaleDateString()}<br />
-                Réservation : {new Date(activity.date_reservation).toLocaleString()}
-              </div>
-              <div>
-                <strong>Description :</strong>
-                <div>{activity.description}</div>
-              </div>
-              <div>
-                <strong>Auteur :</strong> {activity.author_id?.name}
-              </div>
-              <div>
-                <strong>Participants ({activity.participants.length}) :</strong>
-                <ul>
-                  {activity.participants.map((user) => (
-                    <li key={user?._id}>{user?.name}</li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <button onClick={() => navigate(Route.publications+"/"+activity.publication._id)}>Voir la Publication</button>
-                <button onClick={() => navigate(Route.activity+"/manage/"+activity._id)}>Editer</button>
-              </div>
-            </div>
+            <ShowActivity
+                activity={activity}
+                user={user}
+                onViewPublication={(pubId) => navigate(`${Route.publications}/${pubId}`)}
+                onManage={(actId) => navigate(`${Route.manageActivity}/${actId}`)}
+            />
           ))}
         </div>
       </div>
     );
 }
 
-
 function ManageOneActivity(){
 
   const [activity, setActivities] = useState<Activity | null>(null);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate()
+   const [user, setUser] = useState<User | null>(null)
   
     useEffect(() => {
       (async () => {
@@ -133,17 +119,33 @@ function ManageOneActivity(){
         if(id){
           const activitie = await client.getactivityAdminById(id);
           setActivities(activitie);
+
+          const use = await client.getMe()
+          setUser(use)
         }
       })();
     }, [id]);
   
     if (activity === null) {
-      return <div>Chargement des activités...</div>;
+      return <Loading title="Chargement de l'activité" />
     }
+
+    
     return (
       <div>
         <h1>EN TRAVAUX</h1>
-        <div key={activity._id}>
+        <ShowActivity
+            activity={activity}
+            user={user}
+            onViewPublication={() => navigate(`${Route.publications}/${activity.publication._id}`)}
+            onManage={() => navigate(`${Route.manageActivity}/${activity._id}`)}
+        />
+      </div>
+    );
+}
+
+/*
+<div key={activity._id}>
           <h2>{activity.title}</h2>
           <div>
             Créée le {new Date(activity.created_at).toLocaleDateString()}<br />
@@ -168,9 +170,7 @@ function ManageOneActivity(){
             <button onClick={() => navigate(Route.publications+"/manage/"+activity.publication._id)}>Voir/Gérer la Publication</button>
           </div>
         </div>
-      </div>
-    );
-}
+        */
 
 
 export function ManageActivity(){
