@@ -41,18 +41,17 @@ function ActivityList({message, limit}: ActivityListMessage){
     return <>
         <h2>Activités</h2>
         <section>
-        {activity
-        .slice(0, limit ?? activity.length)
-        .map((acti) => (
-            <ShowActivity
-                activity={acti}
-                user={user}
-                onViewPublication={(pubId) => navigate(`${Route.publications}/${pubId}`)}
-                onManage={(actId) => navigate(`${Route.manageActivity}/${actId}`)}
-                buttonShow={ShowActivityButton.All}
-            />
-        ))}
-        
+            {activity
+            .slice(0, limit ?? activity.length)
+            .map((acti) => (
+                <ShowActivity
+                    activity={acti}
+                    user={user}
+                    onViewPublication={(pubId) => navigate(`${Route.publications}/${pubId}`)}
+                    onManage={(actId) => navigate(`${Route.manageActivity}/${actId}`)}
+                    buttonShow={ShowActivityButton.All}
+                />
+            ))}
         </section>
     </>
 }
