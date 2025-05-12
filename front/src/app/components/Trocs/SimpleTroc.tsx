@@ -39,11 +39,18 @@ export function ShowTroc({
         <div key={troc._id}>
             <h2>{troc.title}</h2>
             <div>
-                <span>Auteur : {troc.author_id}</span>
+                <span>Auteur : {troc.author ? troc.author.email : ""}</span>
                 <span>Créé le : {new Date(troc.created_at).toLocaleDateString()}</span>
-                <span>Statut : {troc.status}</span>
-                <span>Type : {troc.type}</span>
-                <span>Visibilité : {troc.visibility}</span>
+                <p>{troc.description}</p>
+                {user?._id == troc.author?._id && (
+                    <>
+                    <ul>
+                        <li>Visibilité : {troc.visibility}</li>
+                        <li>Status : {troc.status}</li>
+                        <li>Type : {troc.type}</li>
+                    </ul>
+                    </>
+                )}
                 {troc.reserved_at && (
                     <span>Réservé le : {new Date(troc.reserved_at).toLocaleDateString()}</span>
                 )}
@@ -67,7 +74,7 @@ export function ShowTroc({
                 {(buttonShow & ShowTrocButton.Manage) !== 0 &&
                     onManage &&
                     user &&
-                    (troc.author_id === user._id || user.role === UserRole.admin) && (
+                    (troc.author?._id === user._id || user.role === UserRole.admin) && (
                         <button onClick={() => onManage(troc._id)}>
                             Gérer le troc
                         </button>
