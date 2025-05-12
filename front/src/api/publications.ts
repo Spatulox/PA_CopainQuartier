@@ -1,3 +1,4 @@
+import { Activity } from "./activity"
 import { ApiClient } from "./client"
 import { User } from "./user"
 
@@ -7,7 +8,7 @@ export type Publication = {
     created_at: Date,
     updated_at: Date,
     author_id: string | User,
-    activity_id: string,
+    activity_id: string | Activity,
     body: string
 }
 
