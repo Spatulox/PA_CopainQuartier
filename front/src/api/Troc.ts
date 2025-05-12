@@ -21,6 +21,12 @@ export enum TrocStatus {
     waitingForApproval = "waitingforapproval",
 }
 
+export enum TrocType {
+    service = "service",
+    serviceMorethanOnePerson = "serviceMorethanOnePerson",
+    item = "item"
+}
+
 export class TrocClass extends ApiClient{
     protected url = "/trocs"
 
