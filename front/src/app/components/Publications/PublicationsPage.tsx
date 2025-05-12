@@ -1,18 +1,53 @@
 // app/pages/publications.tsx
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import CreatePublication from "./PublicationCreate";
 import { Route } from "../../constantes";
 import PublicationList from "./PublicationsList";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { ShowPublication } from "./SimplePublication";
+import { Publication, PublicationClass } from "../../../api/publications";
+import { User } from "../../../api/user";
+import Loading from "../shared/loading";
+
 
 function Publications(){
     const navigate = useNavigate()
     const [message, setMessage] = useState("");
+    const { id } = useParams<{ id: string }>();
+    const [publications, setPublications] = useState<Publication | null>(null)
+    const [user, setUser] = useState<User | null>(null)
 
     const handleUpdate = (newMsg:string) => {
         setMessage(newMsg);
     };
+
+    useEffect(() => {
+        (async () => {
+            const client = new PublicationClass()
+            if(id){
+                const pub = await client.getPublicationById(id)
+                setPublications(pub)
+            }
+            const use = await client.getMe()
+            setUser(use)
+        })()
+    }, [id])
+
+    if(id && publications == null){
+        return <Loading title="Chargement de la publications" />
+    }
+
+    if(id && publications != null){
+        return <section> 
+            <ShowPublication
+                key={publications._id}
+                pub={publications}
+                user={user}
+                onManage={() => navigate(`${Route.managePublications}/${publications._id}`)}
+            />
+        </section>
+    }
      
     return <>
         <PublicationList message={message} />

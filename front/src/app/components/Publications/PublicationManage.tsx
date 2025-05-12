@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Publication, PublicationClass } from "../../../api/publications";
 import { Route } from "../../constantes";
+import Loading from "../shared/loading";
 
 export function ManageMyPublications(){
     const [publications, setPublications] = useState<Publication[] | null>(null);
@@ -17,7 +18,7 @@ export function ManageMyPublications(){
     }, []);
     
     if (publications === null) {
-        return <div>Chargement des publications...</div>;
+        return <Loading title="Chargement des publications" />
     }
     
     if (publications.length === 0) {
@@ -47,7 +48,9 @@ function ManagePublicationAdmin(){
 }
 
 function ManageOnePublication(){
-    return <><h1>One Publi</h1></>
+    return <>
+        <h1>EN TRAVAUX</h1>
+    </>
 }
 
 function ManagePublication(){

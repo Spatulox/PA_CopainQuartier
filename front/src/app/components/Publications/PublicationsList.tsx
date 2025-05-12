@@ -3,10 +3,12 @@ import { Publication, PublicationClass } from "../../../api/publications";
 import { User } from "../../../api/user";
 import { useNavigate } from "react-router-dom";
 import { Route } from "../../constantes";
+import { ShowPublication } from "./SimplePublication";
+import Loading from "../shared/loading";
 
 type PublicationListMessage = {
     message: string
-  }
+}
 
 function PublicationList({message}: PublicationListMessage){
     const [publications, setPublications] = useState<Publication[] | null>(null)
@@ -30,7 +32,7 @@ function PublicationList({message}: PublicationListMessage){
     }, [message])
 
     if (publications === null) {
-        return <div>Chargement des publications...</div>;
+        return <Loading title="Chargement des publications" />
     }
 
     if(publications.length == 0){
@@ -40,22 +42,15 @@ function PublicationList({message}: PublicationListMessage){
     return <>    
         <h2>Publications</h2>
         <section>{publications.map((pub) => (
-            <div key={pub._id}>
-                <div>
-                    <h3>{pub.name}</h3>
-                    <span>{new Date(pub.created_at).toLocaleDateString()}</span>
-                </div>
-                <p>{pub.body}</p>
-                <div>
-                    {typeof pub.author_id === "object" && pub.author_id !== null
-                        ? pub.author_id.name
-                        : pub.author_id?.toString()}
-                    {typeof pub.author_id === "object" && pub.author_id !== null && user?._id == pub.author_id?._id ?
-                    <button onClick={() => navigate(`${Route.managePublications}/${pub._id}`)}>Gérer la publication</button>:""
-                    }
-                </div>
-            </div>
-        ))}</section>
+                <ShowPublication
+                    key={pub._id}
+                    pub={pub}
+                    user={user}
+                    onView={(id) => navigate(`${Route.publications}/${id}`)}
+                    onManage={(id) => navigate(`${Route.managePublications}/${id}`)}
+                />
+            ))}</section>
+        
     </>
 }
 
