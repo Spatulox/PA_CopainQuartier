@@ -33,6 +33,20 @@ export async function getAllTrocs(): Promise<Troc[]> {
     return docs.map(toTrocObject);
 }
 
+export async function getAllAdminTrocs(): Promise<Troc[]> {
+    const docs = await TrocTable.find().sort({ created_at: -1 })
+    .populate("author_id")
+    .exec();
+    return docs.map(toTrocObject);
+}
+
+export async function getAllMyTrocs(user: User): Promise<Troc[]> {
+    const docs = await TrocTable.find({author_id: user._id}).sort({ created_at: -1 })
+    .populate("author_id")
+    .exec();
+    return docs.map(toTrocObject);
+}
+
 // GET : Un troc par son ID
 export async function getTrocById(id: string): Promise<Troc | null> {
     const doc = await TrocTable.findById(id).exec();
