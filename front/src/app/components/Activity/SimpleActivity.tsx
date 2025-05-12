@@ -6,55 +6,67 @@ import { User, UserRole } from "../../../api/user";
 import { Route } from "../../constantes";
 import { useNavigate } from "react-router-dom";
 
+export enum ShowActivityButton {
+    Activity = 1 << 0,        // 1 (0b001)
+    ViewPublication = 1 << 1, // 2 (0b010)
+    Manage = 1 << 2,          // 4 (0b100)
+    All = Activity | ViewPublication | Manage, // 7
+    None = 0
+}
+
 type ShowActivityProps = {
     activity: Activity;
     user: User | undefined;
+    onViewActivity?: (id: string) => void;
     onViewPublication?: (id: string) => void;
     onManage?: (id: string) => void;
+    buttonShow: ShowActivityButton
 };
 
-export function ShowActivity({ activity, user, onViewPublication, onManage }: ShowActivityProps) {
+export function ShowActivity({
+    activity,
+    user,
+    onViewActivity,
+    onViewPublication,
+    onManage,
+    buttonShow
+}: ShowActivityProps) {
     const navigate = useNavigate();
 
     return (
         <div>
             <div key={activity._id}>
                 <h2>{activity.title}</h2>
-                <div>
-                    Créée le {new Date(activity.created_at).toLocaleDateString()}<br />
-                    Réservation : {new Date(activity.date_reservation).toLocaleString()}
-                </div>
-                <div>
-                    <strong>Description :</strong>
-                    <div>{activity.description}</div>
-                </div>
-                <div>
-                    <strong>Auteur :</strong> {activity.author_id?.name}
-                </div>
-                <div>
-                    <strong>Participants ({activity.participants?.length || 0}) :</strong>
-                    <ul>
-                        {activity.participants && activity.participants.length > 0 ? (
-                            activity.participants.map((user) => (
-                                <li key={user?._id}>{user?.name}</li>
-                            ))
-                        ) : (
-                            <li>Rien</li>
-                        )}
-                    </ul>
-                </div>
+                {/* ...autres infos... */}
                 <div>
                     <strong>Publication :</strong> {activity.publication?.name}
-                    {onViewPublication && activity.publication?._id && (
-                        <button onClick={() => onViewPublication(activity.publication._id)}>
-                            Voir la Publication associée
-                        </button>
-                    )}
-                    {onManage && user && (activity.author_id?._id === user._id || user.role == UserRole.admin) && (
-                        <button onClick={() => onManage(activity._id)}>
-                            Gérer l'activité
-                        </button>
-                    )}
+                    <div>
+                        {/* Bouton "Voir l'activité" */}
+                        {(buttonShow & ShowActivityButton.Activity) !== 0 && activity._id && (
+                            <button onClick={() => navigate(`${Route.activity}/${activity._id}`)}>
+                                Voir l'activité
+                            </button>
+                        )}
+
+                        {/* Bouton "Voir la Publication associée" */}
+                        {(buttonShow & ShowActivityButton.ViewPublication) !== 0 &&
+                            onViewPublication &&
+                            activity.publication?._id && (
+                                <button onClick={() => onViewPublication(activity.publication._id)}>
+                                    Voir la Publication associée
+                                </button>
+                        )}
+
+                        {/* Bouton "Gérer l'activité" */}
+                        {(buttonShow & ShowActivityButton.Manage) !== 0 &&
+                            onManage &&
+                            user &&
+                            (activity.author_id?._id === user._id || user.role === UserRole.admin) && (
+                                <button onClick={() => onManage(activity._id)}>
+                                    Gérer l'activité
+                                </button>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
