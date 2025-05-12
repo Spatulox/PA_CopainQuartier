@@ -5,6 +5,7 @@ const TrocSchema = new Schema<Troc>({
     title: {type: String, required: true},
     created_at: { type: Date, default: Date.now },
     author_id: { type: Schema.Types.ObjectId as any, ref: "User" },
+    description: {type: String, required: true},
     reserved_at : { type: Date, default: null },
     reserved_by: [{ type: Schema.Types.ObjectId as any, ref: "User" }],
     status : { type: String, _type: ['pending', 'completed', 'cancelled'] },

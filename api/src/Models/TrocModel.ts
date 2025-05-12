@@ -4,12 +4,13 @@ export interface Troc {
     _id: string,
     title: string,
     created_at: Date,
+    description: string,
     author_id: string,
     reserved_at: Date,
     reserved_by: string,
-    status: string,
-    type: string,
-    visibility : string
+    status: TrocStatus,
+    type: TrocType,
+    visibility : TrocVisibility
 }
 
 export enum TrocType {

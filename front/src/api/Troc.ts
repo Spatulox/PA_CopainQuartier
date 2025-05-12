@@ -1,15 +1,22 @@
 import { ApiClient } from "./client";
+import { User } from "./user";
 
 export type Troc = {
     _id: string,
     title: string,
     created_at: Date,
-    author_id: string,
+    description: string,
+    author: User,
     reserved_at: Date,
     reserved_by: string,
-    status: string,
-    type: string,
-    visibility : string
+    status: TrocStatus,
+    type: TrocType,
+    visibility : TrocVisibility
+}
+
+export enum TrocVisibility {
+    hide = "hide",
+    visible = "visible"
 }
 
 export enum TrocStatus {

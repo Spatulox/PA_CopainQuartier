@@ -39,7 +39,7 @@ export class AdminTrocController {
 export class TrocController {
     @Get("/")
     async getAllTrocs(): Promise<Troc[]> {
-      return await getAllTrocs()
+        return await getAllTrocs()
     }
 
     @Get("/:id")
