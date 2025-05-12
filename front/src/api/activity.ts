@@ -15,7 +15,14 @@ export type Activity = {
 }
 
 export class ActivityClass extends ApiClient{
-    private url = "/activities"
+    protected url = "/activities"
+
+    constructor() {
+        super();
+        if (!this.isAdmin()) {
+            throw new Error("User is not admin");
+        }
+    }
 
     async getActivities():Promise<Activity[]>{
         const activity = await this.Get(this.url)
@@ -32,17 +39,23 @@ export class ActivityClass extends ApiClient{
         return activity//.data
     }
 
+    async createActivities(option: any): Promise<boolean>{
+        return await this.Post(this.url, option)
+    }
+}
+
+export class AdminActivityClass extends ActivityClass{
+
+    protected url = "/admin/activities"
+
     async getAllActivitiesAdmin():Promise<Activity[]>{
-        const activity = await this.Get(`admin${this.url}/`)
+        const activity = await this.Get(`${this.url}/`)
         return activity//.data
     }
 
     async getactivityAdminById(id: string):Promise<Activity>{
-        const activity = await this.Get(`admin${this.url}/${id}`)
+        const activity = await this.Get(`${this.url}/${id}`)
         return activity//.data
     }
 
-    async createActivities(option: any): Promise<boolean>{
-        return await this.Post(this.url, option)
-    }
 }
