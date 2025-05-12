@@ -1,4 +1,4 @@
-import { Authorized, Body, CurrentUser, Delete, ForbiddenError, Get, JsonController, NotFoundError, Param, Patch, Post } from "routing-controllers";
+import { Authorized, Body, CurrentUser, Delete, ForbiddenError, Get, JsonController, NotFoundError, Param, Patch, Post, Req } from "routing-controllers";
 import { zId, zObjectId } from "../Validators/utils";
 import { Activity, PublicActivity } from "../Models/ActivityModel";
 import { getAllPublicActivities, getPublicActivityById, deleteActivity, joinActivityById, leaveActivityById, getActivityById, getMyActivities, getMyActivitiesAdmin, createActivity, updateActivity, getAllActivities } from "../Services/activities/activities";
@@ -27,8 +27,12 @@ export class AdminActivityController{
 export class ActivityController{
 
     @Get("/")
-    async getAllActivities(): Promise<PublicActivity[]>{
-        return await getAllPublicActivities()
+    async getAllActivities(@Req() req: any): Promise<PublicActivity[]> {
+        if (req.user) { // Si l'utilisateur est authentifié
+            return await getAllActivities();
+        } else { // Sinon
+            return await getAllPublicActivities();
+        }
     }
 
     @Get("/@me")
