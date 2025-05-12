@@ -18,7 +18,7 @@ export async function getActivityById(id: string): Promise<Activity | null> {
     .populate("participants_id")
     .populate("author_id")
     .exec();
-    return activity ? normalizeActivity(activity) : null;
+    return activity ? toActivityObject(activity) : null;
 }
 
 
@@ -29,7 +29,7 @@ export async function getPublicActivityById(id: ID): Promise<PublicActivity | nu
     .exec();
     if (!activity) return null;
     const { channel_chat_id, participants_id, ...publicFields } = activity.toObject();
-    return normalizeActivity(publicFields)
+    return toActivityObject(publicFields)
 }
 
 export async function getAllActivities(): Promise<Activity[]> {
@@ -39,7 +39,7 @@ export async function getAllActivities(): Promise<Activity[]> {
     .populate("participants_id")
     .populate("author_id")
     .exec();
-    return activities.map(normalizeActivity);
+    return activities.map(toActivityObject);
 }
 
 export async function getMyActivities(user: User): Promise<Activity[]> {
@@ -50,7 +50,7 @@ export async function getMyActivities(user: User): Promise<Activity[]> {
         .populate("participants_id")
         .populate("author_id")
         .exec();
-    return activities.map(normalizeActivity);
+    return activities.map(toActivityObject);
 }
 
 export async function getMyActivitiesAdmin(user: User): Promise<Activity[]> {
@@ -62,7 +62,7 @@ export async function getMyActivitiesAdmin(user: User): Promise<Activity[]> {
         .populate("author_id")
         .exec();
 
-    return activities.map(normalizeActivity);
+    return activities.map(toActivityObject);
 }
 
 export async function getAllPublicActivities(): Promise<PublicActivity[]> {
@@ -71,7 +71,7 @@ export async function getAllPublicActivities(): Promise<PublicActivity[]> {
     .populate("publication_id")
     .exec()
     return activities.map(activity => {
-        const normalized = normalizeActivity(activity);
+        const normalized = toActivityObject(activity);
         const { channel_chat_id, participants_id, ...publicFields } = normalized;
         return publicFields as PublicActivity;
     });
@@ -222,7 +222,7 @@ export async function updateActivity(
         throw new ForbiddenError("You are not allowed to update this activity or it does not exist.");
     }
 
-    return normalizeActivity(doc);
+    return toActivityObject(doc);
 }
 
 // Mongo DB + transaction are pain in the ass to setup
@@ -382,10 +382,7 @@ export async function deleteActivity(activity: Activity): Promise<boolean> {
 
 
 
-
-
-
-function normalizeActivity(activityDoc: any): any {
+export function toActivityObject(activityDoc: any): any {
     const obj = activityDoc.toObject ? activityDoc.toObject() : activityDoc;
     return {
         _id: obj._id.toString(),
