@@ -83,7 +83,6 @@ export async function deletePublicationById(user: User, pub_id: ID): Promise<boo
 
 
 export function objectToPublication(obj: any): Publication {
-    console.log(obj)
     return {
         _id: obj._id?.toString(),
         name: obj.name,
