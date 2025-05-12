@@ -8,14 +8,18 @@ import { User } from "../../../api/user";
 
 export function ManageMyPublications(){
     const [publications, setPublications] = useState<Publication[] | null>(null);
+    const [user, setUser] = useState<User>(null)
     const navigate = useNavigate()
     
     useEffect(() => {
         (async () => {
         const client = new PublicationClass();
         const pub = await client.getMyPublications();
-        console.log(pub)
         setPublications(pub);
+
+        const use = await client.getMe()
+        setUser(use)
+
         })();
     }, []);
     
@@ -30,17 +34,13 @@ export function ManageMyPublications(){
     return <>    
         <h2>Mes Publications</h2>
         <section>{publications.map((pub) => (
-            <div key={pub._id}>
-                <h3>{pub.name}</h3>
-                <span>{new Date(pub.created_at).toLocaleDateString()}</span>
-                <p>{pub.body}</p>
-                <div>
-                    <button onClick={() => navigate(`${Route.managePublications}/${pub._id}`)}>Gérer la publications</button>
-                    {pub.activity_id ?
-                        <button onClick={() => navigate(`${Route.manageActivity}/${pub.activity_id}`)}>Gérer l'activité lié</button>: ""
-                    }
-                </div>
-            </div>
+            <ShowPublication
+                pub={pub}
+                user={user}
+                onViewActivity={(id) => navigate(`${Route.activity}/${id}`)}
+                onManage={(id) => navigate(`${Route.manageActivity}/${id}`)}
+                buttonShow={ShowPublicationButton.ViewActivity | ShowPublicationButton.Manage}
+            />
         ))}</section>
     </>
 }
