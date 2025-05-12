@@ -8,9 +8,10 @@ import Loading from "../shared/loading";
 
 type PublicationListMessage = {
     message: string
+    limit?: number
 }
 
-function PublicationList({message}: PublicationListMessage){
+function PublicationList({message, limit}: PublicationListMessage){
     const [publications, setPublications] = useState<Publication[] | null>(null)
     const [user, setUser] = useState<User>(null)
     const navigate = useNavigate()
@@ -41,7 +42,9 @@ function PublicationList({message}: PublicationListMessage){
 
     return <>    
         <h2>Publications</h2>
-        <section>{publications.map((pub) => (
+        <section>{publications
+        .slice(0, limit ?? publications.length)
+        .map((pub) => (
                 <ShowPublication
                     key={pub._id}
                     pub={pub}

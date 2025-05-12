@@ -9,9 +9,9 @@ function HomePage() {
       <>
         <h1>Home Page</h1>
         <div>
-          <PublicationList message="" />
-          <ActivityList message="" />
-          <TrocList message="" />
+          <PublicationList message="" limit={3} />
+          <ActivityList message="" limit={3} />
+          <TrocList message="" limit={3} />
         </div>
       </>
     );
