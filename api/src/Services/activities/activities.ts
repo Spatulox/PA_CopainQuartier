@@ -204,7 +204,6 @@ export async function createActivity(user: User, activity: CreateActivityParam):
     .populate('publication_id')
     .populate('participants_id');
 
-
     return toActivityObject(populatedActivity);
 }
 
