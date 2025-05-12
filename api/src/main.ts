@@ -26,6 +26,10 @@ async function main(){
     authorizationChecker: authMiddleware,
     currentUserChecker: getCurrentUser,
     middlewares: [ErrorHandler],
+    cors: {
+      origin: 'http://localhost:5173',
+      credentials: true
+    },
     controllers: [
       AdminTrocController,
       AdminUserController,
