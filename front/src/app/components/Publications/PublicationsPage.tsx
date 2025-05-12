@@ -3,16 +3,19 @@
 import { useNavigate } from "react-router-dom";
 import CreatePublication from "./PublicationCreate";
 import { Route } from "../../constantes";
+import PublicationList from "./PublicationsList";
+import { useState } from "react";
 
 function Publications(){
     const navigate = useNavigate()
+    const [message, setMessage] = useState("");
 
-    function handleUpdate(){
-        alert("update")
-    }
-    
+    const handleUpdate = (newMsg:string) => {
+        setMessage(newMsg);
+    };
+     
     return <>
-        <h2>Publications</h2>
+        <PublicationList message={message} />
         <div>
             <CreatePublication onUpdate={handleUpdate} />
             <button onClick={() => navigate(Route.manageMyPublications)}>Gérer mes Activités</button>
