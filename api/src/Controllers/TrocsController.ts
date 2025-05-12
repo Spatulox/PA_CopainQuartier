@@ -14,7 +14,7 @@ import { Troc, TrocStatus } from "../Models/TrocModel";
 import { User } from "../Models/UserModel";
 import { CreateTrocBody, UpdateTrocBody, zCreateTrocSchema, zUpdateTrocSchema } from "../Validators/trocs";
 import { zObjectId } from "../Validators/utils";
-import { cancelTroc, completeTroc, createTroc, deleteTroc, getAllTrocs, getTrocById, reserveTroc, updateTroc } from "../Services/trocs/trocs";
+import { cancelTroc, completeTroc, createTroc, deleteTroc, getAllAdminTrocs, getAllMyTrocs, getAllTrocs, getTrocById, reserveTroc, updateTroc } from "../Services/trocs/trocs";
 import { UserRole } from "../DB_Schema/UserSchema";
 import { getWaitingTrocs, updateWaitingTrocStatus } from "../Services/trocs/trocsAdmin";
   
@@ -25,6 +25,12 @@ export class AdminTrocController {
     @Authorized(UserRole.admin)
     async getNonApprovedTroc(): Promise<Troc[] | null> {
         return await getWaitingTrocs();
+    }
+
+    @Get("/all")
+    @Authorized(UserRole.admin)
+    async getAllTroc(): Promise<Troc[] | null> {
+        return await getAllAdminTrocs();
     }
 
     @Patch("/:id")
@@ -40,6 +46,12 @@ export class TrocController {
     @Get("/")
     async getAllTrocs(): Promise<Troc[]> {
         return await getAllTrocs()
+    }
+
+    @Get("/@me")
+    @Authorized()
+    async getAllMyTrocs(@CurrentUser() user: User): Promise<Troc[]> {
+        return await getAllMyTrocs(user)
     }
 
     @Get("/:id")
