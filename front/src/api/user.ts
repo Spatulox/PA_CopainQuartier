@@ -1,5 +1,11 @@
 import { ApiClient } from "./client";
 
+
+export enum UserRole {
+    admin = "admin",
+    member = "member",
+}
+
 export type User = {
   _id: string,
   name: string,
