@@ -198,7 +198,14 @@ export async function createActivity(user: User, activity: CreateActivityParam):
         { $set: { activity_id: activityDoc._id } }
     );
 
-    return normalizeActivity(activityDoc);
+    const populatedActivity = await ActivityTable.findById(activityDoc._id)
+    .populate('author_id')
+    .populate('channel_chat_id')
+    .populate('publication_id')
+    .populate('participants_id');
+
+
+    return toActivityObject(populatedActivity);
 }
 
 
