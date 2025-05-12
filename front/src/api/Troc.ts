@@ -12,6 +12,15 @@ export type Troc = {
     visibility : string
 }
 
+export enum TrocStatus {
+    completed = "completed",
+    cancelled = "cancelled",
+    hide = "hide",
+    pending = "pending",
+    reserved = "reserved",
+    waitingForApproval = "waitingforapproval",
+}
+
 export class TrocClass extends ApiClient{
     protected url = "/trocs"
 
