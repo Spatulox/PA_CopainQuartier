@@ -194,7 +194,7 @@ export function ManageActivity(){
         return <><ManageOneActivity/></>
     }
     return <>
-      <button onClick={() => navigate(`${Route.manageActivity}/me`)}>Manage My Activies</button>
+      <button onClick={() => navigate(`${Route.manageMyActivity}`)}>Manage My Activies</button>
         <ManageActivityAdmin />
     </>
 }
