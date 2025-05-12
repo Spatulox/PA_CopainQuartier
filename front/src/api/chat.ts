@@ -25,17 +25,17 @@ export class ChatClass extends ApiClient {
   
   async getChannelById(id: string): Promise<Channel> {
       const response = await this.Get(`${this.url}/${id}`);
-      return response.data;
+      return response//.data;
   }
 
   async getChannel(): Promise<Channel[]> {
       const response = await this.Get(`${this.url}/@me`);
-      return response.data;
+      return response//.data;
   }
 
   async createChat(option: any): Promise<Channel | null> {
     const response = await this.Post(`${this.url}/create`, option)
-    return response.data
+    return response//.data
   }
 
   async deleteChat(channel_id: string): Promise<boolean>{

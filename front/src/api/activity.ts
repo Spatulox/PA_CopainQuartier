@@ -19,27 +19,27 @@ export class ActivityClass extends ApiClient{
 
     async getActivities():Promise<Activity[]>{
         const activity = await this.Get(this.url)
-        return activity.data
+        return activity//.data
     }
 
     async getActivityByID(id: string):Promise<Activity>{
         const activity = await this.Get(`${this.url}/${id}`)
-        return activity.data
+        return activity//.data
     }
 
     async getMyActivities():Promise<Activity[]>{
         const activity = await this.Get(`${this.url}/@me`)
-        return activity.data
+        return activity//.data
     }
 
     async getAllActivitiesAdmin():Promise<Activity[]>{
         const activity = await this.Get(`admin${this.url}/`)
-        return activity.data
+        return activity//.data
     }
 
     async getactivityAdminById(id: string):Promise<Activity>{
         const activity = await this.Get(`admin${this.url}/${id}`)
-        return activity.data
+        return activity//.data
     }
 
     async createActivities(option: any): Promise<boolean>{
