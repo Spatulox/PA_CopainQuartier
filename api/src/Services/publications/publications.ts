@@ -6,9 +6,12 @@ import { User } from "../../Models/UserModel";
 import { ID } from "../../Utils/IDType";
 import { CreatePublicationParam, UpdatePublicationParam } from "../../Validators/publications";
 import { getActivityById } from "../activities/activities";
+import { toUserObject } from "../users/usersPublic";
 
 export async function getAllPublications(): Promise<Publication[]> {
-    const res = await PublicationTable.find().sort({ created_at: -1 }).exec();
+    const res = await PublicationTable.find().sort({ created_at: -1 })
+    .populate("author_id")
+    .exec();
     const finaleRes: Publication[] = []
     res.forEach(re => {
         finaleRes.push(objectToPublication(re))
@@ -82,7 +85,7 @@ export function objectToPublication(obj: any): Publication {
         name: obj.name,
         created_at: obj.created_at ? new Date(obj.created_at) : new Date(),
         updated_at: obj.updated_at ? new Date(obj.updated_at) : new Date(),
-        author_id: obj.author_id?.toString(),
+        author_id: obj.author_id ? toUserObject(obj.author_id) : obj.author_id.toString(),
         activity_id: obj.activity_id ? obj.activity_id.toString() : undefined,
         body: obj.body,
     };
