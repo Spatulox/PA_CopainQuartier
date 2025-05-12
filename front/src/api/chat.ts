@@ -34,7 +34,7 @@ export class ChatClass extends ApiClient {
   }
 
   async createChat(option: any): Promise<Channel | null> {
-    const response = await this.Post(`${this.url}/create`, option)
+    const response = await this.Post(`${this.url}`, option)
     return response//.data
   }
 
