@@ -133,34 +133,6 @@ function ManageOneActivity(){
     );
 }
 
-/*
-<div key={activity._id}>
-          <h2>{activity.title}</h2>
-          <div>
-            Créée le {new Date(activity.created_at).toLocaleDateString()}<br />
-            Réservation : {new Date(activity.date_reservation).toLocaleString()}
-          </div>
-          <div>
-            <strong>Description :</strong>
-            <div>{activity.description}</div>
-          </div>
-          <div>
-            <strong>Auteur :</strong> {activity.author_id?.name}
-          </div>
-          <div>
-            <strong>Participants ({activity.participants.length}) :</strong>
-            <ul>
-              {activity.participants ? activity.participants.map((user) => (
-                <li key={user?._id}>{user?.name}</li>
-              )): "Rien"}
-            </ul>
-          </div>
-          <div>
-            <button onClick={() => navigate(Route.publications+"/manage/"+activity.publication._id)}>Voir/Gérer la Publication</button>
-          </div>
-        </div>
-        */
-
 
 export function ManageActivity(){
     const [userIsAdmin, setUserAdmin] = useState(false)

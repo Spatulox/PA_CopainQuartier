@@ -9,7 +9,7 @@ import Loading from "../shared/loading";
 
 type ActivityListMessage = {
     message: string
-  }
+}
 
 function ActivityList({message}: ActivityListMessage){
 
