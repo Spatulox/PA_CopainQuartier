@@ -32,6 +32,7 @@ const ChatPage: React.FC = () => {
         }
         const channels = await user.getChannel();
         if (isMounted) setChannels(channels);
+        setMessages([])
       })();
       return () => {
         isMounted = false;
@@ -59,6 +60,7 @@ const ChatPage: React.FC = () => {
         setStatus("Connecté");
         setStatusColor("green");
         ws.send(JSON.stringify({ connection: user.getAuthToken() }));
+        setMessages([])
       };
 
       ws.onclose = () => {
