@@ -21,17 +21,20 @@ function Login() {
     e.preventDefault();
     const newErrors = [];
     if (!formData.email.includes('@')) newErrors.push('Email invalide');
-    if (formData.password.length < 6) newErrors.push('Le mot de passe doit contenir au moins 6 caractères');
+    if (formData.password.length < 6) newErrors.push('Le mot de passe doit contenir au moins 8 caractères');
     if (newErrors.length > 0) { setErrors(newErrors); return; }
     let res;
     try {
       const client = new ApiClient(formData.email, formData.password);
       res = await client.connect();
     } catch (e: any) {
-      for (const err in e.response.data) {
-        newErrors.push(`${err !== "message" ? err + " : " : ""}${e.response.data[err]}`);
+      console.log(e)
+      if(e.hasOwnProperty("response")){
+        for (const err in e.response.data) {
+          newErrors.push(`${err !== "message" ? err + " : " : ""}${e.response.data[err]}`);
+        }
+        setErrors(newErrors);
       }
-      setErrors(newErrors);
       return;
     }
     if (res) {
