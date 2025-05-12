@@ -8,7 +8,7 @@ import { ZodObject } from 'zod';
 
 @JsonController("/admin/users")
 export class AdminUserController {
-  @Get('/all')
+  @Get('/')
   @Authorized(UserRole.admin)
   async getAll(): Promise<User[]> {
     return await getAllUsers()
