@@ -8,6 +8,7 @@ import { User } from "../../../api/user";
 
 export function ManageMyActivity() {
     const [activities, setActivities] = useState<Activity[] | null>(null);
+    const [user, setUser] = useState<User | null>(null)
     const navigate = useNavigate()
   
     useEffect(() => {
@@ -15,6 +16,8 @@ export function ManageMyActivity() {
         const client = new ActivityClass();
         const activities = await client.getMyActivities();
         setActivities(activities);
+        const use = await client.getMe()
+        setUser(use)
       })();
     }, []);
   
@@ -31,32 +34,16 @@ export function ManageMyActivity() {
         <h1>Mes Activités</h1>
         <div>
           {activities.map((activity) => (
-            <div key={activity._id}>
-              <h2>{activity.title}</h2>
-              <div>
-                Créée le {new Date(activity.created_at).toLocaleDateString()}<br />
-                Réservation : {new Date(activity.date_reservation).toLocaleString()}
-              </div>
-              <div>
-                <strong>Description :</strong>
-                <div>{activity.description}</div>
-              </div>
-              <div>
-                <strong>Auteur :</strong> {activity.author_id?.name}
-              </div>
-              <div>
-                <strong>Participants ({activity.participants.length}) :</strong>
-                <ul>
-                  {activity.participants.map((user) => (
-                    <li key={user?._id}>{user?.name}</li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <button onClick={() => navigate(Route.publications+"/"+activity.publication._id)}>Voir la Publication</button>
-                <button onClick={() => navigate(Route.activity+"/manage/"+activity._id)}>Editer</button>
-              </div>
-            </div>
+            <section>
+              <ShowActivity
+                activity={activity}
+                user={user}
+                onManage={(id) => navigate(`${Route.manageActivity}/${id}`)}
+                onViewPublication={(id) => navigate(`${Route.publications}/${id}`)}
+                buttonShow={ShowActivityButton.ViewPublication | ShowActivityButton.Manage}
+              />
+            </section>
+            
           ))}
         </div>
       </div>
