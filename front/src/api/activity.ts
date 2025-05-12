@@ -17,13 +17,6 @@ export type Activity = {
 export class ActivityClass extends ApiClient{
     protected url = "/activities"
 
-    constructor() {
-        super();
-        if (!this.isAdmin()) {
-            throw new Error("User is not admin");
-        }
-    }
-
     async getActivities():Promise<Activity[]>{
         const activity = await this.Get(this.url)
         return activity//.data
@@ -47,6 +40,13 @@ export class ActivityClass extends ApiClient{
 export class AdminActivityClass extends ActivityClass{
 
     protected url = "/admin/activities"
+
+    constructor() {
+        super();
+        if (!this.isAdmin()) {
+            throw new Error("User is not admin");
+        }
+    }
 
     async getAllActivitiesAdmin():Promise<Activity[]>{
         const activity = await this.Get(`${this.url}/`)

@@ -103,9 +103,9 @@ function ManageOneActivity(){
   
     useEffect(() => {
       (async () => {
-        const client = new AdminActivityClass();
+        const client = new ActivityClass();
         if(id){
-          const activitie = await client.getactivityAdminById(id);
+          const activitie = await client.getActivityByID(id);
           setActivities(activitie);
 
           const use = await client.getMe()
