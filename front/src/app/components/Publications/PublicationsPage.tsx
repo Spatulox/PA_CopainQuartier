@@ -5,7 +5,7 @@ import CreatePublication from "./PublicationCreate";
 import { Route } from "../../constantes";
 import PublicationList from "./PublicationsList";
 import { useEffect, useState } from "react";
-import { ShowPublication } from "./SimplePublication";
+import { ShowPublication, ShowPublicationButton } from "./SimplePublication";
 import { Publication, PublicationClass } from "../../../api/publications";
 import { User } from "../../../api/user";
 import Loading from "../shared/loading";
@@ -45,6 +45,7 @@ function Publications(){
                 pub={publications}
                 user={user}
                 onManage={() => navigate(`${Route.managePublications}/${publications._id}`)}
+                buttonShow={ShowPublicationButton.Manage}
             />
         </section>
     }

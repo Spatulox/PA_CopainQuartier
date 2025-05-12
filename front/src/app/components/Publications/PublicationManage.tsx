@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Publication, PublicationClass } from "../../../api/publications";
 import { Route } from "../../constantes";
 import Loading from "../shared/loading";
+import { ShowPublication, ShowPublicationButton } from "./SimplePublication";
+import { User } from "../../../api/user";
 
 export function ManageMyPublications(){
     const [publications, setPublications] = useState<Publication[] | null>(null);
@@ -48,8 +50,38 @@ function ManagePublicationAdmin(){
 }
 
 function ManageOnePublication(){
+    const { id } = useParams<{ id: string }>();
+    const [publication, setPublication] = useState<Publication | null>(null)
+    const [user, setUser] = useState<User | null>(null)
+    const navigate = useNavigate()
+    useEffect(() => {
+        (async ()=> {
+            const client = new PublicationClass()
+            if(id){
+                const pub = await client.getPublicationById(id)
+                setPublication(pub)
+                console.log(pub)
+            }
+            const use = await client.getMe()
+            setUser(use)
+        })()
+    }, [id])
+
+    if(publication === null){
+        <Loading title="Chargement de la publication" />
+    }
+
     return <>
+
         <h1>EN TRAVAUX</h1>
+        {publication && user ?
+            <ShowPublication
+                pub={publication}
+                user={user}
+                onViewActivity={(id) => navigate(`${Route.activity}/${id}`)}
+                buttonShow={ShowPublicationButton.ViewActivity}
+            />
+        :() => navigate(Route.publications)}
     </>
 }
 

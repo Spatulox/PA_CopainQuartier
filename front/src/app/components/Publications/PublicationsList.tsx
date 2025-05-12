@@ -3,7 +3,7 @@ import { Publication, PublicationClass } from "../../../api/publications";
 import { User } from "../../../api/user";
 import { useNavigate } from "react-router-dom";
 import { Route } from "../../constantes";
-import { ShowPublication } from "./SimplePublication";
+import { ShowPublication, ShowPublicationButton } from "./SimplePublication";
 import Loading from "../shared/loading";
 
 type PublicationListMessage = {
@@ -46,8 +46,10 @@ function PublicationList({message}: PublicationListMessage){
                     key={pub._id}
                     pub={pub}
                     user={user}
-                    onView={(id) => navigate(`${Route.publications}/${id}`)}
+                    onViewPublication={(id) => navigate(`${Route.publications}/${id}`)}
+                    onViewActivity={(id) => navigate(`${Route.activity}/${id}`)}
                     onManage={(id) => navigate(`${Route.managePublications}/${id}`)}
+                    buttonShow={ShowPublicationButton.All}
                 />
             ))}</section>
         
