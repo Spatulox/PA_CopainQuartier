@@ -34,39 +34,42 @@ export function ShowActivity({
     const navigate = useNavigate();
 
     return (
-        <div>
-            <div key={activity._id}>
-                <h2>{activity.title}</h2>
-                {/* ...autres infos... */}
+        <div key={activity._id}>
+            <h2>{activity.title}</h2>
+            <div>
+                <span>{activity.author_id?.name}</span>
+                <span>{new Date(activity.created_at).toLocaleDateString()}</span>
+                <p>{activity.description}</p>
+                <span>{new Date(activity.date_reservation).toLocaleDateString()}</span>
+            </div>
+            <div>
+                <strong>Publication :</strong> {activity.publication?.name}
                 <div>
-                    <strong>Publication :</strong> {activity.publication?.name}
-                    <div>
-                        {/* Bouton "Voir l'activité" */}
-                        {(buttonShow & ShowActivityButton.Activity) !== 0 && activity._id && (
-                            <button onClick={() => navigate(`${Route.activity}/${activity._id}`)}>
-                                Voir l'activité
+                    {/* Bouton "Voir l'activité" */}
+                    {(buttonShow & ShowActivityButton.Activity) !== 0 && activity._id && (
+                        <button onClick={() => navigate(`${Route.activity}/${activity._id}`)}>
+                            Voir l'activité
+                        </button>
+                    )}
+
+                    {/* Bouton "Voir la Publication associée" */}
+                    {(buttonShow & ShowActivityButton.ViewPublication) !== 0 &&
+                        onViewPublication &&
+                        activity.publication?._id && (
+                            <button onClick={() => onViewPublication(activity.publication._id)}>
+                                Voir la Publication associée
                             </button>
-                        )}
+                    )}
 
-                        {/* Bouton "Voir la Publication associée" */}
-                        {(buttonShow & ShowActivityButton.ViewPublication) !== 0 &&
-                            onViewPublication &&
-                            activity.publication?._id && (
-                                <button onClick={() => onViewPublication(activity.publication._id)}>
-                                    Voir la Publication associée
-                                </button>
-                        )}
-
-                        {/* Bouton "Gérer l'activité" */}
-                        {(buttonShow & ShowActivityButton.Manage) !== 0 &&
-                            onManage &&
-                            user &&
-                            (activity.author_id?._id === user._id || user.role === UserRole.admin) && (
-                                <button onClick={() => onManage(activity._id)}>
-                                    Gérer l'activité
-                                </button>
-                        )}
-                    </div>
+                    {/* Bouton "Gérer l'activité" */}
+                    {(buttonShow & ShowActivityButton.Manage) !== 0 &&
+                        onManage &&
+                        user &&
+                        (activity.author_id?._id === user._id || user.role === UserRole.admin) && (
+                            <button onClick={() => onManage(activity._id)}>
+                                Gérer l'activité
+                            </button>
+                    )}
                 </div>
             </div>
         </div>
