@@ -86,6 +86,30 @@ function Form<T extends Record<string, string>>({
               required={field.required !== false}
             />
           );
+        case "radio":
+          return (
+            <fieldset>
+              <legend>{field.label}</legend>
+              {(field.value || []).map((option) => (
+                <label key={option} style={{ marginRight: 10 }}>
+                  <input
+                    type="radio"
+                    name={field.name}
+                    value={option}
+                    checked={formData[field.name] === option}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        [field.name]: e.target.value,
+                      }))
+                    }
+                    required={field.required !== false}
+                  />
+                  {option}
+                </label>
+              ))}
+            </fieldset>
+          );
         // Ajoute ici d'autres types personnalisés si besoin
         default:
           return (
