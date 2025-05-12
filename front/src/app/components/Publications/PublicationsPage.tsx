@@ -18,7 +18,7 @@ function Publications(){
         <PublicationList message={message} />
         <div>
             <CreatePublication onUpdate={handleUpdate} />
-            <button onClick={() => navigate(Route.manageMyPublications)}>Gérer mes Activités</button>
+            <button onClick={() => navigate(Route.manageMyPublications)}>Gérer mes Publications</button>
         </div>
     </>
 }
