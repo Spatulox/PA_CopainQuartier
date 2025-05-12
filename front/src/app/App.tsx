@@ -18,6 +18,7 @@ import Trocs from './components/Trocs/TrocsPage';
 import ResetPassword from './components/LoginRegister/ResetPassword';
 import ManageActivity, { ManageMyActivity } from './components/Activity/ActivityManage';
 import ManagePublication, { ManageMyPublications } from './components/Publications/PublicationManage';
+import ManageTroc, { ManageMyTroc } from './components/Trocs/TrocManage';
 
 function App() {
   return (
@@ -52,9 +53,12 @@ function App() {
 
           <Route path={CRoute.troc} element={<Trocs />} />
           <Route path={`${CRoute.troc}/:id`} element={<Trocs />} />
-          <Route path={CRoute.manageTrocs} element={<Trocs />} />
-          <Route path={`${CRoute.manageTrocs}/:id`} element={<Trocs />} />
-          <Route path={`${CRoute.manageMyTrocs}`} element={<Trocs />} />
+          <Route path={CRoute.manageTrocs} element={<ManageTroc />} />
+          <Route path={`${CRoute.manageTrocs}/:id`} element={<ManageTroc />} />
+          <Route path={`${CRoute.manageMyTrocs}`} element={<ManageMyTroc />} />
+
+          <Route path={CRoute.user} />
+          <Route path={CRoute.manageUser} />
           {/* ... autres routes */}
         </Routes>
         </main>
