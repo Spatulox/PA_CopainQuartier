@@ -125,8 +125,6 @@ function ManageOneActivity(){
         <ShowActivity
             activity={activity}
             user={user}
-            onViewPublication={() => navigate(`${Route.publications}/${activity.publication._id}`)}
-            onManage={() => navigate(`${Route.manageActivity}/${activity._id}`)}
             buttonShow={ShowActivityButton.None}
         />
       </div>
