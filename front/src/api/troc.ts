@@ -67,9 +67,11 @@ export class AdminTrocClass extends TrocClass{
 
     constructor() {
         super();
-        if (!this.isAdmin()) {
-            throw new Error("User is not admin");
-        }
+        this.refreshUser().then(() => {
+            if (!this.isAdmin()) {
+                throw new Error("User is not admin");
+            }
+        })
     }
 
     async getWaitingTroc(){

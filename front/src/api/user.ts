@@ -38,6 +38,15 @@ export class UserClass extends ApiClient{
 export class AdminUserClass extends ApiClient{
     protected url = "/admin/users"
 
+    constructor() {
+        super();
+        this.refreshUser().then(() => {
+            if (!this.isAdmin()) {
+                throw new Error("User is not admin");
+            }
+        })
+    }
+
     async getUsers(): Promise<User>{
         return await this.Get(this.url)
     }

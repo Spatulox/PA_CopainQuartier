@@ -43,9 +43,11 @@ export class AdminActivityClass extends ActivityClass{
 
     constructor() {
         super();
-        if (!this.isAdmin()) {
-            throw new Error("User is not admin");
-        }
+        this.refreshUser().then(() => {
+            if (!this.isAdmin()) {
+                throw new Error("User is not admin");
+            }
+        })
     }
 
     async getAllActivitiesAdmin():Promise<Activity[]>{

@@ -116,7 +116,7 @@ export class ApiClient {
     return this.handleAuth('/auth/register', options);
   }
 
-  private async refreshUser() {
+  async refreshUser() {
     this.user = await this.getMe();
     if (this.user) {
       localStorage.setItem(this.userKey, JSON.stringify(this.user));
