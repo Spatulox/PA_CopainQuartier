@@ -7,7 +7,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Route } from "../../constantes";
 import { ShowTroc, ShowTrocButton } from "./SimpleTroc";
 import Loading from "../shared/loading";
-import { Troc, TrocClass } from "../../../api/Troc";
+import { Troc, TrocClass } from "../../../api/troc";
 import { User } from "../../../api/user";
 
 

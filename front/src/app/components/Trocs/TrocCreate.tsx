@@ -1,4 +1,4 @@
-import { TrocClass, TrocType } from "../../../api/Troc";
+import { TrocClass, TrocType } from "../../../api/troc";
 import { FieldForm, PopupForm } from "../Popup/PopupForm";
 
 type CreateTrocType = {

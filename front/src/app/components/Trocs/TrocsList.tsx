@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Troc, TrocClass } from "../../../api/Troc"
+import { Troc, TrocClass } from "../../../api/troc"
 import { User } from "../../../api/user"
 import { ShowTroc, ShowTrocButton } from "./SimpleTroc"
 import { useNavigate } from "react-router-dom"

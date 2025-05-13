@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Route } from "../../constantes";
 import { useNavigate, useParams } from "react-router-dom";
-import { AdminTrocClass, Troc, TrocClass } from "../../../api/Troc";
+import { AdminTrocClass, Troc, TrocClass } from "../../../api/troc";
 import { ShowTroc, ShowTrocButton } from "./SimpleTroc";
 import { User } from "../../../api/user";
 import Loading from "../shared/loading";
