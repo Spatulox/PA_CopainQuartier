@@ -58,11 +58,14 @@ function ManageTrocAdmin(){
     useEffect(() => {
       (async () => {
         const client = new AdminTrocClass();
+        await client.refreshUser()
         if(!client.isAdmin()){
+          console.log(client.isAdmin())
+          navigate(`${Route.troc}`)
           return
         }
-        const activities = await client.getAllAdminTroc();
-        setTrocs(activities);
+        const troc = await client.getAllAdminTroc();
+        setTrocs(troc);
         
         const use = await client.getMe()
         setUser(use)
@@ -74,7 +77,7 @@ function ManageTrocAdmin(){
     }
   
     if (trocs.length === 0) {
-      return <div>Aucune activité trouvée.</div>;
+      return <div>Aucuns Trocs trouvés.</div>;
     }
     return (
       <div>
@@ -130,28 +133,26 @@ function ManageOneTroc(){
 }
 
 export function ManageTroc(){
-    const [userIsAdmin, setUserAdmin] = useState(false)
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate()
+    
+    // USed to redirect someone if in the url it's /manage and it's not an admin user
     useEffect(() => {
         (async () => {
             const client = new TrocClass()
-            setUserAdmin(client.isAdmin())
-        })
+            await client.refreshUser()
+            if(client.isAdmin() === false && !id){
+              navigate(`${Route.manageMyTrocs}`);
+            }
+        })()
     }, [])
-    
-    useEffect(() => {
-        if (userIsAdmin === false && !id) {
-            navigate(`${Route.manageMyActivity}`);
-        }
-    }, [userIsAdmin, navigate]);
 
     if(id){
         return <><ManageOneTroc/></>
     }
     return <>
-      <button onClick={() => navigate(`${Route.manageMyActivity}`)}>Manage My Activies</button>
         <ManageTrocAdmin />
+        <button onClick={() => navigate(`${Route.manageMyTrocs}`)}>Gérer mes Trocs</button>
     </>
 }
 
