@@ -1,7 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Channel, ChatClass } from "../../../api/chat";
 import { User } from "../../../api/user";
 import { FieldForm, PopupForm } from "../Popup/PopupForm";
+import { ShowChat, ShowChatButton } from "./SimpleChat";
+import { Route } from "../../constantes";
+import { useEffect, useState } from "react";
+import Loading from "../shared/loading";
 
 type ListProps = {
   channels: Channel[];
@@ -9,15 +13,29 @@ type ListProps = {
   user : User
 };
 
-type CreateProps = {
-  action: () => void
-}
-
 type ListSimpleProps = {
   channels: Channel[];
 };
 
-export function ChannelList({ channels }: ListSimpleProps) {
+export function ChannelList(/*{ channels }: ListSimpleProps*/) {
+  const navigate = useNavigate()
+  const [user, setUser] = useState<User | null>(null)
+  const [channel, setChannel] = useState<Channel[]>([])
+
+  useEffect(() => {
+    (async () => {
+      const client = new ChatClass()
+      const chan = await client.getChannel()
+      setChannel(chan)
+      const use = await client.getMe()
+      setUser(use)
+    })()
+  }, [])
+
+  if(channel && channel.length == 0){
+    return <Loading title="Chargement des channels" />
+  }
+
   return (
   <div>
     <h2>Mes channels</h2>
