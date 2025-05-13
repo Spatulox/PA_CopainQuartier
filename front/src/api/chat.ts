@@ -1,4 +1,7 @@
+import { Activity } from "./activity";
 import { ApiClient } from "./client";
+import { Publication } from "./publications";
+import { User } from "./user";
 
 export type Message = {
   content: string;
@@ -7,17 +10,16 @@ export type Message = {
 
 export type Channel = {
     _id: string;
-    activity_id: string
-    admin_id: string
+    activity: Activity | null
+    owner: User
     name: string;
-    pulication_id: string | null,
     type: string,
     description: string,
     created_at: string
     member_auth: string,
     member: string[]
     messages: string[]
-  };
+};
 
 export class ChatClass extends ApiClient {
 
