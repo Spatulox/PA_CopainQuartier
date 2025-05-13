@@ -2,7 +2,7 @@ import React from "react";
 import { User, UserRole } from "../../../api/user";
 import { Route } from "../../constantes";
 import { useNavigate } from "react-router-dom";
-import { Troc, TrocStatus } from "../../../api/Troc";
+import { Troc, TrocStatus } from "../../../api/troc";
 
 // Enum pour les boutons
 export enum ShowTrocButton {
@@ -42,11 +42,18 @@ export function ShowTroc({
                 <span>Auteur : {troc.author ? troc.author.email : ""}</span>
                 <span>Créé le : {new Date(troc.created_at).toLocaleDateString()}</span>
                 <p>{troc.description}</p>
-                {user?._id == troc.author?._id && (
+                {user?._id == troc.author?._id || user?.role == UserRole.admin && (
                     <>
                     <ul>
                         <li>Visibilité : {troc.visibility}</li>
                         <li>Status : {troc.status}</li>
+                        <li>Type : {troc.type}</li>
+                    </ul>
+                    </>
+                )}
+                {user?._id != troc.author?._id && user?.role != UserRole.admin && (
+                    <>
+                    <ul>
                         <li>Type : {troc.type}</li>
                     </ul>
                     </>
