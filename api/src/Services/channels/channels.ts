@@ -8,6 +8,10 @@ import { UserTable } from "../../DB_Schema/UserSchema";
 
 export async function getChannelById(channel_id: ID): Promise<Channel | null>{
     const res = await ChannelTable.findById(channel_id)
+    .populate("admin_id")
+    .populate("activity_id")
+    .exec()
+    
     return ObjectToChannel(res)
 }
 
