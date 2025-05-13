@@ -43,10 +43,10 @@ export function ManageChannelList({ channels, action, user }: ListProps) {
     ) : (
       channels.map((channel) => (
         <p key={channel._id}>
-          <button><Link to={`/chat/${channel._id}`}>{channel.name}</Link></button>
+          <button><Link to={`${Route.chat}/${channel._id}`}>{channel.name}</Link></button>
           <span>{channel.description}</span>
           <button onClick={()=>action(channel._id, user?._id)}>
-              {user?._id == channel.admin_id ? "Supprimer le Chat" : "Quitter le Chat"}
+              {user?._id == channel.owner?._id ? "Supprimer le Chat" : "Quitter le Chat"}
           </button>
         </p>
       ))
@@ -54,36 +54,3 @@ export function ManageChannelList({ channels, action, user }: ListProps) {
   </div>
   )
 };
-
-
-export function CreateChannel({action} : CreateProps){
-  const fields: FieldForm[] = [
-    { name: "name", label: "Nom du channel", type: "text", required: true },
-    { name: "description", label: "Description", type: "text", required: true },
-    { name: "type", label: "Type", type: "select", value: ["text", "vocal"], required: true },
-  ];
-  
-  type ChannelForm = {
-    name: string;
-    description: string;
-  };
-
-  async function handleCreateChannel(formData: ChannelForm): Promise<void> {
-    const client = new ChatClass()
-    const resp = await client.createChat(formData)
-    if(resp){
-      action()
-    }
-  }
-
-  return (
-    <PopupForm<ChannelForm>
-      title="Créer un channel"
-      fields={fields}
-      initialFormData={{ name: "", description: "" }}
-      onSubmit={handleCreateChannel}
-      submitLabel="Créer"
-      buttonLabel="Créer un channel"
-    />
-  );
-}
