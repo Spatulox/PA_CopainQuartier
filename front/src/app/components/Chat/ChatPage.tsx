@@ -1,12 +1,15 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ChatClass, Channel, Message } from "../../../api/chat";
-import { CreateChannel, ManageChannelList } from "./ChatList";
+import { ManageChannelList } from "./ChatList";
 import ChatRoom, { ChannelRight } from "./ChatRoom";
 import { Route } from "../../constantes";
 import { PopupConfirm } from "../Popup/PopupConfirm";
+import { ShowChat, ShowChatButton } from "./SimpleChat";
+import { User } from "../../../api/user";
+import { CreateChannel } from "./ChatCreate";
 
-const ChatPage: React.FC = () => {
+function ChatPage() {
   const { id } = useParams<{ id: string }>();
   const [thechannelAuth, setChannelAuth] = useState<ChannelRight>(ChannelRight.read_only);
   const [status, setStatus] = useState("Déconnecté");
@@ -127,7 +130,7 @@ const ChatPage: React.FC = () => {
 
   function handleAskConfirmation(id_channel: string, user_id: string | undefined) {
     const channel = channels.find(c => c._id === id_channel);
-    if (channel && user_id && channel.admin_id.toString() === user_id) {
+    if (channel && user_id && channel.owner?._id === user_id) {
       setChannelDeletion({ id: id_channel, isDelete: true });
     } else {
       setChannelDeletion({ id: id_channel, isDelete: false });
@@ -159,7 +162,7 @@ const ChatPage: React.FC = () => {
     async function leaveDeleteGroup(id_channel: string, user_id: string | undefined) {
       const chat = new ChatClass();
       const channel = await chat.getChannelById(id_channel);
-      if (channel && user_id && channel.admin_id.toString() === user_id) {
+      if (channel && user_id && channel.owner?._id === user_id) {
         await chat.deleteChat(id_channel);
       } else {
         await chat.leaveChat(id_channel);
