@@ -12,7 +12,7 @@ import { User } from "../../../api/user";
 function Account(){
     const [user, setUserData] = useState<User>({} as User);
     const [errors, setErrors] = useState<string[]>([]);
-    const [channels, setChannels] = useState<Channel[]>([]);
+    //const [channels, setChannels] = useState<Channel[]>([]);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -20,9 +20,9 @@ function Account(){
                 const client = new ApiClient();
                 const chat = new ChatClass() 
                 const userData = await client.getMe();
-                const channels = await chat.getChannel()
+                //const channels = await chat.getChannel()
                 setUserData(userData);
-                setChannels(channels)
+                //setChannels(channels)
             } catch (error) {
                 setErrors(["Erreur lors de la récupération du profil"]);
             }
@@ -52,7 +52,7 @@ function Account(){
                     <p><Link to={Route.manageChannels}>Channels</Link></p>
                 </div>
                 <div>
-                    <ChannelList channels={channels}/>
+                    <ChannelList /*channels={channels}*//>
                 </div>
             </div>
         )
