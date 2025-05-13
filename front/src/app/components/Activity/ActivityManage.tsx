@@ -58,7 +58,9 @@ function ManageActivityAdmin(){
     useEffect(() => {
       (async () => {
         const client = new AdminActivityClass();
+        await client.refreshUser()
         if(!client.isAdmin()){
+          navigate(`${Route.activity}`)
           return
         }
         const activities = await client.getAllActivitiesAdmin();
@@ -153,8 +155,8 @@ export function ManageActivity(){
         return <><ManageOneActivity/></>
     }
     return <>
-      <button onClick={() => navigate(`${Route.manageMyActivity}`)}>Manage My Activies</button>
         <ManageActivityAdmin />
+        <button onClick={() => navigate(`${Route.manageMyActivity}`)}>Gérer mes Activités</button>
     </>
 }
 
