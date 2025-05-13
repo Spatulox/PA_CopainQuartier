@@ -19,6 +19,7 @@ import ResetPassword from './components/LoginRegister/ResetPassword';
 import ManageActivity, { ManageMyActivity } from './components/Activity/ActivityManage';
 import ManagePublication, { ManageMyPublications } from './components/Publications/PublicationManage';
 import ManageTroc, { ManageMyTroc } from './components/Trocs/TrocManage';
+import ManageChat from './components/Chat/ChatManage';
 
 function App() {
   return (
@@ -36,6 +37,9 @@ function App() {
 
           <Route path={CRoute.account} element={<Account />} />
           <Route path={`${CRoute.chat}`} element={<Chat />} />
+          <Route path={`${CRoute.chat}/:id`} element={<Chat />} />
+          <Route path={`${CRoute.manageChannels}`} element={<ManageChat />} />
+          <Route path={`${CRoute.manageChannels}/:id`} element={<ManageChat />} />
 
 
           <Route path={CRoute.activity} element={<ActivityComponent />} />
