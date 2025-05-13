@@ -60,7 +60,6 @@ function ManageOnePublication(){
             if(id){
                 const pub = await client.getPublicationById(id)
                 setPublication(pub)
-                console.log(pub)
             }
             const use = await client.getMe()
             setUser(use)
@@ -93,15 +92,14 @@ function ManagePublication(){
     useEffect(() => {
         (async () => {
             const client = new PublicationClass()
-            setUserAdmin(client.isAdmin())
-        })
+            await client.refreshUser()
+            const useAdmin = client.isAdmin()
+            setUserAdmin(useAdmin)
+            if (useAdmin === false && !id) {
+                navigate(`${Route.publications}`);
+            }
+        })()
     }, [])
-
-    useEffect(() => {
-        if (userIsAdmin === false && !id) {
-            navigate(`${Route.manageMyPublications}`);
-        }
-    }, [userIsAdmin, navigate]);
 
 
     if(id){
@@ -110,6 +108,7 @@ function ManagePublication(){
 
     return <>
         <ManagePublicationAdmin />
+        <button onClick={() => navigate(`${Route.manageMyPublications}`)}>Gérer mes Publications</button>
     </>
 
 }
