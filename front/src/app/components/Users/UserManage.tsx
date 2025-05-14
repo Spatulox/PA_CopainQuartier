@@ -37,8 +37,12 @@ function ManageOneUser(){
         })()
     }, [id])
 
+    const handleDelete = (id: string) => {
+        console.log(id)
+    }
+
     if(user === null){
-        <Loading title="Chargement de la User" />
+        <Loading title="Chargement de l'utilisateur" />
     }
 
     return <>
@@ -50,7 +54,8 @@ function ManageOneUser(){
                 theuser={user}
                 user={me}
                 onViewUser={(id) => navigate(`${Route.user}/${id}`)}
-                buttonShow={ShowUserButton.ViewUser}
+                onDelete={handleDelete}
+                buttonShow={ShowUserButton.ViewUser | ShowUserButton.Delete}
             />
         :() => navigate(Route.user)}
     </>

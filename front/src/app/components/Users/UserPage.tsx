@@ -60,7 +60,7 @@ function Users(){
         onDelete={handleDelete}
         onApprove={handleApprove}
         onManage={(id) => navigate(`${Route.manageUser}/${id}`)}
-        buttonShow={ShowUserButton.Delete | ShowUserButton.Approve | ShowUserButton.Manage}
+        buttonShow={ShowUserButton.Approve | ShowUserButton.Manage}
         />
     </>
 }

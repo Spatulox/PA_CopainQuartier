@@ -94,7 +94,7 @@ export function ShowUser({
                     </button>
                 )}
 
-                {(buttonShow & ShowUserButton.Approve) !== 0 &&
+                {(buttonShow & ShowUserButton.Approve) !== 0 && theuser.verified == false &&
                     onApprove && (
                         <button onClick={() => onApprove(theuser._id, true)}>
                             Approuver l'utilisateur
@@ -104,7 +104,7 @@ export function ShowUser({
                 {(buttonShow & ShowUserButton.Delete) !== 0 &&
                     onDelete && (
                         <button onClick={() => onDelete(theuser._id)}>
-                            Approuver l'utilisateur
+                            Supprimer l'utilisateur
                         </button>
                 )}
             </div>
