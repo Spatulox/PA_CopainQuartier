@@ -3,7 +3,7 @@ import { Activity, ActivityClass, AdminActivityClass } from "../../../api/activi
 import { useNavigate, useParams } from "react-router-dom";
 import { Route } from "../../constantes";
 import Loading from "../shared/loading";
-import { ShowActivity, ShowActivityButton } from "./SimpleActivity";
+import { ShowActivity, ShowActivityButton } from "./SingleActivity";
 import { User } from "../../../api/user";
 
 export function ManageMyActivity() {

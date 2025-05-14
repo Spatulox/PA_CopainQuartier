@@ -7,7 +7,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Route } from "../../constantes";
 import { Activity, ActivityClass } from "../../../api/activity";
 import { User } from "../../../api/user";
-import { ShowActivity, ShowActivityButton } from "./SimpleActivity";
+import { ShowActivity, ShowActivityButton } from "./SingleActivity";
 import Loading from "../shared/loading";
 
 

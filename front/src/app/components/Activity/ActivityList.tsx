@@ -4,7 +4,7 @@ import CreateActivity from "./ActivityCreate";
 import { User, UserClass } from "../../../api/user";
 import { Route } from "../../constantes";
 import { useNavigate } from "react-router-dom";
-import { ShowActivity, ShowActivityButton } from "./SimpleActivity";
+import { ShowActivity, ShowActivityButton } from "./SingleActivity";
 import Loading from "../shared/loading";
 
 type ActivityListMessage = {
