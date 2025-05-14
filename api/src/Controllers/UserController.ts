@@ -1,14 +1,14 @@
 import { JsonController, Param, Body, Get, Post, Put, Delete, HeaderParam, Authorized, CurrentUser, Patch } from 'routing-controllers';
 import { User } from "../Models/UserModel"
 import { deleteUser, getAllUsers, getUnverifiedUser, verifyUser } from '../Services/users/usersAdmin';
-import { zId, zObjectId } from '../Validators/utils';
+import { zApprove, zId, zObjectId } from '../Validators/utils';
 import { getPublicUserById, getUserById } from '../Services/users/usersPublic';
 import { UserRole } from '../DB_Schema/UserSchema';
 import { ZodObject } from 'zod';
 
 @JsonController("/admin/users")
 export class AdminUserController {
-  @Get('/all')
+  @Get('/')
   @Authorized(UserRole.admin)
   async getAll(): Promise<User[]> {
     return await getAllUsers()
@@ -27,11 +27,15 @@ export class AdminUserController {
     return await getUserById(validId);
   }
 
-  @Patch('/:id/verify')
+  @Patch('/:id')
   @Authorized(UserRole.admin)
-  async verifyUser(@Param('id') user_id: string): Promise<boolean> {
+  async verifyUser(@Param('id') user_id: string, @Body() body: any): Promise<boolean> {
     const validId = zObjectId.parse(user_id)
-    return await verifyUser(validId);
+    const validApprove = zApprove.parse(body)
+    if(validApprove.approve == true){
+      return await verifyUser(validId);
+    }
+    return false
   }
 
   @Delete('/:id')

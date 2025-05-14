@@ -5,13 +5,15 @@ import { User } from "../../Models/UserModel";
 import { ID } from "../../Utils/IDType";
 import { CreateTrocBody, UpdateTrocBody } from "../../Validators/trocs";
 import { UserRole } from "../../DB_Schema/UserSchema";
+import { toUserObject } from "../users/usersPublic";
 
-export function formatTroc(doc: any): Troc {
+export function toTrocObject(doc: any): any {
     return {
         _id: doc._id.toString(),
         title: doc.title,
         created_at: doc.created_at,
-        author_id: doc.author_id.toString(),
+        author: doc.author_id ? toUserObject(doc.author_id) : null,
+        description : doc.description,
         reserved_at: doc.reserved_at || null,
         reserved_by: doc.reserved_by ? doc.reserved_by.toString() : null,
         status: doc.status,
@@ -23,16 +25,32 @@ export function formatTroc(doc: any): Troc {
 // GET : Trocs visibles (pas completed, pas reserved, pas waiting, pas hide) // Seulement pending (en attente d'un mec qui veut l'objet/le troc)
 export async function getAllTrocs(): Promise<Troc[]> {
     const docs = await TrocTable.find({
-        status: { $nin: [TrocStatus.completed, TrocStatus.cancelled, TrocStatus.waitingForApproval, TrocStatus.reserved] },
+        status: { $nin: [TrocStatus.completed, TrocStatus.cancelled, TrocStatus.waitingForApproval, TrocStatus.reserved, TrocStatus.hide] }, // TrocStatus.hide is non approve troc by admin
         visibility: { $ne: TrocVisibility.hide }
-    }).sort({ created_at: -1 }).exec();
-    return docs.map(formatTroc);
+    }).sort({ created_at: -1 })
+    .populate("author_id")
+    .exec();
+    return docs.map(toTrocObject);
+}
+
+export async function getAllAdminTrocs(): Promise<Troc[]> {
+    const docs = await TrocTable.find().sort({ created_at: -1 })
+    .populate("author_id")
+    .exec();
+    return docs.map(toTrocObject);
+}
+
+export async function getAllMyTrocs(user: User): Promise<Troc[]> {
+    const docs = await TrocTable.find({author_id: user._id}).sort({ created_at: -1 })
+    .populate("author_id")
+    .exec();
+    return docs.map(toTrocObject);
 }
 
 // GET : Un troc par son ID
 export async function getTrocById(id: string): Promise<Troc | null> {
     const doc = await TrocTable.findById(id).exec();
-    return doc ? formatTroc(doc) : null;
+    return doc ? toTrocObject(doc) : null;
 }
 
 // POST : Création (toujours waitingForApproval)
@@ -40,12 +58,14 @@ export async function createTroc(trocBody: CreateTrocBody, user: User): Promise<
     const data = {
         ...trocBody,
         author_id: user._id,
+        description : trocBody.description,
         status: TrocStatus.waitingForApproval,
         created_at: new Date(),
+        visibility: TrocVisibility.visible
     }
     const troc = new TrocTable(data);
     await troc.save();
-    return formatTroc(troc);
+    return toTrocObject(troc);
 }
 
 // PUT : Update par l'auteur
@@ -55,7 +75,7 @@ export async function updateTroc(id: ID, authorId: ID, data: UpdateTrocBody): Pr
         data,
         { new: true }
     ).exec();
-    return doc ? formatTroc(doc) : null;
+    return doc ? toTrocObject(doc) : null;
 }
 
 // DELETE : Impossible si completed, admin ou auteur uniquement
@@ -92,7 +112,7 @@ export async function reserveTroc(id: string, userId: string): Promise<Troc | nu
             },
             { new: true }
         ).exec();
-        return doc ? formatTroc(doc) : null;
+        return doc ? toTrocObject(doc) : null;
     } else {
         // Pour item/service : vérifier qu'il n'est pas déjà réservé
         if (
@@ -110,7 +130,7 @@ export async function reserveTroc(id: string, userId: string): Promise<Troc | nu
             },
             { new: true }
         ).exec();
-        return doc ? formatTroc(doc) : null;
+        return doc ? toTrocObject(doc) : null;
     }
 }
 
@@ -129,7 +149,7 @@ export async function completeTroc(id: string, authorId: string): Promise<Troc |
         { status: TrocStatus.completed },
         { new: true }
     ).exec();
-    return doc ? formatTroc(doc) : null;
+    return doc ? toTrocObject(doc) : null;
 }
 
 // PATCH : Annuler (impossible si completed, waitingForApproval ou hide)
@@ -149,7 +169,7 @@ export async function cancelTroc(id: string, userId: string): Promise<Troc | nul
         { status: TrocStatus.pending },
         { new: true }
     ).exec();
-    return doc ? formatTroc(doc) : null;
+    return doc ? toTrocObject(doc) : null;
 }
 
 // PATCH : Cacher un troc (par l'auteur)
@@ -159,5 +179,5 @@ export async function hideTroc(id: string, authorId: string): Promise<Troc | nul
         { visibility: TrocVisibility.hide },
         { new: true }
     ).exec();
-    return doc ? formatTroc(doc) : null;
+    return doc ? toTrocObject(doc) : null;
 }

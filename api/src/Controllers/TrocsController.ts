@@ -13,8 +13,8 @@ import {
 import { Troc, TrocStatus } from "../Models/TrocModel";
 import { User } from "../Models/UserModel";
 import { CreateTrocBody, UpdateTrocBody, zCreateTrocSchema, zUpdateTrocSchema } from "../Validators/trocs";
-import { zObjectId } from "../Validators/utils";
-import { cancelTroc, completeTroc, createTroc, deleteTroc, getAllTrocs, getTrocById, reserveTroc, updateTroc } from "../Services/trocs/trocs";
+import { zApprove, zObjectId } from "../Validators/utils";
+import { cancelTroc, completeTroc, createTroc, deleteTroc, getAllAdminTrocs, getAllMyTrocs, getAllTrocs, getTrocById, reserveTroc, updateTroc } from "../Services/trocs/trocs";
 import { UserRole } from "../DB_Schema/UserSchema";
 import { getWaitingTrocs, updateWaitingTrocStatus } from "../Services/trocs/trocsAdmin";
   
@@ -27,11 +27,21 @@ export class AdminTrocController {
         return await getWaitingTrocs();
     }
 
-    @Patch("/:id")
+    @Get("/all")
     @Authorized(UserRole.admin)
-    async approveTroc(@CurrentUser() user: User, @Param("id") id: string): Promise<Troc | null> {
+    async getAllTroc(): Promise<Troc[] | null> {
+        return await getAllAdminTrocs();
+    }
+
+    @Patch("/:id/approve")
+    @Authorized(UserRole.admin)
+    async approveTroc(@CurrentUser() user: User, @Param("id") id: string, @Body() body: any): Promise<Troc | null> {
         const validID = zObjectId.parse(id)
-        return await updateWaitingTrocStatus(validID, TrocStatus.pending, user);
+        const validApprove = zApprove.parse(body)
+        if(validApprove.approve == true){
+            return await updateWaitingTrocStatus(validID, TrocStatus.pending, user);
+        }
+        return await updateWaitingTrocStatus(validID, TrocStatus.hide, user);
     }
 }
 
@@ -39,7 +49,13 @@ export class AdminTrocController {
 export class TrocController {
     @Get("/")
     async getAllTrocs(): Promise<Troc[]> {
-      return await getAllTrocs()
+        return await getAllTrocs()
+    }
+
+    @Get("/@me")
+    @Authorized()
+    async getAllMyTrocs(@CurrentUser() user: User): Promise<Troc[]> {
+        return await getAllMyTrocs(user)
     }
 
     @Get("/:id")

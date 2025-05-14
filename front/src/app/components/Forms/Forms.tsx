@@ -36,6 +36,99 @@ function Form<T extends Record<string, string>>({
     switchButtons = [],
     submitLabel, children
 }: FormProps<T>) {
+
+    function renderField(field: Field) {
+      switch (field.type) {
+        case "select":
+          return (
+            <select
+              value={formData[field.name] || ""}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  [field.name]: e.target.value,
+                }))
+              }
+              required={field.required !== false}
+            >
+              <option value="">-- Sélectionner --</option>
+              {(field.value || []).map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          );
+        case "textarea":
+          return (
+            <textarea
+              value={formData[field.name] || ""}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  [field.name]: e.target.value,
+                }))
+              }
+              required={field.required !== false}
+            />
+          );
+        case "checkbox":
+          return (
+            <input
+              type="checkbox"
+              checked={!!formData[field.name]}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  [field.name]: e.target.checked ? "true" : "",
+                }))
+              }
+              required={field.required !== false}
+            />
+          );
+        case "radio":
+          return (
+            <fieldset>
+              <legend>{field.label}</legend>
+              {(field.value || []).map((option) => (
+                <label key={option} style={{ marginRight: 10 }}>
+                  <input
+                    type="radio"
+                    name={field.name}
+                    value={option}
+                    checked={formData[field.name] === option}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        [field.name]: e.target.value,
+                      }))
+                    }
+                    required={field.required !== false}
+                  />
+                  {option}
+                </label>
+              ))}
+            </fieldset>
+          );
+        // Ajoute ici d'autres types personnalisés si besoin
+        default:
+          return (
+            <input
+              type={field.type}
+              value={formData[field.name] || ""}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  [field.name]: e.target.value,
+                }))
+              }
+              required={field.required !== false}
+            />
+          );
+      }
+    }
+
+
     return (
         <div className="auth-container">
           <div className="auth-card">
@@ -51,38 +144,12 @@ function Form<T extends Record<string, string>>({
               {fields.map((field) => (
                 <div className="form-group" key={field.name}>
                   <label>{field.label}</label>
-                  {field.type === "select" && Array.isArray((field as any).value) ? (
-                    <select
-                      value={formData[field.name] || ""}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          [field.name]: e.target.value,
-                        }))
-                      }
-                      required={field.required !== false}
-                    >
-                      <option value="">-- Sélectionner --</option>
-                      {(field as any).value.map((option: string) => (
-                        <option key={option} value={option}>{option}</option>
-                      ))}
-                    </select>
-                  ) : (
-                    <input
-                      type={field.type}
-                      value={formData[field.name] || ""}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          [field.name]: e.target.value,
-                        }))
-                      }
-                      required={field.required !== false}
-                    />
-                  )}
+                  {renderField(field)}
                 </div>
               ))}
-              <button type="submit" className="submit-btn">{submitLabel}</button>
+              <button type="submit" className="submit-btn">
+                {submitLabel}
+              </button>
             </form>
             {children}
             {switchButtons.length > 0 && (

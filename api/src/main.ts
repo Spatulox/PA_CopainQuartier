@@ -14,6 +14,7 @@ import http from 'http';
 import { channelSubscriptions, handleMessage, initAccessMap } from './Controllers/ChannelsWebsoketController';
 import { parse } from 'url';
 import { AuthController } from './Controllers/AuthController';
+import cors from 'cors'
 
 
 async function main(){
@@ -26,6 +27,10 @@ async function main(){
     authorizationChecker: authMiddleware,
     currentUserChecker: getCurrentUser,
     middlewares: [ErrorHandler],
+    cors: {
+      origin: 'http://localhost:5173',
+      credentials: true
+    },
     controllers: [
       AdminTrocController,
       AdminUserController,

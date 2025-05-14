@@ -1,6 +1,7 @@
-import { JsonController, Param, Body, Get, Post, Put, Delete, HeaderParam, CurrentUser, Authorized, Patch } from 'routing-controllers';
+import { JsonController, Param, Body, Get, Post, Put, Delete, HeaderParam, CurrentUser, Authorized, Patch, BadRequestError, HttpCode, OnUndefined } from 'routing-controllers';
 import { User } from "../Models/UserModel"
-import { deleteMyAccount, getUserById } from '../Services/users/usersPublic';
+import { deleteMyAccount, getUserById, updateMyAccount } from '../Services/users/usersPublic';
+import { zUpdateAccount } from '../Validators/users';
 
 @JsonController("/account")
 export class AccountController {
@@ -11,9 +12,26 @@ export class AccountController {
     return await getUserById(user._id);
   }
 
+  @Patch('/')
+  @Authorized()
+  @HttpCode(204)
+  async updateMyAccount(@CurrentUser() user: User, @Body() body: any) {
+    const validBody = zUpdateAccount.parse(body)
+    if (await updateMyAccount(user, validBody)) {
+      return;
+    } else {
+      throw new BadRequestError("Erreur lors de la mise à jour du compte");
+    }
+  }
+
   @Delete('/')
   @Authorized()
-  async deleteMyAccount(@CurrentUser() user: User): Promise<boolean>{
-    return await deleteMyAccount(user);
+  @HttpCode(204)
+  async deleteMyAccount(@CurrentUser() user: User){
+    if (await deleteMyAccount(user)) {
+      return;
+    } else {
+      throw new BadRequestError("Erreur lors de la suppression du compte");
+    }
   }
 }

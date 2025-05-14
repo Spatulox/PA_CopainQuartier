@@ -3,6 +3,7 @@ import { UserTable } from "../../DB_Schema/UserSchema";
 import { User, PublicUser } from "../../Models/UserModel";
 import { ID } from "../../Utils/IDType";
 import { objectToChannel } from "../channels/channels";
+import { UpdateAccountType } from "../../Validators/users";
 
 export async function getUserById(user: User | ID): Promise<User | null> {
     let userId: ID;
@@ -20,21 +21,15 @@ export async function getPublicUserById(currentUser: User, targetUserId: string)
     const targetUser = await UserTable.findById(targetUserId).populate("group_chat_list_ids").exec();
     if (!targetUser) return null;
 
-    // On s'assure que currentUser.group_chat_list_ids est un tableau de string
     const currentChannels = (currentUser.group_chat_list_ids || []).map(id => id.toString());
 
-    // On extrait les IDs des channels du user cible
     const targetChannels = (targetUser.group_chat_list_ids || []).map((channel: any) => {
-        // Si populé, channel est un objet avec un _id
         if (channel && channel._id) return channel._id.toString();
-        // Sinon, c'est déjà un ObjectId ou string
         return channel.toString();
     });
 
-    // Liste des channels communs (en string)
     const commonChannels = targetChannels.filter(id => currentChannels.includes(id));
 
-    // Création du DTO PublicUser
     const publicUser: PublicUser = {
         _id: targetUser._id.toString(),
         name: targetUser.name,
@@ -49,6 +44,18 @@ export async function getPublicUserById(currentUser: User, targetUserId: string)
     return publicUser;
 }
 
+export async function updateMyAccount(user: User, option: UpdateAccountType): Promise<boolean>{
+    try{
+        const result = await UserTable.updateOne(
+            { _id: user._id },
+            { $set: option }
+        );
+        return result.modifiedCount === 1
+    } catch(e: any){
+        console.log(e)
+        return false
+    }
+}
 
 export async function deleteMyAccount(user: User): Promise<boolean>{
     const result = await UserTable.deleteOne({_id: user._id}).exec()
@@ -57,7 +64,8 @@ export async function deleteMyAccount(user: User): Promise<boolean>{
 
 
 
-export function toUserObject(doc: any): User {
+export function toUserObject(doc: User | null): User {
+    if(doc == null){return {} as User}
     return {
         _id: doc._id.toString(),
         name: doc.name,

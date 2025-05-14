@@ -1,18 +1,22 @@
 import { act, useEffect, useState } from "react";
 import { Activity, ActivityClass } from "../../../api/activity";
-import CreateActivity from "./CreateActivity";
-import { UserClass } from "../../../api/user";
+import CreateActivity from "./ActivityCreate";
+import { User, UserClass } from "../../../api/user";
 import { Route } from "../../constantes";
 import { useNavigate } from "react-router-dom";
+import { ShowActivity, ShowActivityButton } from "./SingleActivity";
+import Loading from "../shared/loading";
 
 type ActivityListMessage = {
     message: string
-  }
+    limit?: number
+}
 
-function ActivityList({message}: ActivityListMessage){
+function ActivityList({message, limit}: ActivityListMessage){
 
     const [activity, setActivity] = useState<Activity[]>([])
     const navigate = useNavigate()
+    const [user, setUser] = useState<User | null>(null)
 
 
     useEffect(() => {
@@ -20,30 +24,35 @@ function ActivityList({message}: ActivityListMessage){
             const client = new ActivityClass()
             const activities = await client.getActivities()
             setActivity(activities)
+
+            const use = await client.getMe()
+            setUser(use)
         })()
     }, [message])
+    
+    if(activity == null){
+        return <Loading title="Chargement des activités" />
+    }
+
+    if(activity && activity.length == 0){
+        return <>Aucune Activités trouvées</>
+    }
 
     return <>
         <h2>Activités</h2>
         <section>
-        { activity?.length == 0 ? (<p>Aucune Activités trouvée</p>) : (
-            activity?.map((acti) => (
-                <div key={acti._id}>
-                    <h3>{acti.title}</h3>
-                    <span>
-                        Auteur : {acti.author_id?.email ? acti.author_id.email : "Unknow" } - Date de création : {new Date(acti.created_at).toLocaleDateString()}
-                    </span>
-                    <p>{acti.description}</p>
-                    <span>
-                        Date de participation : {new Date(acti.date_reservation).toLocaleDateString()}
-                    </span><br></br>
-                    <div>
-                        <button onClick={() => navigate(`${Route.activity}/${acti._id}`)}>Voir l'activité</button>
-                        <button onClick={() => navigate(`${Route.publications}/${acti.publication._id}`)}>Voir la publication lié</button>
-                    </div>
-                </div>
-            )))
-        }
+            {activity
+            .slice(0, limit ?? activity.length)
+            .map((acti) => (
+                <ShowActivity
+                    key={acti._id}
+                    activity={acti}
+                    user={user}
+                    onViewPublication={(pubId) => navigate(`${Route.publications}/${pubId}`)}
+                    onManage={(actId) => navigate(`${Route.manageActivity}/${actId}`)}
+                    buttonShow={ShowActivityButton.All}
+                />
+            ))}
         </section>
     </>
 }

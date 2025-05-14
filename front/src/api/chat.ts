@@ -1,4 +1,7 @@
+import { Activity } from "./activity";
 import { ApiClient } from "./client";
+import { Publication } from "./publications";
+import { User } from "./user";
 
 export type Message = {
   content: string;
@@ -7,17 +10,16 @@ export type Message = {
 
 export type Channel = {
     _id: string;
-    activity_id: string
-    admin_id: string
+    activity: Activity | null
+    owner: User
     name: string;
-    pulication_id: string | null,
     type: string,
     description: string,
     created_at: string
     member_auth: string,
-    member: string[]
+    members: string[]
     messages: string[]
-  };
+};
 
 export class ChatClass extends ApiClient {
 
@@ -25,17 +27,17 @@ export class ChatClass extends ApiClient {
   
   async getChannelById(id: string): Promise<Channel> {
       const response = await this.Get(`${this.url}/${id}`);
-      return response.data;
+      return response//.data;
   }
 
   async getChannel(): Promise<Channel[]> {
       const response = await this.Get(`${this.url}/@me`);
-      return response.data;
+      return response//.data;
   }
 
   async createChat(option: any): Promise<Channel | null> {
-    const response = await this.Post(`${this.url}/create`, option)
-    return response.data
+    const response = await this.Post(`${this.url}`, option)
+    return response//.data
   }
 
   async deleteChat(channel_id: string): Promise<boolean>{

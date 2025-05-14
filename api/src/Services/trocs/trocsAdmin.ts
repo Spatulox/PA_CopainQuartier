@@ -5,11 +5,12 @@ import { User } from "../../Models/UserModel";
 import { UserRole } from "../../DB_Schema/UserSchema";
 
 // Formate un document Mongo en Troc plat
-export function formatTroc(doc: any): Troc {
+export function toTrocObject(doc: any): Troc {
     return {
         _id: doc._id.toString(),
         title: doc.title,
         created_at: doc.created_at,
+        description: doc.description,
         author_id: doc.author_id.toString(),
         reserved_at: doc.reserved_at || null,
         reserved_by: Array.isArray(doc.reserved_by)
@@ -26,10 +27,10 @@ export async function getWaitingTrocs(): Promise<Troc[]> {
         status: TrocStatus.waitingForApproval,
         visibility: { $ne: TrocVisibility.hide }
     }).sort({ created_at: -1 }).exec();
-    return docs.map(formatTroc);
+    return docs.map(toTrocObject);
 }
 
-export async function updateWaitingTrocStatus(id: string, status: TrocStatus.pending | TrocStatus.cancelled, admin: User): Promise<Troc | null> {
+export async function updateWaitingTrocStatus(id: string, status: TrocStatus.pending | TrocStatus.cancelled | TrocStatus.hide, admin: User): Promise<Troc | null> {
     if (admin.role !== UserRole.admin) {
         throw new UnauthorizedError("Only admins can validate trocs");
     }
@@ -41,5 +42,5 @@ export async function updateWaitingTrocStatus(id: string, status: TrocStatus.pen
         { status },
         { new: true }
     ).exec();
-    return doc ? formatTroc(doc) : null;
+    return doc ? toTrocObject(doc) : null;
 }

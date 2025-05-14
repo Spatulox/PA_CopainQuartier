@@ -49,7 +49,6 @@ export class ApiClient {
         const originalRequest = error.config;
   
         if (error.response && error.response.status === 401 && !originalRequest._retry) {
-          alert("Refresh Token")
           originalRequest._retry = true;
           const newAccessToken = await this.refreshAccessToken();
           if (newAccessToken) {
@@ -60,7 +59,7 @@ export class ApiClient {
             this.deconnection();
             
           }
-        } else if(error.response.status !== 401) {
+        } else if(error.hasOwnProperty("response") && error.response.status !== 401) {
             alert(error.code + " " + error.response.statusText)
             console.log(error.response.data)
         }
@@ -117,7 +116,7 @@ export class ApiClient {
     return this.handleAuth('/auth/register', options);
   }
 
-  private async refreshUser() {
+  async refreshUser() {
     this.user = await this.getMe();
     if (this.user) {
       localStorage.setItem(this.userKey, JSON.stringify(this.user));
@@ -135,12 +134,12 @@ export class ApiClient {
 
   async getMe(): Promise<User> {
     const res = await this.Get('/users/@me');
-    return res.data;
+    return res//.data;
   }
 
   async updateUser(id: string, data: any): Promise<User> {
     const res = await this.Patch(`/users/${id}`, data);
-    return res.data;
+    return res//.data;
   }
 
   isAdmin(){
@@ -206,34 +205,34 @@ export class ApiClient {
 
   protected async Get(endpoint: string): Promise<any> {
     try{
-      return await this.client.get(endpoint)
+      return (await this.client.get(endpoint)).data
     } catch(e){
       //console.error(e)
       throw e
     }
   }
 
-  protected async Post(endpoint: string, options: any): Promise<any> {
+  protected async Post(endpoint: string, options: object): Promise<any> {
     try{
-      return await this.client.post(endpoint, options)
+      return (await this.client.post(endpoint, options)).data
     } catch(e){
       //console.error(e)
       throw e
     }
   }
 
-  protected async Patch(endpoint: string, options: any): Promise<any> {
+  protected async Patch(endpoint: string, options: object): Promise<any> {
     try{
-      return await this.client.patch(endpoint, options)
+      return (await this.client.patch(endpoint, options)).data
     } catch(e){
       //console.error(e)
       throw e
     }
   }
 
-  protected async Put(endpoint: string, options: any): Promise<any> {
+  protected async Put(endpoint: string, options: object): Promise<any> {
     try{
-      return await this.client.put(endpoint, options)
+      return (await this.client.put(endpoint, options)).data
     } catch(e){
       //console.error(e)
       throw e
@@ -242,7 +241,7 @@ export class ApiClient {
 
   protected async Delete(endpoint: string): Promise<any> {
     try{
-      return await this.client.delete(endpoint)
+      return (await this.client.delete(endpoint)).data
     } catch(e){
       //console.error(e)
       throw e

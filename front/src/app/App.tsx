@@ -16,7 +16,13 @@ import Publications from './components/Publications/PublicationsPage';
 import ActivityComponent from './components/Activity/ActivityPage';
 import Trocs from './components/Trocs/TrocsPage';
 import ResetPassword from './components/LoginRegister/ResetPassword';
-import ManageActivity from './components/Activity/ManageActivity';
+import ManageActivity, { ManageMyActivity } from './components/Activity/ActivityManage';
+import ManagePublication, { ManageMyPublications } from './components/Publications/PublicationManage';
+import ManageTroc, { ManageMyTroc } from './components/Trocs/TrocManage';
+import ManageChat from './components/Chat/ChatManage';
+import ManageUser from './components/Users/UserManage';
+import NotFound from './components/shared/notfound';
+import Users from './components/Users/UserPage';
 
 function App() {
   return (
@@ -25,20 +31,46 @@ function App() {
         <Header />
         <main>
         <Routes>
-          <Route path={CRoute.account} element={<Account />} />
-          <Route path={CRoute.activity} element={<ActivityComponent />} />
-          <Route path={`${CRoute.activity}/:id`} element={<ActivityComponent />} />
-          <Route path={`${CRoute.chat}`} element={<Chat />} />
           <Route path={`${CRoute.chat}/:id`} element={<Chat />} />
           <Route path={CRoute.base} element={<HomePage />} />
           <Route path={CRoute.login} element={<Login />} />
-          <Route path={CRoute.manageActivity} element={<ManageActivity />} />
-          <Route path={`${CRoute.manageActivity}/:id`} element={<ManageActivity />} />
-          <Route path={`${CRoute.publications}`} element={<Publications />} />
           <Route path={CRoute.register} element={<Register />} />
           <Route path={CRoute.resetPassword} element={<ResetPassword />} />
+
+
+          <Route path={CRoute.account} element={<Account />} />
+          <Route path={`${CRoute.chat}`} element={<Chat />} />
+          <Route path={`${CRoute.chat}/:id`} element={<Chat />} />
+          <Route path={`${CRoute.manageChannels}`} element={<ManageChat />} />
+          <Route path={`${CRoute.manageChannels}/:id`} element={<ManageChat />} />
+
+
+          <Route path={CRoute.activity} element={<ActivityComponent />} />
+          <Route path={`${CRoute.activity}/:id`} element={<ActivityComponent />} />
+          <Route path={CRoute.manageActivity} element={<ManageActivity />} />
+          <Route path={`${CRoute.manageActivity}/:id`} element={<ManageActivity />} />
+          <Route path={`${CRoute.manageMyActivity}`} element={<ManageMyActivity />} />
+
+
+          <Route path={`${CRoute.publications}`} element={<Publications />} />
+          <Route path={`${CRoute.publications}/:id`} element={<Publications />} />
+          <Route path={`${CRoute.managePublications}`} element={<ManagePublication />} />
+          <Route path={`${CRoute.managePublications}/:id`} element={<ManagePublication />} />
+          <Route path={`${CRoute.manageMyPublications}`} element={<ManageMyPublications />} />
+
           <Route path={CRoute.troc} element={<Trocs />} />
-          {/* ... autres routes */}
+          <Route path={`${CRoute.troc}/:id`} element={<Trocs />} />
+          <Route path={CRoute.manageTrocs} element={<ManageTroc />} />
+          <Route path={`${CRoute.manageTrocs}/:id`} element={<ManageTroc />} />
+          <Route path={`${CRoute.manageMyTrocs}`} element={<ManageMyTroc />} />
+
+          <Route path={CRoute.user} element={<Users />} />
+          <Route path={`${CRoute.user}/:id`} element={<Users />} />
+          <Route path={CRoute.manageUser} element={<ManageUser />} />
+          <Route path={`${CRoute.manageUser}/:id`} element={<ManageUser />} />
+
+
+          <Route path="*" element={<NotFound />} />
         </Routes>
         </main>
         <Footer />

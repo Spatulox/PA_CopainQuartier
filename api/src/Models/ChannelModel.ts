@@ -2,6 +2,8 @@
 import mongoose from "mongoose";
 import { User } from "./UserModel";
 import { ID } from "../Utils/IDType";
+import { toActivityObject } from "../Services/activities/activities";
+import { toUserObject } from "../Services/users/usersPublic";
 
 export interface Channel {
     _id: string,
@@ -50,11 +52,11 @@ export function ChannelToPublicChannel(channel: Channel): PublicChannel {
     };
 }
 
-export function ObjectToChannel(channel: any): Channel {
+export function ObjectToChannel(channel: any): any {
     return {
         _id: channel._id.toString(),
         name: channel.name,
-        activity_id: channel.activity_id ? channel.activity_id.toString() : null,
+        activity: channel.activity_id ? toActivityObject(channel.activity_id) : null,
         type: channel.type,
         messages: Array.isArray(channel.messages)
         ? channel.messages.map((msg: any): Message => ({
@@ -70,7 +72,7 @@ export function ObjectToChannel(channel: any): Channel {
         : [],
         description: channel.description,
         created_at: channel.created_at,
-        admin_id: channel.admin_id.toString(),
+        admin_id: channel.admin_id ? toUserObject(channel.admin_id) : null,
         members: Array.isArray(channel.members)
             ? channel.members.map((m: any) => typeof m === 'object' ? { _id: m._id.toString(), name: m.name } : m.toString())
             : [],

@@ -22,7 +22,7 @@ function CreateActivity({onUpdate}: CreateActivityType){
       };
     
       async function handleCreateChannel(formData: ActivityForm): Promise<void> {
-        const client = new ActivityClass
+        const client = new ActivityClass()
         formData.date_reservation = formData.date + "T" + formData.hour + ":00Z"
         if(await client.createActivities(formData)){
           alert("Activité créé !\nNom: " + formData.title + "\nDescription: " + formData.description);

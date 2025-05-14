@@ -31,7 +31,7 @@ export class ChannelsController {
         
     }
 
-    @Post("/create")
+    @Post("/")
     @Authorized()
     async createChannel(@CurrentUser() user: User, @Body() body: any):Promise<Channel | null>{
         const validData = zCreateChannel.parse(body)

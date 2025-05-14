@@ -1,18 +1,18 @@
 // app/pages/account.tsx
 
 import { useEffect, useState } from "react";
-import { Link, Links, useNavigate } from "react-router-dom";
-import { ApiClient, User } from "../../../api/client";
+import { Link } from "react-router-dom";
+import { ApiClient} from "../../../api/client";
 import { ChatClass } from "../../../api/chat";
-import Chat from "../Chat/ChatPage";
 import { Route } from "../../constantes";
 import { ChannelList } from "../Chat/ChatList";
 import { Channel } from "../../../api/chat";
+import { User } from "../../../api/user";
 
 function Account(){
     const [user, setUserData] = useState<User>({} as User);
     const [errors, setErrors] = useState<string[]>([]);
-    const [channels, setChannels] = useState<Channel[]>([]);
+    //const [channels, setChannels] = useState<Channel[]>([]);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -20,9 +20,9 @@ function Account(){
                 const client = new ApiClient();
                 const chat = new ChatClass() 
                 const userData = await client.getMe();
-                const channels = await chat.getChannel()
+                //const channels = await chat.getChannel()
                 setUserData(userData);
-                setChannels(channels)
+                //setChannels(channels)
             } catch (error) {
                 setErrors(["Erreur lors de la récupération du profil"]);
             }
@@ -46,13 +46,13 @@ function Account(){
                 </div>
                 <div>
                     <h2>Gérer </h2>
-                    <p><Link to={Route.manageActivity}>Activités</Link></p>
-                    <p><Link to={Route.managePublications}>Publications</Link></p>
-                    <p><Link to={Route.manageTrocs}>Trocs</Link></p>
+                    <p><Link to={Route.manageMyActivity}>Activités</Link></p>
+                    <p><Link to={Route.manageMyPublications}>Publications</Link></p>
+                    <p><Link to={Route.manageMyTrocs}>Trocs</Link></p>
                     <p><Link to={Route.manageChannels}>Channels</Link></p>
                 </div>
                 <div>
-                    <ChannelList channels={channels}/>
+                    <ChannelList /*channels={channels}*//>
                 </div>
             </div>
         )

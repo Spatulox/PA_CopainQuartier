@@ -5,10 +5,13 @@ import { Publication } from "../../Models/PublicationModel";
 import { User } from "../../Models/UserModel";
 import { ID } from "../../Utils/IDType";
 import { CreatePublicationParam, UpdatePublicationParam } from "../../Validators/publications";
-import { getActivityById } from "../activities/activities";
+import { getActivityById, toActivityObject } from "../activities/activities";
+import { toUserObject } from "../users/usersPublic";
 
 export async function getAllPublications(): Promise<Publication[]> {
-    const res = await PublicationTable.find().sort({ created_at: -1 }).exec();
+    const res = await PublicationTable.find().sort({ created_at: -1 })
+    .populate("author_id")
+    .exec();
     const finaleRes: Publication[] = []
     res.forEach(re => {
         finaleRes.push(objectToPublication(re))
@@ -19,7 +22,10 @@ export async function getAllPublications(): Promise<Publication[]> {
 export async function getAllMyPublications(user: User): Promise<Publication[]> {
     const res = await PublicationTable.find(
         { author_id: user._id }
-    ).sort({ created_at: -1 }).exec();
+    ).sort({ created_at: -1 })
+    .populate("author_id")
+    .populate("activity_id")
+    .exec();
 
     return res.map(objectToPublication);
 }
@@ -76,14 +82,14 @@ export async function deletePublicationById(user: User, pub_id: ID): Promise<boo
 }
 
 
-export function objectToPublication(obj: any): Publication {
+export function objectToPublication(obj: any): any {
     return {
         _id: obj._id?.toString(),
         name: obj.name,
         created_at: obj.created_at ? new Date(obj.created_at) : new Date(),
         updated_at: obj.updated_at ? new Date(obj.updated_at) : new Date(),
-        author_id: obj.author_id?.toString(),
-        activity_id: obj.activity_id ? obj.activity_id.toString() : undefined,
+        author_id: obj.author_id ? toUserObject(obj.author_id) : obj.author_id.toString(),
+        activity: obj.activity_id ? toActivityObject(obj.activity_id) : undefined,
         body: obj.body,
     };
 }
