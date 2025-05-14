@@ -17,7 +17,7 @@ type ShowUserProps = {
     theuser: User,
     user: User | null,
     onViewUser?: (id: string) => void,
-    onApprove?: (id: string) => void,
+    onApprove?: (id: string, bool: boolean) => void,
     onDelete?: (id: string) => void,
     onManage?: (id: string) => void,
     buttonShow: ShowUserButton
@@ -78,7 +78,7 @@ export function ShowUser({
 
                 {(buttonShow & ShowUserButton.Approve) !== 0 &&
                     onApprove && (
-                        <button onClick={() => onApprove(theuser._id)}>
+                        <button onClick={() => onApprove(theuser._id, true)}>
                             Approuver l'utilisateur
                         </button>
                 )}
