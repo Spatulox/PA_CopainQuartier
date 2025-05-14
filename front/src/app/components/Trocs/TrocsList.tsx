@@ -21,7 +21,6 @@ function TrocList({message, limit}: TrocListMessage){
             const client = new TrocClass()
             const tro = await client.getAllTrocs()
             setTroc(tro)
-            console.log(tro)
             const use = await client.getMe()
             setUser(use)
         })()
