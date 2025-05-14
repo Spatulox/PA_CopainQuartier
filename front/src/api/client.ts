@@ -59,7 +59,7 @@ export class ApiClient {
             this.deconnection();
             
           }
-        } else if(error.response.status !== 401) {
+        } else if(error.hasOwnProperty("response") && error.response.status !== 401) {
             alert(error.code + " " + error.response.statusText)
             console.log(error.response.data)
         }
