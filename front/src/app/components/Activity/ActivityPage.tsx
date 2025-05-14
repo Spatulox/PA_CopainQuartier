@@ -35,6 +35,7 @@ function ShowActivityPage() {
 
     return (
         <ShowActivity
+            key={activity._id}
             activity={activity}
             user={user}
             onViewPublication={(pubId) => navigate(`${Route.publications}/${pubId}`)}

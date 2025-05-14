@@ -38,6 +38,7 @@ function TrocList({message, limit}: TrocListMessage){
             .slice(0, limit ?? troc.length)
             .map((theTroc) => (
                 <ShowTroc
+                    key={theTroc._id}
                     troc={theTroc}
                     user={user}
                     onViewTroc={() => navigate(`${Route.troc}/${theTroc._id}`)}

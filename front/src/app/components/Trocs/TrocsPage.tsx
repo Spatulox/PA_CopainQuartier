@@ -35,6 +35,7 @@ function ShowTrocPage() {
 
     return (
         <ShowTroc
+            key={troc._id}
             troc={troc}
             user={user}
             onManage={(actId) => navigate(`${Route.manageTrocs}/${actId}`)}

@@ -36,6 +36,7 @@ export function ManageMyActivity() {
           {activities.map((activity) => (
             <section>
               <ShowActivity
+                key={activity._id}
                 activity={activity}
                 user={user}
                 onManage={(id) => navigate(`${Route.manageActivity}/${id}`)}
@@ -84,6 +85,7 @@ function ManageActivityAdmin(){
         <div>
           {activities.map((activity) => (
             <ShowActivity
+                key={activity._id}
                 activity={activity}
                 user={user}
                 onViewPublication={(pubId) => navigate(`${Route.publications}/${pubId}`)}
@@ -124,7 +126,8 @@ function ManageOneActivity(){
     return (
       <div>
         <h1>EN TRAVAUX</h1>
-        <ShowActivity
+        <ShowActivity 
+            key={activity._id}
             activity={activity}
             user={user}
             buttonShow={ShowActivityButton.None}

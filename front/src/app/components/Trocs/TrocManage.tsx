@@ -37,6 +37,7 @@ export function ManageMyTroc(){
           {trocs.map((trok) => (
             <section>
               <ShowTroc
+                key={trok._id}
                 troc={trok}
                 user={user}
                 onManage={(id) => navigate(`${Route.manageTrocs}/${id}`)}
@@ -85,6 +86,7 @@ function ManageTrocAdmin(){
         <h1>Troc</h1>
         {trocs.map((trok) => (
           <ShowTroc
+              key={trok._id}
               troc={trok}
               user={user}
               onManage={(trocId) => navigate(`${Route.manageTrocs}/${trocId}`)}
@@ -123,6 +125,7 @@ function ManageOneTroc(){
       <div>
         <h1>EN TRAVAUX</h1>
         <ShowTroc
+            key={troc._id}
             troc={troc}
             user={user}
             buttonShow={ShowTrocButton.None}

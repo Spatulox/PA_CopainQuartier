@@ -45,6 +45,7 @@ function ActivityList({message, limit}: ActivityListMessage){
             .slice(0, limit ?? activity.length)
             .map((acti) => (
                 <ShowActivity
+                    key={acti._id}
                     activity={acti}
                     user={user}
                     onViewPublication={(pubId) => navigate(`${Route.publications}/${pubId}`)}

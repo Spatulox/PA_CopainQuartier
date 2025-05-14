@@ -35,6 +35,7 @@ export function ManageMyPublications(){
         <h2>Mes Publications</h2>
         <section>{publications.map((pub) => (
             <ShowPublication
+                key={pub._id}
                 pub={pub}
                 user={user}
                 onViewActivity={(id) => navigate(`${Route.activity}/${id}`)}
@@ -75,6 +76,7 @@ function ManageOnePublication(){
         <h1>EN TRAVAUX</h1>
         {publication && user ?
             <ShowPublication
+                key={publication._id}
                 pub={publication}
                 user={user}
                 onViewActivity={(id) => navigate(`${Route.activity}/${id}`)}

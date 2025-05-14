@@ -30,6 +30,7 @@ function ApproveTroc(){
             <h1>Approuver Troc</h1>
             {troc.map((trok) => (
                 <ShowTroc
+                    key={trok._id}
                     troc={trok}
                     user={user}
                     onApprove={handleApprove}
