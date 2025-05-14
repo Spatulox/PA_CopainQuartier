@@ -21,6 +21,8 @@ import ManagePublication, { ManageMyPublications } from './components/Publicatio
 import ManageTroc, { ManageMyTroc } from './components/Trocs/TrocManage';
 import ManageChat from './components/Chat/ChatManage';
 import ManageUser from './components/Users/UserManage';
+import NotFound from './components/shared/notfound';
+import Users from './components/Users/UserPage';
 
 function App() {
   return (
@@ -62,9 +64,13 @@ function App() {
           <Route path={`${CRoute.manageTrocs}/:id`} element={<ManageTroc />} />
           <Route path={`${CRoute.manageMyTrocs}`} element={<ManageMyTroc />} />
 
-          <Route path={CRoute.user}  />
+          <Route path={CRoute.user} element={<Users />} />
+          <Route path={`${CRoute.user}/:id`} element={<Users />} />
           <Route path={CRoute.manageUser} element={<ManageUser />} />
-          {/* ... autres routes */}
+          <Route path={`${CRoute.manageUser}/:id`} element={<ManageUser />} />
+
+
+          <Route path="*" element={<NotFound />} />
         </Routes>
         </main>
         <Footer />
