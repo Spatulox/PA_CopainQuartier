@@ -212,7 +212,7 @@ export class ApiClient {
     }
   }
 
-  protected async Post(endpoint: string, options: any): Promise<any> {
+  protected async Post(endpoint: string, options: object): Promise<any> {
     try{
       return (await this.client.post(endpoint, options)).data
     } catch(e){
@@ -221,7 +221,7 @@ export class ApiClient {
     }
   }
 
-  protected async Patch(endpoint: string, options: any): Promise<any> {
+  protected async Patch(endpoint: string, options: object): Promise<any> {
     try{
       return (await this.client.patch(endpoint, options)).data
     } catch(e){
@@ -230,7 +230,7 @@ export class ApiClient {
     }
   }
 
-  protected async Put(endpoint: string, options: any): Promise<any> {
+  protected async Put(endpoint: string, options: object): Promise<any> {
     try{
       return (await this.client.put(endpoint, options)).data
     } catch(e){
