@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Publication, PublicationClass } from "../../../api/publications";
 import { Route } from "../../constantes";
 import Loading from "../shared/loading";
-import { ShowPublication, ShowPublicationButton } from "./SimplePublication";
+import { ShowPublication, ShowPublicationButton } from "./SinglePublication";
 import { User } from "../../../api/user";
 
 export function ManageMyPublications(){

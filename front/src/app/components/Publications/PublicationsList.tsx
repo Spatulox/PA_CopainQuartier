@@ -3,7 +3,7 @@ import { Publication, PublicationClass } from "../../../api/publications";
 import { User } from "../../../api/user";
 import { useNavigate } from "react-router-dom";
 import { Route } from "../../constantes";
-import { ShowPublication, ShowPublicationButton } from "./SimplePublication";
+import { ShowPublication, ShowPublicationButton } from "./SinglePublication";
 import Loading from "../shared/loading";
 
 type PublicationListMessage = {

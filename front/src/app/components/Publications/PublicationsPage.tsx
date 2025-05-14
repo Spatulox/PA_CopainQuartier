@@ -5,7 +5,7 @@ import CreatePublication from "./PublicationCreate";
 import { Route } from "../../constantes";
 import PublicationList from "./PublicationsList";
 import { useEffect, useState } from "react";
-import { ShowPublication, ShowPublicationButton } from "./SimplePublication";
+import { ShowPublication, ShowPublicationButton } from "./SinglePublication";
 import { Publication, PublicationClass } from "../../../api/publications";
 import { User } from "../../../api/user";
 import Loading from "../shared/loading";
