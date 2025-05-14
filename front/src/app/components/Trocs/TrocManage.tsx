@@ -5,6 +5,7 @@ import { AdminTrocClass, Troc, TrocClass } from "../../../api/troc";
 import { ShowTroc, ShowTrocButton } from "./SimpleTroc";
 import { User } from "../../../api/user";
 import Loading from "../shared/loading";
+import ApproveTroc from "./ApproveTroc";
 
 export function ManageMyTroc(){
     const [trocs, setTrocs] = useState<Troc[] | null>(null);
@@ -82,16 +83,14 @@ function ManageTrocAdmin(){
     return (
       <div>
         <h1>Troc</h1>
-        <div>
-          {trocs.map((trok) => (
-            <ShowTroc
-                troc={trok}
-                user={user}
-                onManage={(trocId) => navigate(`${Route.manageTrocs}/${trocId}`)}
-                buttonShow={ShowTrocButton.All}
-            />
-          ))}
-        </div>
+        {trocs.map((trok) => (
+          <ShowTroc
+              troc={trok}
+              user={user}
+              onManage={(trocId) => navigate(`${Route.manageTrocs}/${trocId}`)}
+              buttonShow={ShowTrocButton.Troc | ShowTrocButton.Manage}
+          />
+        ))}
       </div>
     );
 }
@@ -152,6 +151,7 @@ export function ManageTroc(){
     }
     return <>
         <ManageTrocAdmin />
+        <ApproveTroc />
         <button onClick={() => navigate(`${Route.manageMyTrocs}`)}>Gérer mes Trocs</button>
     </>
 }
