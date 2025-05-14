@@ -20,6 +20,7 @@ import ManageActivity, { ManageMyActivity } from './components/Activity/Activity
 import ManagePublication, { ManageMyPublications } from './components/Publications/PublicationManage';
 import ManageTroc, { ManageMyTroc } from './components/Trocs/TrocManage';
 import ManageChat from './components/Chat/ChatManage';
+import ManageUser from './components/Users/UserManage';
 
 function App() {
   return (
@@ -61,8 +62,8 @@ function App() {
           <Route path={`${CRoute.manageTrocs}/:id`} element={<ManageTroc />} />
           <Route path={`${CRoute.manageMyTrocs}`} element={<ManageMyTroc />} />
 
-          <Route path={CRoute.user} />
-          <Route path={CRoute.manageUser} />
+          <Route path={CRoute.user}  />
+          <Route path={CRoute.manageUser} element={<ManageUser />} />
           {/* ... autres routes */}
         </Routes>
         </main>

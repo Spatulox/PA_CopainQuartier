@@ -22,5 +22,5 @@ export const enum Route {
     manageMyTrocs = "/trocs/manage/me",
 
     user = "/users",
-    manageUser = "/manage/users",
+    manageUser = "/users/manage",
 }
