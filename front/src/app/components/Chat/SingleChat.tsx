@@ -1,4 +1,4 @@
-import React from "react";
+import React, { use } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, UserRole } from "../../../api/user";
 import { Route } from "../../constantes";
@@ -37,25 +37,24 @@ export function ShowChat({
     buttonShow
 }: ShowChatProps) {
     const navigate = useNavigate();
-
     return (
         <div key={channel._id}>
             <h2>{channel.name}</h2>
             <div>
-                <span>Créé par : {channel.owner ? channel.owner._id : ""}</span>
+                <span>Créé par : {channel.owner ? channel.owner.email : ""}</span>
                 <span>Créé le : {new Date(channel.created_at).toLocaleDateString()}</span>
                 <p>{channel.description}</p>
                 {(user?._id === channel.owner?._id || user?.role === UserRole.admin) && (
                     <ul>
                         <li>Autorisations : {channel.member_auth}</li>
-                        <li>Membres : {channel.member?.length || 0}</li>
+                        <li>Membres : {channel.members?.length || 0}</li>
                         <li>Type : {channel.type}</li>
                     </ul>
                 )}
-                {(user?._id !== channel.owner?._id && user?.role !== UserRole.admin) && (
+                {(user?._id !== channel.owner?._id && user?.role != UserRole.admin) && (
                     <ul>
                         <li>Type : {channel.type}</li>
-                        <li>Membres : {channel.member?.length || 0}</li>
+                        <li>Membres : {channel.members?.length || 0}</li>
                     </ul>
                 )}
             </div>
@@ -75,7 +74,7 @@ export function ShowChat({
                 {(buttonShow & ShowChatButton.Manage) !== 0 &&
                     onManage &&
                     user &&
-                    (channel.owner?._id === user._id || user.role === UserRole.admin) && (
+                    (channel.owner?._id === user._id || user.role == UserRole.admin) && (
                         <button onClick={() => onManage(channel._id)}>
                             Gérer le channel
                         </button>
@@ -85,7 +84,7 @@ export function ShowChat({
                 {(buttonShow & ShowChatButton.Join) !== 0 &&
                     onJoin &&
                     user &&
-                    !(channel.member || []).includes(user._id) && (
+                    !(channel.members || []).includes(user._id) && (
                         <button onClick={() => onJoin(channel._id)}>
                             Rejoindre le channel
                         </button>
@@ -95,7 +94,7 @@ export function ShowChat({
                 {(buttonShow & ShowChatButton.Leave) !== 0 &&
                     onLeave &&
                     user &&
-                    (channel.member || []).includes(user._id) && (
+                    (channel.members || []).includes(user._id) && (
                         <button onClick={() => onLeave(channel._id)}>
                             Quitter le channel
                         </button>
@@ -105,7 +104,7 @@ export function ShowChat({
                 {(buttonShow & ShowChatButton.Delete) !== 0 &&
                     onLeave &&
                     user &&
-                    (channel.member || []).includes(user._id) && (
+                    (channel.members || []).includes(user._id) && (
                         <button onClick={() => onLeave(channel._id)}>
                             Quitter le channel
                         </button>
