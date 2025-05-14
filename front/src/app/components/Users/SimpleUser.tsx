@@ -1,4 +1,4 @@
-import { User } from "../../../api/user";
+import { User, UserRole } from "../../../api/user";
 import { ShowChat, ShowChatButton } from "../Chat/SingleChat";
 import { useNavigate } from "react-router-dom";
 import { Route } from "../../constantes";
@@ -50,18 +50,36 @@ export function ShowUser({
                         <li>Vérifié : {theuser.verified ? "Oui" : "Non"}</li>
                     </ul>
                     <h3>Group Chat</h3>
-                    <ul>
-                        {theuser.group_chat_list_ids.length > 0 && theuser.group_chat_list_ids.map((chat: Channel) => (
-                            <ShowChat
-                                key={chat._id}
-                                channel={chat}
-                                user={theuser}
-                                onViewChat={(id) => navigate(`${Route.chat}/${id}`)}
-                                onManage={(id) => navigate(`${Route.manageChannels}/${id}`)}
-                                buttonShow={ShowChatButton.Chat | ShowChatButton.Manage}
-                            />
-                        ))}
-                    </ul>
+                    <div>
+                        <span>Channels</span>
+                        <ul>
+                            {(user?.role == UserRole.admin || user?._id == theuser._id) && theuser.group_chat_list_ids.length > 0 && theuser.group_chat_list_ids.map((chat: Channel) => (
+                                <ShowChat
+                                    key={chat._id}
+                                    channel={chat}
+                                    user={theuser}
+                                    onViewChat={(id) => navigate(`${Route.chat}/${id}`)}
+                                    onManage={(id) => navigate(`${Route.manageChannels}/${id}`)}
+                                    buttonShow={ShowChatButton.Chat | ShowChatButton.Manage}
+                                />
+                            ))}
+                        </ul>
+                    </div>
+                    <div>
+                        <span>Common Channels</span>
+                        <ul>
+                            {theuser.hasOwnProperty("common_channels") && theuser.common_channels!.length > 0 && theuser.common_channels!.map((chat: Channel) => (
+                                <ShowChat
+                                    key={chat._id}
+                                    channel={chat}
+                                    user={theuser}
+                                    onViewChat={(id) => navigate(`${Route.chat}/${id}`)}
+                                    onManage={(id) => navigate(`${Route.manageChannels}/${id}`)}
+                                    buttonShow={ShowChatButton.Chat | ShowChatButton.Manage}
+                                />
+                            ))}
+                        </ul>
+                    </div>
                 </section>
             </div>
             <div>
