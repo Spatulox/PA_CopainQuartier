@@ -62,7 +62,6 @@ function ManageTrocAdmin(){
         const client = new AdminTrocClass();
         await client.refreshUser()
         if(!client.isAdmin()){
-          console.log(client.isAdmin())
           navigate(`${Route.troc}`)
           return
         }
