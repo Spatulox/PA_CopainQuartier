@@ -85,4 +85,8 @@ export class AdminTrocClass extends TrocClass{
     async getAdminTrocByID(id: string){
         return await this.Get(`${this.url}/${id}`)
     }
+
+    async approveTroc(id: string, option: object){
+        return await this.Patch(`${this.url}/${id}/approve`, option)
+    }
 }
