@@ -37,7 +37,7 @@ export function ShowActivity({
         <div key={activity._id}>
             <h2>{activity.title}</h2>
             <div>
-                <span>{activity.author_id?.name}</span>
+                <span>{activity.author?.name}</span>
                 <span>{new Date(activity.created_at).toLocaleDateString()}</span>
                 <p>{activity.description}</p>
                 <span>{new Date(activity.date_reservation).toLocaleDateString()}</span>
@@ -65,7 +65,7 @@ export function ShowActivity({
                     {(buttonShow & ShowActivityButton.Manage) !== 0 &&
                         onManage &&
                         user &&
-                        (activity.author_id?._id === user._id || user.role === UserRole.admin) && (
+                        (activity.author?._id === user._id || user.role === UserRole.admin) && (
                             <button onClick={() => onManage(activity._id)}>
                                 Gérer l'activité
                             </button>
