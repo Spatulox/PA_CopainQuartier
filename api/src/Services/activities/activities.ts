@@ -396,7 +396,7 @@ export function toActivityObject(activityDoc: any): any {
         description: obj.description,
         created_at: obj.created_at,
         date_reservation: obj.date_reservation,
-        author_id: obj.author_id ? toUserObject(obj.author_id) : null,
+        author: obj.author_id ? toUserObject(obj.author_id) : null,
         channel_chat_id: obj.channel_chat_id ? objectToChannel(obj.channel_chat_id) : null,
         publication: obj.publication_id ? objectToPublication(obj.publication_id): null,
         participants: obj.participants_id ? obj.participants_id.map((user: any) => toUserObject(user)) : null,
