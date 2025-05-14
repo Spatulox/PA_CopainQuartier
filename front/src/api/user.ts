@@ -47,7 +47,7 @@ export class AdminUserClass extends ApiClient{
         })
     }
 
-    async getUsers(): Promise<User>{
+    async getUsers(): Promise<User[]>{
         return await this.Get(this.url)
     }
 

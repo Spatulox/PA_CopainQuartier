@@ -17,7 +17,7 @@ export type Channel = {
     description: string,
     created_at: string
     member_auth: string,
-    member: string[]
+    members: string[]
     messages: string[]
 };
 
