@@ -13,12 +13,14 @@ function ApproveTroc(){
         const client = new AdminTrocClass()
         const option = {"approve": bool}
         await client.approveTroc(troc_id, option)
+        const app = await client.getWaitingTroc()
+        setTroc(app)
     }
 
     useEffect(() => {
         (async () => {
             const client = new AdminTrocClass()
-            const trok = await client.getAllAdminTroc()
+            const trok = await client.getWaitingTroc()
             setTroc(trok)
             const use = await client.getMe()
             setUser(use)
