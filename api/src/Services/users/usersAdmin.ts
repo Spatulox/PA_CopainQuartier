@@ -5,7 +5,9 @@ import { ID } from "../../Utils/IDType";
 import { toUserObject } from "./usersPublic";
 
 export async function getAllUsers(): Promise<User[]>{
-    const users =  await UserTable.find().exec()
+    const users =  await UserTable.find()
+    .populate("group_chat_list_ids")
+    .exec()
     const finalUsers: User[] = []
 
     users.forEach(user => {

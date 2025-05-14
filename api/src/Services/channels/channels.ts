@@ -5,6 +5,8 @@ import { CreateChannelParam, PostMessageParam, TransferChannelParam, UpdateChann
 import { ID } from "../../Utils/IDType";
 import { User } from "../../Models/UserModel";
 import { UserTable } from "../../DB_Schema/UserSchema";
+import { toUserObject } from "../users/usersPublic";
+import { toActivityObject } from "../activities/activities";
 
 export async function getChannelById(channel_id: ID): Promise<Channel | null>{
     const res = await ChannelTable.findById(channel_id)
@@ -131,14 +133,14 @@ export async function deleteChannel(channel_id: ID): Promise<boolean>{
  * @param obj L'objet provenant de la DB (plain object ou document Mongoose)
  * @returns Un objet Channel typé
  */
-export function objectToChannel(obj: any): Channel {
+export function objectToChannel(obj: any): any {
     return {
         _id: obj._id?.toString(),
         name: obj.name,
-        activity_id: obj.activity_id ? obj.activity_id.toString() : null,
+        activity: obj.activity_id ? toActivityObject(obj.activity_id) : null,
         type: obj.type,
         description: obj.description,
-        admin_id: obj.admin_id?.toString(),
+        owner: obj.admin_id ? toUserObject(obj.admin_id) : null,
         messages: obj.messages?.map(objectToMessage) ?? [],
         members: Array.isArray(obj.members)
             ? obj.members.map((m: any) => m?.toString())
@@ -153,7 +155,7 @@ export function objectToChannel(obj: any): Channel {
  * @param obj L'objet message provenant de la DB
  * @returns Un objet Message typé
  */
-function objectToMessage(obj: any): Message {
+function objectToMessage(obj: Message): Message {
     return {
         date: obj.date ? new Date(obj.date) : new Date(),
         content: obj.content,

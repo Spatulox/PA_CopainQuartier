@@ -57,7 +57,8 @@ export async function deleteMyAccount(user: User): Promise<boolean>{
 
 
 
-export function toUserObject(doc: any): User {
+export function toUserObject(doc: User | null): User {
+    if(doc == null){return {} as User}
     return {
         _id: doc._id.toString(),
         name: doc.name,
