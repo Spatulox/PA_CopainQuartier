@@ -5,11 +5,18 @@ import Loading from "../shared/loading";
 import { ShowUser, ShowUserButton } from "./SimpleUser";
 import { AdminUserClass, User } from "../../../api/user";
 import UserList from "./UsersList";
+import ApproveUser from "./ApproveUser";
 
 
 function ManageUserAdmin(){
+    const [message, setMessage] = useState("");
+    const handleUpdate = (newMsg: string) => {
+        setMessage(newMsg);
+    };
+
     return <>
-        <UserList/>
+        <UserList message={message} />
+        <ApproveUser onUpdate={handleUpdate} />
     </>
 }
 
