@@ -30,7 +30,7 @@ export async function getWaitingTrocs(): Promise<Troc[]> {
     return docs.map(toTrocObject);
 }
 
-export async function updateWaitingTrocStatus(id: string, status: TrocStatus.pending | TrocStatus.cancelled, admin: User): Promise<Troc | null> {
+export async function updateWaitingTrocStatus(id: string, status: TrocStatus.pending | TrocStatus.cancelled | TrocStatus.hide, admin: User): Promise<Troc | null> {
     if (admin.role !== UserRole.admin) {
         throw new UnauthorizedError("Only admins can validate trocs");
     }

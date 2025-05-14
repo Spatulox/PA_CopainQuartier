@@ -19,6 +19,7 @@ export enum TrocType {
     item = "item"
 }
 
+// Troc visibility set by the owner
 export enum TrocVisibility {
     hide = "hide",
     visible = "visible"
@@ -27,7 +28,7 @@ export enum TrocVisibility {
 export enum TrocStatus {
     completed = "completed",
     cancelled = "cancelled",
-    hide = "hide",
+    hide = "hide", // TrocStatus.hice troc non approve by admin
     pending = "pending",
     reserved = "reserved",
     waitingForApproval = "waitingforapproval",

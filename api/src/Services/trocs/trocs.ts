@@ -25,7 +25,7 @@ export function toTrocObject(doc: any): any {
 // GET : Trocs visibles (pas completed, pas reserved, pas waiting, pas hide) // Seulement pending (en attente d'un mec qui veut l'objet/le troc)
 export async function getAllTrocs(): Promise<Troc[]> {
     const docs = await TrocTable.find({
-        status: { $nin: [TrocStatus.completed, TrocStatus.cancelled, TrocStatus.waitingForApproval, TrocStatus.reserved] },
+        status: { $nin: [TrocStatus.completed, TrocStatus.cancelled, TrocStatus.waitingForApproval, TrocStatus.reserved, TrocStatus.hide] }, // TrocStatus.hide is non approve troc by admin
         visibility: { $ne: TrocVisibility.hide }
     }).sort({ created_at: -1 })
     .populate("author_id")

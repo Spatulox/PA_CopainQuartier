@@ -16,7 +16,12 @@ export const zUpdateTrocSchema = z.object({
   type: TrocTypeSchema.optional(),
 });
 
+export const zApproveTroc = z.object({
+  approve: z.boolean()
+});
+
 
 
 export type CreateTrocBody = z.infer<typeof zCreateTrocSchema>
 export type UpdateTrocBody = z.infer<typeof zUpdateTrocSchema>
+export type ApproveTrocBody = z.infer<typeof zApproveTroc>
