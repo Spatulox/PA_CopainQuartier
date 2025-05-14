@@ -12,8 +12,8 @@ import {
   } from "routing-controllers";
 import { Troc, TrocStatus } from "../Models/TrocModel";
 import { User } from "../Models/UserModel";
-import { CreateTrocBody, UpdateTrocBody, zApproveTroc, zCreateTrocSchema, zUpdateTrocSchema } from "../Validators/trocs";
-import { zObjectId } from "../Validators/utils";
+import { CreateTrocBody, UpdateTrocBody, zCreateTrocSchema, zUpdateTrocSchema } from "../Validators/trocs";
+import { zApprove, zObjectId } from "../Validators/utils";
 import { cancelTroc, completeTroc, createTroc, deleteTroc, getAllAdminTrocs, getAllMyTrocs, getAllTrocs, getTrocById, reserveTroc, updateTroc } from "../Services/trocs/trocs";
 import { UserRole } from "../DB_Schema/UserSchema";
 import { getWaitingTrocs, updateWaitingTrocStatus } from "../Services/trocs/trocsAdmin";
@@ -37,7 +37,7 @@ export class AdminTrocController {
     @Authorized(UserRole.admin)
     async approveTroc(@CurrentUser() user: User, @Param("id") id: string, @Body() body: any): Promise<Troc | null> {
         const validID = zObjectId.parse(id)
-        const validApprove = zApproveTroc.parse(body)
+        const validApprove = zApprove.parse(body)
         if(validApprove.approve == true){
             return await updateWaitingTrocStatus(validID, TrocStatus.pending, user);
         }
