@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { AdminUserClass, User, UserClass } from "../../../api/user"
 import { useNavigate, useParams } from "react-router-dom";
-import { ShowUser, ShowUserButton } from "./SimpleUser";
+import { ShowUser, ShowUserButton } from "./SingleUser";
 import { Route } from "../../constantes";
 import Loading from "../shared/loading";
 

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Route } from "../../constantes";
 import Loading from "../shared/loading";
-import { ShowUser, ShowUserButton } from "./SimpleUser";
+import { ShowUser, ShowUserButton } from "./SingleUser";
 import { AdminUserClass, User } from "../../../api/user";
 import UserList from "./UsersList";
 import ApproveUser from "./ApproveUser";

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { AdminUserClass, User } from "../../../api/user"
 import Loading from "../shared/loading"
-import { ShowUser, ShowUserButton } from "./SimpleUser"
+import { ShowUser, ShowUserButton } from "./SingleUser"
 
 type ApproveUserType = {
   onUpdate: (message:string) => void

@@ -3,7 +3,7 @@ import { Publication, PublicationClass } from "../../../api/publications";
 import { AdminUserClass, User } from "../../../api/user";
 import { useNavigate } from "react-router-dom";
 import { Route } from "../../constantes";
-import { ShowUser, ShowUserButton } from "./SimpleUser";
+import { ShowUser, ShowUserButton } from "./SingleUser";
 import Loading from "../shared/loading";
 
 type UserListType = {
