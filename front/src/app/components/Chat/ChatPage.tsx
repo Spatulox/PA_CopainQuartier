@@ -5,7 +5,7 @@ import { ManageChannelList } from "./ChatList";
 import ChatRoom, { ChannelRight } from "./ChatRoom";
 import { Route } from "../../constantes";
 import { PopupConfirm } from "../Popup/PopupConfirm";
-import { ShowChat, ShowChatButton } from "./SimpleChat";
+import { ShowChat, ShowChatButton } from "./SingleChat";
 import { User } from "../../../api/user";
 import { CreateChannel } from "./ChatCreate";
 

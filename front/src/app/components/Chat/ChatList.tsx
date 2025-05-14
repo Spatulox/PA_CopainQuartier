@@ -2,7 +2,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Channel, ChatClass } from "../../../api/chat";
 import { User } from "../../../api/user";
 import { FieldForm, PopupForm } from "../Popup/PopupForm";
-import { ShowChat, ShowChatButton } from "./SimpleChat";
+import { ShowChat, ShowChatButton } from "./SingleChat";
 import { Route } from "../../constantes";
 import { useEffect, useState } from "react";
 import Loading from "../shared/loading";
