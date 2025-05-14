@@ -6,11 +6,12 @@ import { Troc, TrocStatus } from "../../../api/troc";
 
 // Enum pour les boutons
 export enum ShowTrocButton {
-    Troc = 1 << 0,           // 1 (0b0001) : Voir le troc
-    Manage = 1 << 1,         // 2 (0b0010) : Gérer le troc
-    Reserve = 1 << 2,        // 4 (0b0100) : Réserver le troc
-    Cancel = 1 << 3,         // 8 (0b1000) : Annuler le troc
-    All = Troc | Manage | Reserve | Cancel, // 7
+    Troc = 1 << 0,           // 1 (0b00001) : Voir le troc
+    Manage = 1 << 1,         // 2 (0b00010) : Gérer le troc
+    Reserve = 1 << 2,        // 4 (0b00100) : Réserver le troc
+    Cancel = 1 << 3,         // 8 (0b01000) : Annuler le troc
+    Approve = 1 << 4,        //16 (0b10000) : Approve le troc
+    All = Troc | Manage | Reserve | Cancel | Approve,
     None = 0
 }
 
@@ -21,6 +22,7 @@ type ShowTrocProps = {
     onManage?: (id: string) => void;
     onReserve?: (id: string) => void;
     onCancel?: (id: string) => void;
+    onApprove?: (id: string, bool: boolean) => void;
     buttonShow: ShowTrocButton;
 };
 
@@ -31,6 +33,7 @@ export function ShowTroc({
     onManage,
     onReserve,
     onCancel,
+    onApprove,
     buttonShow
 }: ShowTrocProps) {
     const navigate = useNavigate();
@@ -74,6 +77,26 @@ export function ShowTroc({
                             : navigate(`${Route.troc}/${troc._id}`)
                     }>
                         Voir le troc
+                    </button>
+                )}
+
+                {(buttonShow & ShowTrocButton.Approve) !== 0 && (
+                    <button onClick={() =>
+                        onApprove
+                            ? onApprove(troc._id, true)
+                            : ""
+                    }>
+                        Approuver le troc
+                    </button>
+                )}
+
+                {(buttonShow & ShowTrocButton.Approve) !== 0 && (
+                    <button onClick={() =>
+                        onApprove
+                            ? onApprove(troc._id, false)
+                            : ""
+                    }>
+                        Ne pas approuver le troc
                     </button>
                 )}
 
