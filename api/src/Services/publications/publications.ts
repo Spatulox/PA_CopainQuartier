@@ -82,14 +82,14 @@ export async function deletePublicationById(user: User, pub_id: ID): Promise<boo
 }
 
 
-export function objectToPublication(obj: any): Publication {
+export function objectToPublication(obj: any): any {
     return {
         _id: obj._id?.toString(),
         name: obj.name,
         created_at: obj.created_at ? new Date(obj.created_at) : new Date(),
         updated_at: obj.updated_at ? new Date(obj.updated_at) : new Date(),
         author_id: obj.author_id ? toUserObject(obj.author_id) : obj.author_id.toString(),
-        activity_id: obj.activity_id ? toActivityObject(obj) : undefined,
+        activity: obj.activity_id ? toActivityObject(obj.activity_id) : undefined,
         body: obj.body,
     };
 }
