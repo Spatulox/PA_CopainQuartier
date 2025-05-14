@@ -16,6 +16,7 @@ export type User = {
   verified: boolean,
   role: string,
   group_chat_list_ids: [],
+  common_channels?: [],
   troc_score: string | number | null,
   phone: string
 } | null
@@ -25,13 +26,11 @@ export class UserClass extends ApiClient{
     protected url = "/users"
 
     async getUsers(): Promise<User>{
-        console.log( await this.Get(this.url))
-        return {} as User
+        return await this.Get(this.url)
     }
 
     async getUserByID(id: string): Promise<User>{
-        console.log( await this.Get(`${this.url}/${id}`))
-        return {} as User
+        return await this.Get(`${this.url}/${id}`)
     }
 }
 
