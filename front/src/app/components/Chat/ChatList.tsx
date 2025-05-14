@@ -39,12 +39,12 @@ export function ChannelList(/*{ channels }: ListSimpleProps*/) {
   return (
   <div>
     <h2>Mes channels</h2>
-    {channels.length === 0 ? (
+    {channel.length === 0 ? (
       <p>Aucun channel trouvé.</p>
     ) : (
-      channels.map((channel) => (
-        <p key={channel._id}>
-          <Link to={`/chat/${channel._id}`}>{channel.name}</Link>
+      channel.map((chan) => (
+        <p key={chan._id}>
+          <Link to={`/chat/${chan._id}`}>{chan.name}</Link>
         </p>
       ))
     )}
