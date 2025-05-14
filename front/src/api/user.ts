@@ -55,12 +55,12 @@ export class AdminUserClass extends ApiClient{
         return await this.Get(`${this.url}/${id}`)
     }
     
-    async getUnverifiedUsers(): Promise<User>{
+    async getUnverifiedUsers(): Promise<User[]>{
         return await this.Get(`${this.url}/unverified`)
     }
 
-    async verifyUser(id: string): Promise<Boolean>{
-        return await this.Patch(`${this.url}/${id}/verify`, {})
+    async verifyUser(id: string, option: object): Promise<Boolean>{
+        return await this.Patch(`${this.url}/${id}`, option)
     }
 
     async deleteUser(id: string): Promise<Boolean>{

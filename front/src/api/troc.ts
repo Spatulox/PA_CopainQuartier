@@ -74,15 +74,15 @@ export class AdminTrocClass extends TrocClass{
         })
     }
 
-    async getWaitingTroc(){
+    async getWaitingTroc(): Promise<Troc[]>{
         return await this.Get(`${this.url}`)
     }
 
-    async getAllAdminTroc(){
+    async getAllAdminTroc(): Promise<Troc[]>{
         return await this.Get(`${this.url}/all`)
     }
     
-    async getAdminTrocByID(id: string){
+    async getAdminTrocByID(id: string) : Promise<Troc>{
         return await this.Get(`${this.url}/${id}`)
     }
 
