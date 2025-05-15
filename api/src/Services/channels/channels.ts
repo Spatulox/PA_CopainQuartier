@@ -4,7 +4,7 @@ import { ChannelAuth, ChannelTable } from "../../DB_Schema/ChannelSchema";
 import { CreateChannelParam, PostMessageParam, TransferChannelParam, UpdateChannelParam } from "../../Validators/channels";
 import { ID } from "../../Utils/IDType";
 import { User } from "../../Models/UserModel";
-import { UserTable } from "../../DB_Schema/UserSchema";
+import { UserRole, UserTable } from "../../DB_Schema/UserSchema";
 import { toUserObject } from "../users/usersPublic";
 import { toActivityObject } from "../activities/activities";
 
@@ -29,6 +29,17 @@ export async function getMyChannel(user: User): Promise<Channel[] | null>{
     const res = await ChannelTable.find({
         admin_id: user._id
     }).lean().exec()
+    return res.map(objectToChannel);
+}
+
+export async function getAllChannel(user: User): Promise<Channel[] | null>{
+    if (user.role != UserRole.admin){return null}
+
+    const res = await ChannelTable.find({
+    }).lean()
+    .populate("admin_id")
+    .populate("members")
+    .exec()
     return res.map(objectToChannel);
 }
 
@@ -143,7 +154,7 @@ export function objectToChannel(obj: any): any {
         owner: obj.admin_id ? toUserObject(obj.admin_id) : null,
         messages: obj.messages?.map(objectToMessage) ?? [],
         members: Array.isArray(obj.members)
-            ? obj.members.map((m: any) => m?.toString())
+            ? obj.members.map((m: User) => toUserObject(m))
             : [],
         member_auth: obj.member_auth,
         created_at: obj.created_at ? new Date(obj.created_at) : new Date(),

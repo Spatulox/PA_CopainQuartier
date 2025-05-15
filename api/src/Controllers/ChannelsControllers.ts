@@ -1,11 +1,28 @@
 import { Authorized, Body, CurrentUser, Delete, ForbiddenError, Get, JsonController, NotFoundError, Param, Patch, Post } from "routing-controllers";
 import { zId, zObjectId } from "../Validators/utils";
-import { addSomeoneFromChannel, createChannel, deleteChannel, deleteMessageFromChannel, getChannelById, getPublicChannelById, saveMessageToChannel, removeSomeoneFromChannel, updateChannelAdmin, updateChannelAttribute, getMyChannel } from "../Services/channels/channels";
+import { addSomeoneFromChannel, createChannel, deleteChannel, deleteMessageFromChannel, getChannelById, getPublicChannelById, saveMessageToChannel, removeSomeoneFromChannel, updateChannelAdmin, updateChannelAttribute, getMyChannel, getAllChannel } from "../Services/channels/channels";
 import { User } from "../Models/UserModel";
 import { UserRole } from "../DB_Schema/UserSchema";
 import { zCreateChannel, zTransferChannel, zUpdateChannel } from "../Validators/channels";
 import { Channel, PublicChannel } from "../Models/ChannelModel";
 
+
+@JsonController("/admin/channels")
+export class AdminChannelsController {
+
+    @Get("/")
+    @Authorized(UserRole.admin)
+    async getChannel(@CurrentUser() user: User): Promise<Channel[] | null>{
+        return await getAllChannel(user)
+    }
+
+    @Get("/:id")
+    @Authorized(UserRole.admin)
+    async getChannelById(@CurrentUser() user: User, @Param('id') channel_id: string): Promise<Channel | null>{
+        const validId = zObjectId.parse(channel_id)
+        return await getChannelById(validId)
+    }
+}
 
 @JsonController("/channels")
 export class ChannelsController {
