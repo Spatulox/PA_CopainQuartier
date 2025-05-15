@@ -26,7 +26,7 @@ export function ManageMyActivity() {
     }
   
     if (activities.length === 0) {
-      return <div>Aucune activité trouvée.</div>;
+      return <div>Aucune activitée trouvée.</div>;
     }
   
     return (
@@ -77,7 +77,7 @@ function ManageActivityAdmin(){
     }
   
     if (activities.length === 0) {
-      return <div>Aucune activité trouvée.</div>;
+      return <div>Aucune activitée trouvée.</div>;
     }
     return (
       <div>
@@ -138,21 +138,28 @@ function ManageOneActivity(){
 
 
 export function ManageActivity(){
-    const [userIsAdmin, setUserAdmin] = useState(false)
+    const [userIsAdmin, setUserAdmin] = useState<boolean>()
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate()
+
     useEffect(() => {
         (async () => {
             const client = new ActivityClass()
+            await client.refreshUser()
             setUserAdmin(client.isAdmin())
-        })
+        })()
     }, [])
 
     useEffect(() => {
         if (userIsAdmin === false && !id) {
-            navigate(`${Route.manageMyActivity}`);
+          navigate(`${Route.manageMyActivity}`);
         }
-    }, [userIsAdmin, navigate]);
+    }, [userIsAdmin, navigate, id]);
+
+
+    if(!id || userIsAdmin){
+      <Loading />
+    }
 
     if(id){
         return <><ManageOneActivity/></>
