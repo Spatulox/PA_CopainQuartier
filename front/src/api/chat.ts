@@ -23,7 +23,7 @@ export type Channel = {
 
 export class ChatClass extends ApiClient {
 
-  private url ="/channels"
+  protected url ="/channels"
   
   async getChannelById(id: string): Promise<Channel> {
       const response = await this.Get(`${this.url}/${id}`);
@@ -50,5 +50,14 @@ export class ChatClass extends ApiClient {
 
   async joinChat(channel_id: string, user_id_to_add: string): Promise<boolean>{
     return await this.Patch(`${this.url}/${channel_id}/adduser/${user_id_to_add}`, {})
+  }
+}
+
+
+export class AdminChatClass extends ChatClass{
+  protected url ="/admin/channels"
+
+  async getAllChannel(): Promise<Channel[]>{
+    return await this.Get(this.url)
   }
 }
