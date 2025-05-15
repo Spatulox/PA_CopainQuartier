@@ -158,7 +158,7 @@ export function ManageActivity(){
 
 
     if(!id || userIsAdmin){
-      <Loading />
+      return <Loading />
     }
 
     if(id){
