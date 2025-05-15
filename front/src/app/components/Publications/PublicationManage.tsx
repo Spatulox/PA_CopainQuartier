@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Publication, PublicationClass } from "../../../api/publications";
+import { AdminPublicationClass, Publication, PublicationClass } from "../../../api/publications";
 import { Route } from "../../constantes";
 import Loading from "../shared/loading";
 import { ShowPublication, ShowPublicationButton } from "./SinglePublication";
@@ -47,7 +47,50 @@ export function ManageMyPublications(){
 }
 
 function ManagePublicationAdmin(){
-    return <><h1>Admin Publi</h1></>
+    const [publications, setPublications] = useState<Publication[] | null>(null);
+    const navigate = useNavigate()
+    const [user, setUser] = useState<User | null>(null)
+  
+    useEffect(() => {
+      (async () => {
+        const client = new AdminPublicationClass();
+        await client.refreshUser()
+        if(!client.isAdmin()){
+          navigate(`${Route.publications}`)
+          return
+        }
+        const publications = await client.getAllPublications();
+        setPublications(publications);
+        
+        const use = await client.getMe()
+        setUser(use)
+      })();
+    }, []);
+  
+    if (publications === null) {
+      return <Loading title="Chargement des publications" />
+    }
+  
+    if (publications.length === 0) {
+      return <div>Aucune publications trouvée.</div>;
+    }
+    return (
+      <div>
+        <h1>Publications</h1>
+        <div>
+          {publications.map((pub) => (
+            <ShowPublication
+                key={pub._id}
+                pub={pub}
+                user={user}
+                onViewPublication={(actiId) => navigate(`${Route.activity}/${actiId}`)}
+                onManage={(pubId) => navigate(`${Route.managePublications}/${pubId}`)}
+                buttonShow={ShowPublicationButton.All}
+            />
+          ))}
+        </div>
+      </div>
+    );
 }
 
 function ManageOnePublication(){

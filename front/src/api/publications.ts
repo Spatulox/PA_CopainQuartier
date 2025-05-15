@@ -14,7 +14,7 @@ export type Publication = {
 
 
 export class PublicationClass extends ApiClient{
-    private url = "/publications"
+    protected url = "/publications"
 
     async getAllPublications(): Promise<Publication[]>{
         return await this.Get(this.url)
@@ -38,5 +38,18 @@ export class PublicationClass extends ApiClient{
 
     async deletePublication(id: string){
         return await this.Delete(`${this.url}/${id}`)
+    }
+}
+
+export class AdminPublicationClass extends PublicationClass{
+    protected url = "/publications"
+
+    constructor() {
+        super();
+        this.refreshUser().then(() => {
+            if (!this.isAdmin()) {
+                throw new Error("User is not admin");
+            }
+        })
     }
 }
