@@ -42,7 +42,7 @@ export class PublicationClass extends ApiClient{
 }
 
 export class AdminPublicationClass extends PublicationClass{
-    protected url = "/publications"
+    protected urlAdmin = "/publications"
 
     constructor() {
         super();

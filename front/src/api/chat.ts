@@ -55,9 +55,9 @@ export class ChatClass extends ApiClient {
 
 
 export class AdminChatClass extends ChatClass{
-  protected url ="/admin/channels"
+  protected urlAdmin ="/admin/channels"
 
   async getAllChannel(): Promise<Channel[]>{
-    return await this.Get(this.url)
+    return await this.Get(this.urlAdmin)
   }
 }

@@ -39,7 +39,7 @@ export class ActivityClass extends ApiClient{
 
 export class AdminActivityClass extends ActivityClass{
 
-    protected url = "/admin/activities"
+    protected urlAdmin = "/admin/activities"
 
     constructor() {
         super();
@@ -51,12 +51,12 @@ export class AdminActivityClass extends ActivityClass{
     }
 
     async getAllActivitiesAdmin():Promise<Activity[]>{
-        const activity = await this.Get(`${this.url}/`)
+        const activity = await this.Get(`${this.urlAdmin}/`)
         return activity//.data
     }
 
     async getactivityAdminById(id: string):Promise<Activity>{
-        const activity = await this.Get(`${this.url}/${id}`)
+        const activity = await this.Get(`${this.urlAdmin}/${id}`)
         return activity//.data
     }
 
