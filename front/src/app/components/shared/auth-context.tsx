@@ -3,7 +3,8 @@ import { ApiClient } from "../../../api/client";
 
 type AuthContextType = {
   isConnected: boolean;
-  updateHeaderConnected: () => void;
+  isAdmin: boolean;
+  updateConnection: () => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -14,22 +15,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return user.isConnected();
   });
 
+  const [isAdmin, setIsAdmin] = useState(false);
+
   useEffect(() => {
-    const handler = () => {
+    const init = async () => {
       const user = new ApiClient();
       setIsConnected(user.isConnected());
+      await user.refreshUser();
+      setIsAdmin(user.isAdmin());
+    };
+    init();
+  }, []);
+
+  useEffect(() => {
+    const handler = async () => {
+      const user = new ApiClient();
+      setIsConnected(user.isConnected());
+
+      await user.refreshUser()
+      setIsAdmin(user.isAdmin());
     };
     window.addEventListener('storage', handler);
     return () => window.removeEventListener('storage', handler);
   }, []);
 
-  const updateHeaderConnected = () => {
-    const user = new ApiClient
-    setIsConnected(user.isConnected())
+  const updateConnection = async () => {
+    const user = new ApiClient();
+    setIsConnected(user.isConnected());
+    await user.refreshUser();
+    setIsAdmin(user.isAdmin());
   }
 
   return (
-    <AuthContext.Provider value={{ isConnected/*, login, logout*/, updateHeaderConnected }}>
+    <AuthContext.Provider value={{ isConnected, isAdmin, updateConnection }}>
       {children}
     </AuthContext.Provider>
   );
