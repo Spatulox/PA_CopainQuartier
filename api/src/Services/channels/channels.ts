@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Channel, ChannelToPublicChannel, createMessage, FilledMessage, Message, MessageType, ObjectToChannel, PublicChannel } from "../../Models/ChannelModel";
+import { Channel, createMessage, FilledChannel, FilledMessage, Message, MessageType, PublicChannel, PublicFilledChannel } from "../../Models/ChannelModel";
 import { ChannelAuth, ChannelTable } from "../../DB_Schema/ChannelSchema";
 import { CreateChannelParam, PostMessageParam, TransferChannelParam, UpdateChannelParam } from "../../Validators/channels";
 import { User } from "../../Models/UserModel";
@@ -8,16 +8,16 @@ import { toUserObject } from "../users/usersPublic";
 import { toActivityObject } from "../activities/activities";
 import { ObjectID } from "../../DB_Schema/connexion";
 
-export async function getChannelById(channel_id: ObjectID): Promise<Channel | null>{
+export async function getChannelById(channel_id: ObjectID): Promise<FilledChannel | null>{
     const res = await ChannelTable.findById(channel_id)
     .populate("admin_id")
     .populate("activity_id")
     .exec()
     
-    return ObjectToChannel(res)
+    return objectToChannel(res)
 }
 
-export async function getPublicChannelById(channel_id: ObjectID): Promise<PublicChannel | null>{
+export async function getPublicChannelById(channel_id: ObjectID): Promise<PublicFilledChannel | null>{
     const channels = await ChannelTable.findById(channel_id).lean()
     if(!channels){
         return null
@@ -25,14 +25,14 @@ export async function getPublicChannelById(channel_id: ObjectID): Promise<Public
     return ChannelToPublicChannel(channels)
 }
 
-export async function getMyChannel(user: User): Promise<Channel[] | null>{
+export async function getMyChannel(user: User): Promise<FilledChannel[] | null>{
     const res = await ChannelTable.find({
         admin_id: user._id
     }).lean().exec()
     return res.map(objectToChannel);
 }
 
-export async function getAllChannel(user: User): Promise<Channel[] | null>{
+export async function getAllChannel(user: User): Promise<FilledChannel[] | null>{
     if (user.role != UserRole.admin){return null}
 
     const res = await ChannelTable.find({
@@ -43,7 +43,7 @@ export async function getAllChannel(user: User): Promise<Channel[] | null>{
     return res.map(objectToChannel);
 }
 
-export async function createChannel(user: User, data: CreateChannelParam): Promise<Channel | null>{
+export async function createChannel(user: User, data: CreateChannelParam): Promise<FilledChannel | null>{
     const mes: Message = createMessage("This is the start of the conversation", null)
 
     const dataToSave: any = {
@@ -172,5 +172,17 @@ function objectToMessage(obj: any): FilledMessage {
         content: obj.content,
         author: obj.author_id ? toUserObject(obj.author_id) : null,
         type: obj.type,
+    };
+}
+
+
+export function ChannelToPublicChannel(channel: Channel): PublicFilledChannel {
+    return {
+        _id: channel._id,
+        name: channel.name,
+        activity: channel.activity_id ? toActivityObject(channel.activity_id) : null,
+        type: channel.type,
+        description: channel.description,
+        created_at: channel.created_at,
     };
 }

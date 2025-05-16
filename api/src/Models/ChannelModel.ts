@@ -3,6 +3,7 @@ import  { ObjectId } from "mongodb";
 import { User } from "./UserModel";
 import { toActivityObject } from "../Services/activities/activities";
 import { toUserObject } from "../Services/users/usersPublic";
+import { Activity, FilledActivity } from "./ActivityModel";
 
 export type Channel = {
     _id: ObjectId,
@@ -27,6 +28,9 @@ export type PublicChannel = {
     created_at: Date;
 }
 
+export type FilledChannel = Omit<Channel, "activity_id" | "admin_id"> & {activity: FilledActivity | Activity | null, admin: User | null}
+export type PublicFilledChannel = Omit<PublicChannel, "activity_id"> & {activity: FilledActivity | Activity | null}
+
 
 export type Message = {
     date: Date,
@@ -42,18 +46,7 @@ export enum MessageType {
     user = "user"
 }
 
-export function ChannelToPublicChannel(channel: Channel): PublicChannel {
-    return {
-        _id: channel._id,
-        name: channel.name,
-        activity_id: channel.activity_id ? channel.activity_id : null,
-        type: channel.type,
-        description: channel.description,
-        created_at: channel.created_at,
-    };
-}
-
-export function ObjectToChannel(channel: any): any {
+/*export function ObjectToChannel(channel: any): any {
     return {
         _id: channel._id.toString(),
         name: channel.name,
@@ -79,7 +72,7 @@ export function ObjectToChannel(channel: any): any {
             : [],
         member_auth: channel.member_auth
     };
-}
+}*/
 
 export function createMessage(content: string, user: User | null = null): Message {
     const data: Message = {
