@@ -39,6 +39,10 @@ export class ActivityClass extends ApiClient{
     async updateActivity(id: string, option: object): Promise<void>{
         return await this.Patch(`${this.url}/${id}`, option)
     }
+
+    async deleteActivity(id: string): Promise<void>{
+        return await this.Delete(`${this.url}/${id}`)
+    }
 }
 
 export class AdminActivityClass extends ActivityClass{

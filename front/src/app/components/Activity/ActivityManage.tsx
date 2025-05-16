@@ -126,6 +126,11 @@ function ManageOneActivity(){
         const client = new ActivityClass()
         await client.updateActivity(id, option)
     }
+
+    const handlDelete = async (id: string) => {
+        const client = new ActivityClass()
+        await client.deleteActivity(id)
+    }
     
     return (
       <div>
@@ -135,6 +140,7 @@ function ManageOneActivity(){
           activity={activity}
           user={user}
           onUpdate={(id: string, option: object) => handlUpdate(id, option)}
+          onDelete={handlDelete}
         />
       </div>
     );

@@ -26,6 +26,7 @@ type UpdateActivityProps = {
     activity: Activity;
     user: User | undefined;
     onUpdate: (id: string, option: object) => void;
+    onDelete: (id: string) => void;
 };
 
 export function ShowActivity({
@@ -84,7 +85,8 @@ export function ShowActivity({
 export function UpdateActivity({
     activity,
     user,
-    onUpdate
+    onUpdate,
+    onDelete
 }: UpdateActivityProps) {
     const navigate = useNavigate();
     const [title, setTitle] = useState(activity.title || "");
@@ -150,6 +152,7 @@ export function UpdateActivity({
                     <button onClick={() => navigate(`${Route.publications}/${activity.publication._id}`)}>Voir la publication</button>
                     <button onClick={() => window.location.reload()}>Recharger la page</button>
                     <button onClick={handleUpdate}>Update Activity</button>
+                    <button onClick={() => onDelete(activity._id)}>Supprimer l'activité</button>
                 </div>
             </div>
         </div>
