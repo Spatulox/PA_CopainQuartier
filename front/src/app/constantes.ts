@@ -1,5 +1,6 @@
 export const enum Route {
     base= "/",
+    notfound="/404",
 
     login = "/login",
     register = "/register",

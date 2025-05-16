@@ -70,6 +70,7 @@ function App() {
           <Route path={`${CRoute.manageUser}/:id`} element={<ManageUser />} />
 
 
+          <Route path="404" element={<NotFound />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         </main>

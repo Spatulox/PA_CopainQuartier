@@ -38,7 +38,7 @@
     margin: 0 1rem;
   }
   
-  .nav-links {
+  .nav-links, #manageListHeader {
     justify-content: flex-end;
   }
   
@@ -47,7 +47,7 @@
     gap: 1.5rem;
   }
   
-  .nav-links a {
+  .nav-links a{
     align-content: center;
     text-decoration: none;
     color: white;
@@ -134,4 +134,66 @@
       transform: rotate(-45deg) translate(7px, -6px);
     }
   }
-  
+
+
+
+#manageListHeader {
+  position: relative;
+  display: inline-block;
+  font-family: Arial, sans-serif;
+  align-content: center;
+}
+
+#manageListHeaderTitle{
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+#manageListHeaderContent {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 220px;
+  background-color: #444;
+  border: 1px solid black;
+  border-top: none;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.08);
+  border-radius: 0 0 5px 5px;
+}
+
+#manageListHeaderContent ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#manageListHeaderContent li {
+  border-bottom: 1px solid black;
+}
+
+#manageListHeaderContent li:last-child {
+  border-bottom: none;
+}
+
+#manageListHeaderContent a,
+#manageListHeaderContent .Link {
+  display: block;
+  padding: 12px 24px;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+#manageListHeaderContent a:hover,
+#manageListHeaderContent .Link:hover {
+  background: #1a1a1a;
+}
+
+/* Affiche le menu au survol du titre */
+#manageListHeader:hover #manageListHeaderContent,
+#manageListHeader:focus-within #manageListHeaderContent,
+#manageListHeader #manageListHeaderContent.active{
+  display: block;
+}

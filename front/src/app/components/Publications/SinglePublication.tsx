@@ -1,6 +1,6 @@
 import Publications from "./PublicationsPage";
 import { Publication } from "../../../api/publications";
-import { User } from "../../../api/user";
+import { User, UserRole } from "../../../api/user";
 import { Activity } from "../../../api/activity";
 
 export enum ShowPublicationButton {
@@ -64,9 +64,10 @@ export function ShowPublication({
                     {/* Bouton Gérer */}
                     {(buttonShow & ShowPublicationButton.Manage) !== 0 &&
                         onManage &&
-                        typeof pub.author_id === "object" &&
+                        typeof pub.author_id === "object" && ((
                         pub.author_id !== null &&
-                        user?._id === pub.author_id?._id && (
+                        user?._id === pub.author_id?._id)
+                        || (user?.role == UserRole.admin)) && (
                             <button onClick={() => onManage(pub._id)}>
                                 Gérer la publication
                             </button>

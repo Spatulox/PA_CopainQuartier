@@ -6,7 +6,7 @@ import ChatRoom, { ChannelRight } from "./ChatRoom";
 import { Route } from "../../constantes";
 import { PopupConfirm } from "../Popup/PopupConfirm";
 import { ShowChat, ShowChatButton } from "./SingleChat";
-import { User } from "../../../api/user";
+import { User, UserRole } from "../../../api/user";
 import { CreateChannel } from "./ChatCreate";
 
 function ChatPage() {
@@ -183,6 +183,9 @@ function ChatPage() {
           action={handleAskConfirmation}
           user={userRef.current.user}
         />
+        {userRef.current.user?.role == UserRole.admin && (
+          <button onClick={() => navigate(Route.manageChannels)}>Gérer les channels</button>
+        )}
         <CreateChannel action={refreshChannel} />
         {confirmChannelDeletion && (
           <PopupConfirm

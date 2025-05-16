@@ -6,7 +6,7 @@ import { ErrorHandler } from './Middleware/error-handling';
 import { authMiddleware, getCurrentUser } from './Middleware/auth';
 import { ActivityController, AdminActivityController } from './Controllers/ActivitiesController';
 import { AccountController } from './Controllers/AccountController';
-import { ChannelsController } from './Controllers/ChannelsControllers';
+import { AdminChannelsController, ChannelsController } from './Controllers/ChannelsControllers';
 import { PublicationsController } from './Controllers/PublicationsController';
 import { AdminTrocController, TrocController } from './Controllers/TrocsController';
 import { WebSocketServer } from 'ws';
@@ -35,6 +35,7 @@ async function main(){
       AdminTrocController,
       AdminUserController,
       AdminActivityController,
+      AdminChannelsController,
 
       AccountController,
       ActivityController,

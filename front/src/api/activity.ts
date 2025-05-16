@@ -32,14 +32,18 @@ export class ActivityClass extends ApiClient{
         return activity//.data
     }
 
-    async createActivities(option: any): Promise<boolean>{
+    async createActivities(option: object): Promise<void>{
         return await this.Post(this.url, option)
+    }
+
+    async updateActivity(id: string, option: object): Promise<void>{
+        return await this.Patch(`${this.url}/${id}`, option)
     }
 }
 
 export class AdminActivityClass extends ActivityClass{
 
-    protected url = "/admin/activities"
+    protected urlAdmin = "/admin/activities"
 
     constructor() {
         super();
@@ -51,12 +55,12 @@ export class AdminActivityClass extends ActivityClass{
     }
 
     async getAllActivitiesAdmin():Promise<Activity[]>{
-        const activity = await this.Get(`${this.url}/`)
+        const activity = await this.Get(`${this.urlAdmin}/`)
         return activity//.data
     }
 
     async getactivityAdminById(id: string):Promise<Activity>{
-        const activity = await this.Get(`${this.url}/${id}`)
+        const activity = await this.Get(`${this.urlAdmin}/${id}`)
         return activity//.data
     }
 

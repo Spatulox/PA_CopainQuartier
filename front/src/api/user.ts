@@ -25,7 +25,7 @@ export type User = {
 export class UserClass extends ApiClient{
     protected url = "/users"
 
-    async getUsers(): Promise<User>{
+    async getUsers(): Promise<User[]>{
         return await this.Get(this.url)
     }
 
@@ -34,8 +34,8 @@ export class UserClass extends ApiClient{
     }
 }
 
-export class AdminUserClass extends ApiClient{
-    protected url = "/admin/users"
+export class AdminUserClass extends UserClass{
+    protected urlAdmin = "/admin/users"
 
     constructor() {
         super();
@@ -47,22 +47,22 @@ export class AdminUserClass extends ApiClient{
     }
 
     async getUsers(): Promise<User[]>{
-        return await this.Get(this.url)
+        return await this.Get(this.urlAdmin)
     }
 
     async getUserByID(id: string): Promise<User>{
-        return await this.Get(`${this.url}/${id}`)
+        return await this.Get(`${this.urlAdmin}/${id}`)
     }
     
     async getUnverifiedUsers(): Promise<User[]>{
-        return await this.Get(`${this.url}/unverified`)
+        return await this.Get(`${this.urlAdmin}/unverified`)
     }
 
-    async verifyUser(id: string, option: object): Promise<Boolean>{
-        return await this.Patch(`${this.url}/${id}`, option)
+    async verifyUser(id: string, option: object): Promise<void>{
+        return await this.Patch(`${this.urlAdmin}/${id}`, option)
     }
 
-    async deleteUser(id: string): Promise<Boolean>{
-        return await this.Delete(`${this.url}/${id}`)
+    async deleteUser(id: string): Promise<void>{
+        return await this.Delete(`${this.urlAdmin}/${id}`)
     }
 }

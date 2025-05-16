@@ -49,7 +49,7 @@ export class TrocClass extends ApiClient{
         return await this.Get(`${this.url}/${id}`)
     }
 
-    async createTroc(option: any){
+    async createTroc(option: object): Promise<void>{
         return await this.Post(this.url, option)
     }
 
@@ -57,13 +57,13 @@ export class TrocClass extends ApiClient{
         return await this.Patch(`${this.url}/${id}`, option)
     }
 
-    async deleteTroc(id: string){
+    async deleteTroc(id: string): Promise<void>{
         return await this.Delete(`${this.url}/${id}`)
     }
 }
 
 export class AdminTrocClass extends TrocClass{
-    protected url: string = "/admin/trocs"
+    protected urlAdmin: string = "/admin/trocs"
 
     constructor() {
         super();
@@ -75,18 +75,18 @@ export class AdminTrocClass extends TrocClass{
     }
 
     async getWaitingTroc(): Promise<Troc[]>{
-        return await this.Get(`${this.url}`)
+        return await this.Get(`${this.urlAdmin}`)
     }
 
     async getAllAdminTroc(): Promise<Troc[]>{
-        return await this.Get(`${this.url}/all`)
+        return await this.Get(`${this.urlAdmin}/all`)
     }
     
     async getAdminTrocByID(id: string) : Promise<Troc>{
-        return await this.Get(`${this.url}/${id}`)
+        return await this.Get(`${this.urlAdmin}/${id}`)
     }
 
-    async approveTroc(id: string, option: object){
-        return await this.Patch(`${this.url}/${id}/approve`, option)
+    async approveTroc(id: string, option: object): Promise<void>{
+        return await this.Patch(`${this.urlAdmin}/${id}/approve`, option)
     }
 }
