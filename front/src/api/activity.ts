@@ -35,6 +35,10 @@ export class ActivityClass extends ApiClient{
     async createActivities(option: object): Promise<void>{
         return await this.Post(this.url, option)
     }
+
+    async updateActivity(id: string, option: object): Promise<void>{
+        return await this.Patch(`${this.url}/${id}`, option)
+    }
 }
 
 export class AdminActivityClass extends ActivityClass{
