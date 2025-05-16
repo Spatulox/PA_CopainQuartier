@@ -4,27 +4,17 @@ import { User } from "../../Models/UserModel";
 import { ID } from "../../Utils/IDType";
 import { toUserObject } from "./usersPublic";
 
-export async function getAllUsers(): Promise<User[]>{
-    const users =  await UserTable.find()
-    .populate("group_chat_list_ids")
-    .exec()
-    const finalUsers: User[] = []
-
-    users.forEach(user => {
-        finalUsers.push(toUserObject(user))
-    })
-    return finalUsers
+export async function getAllUsers(): Promise<User[]> {
+    const users = await UserTable.find()
+        .populate("group_chat_list_ids")
+        .exec();
+    return users.map(user => toUserObject(user)).filter(Boolean) as User[];
 }
 
-export async function getUnverifiedUser(): Promise<User[] | null> {
+export async function getUnverifiedUser(): Promise<User[]> {
     const users = await UserTable.find({ verified: false }).exec();
-    const finalUsers: User[] = []
-    users.forEach(user => {
-        finalUsers.push(toUserObject(user))
-    })
-    return finalUsers
+    return users.map(user => toUserObject(user)).filter(Boolean) as User[];
 }
-
 export async function verifyUser(user_id: ID): Promise<boolean> {
     const res = await UserTable.updateOne(
         { _id: user_id },

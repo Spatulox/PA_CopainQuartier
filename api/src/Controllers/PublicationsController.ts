@@ -1,5 +1,5 @@
 import { Authorized, BadRequestError, Body, CurrentUser, Delete, ForbiddenError, Get, HttpCode, InternalServerError, JsonController, Param, Patch, Post } from "routing-controllers";
-import { Publication } from "../Models/PublicationModel";
+import { FilledPublication, Publication } from "../Models/PublicationModel";
 import { getAllPublications, getPublicationById, deletePublicationById, createPublication, updatePublicationcontent, getAllMyPublications } from "../Services/publications/publications";
 import { zId, zObjectId } from "../Validators/utils";
 import { User } from "../Models/UserModel";
@@ -11,18 +11,18 @@ import { UserRole } from "../DB_Schema/UserSchema";
 export class PublicationsController {
 
     @Get("/")
-    async getAllPublications(): Promise<Publication[]>{
+    async getAllPublications(): Promise<FilledPublication[]>{
         return await getAllPublications()
     }
 
     @Get("/@me")
     @Authorized()
-    async getAllMyPublications(@CurrentUser() user: User): Promise<Publication[]>{
+    async getAllMyPublications(@CurrentUser() user: User): Promise<FilledPublication[]>{
         return await getAllMyPublications(user)
     }
 
     @Get("/:id")
-    async getPublicationById(@Param("id") pub_id: string): Promise<Publication | null>{
+    async getPublicationById(@Param("id") pub_id: string): Promise<FilledPublication | null>{
         const validId = zObjectId.parse(pub_id)
         return await getPublicationById(validId)
     }
@@ -45,7 +45,7 @@ export class PublicationsController {
         const validBody = zUpdatePublication.parse(body)
         const pub = await getPublicationById(validId)
         
-        if(pub && pub.author_id.toString() != user._id.toString()){
+        if(pub && pub.author?._id.toString() != user._id.toString()){
             throw new ForbiddenError("This publication isn't yours")
         }
         if(!await updatePublicationcontent(user, pub_id, validBody)){
@@ -59,7 +59,7 @@ export class PublicationsController {
     async deletePublicationById(@CurrentUser() user: User, @Param("id") pub_id: string): Promise<void>{
         const validId = zObjectId.parse(pub_id)
         const pub = await getPublicationById(validId)
-        if(pub && (pub.author_id != user._id && user.role != UserRole.admin) ){
+        if(pub && (pub.author?._id != user._id && user.role != UserRole.admin) ){
             throw new ForbiddenError("This publication isn't yours")
         }
         if(!await deletePublicationById(user, validId)){

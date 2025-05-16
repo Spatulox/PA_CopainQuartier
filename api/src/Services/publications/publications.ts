@@ -1,25 +1,25 @@
-import mongoose from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 import { PublicationTable } from "../../DB_Schema/PublicationSchema";
 import { UserRole } from "../../DB_Schema/UserSchema";
-import { Publication } from "../../Models/PublicationModel";
+import { FilledPublication, Publication } from "../../Models/PublicationModel";
 import { User } from "../../Models/UserModel";
 import { ID } from "../../Utils/IDType";
 import { CreatePublicationParam, UpdatePublicationParam } from "../../Validators/publications";
 import { getActivityById, toActivityObject } from "../activities/activities";
 import { toUserObject } from "../users/usersPublic";
 
-export async function getAllPublications(): Promise<Publication[]> {
+export async function getAllPublications(): Promise<FilledPublication[]> {
     const res = await PublicationTable.find().sort({ created_at: -1 })
     .populate("author_id")
     .exec();
-    const finaleRes: Publication[] = []
+    const finaleRes: FilledPublication[] = []
     res.forEach(re => {
         finaleRes.push(objectToPublication(re))
     })
     return finaleRes
 }
 
-export async function getAllMyPublications(user: User): Promise<Publication[]> {
+export async function getAllMyPublications(user: User): Promise<FilledPublication[]> {
     const res = await PublicationTable.find(
         { author_id: user._id }
     ).sort({ created_at: -1 })
@@ -30,13 +30,13 @@ export async function getAllMyPublications(user: User): Promise<Publication[]> {
     return res.map(objectToPublication);
 }
 
-export async function getPublicationById(pub_id: ID): Promise<Publication | null>{
+export async function getPublicationById(pub_id: ID): Promise<FilledPublication | null>{
     const res = await PublicationTable.findById(pub_id)
     return objectToPublication(res)
 }
 
 export async function createPublication(user: User, content: CreatePublicationParam): Promise<boolean> {
-    let acti: string | undefined = ""
+    let acti: ObjectId | undefined
     if(content.activity_id){
         const activity = await getActivityById(content.activity_id)
         acti = activity?._id
@@ -45,7 +45,7 @@ export async function createPublication(user: User, content: CreatePublicationPa
     const dataToSave = {
         name: content.name,
         author_id: user._id,
-        activity_id: acti ? new mongoose.Types.ObjectId(acti) : undefined,
+        activity_id: acti ? acti : undefined,
         body: content.body,
         created_at: new Date(),
         updated_at: new Date()
@@ -82,13 +82,13 @@ export async function deletePublicationById(user: User, pub_id: ID): Promise<boo
 }
 
 
-export function objectToPublication(obj: any): any {
+export function objectToPublication(obj: any): FilledPublication { // Any because author_id is an USer Object, but in Publication type it's an ObjectID (and sometime it can be one)
     return {
         _id: obj._id?.toString(),
         name: obj.name,
         created_at: obj.created_at ? new Date(obj.created_at) : new Date(),
         updated_at: obj.updated_at ? new Date(obj.updated_at) : new Date(),
-        author_id: obj.author_id ? toUserObject(obj.author_id) : obj.author_id.toString(),
+        author: obj.author_id ? toUserObject(obj.author_id) : null,
         activity: obj.activity_id ? toActivityObject(obj.activity_id) : undefined,
         body: obj.body,
     };
