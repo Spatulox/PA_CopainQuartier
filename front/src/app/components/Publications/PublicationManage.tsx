@@ -7,9 +7,8 @@ import { ShowPublication, ShowPublicationButton } from "./SinglePublication";
 import { User, UserRole } from "../../../api/user";
 import { useAuth } from "../shared/auth-context";
 
-const { me } = useAuth();
-
 export function ManageMyPublications(){
+    const { me, isAdmin } = useAuth();
     const [publications, setPublications] = useState<Publication[] | null>(null);
     const navigate = useNavigate()
     
@@ -45,23 +44,22 @@ export function ManageMyPublications(){
 }
 
 function ManagePublicationAdmin(){
+    const { me, isAdmin } = useAuth();
     const [publications, setPublications] = useState<Publication[] | null>(null);
     const navigate = useNavigate()
   
     useEffect(() => {
       (async () => {
         const client = new AdminPublicationClass();
-
-        if(me?.role != UserRole.admin){
-            navigate(`${Route.publications}`)
-            return
-        }
-
         const publications = await client.getAllPublications();
         setPublications(publications);
-
       })();
     }, []);
+
+    if(!isAdmin){
+        navigate(`${Route.publications}`)
+        return
+    }
   
     if (publications === null) {
       return <Loading title="Chargement des publications" />
@@ -70,6 +68,7 @@ function ManagePublicationAdmin(){
     if (publications.length === 0) {
       return <div>Aucune publications trouvée.</div>;
     }
+
     return (
       <div>
         <h1>Publications</h1>
@@ -90,6 +89,7 @@ function ManagePublicationAdmin(){
 }
 
 function ManageOnePublication(){
+    const { me, isAdmin } = useAuth();
     const { id } = useParams<{ id: string }>();
     const [publication, setPublication] = useState<Publication | null>(null)
     const navigate = useNavigate()
@@ -124,21 +124,18 @@ function ManageOnePublication(){
 
 function ManagePublication(){
     const { id } = useParams<{ id: string }>();
-    const [userIsAdmin, setUserAdmin] = useState(false)
     const navigate = useNavigate()
+    const { me, isAdmin } = useAuth();
 
     useEffect(() => {
-        (async () => {
-            const client = new PublicationClass()
-            await client.refreshUser()
-            const useAdmin = client.isAdmin()
-            setUserAdmin(useAdmin)
-            if (useAdmin === false && !id) {
-                navigate(`${Route.publications}`);
-            }
-        })()
-    }, [])
+        if (!isAdmin && !id) {
+            navigate(`${Route.publications}`);
+        }
+    }, [isAdmin, id, navigate]);
 
+    if(!id){
+        return <Loading title="Chargement des Publications"/>
+    }
 
     if(id){
         return <><ManageOnePublication /></>

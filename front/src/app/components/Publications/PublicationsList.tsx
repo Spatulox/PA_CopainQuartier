@@ -7,8 +7,6 @@ import { ShowPublication, ShowPublicationButton } from "./SinglePublication";
 import Loading from "../shared/loading";
 import { useAuth } from "../shared/auth-context";
 
-const { me } = useAuth();
-
 type PublicationListMessage = {
     message: string
     limit?: number
@@ -17,7 +15,7 @@ type PublicationListMessage = {
 function PublicationList({message, limit}: PublicationListMessage){
     const [publications, setPublications] = useState<Publication[] | null>(null)
     const navigate = useNavigate()
-
+    const { me, isAdmin } = useAuth();
 
     useEffect(() => {
         (async () => {

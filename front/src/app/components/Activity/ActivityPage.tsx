@@ -11,12 +11,11 @@ import { ShowActivity, ShowActivityButton } from "./SingleActivity";
 import Loading from "../shared/loading";
 import { useAuth } from "../shared/auth-context";
 
-const { me } = useAuth();
-
 function ShowActivityPage() {
     const { id } = useParams<{ id: string }>();
     const [activity, setActivity] = useState<Activity>();
     const navigate = useNavigate();
+    const { me, isAdmin } = useAuth();
 
     useEffect(() => {
         (async () => {

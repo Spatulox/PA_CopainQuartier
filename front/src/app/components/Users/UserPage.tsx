@@ -4,12 +4,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ShowUser, ShowUserButton } from "./SingleUser";
 import { Route } from "../../constantes";
 import Loading from "../shared/loading";
+import { useAuth } from "../shared/auth-context";
 
 function Users(){
     const { id } = useParams<{ id: string }>();
     const [user, setUser] = useState<User | null>(null)
-    const [me, setMe] = useState<User | null>(null)
-    const [isAdmin, setAdmin] = useState<boolean>(false)
+    const { me, isAdmin } = useAuth();
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -19,19 +19,11 @@ function Users(){
                     const client = new UserClass()
                     await client.refreshUser()
                     const use = await client.getUserByID(id)
-                    if(isAdmin != client.isAdmin()){
-                        setAdmin(client.isAdmin())
-                        return
-                    }
                     setUser(use)
-                    const me = await client.getMe()
-                    setMe(me)
                 } else if(isAdmin){
                     const client = new AdminUserClass()
                     const use = await client.getUserByID(id)
                     setUser(use)
-                    const me = await client.getMe()
-                    setMe(me)
                 }
             }
         })()

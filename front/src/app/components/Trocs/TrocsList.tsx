@@ -5,6 +5,7 @@ import { ShowTroc, ShowTrocButton } from "./SimpleTroc"
 import { useNavigate } from "react-router-dom"
 import { Route } from "../../constantes"
 import Loading from "../shared/loading"
+import { useAuth } from "../shared/auth-context"
 
 type TrocListMessage = {
     message: string
@@ -13,7 +14,7 @@ type TrocListMessage = {
 
 function TrocList({message, limit}: TrocListMessage){
     const [troc, setTroc] = useState<Troc[]>([])
-    const [user, setUser] = useState<User | null>(null)
+    const { me, isAdmin } = useAuth();
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -21,8 +22,6 @@ function TrocList({message, limit}: TrocListMessage){
             const client = new TrocClass()
             const tro = await client.getAllTrocs()
             setTroc(tro)
-            const use = await client.getMe()
-            setUser(use)
         })()
     }, [message])
 
@@ -30,17 +29,16 @@ function TrocList({message, limit}: TrocListMessage){
         return <Loading title="Chargement des trocs..."/>
     }
 
-    
     return <>
         <h2>Trocs</h2>
         <section>
-            {troc
+            {me && troc
             .slice(0, limit ?? troc.length)
             .map((theTroc) => (
                 <ShowTroc
                     key={theTroc._id}
                     troc={theTroc}
-                    user={user}
+                    user={me}
                     onViewTroc={() => navigate(`${Route.troc}/${theTroc._id}`)}
                     onManage={() => navigate(`${Route.manageTrocs}/${theTroc._id}`)}
                     buttonShow={ShowTrocButton.Troc | ShowTrocButton.Manage}

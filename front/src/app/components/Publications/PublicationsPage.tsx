@@ -11,14 +11,13 @@ import { User } from "../../../api/user";
 import Loading from "../shared/loading";
 import { useAuth } from "../shared/auth-context";
 
-const { me } = useAuth();
-
 
 function Publications(){
     const navigate = useNavigate()
     const [message, setMessage] = useState("");
     const { id } = useParams<{ id: string }>();
     const [publications, setPublications] = useState<Publication | null>(null)
+    const { me, isAdmin } = useAuth();
 
     const handleUpdate = (newMsg:string) => {
         setMessage(newMsg);

@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react"
 import { ShowTroc, ShowTrocButton } from "./SimpleTroc"
-import { AdminTrocClass, Troc, TrocClass } from "../../../api/troc"
-import { User } from "../../../api/user"
+import { AdminTrocClass, Troc } from "../../../api/troc"
+import { useAuth } from "../shared/auth-context"
 
 function ApproveTroc(){
-
+    const { me, isAdmin } = useAuth();
     const [troc, setTroc] = useState<Troc[]>([])
-    const [user, setUser] = useState<User | null>(null)
-
 
     const handleApprove = async (troc_id: string, bool: boolean) => {
         const client = new AdminTrocClass()
@@ -22,8 +20,6 @@ function ApproveTroc(){
             const client = new AdminTrocClass()
             const trok = await client.getWaitingTroc()
             setTroc(trok)
-            const use = await client.getMe()
-            setUser(use)
         })()
     }, [])
 
@@ -34,7 +30,7 @@ function ApproveTroc(){
                 <ShowTroc
                     key={trok._id}
                     troc={trok}
-                    user={user}
+                    user={me}
                     onApprove={handleApprove}
                     buttonShow={ShowTrocButton.Approve}
                 />

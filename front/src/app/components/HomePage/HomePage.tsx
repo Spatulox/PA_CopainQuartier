@@ -5,9 +5,8 @@ import ActivityList from "../Activity/ActivityList";
 import TrocList from "../Trocs/TrocsList";
 import { useAuth } from "../shared/auth-context";
 
-const { me } = useAuth();
-
 function HomePage() {
+  const { me, isAdmin } = useAuth();
     return (
       <>
         <h1>Home Page</h1>

@@ -10,9 +10,8 @@ import { User, UserRole } from "../../../api/user";
 import { CreateChannel } from "./ChatCreate";
 import { useAuth } from "../shared/auth-context";
 
-const { me } = useAuth();
-
 function ChatPage() {
+  const { me, isAdmin } = useAuth();
   const { id } = useParams<{ id: string }>();
   const [thechannelAuth, setChannelAuth] = useState<ChannelRight>(ChannelRight.read_only);
   const [status, setStatus] = useState("Déconnecté");

@@ -8,8 +8,6 @@ import { useEffect, useState } from "react";
 import Loading from "../shared/loading";
 import { useAuth } from "../shared/auth-context";
 
-const { me } = useAuth();
-
 type ListProps = {
   channels: Channel[];
   action: (channel_id:string, user_id: string | undefined) => void;

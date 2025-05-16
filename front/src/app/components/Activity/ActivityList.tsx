@@ -6,14 +6,13 @@ import { ShowActivity, ShowActivityButton } from "./SingleActivity";
 import Loading from "../shared/loading";
 import { useAuth } from "../shared/auth-context";
 
-const { me } = useAuth();
-
 type ActivityListMessage = {
     message: string
     limit?: number
 }
 
 function ActivityList({message, limit}: ActivityListMessage){
+    const { me } = useAuth();
 
     const [activity, setActivity] = useState<Activity[]>([])
     const navigate = useNavigate()

@@ -6,7 +6,7 @@ import { ShowUser, ShowUserButton } from "./SingleUser";
 import { AdminUserClass, User } from "../../../api/user";
 import UserList from "./UsersList";
 import ApproveUser from "./ApproveUser";
-
+import { useAuth } from "../shared/auth-context";
 
 function ManageUserAdmin(){
     const [message, setMessage] = useState("");
@@ -22,8 +22,8 @@ function ManageUserAdmin(){
 
 function ManageOneUser(){
     const { id } = useParams<{ id: string }>();
+    const { me, isAdmin } = useAuth();
     const [user, setUser] = useState<User | null>(null)
-    const [me, setMe] = useState<User | null>(null)
     const navigate = useNavigate()
     useEffect(() => {
         (async ()=> {
@@ -32,8 +32,6 @@ function ManageOneUser(){
                 const use = await client.getUserByID(id)
                 setUser(use)
             }
-            const use = await client.getMe()
-            setMe(use)
         })()
     }, [id])
 
@@ -64,18 +62,13 @@ function ManageOneUser(){
 function ManageUser(){
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate()
+    const { me, isAdmin } = useAuth();
 
     useEffect(() => {
-        (async () => {
-            const client = new AdminUserClass()
-            await client.refreshUser()
-            const useAdmin = client.isAdmin()
-            if (useAdmin === false) {
-                navigate(`${Route.base}`);
-            }
-        })()
-    }, [])
-
+        if (!isAdmin && !id) {
+            navigate(`${Route.base}`);
+        }
+    }, [isAdmin, id, navigate]);
 
     if(id){
         return <><ManageOneUser /></>

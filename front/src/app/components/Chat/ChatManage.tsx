@@ -7,8 +7,6 @@ import { Route } from "../../constantes"
 import { ShowChat, ShowChatButton } from "./SingleChat"
 import { useAuth } from "../shared/auth-context";
 
-const { me } = useAuth();
-
 function ManageAdminChat(){
     return <h1>Manage one</h1>
 }
@@ -16,6 +14,7 @@ function ManageAdminChat(){
 function ManageOneChat(){
     const [channel, setChannel] = useState<Channel | null>(null)
     const { id } = useParams<{ id: string }>();
+    const { me, isAdmin } = useAuth();
     const navigate = useNavigate()
 
 
@@ -25,14 +24,16 @@ function ManageOneChat(){
                 const client = new AdminChatClass()
                 const chan = await client.getChannelById(id)
                 setChannel(chan)
-
-                if(me?.role != UserRole.admin){
-                    navigate(Route.notfound)
-                    return
-                }
             }
         })()
     }, [id])
+
+    useEffect(() => {
+        if(!isAdmin){
+            navigate(Route.notfound)
+            return
+        }
+    }, [id, isAdmin, navigate])
 
     if(!channel || !me || !id){
         return <Loading />
@@ -49,9 +50,9 @@ function ManageOneChat(){
 
 
 function ManageChat(){
-    const [user, setUser] = useState<User | null>(null)
     const [channel, setChannels] = useState<Channel[] | null>(null)
     const { id } = useParams<{ id: string }>();
+    const { me, isAdmin } = useAuth();
     const navigate = useNavigate()
 
 
@@ -60,17 +61,17 @@ function ManageChat(){
             const client = new AdminChatClass()
             const chan = await client.getAllChannel()
             setChannels(chan)
-            const use = await client.getMe()
-            setUser(use)
-            await client.refreshUser()
-            if(!client.isAdmin()){
-                navigate(Route.notfound)
-                return
-            }
         })()
     }, [])
 
-    if(!channel || !user){
+    useEffect(() => {
+        if(!isAdmin){
+            navigate(Route.notfound)
+            return
+        }
+    }, [id, isAdmin, navigate])
+
+    if(!channel || !me){
         return <Loading />
     }
 
@@ -86,7 +87,7 @@ function ManageChat(){
         {channel && channel.map((chan) => (
             <ShowChat
                 channel={chan}
-                user={user}
+                user={me}
                 onViewChat={() => navigate(`${Route.chat}/${chan._id}`)}
                 onManage={() => navigate(`${Route.manageChannels}/${chan._id}`)}
                 buttonShow={ShowChatButton.Chat | ShowChatButton.Manage}

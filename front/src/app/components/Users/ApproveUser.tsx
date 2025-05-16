@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { AdminUserClass, User } from "../../../api/user"
 import Loading from "../shared/loading"
 import { ShowUser, ShowUserButton } from "./SingleUser"
+import { useAuth } from "../shared/auth-context"
 
 type ApproveUserType = {
   onUpdate: (message:string) => void
@@ -9,7 +10,7 @@ type ApproveUserType = {
 
 function ApproveUser({onUpdate}: ApproveUserType){
     const [user, setUser] = useState<User[]>([])
-    const [me, setMe] = useState<User | null>(null)
+    const { me, isAdmin } = useAuth();
 
     const handleApprove = async (troc_id: string, bool: boolean) => {
             const client = new AdminUserClass()
@@ -25,8 +26,6 @@ function ApproveUser({onUpdate}: ApproveUserType){
             const client = new AdminUserClass()
             const use = await client.getUnverifiedUsers()
             setUser(use)
-            const me = await client.getMe()
-            setMe(me)
         })()
     }, [])
     

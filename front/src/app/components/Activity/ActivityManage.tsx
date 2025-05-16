@@ -7,11 +7,10 @@ import { ShowActivity, ShowActivityButton, UpdateActivity } from "./SingleActivi
 import { User, UserRole } from "../../../api/user";
 import { useAuth } from "../shared/auth-context";
 
-const { me } = useAuth();
-
 export function ManageMyActivity() {
     const [activities, setActivities] = useState<Activity[] | null>(null);
     const navigate = useNavigate()
+    const { me } = useAuth();
   
     useEffect(() => {
       (async () => {
@@ -54,19 +53,22 @@ export function ManageMyActivity() {
 function ManageActivityAdmin(){
     const [activities, setActivities] = useState<Activity[] | null>(null);
     const navigate = useNavigate()
-  
+    const { me, isAdmin } = useAuth();
+
     useEffect(() => {
       (async () => {
         const client = new AdminActivityClass();
         await client.refreshUser()
-        if(!client.isAdmin()){
-          navigate(`${Route.activity}`)
-          return
-        }
         const activities = await client.getAllActivitiesAdmin();
         setActivities(activities);
       })();
     }, []);
+
+    useEffect(() => {
+        if (!isAdmin) {
+            navigate(`${Route.activity}`);
+        }
+    }, [isAdmin, navigate]);
   
     if (activities === null) {
       return <Loading title="Chargement des activités" />
@@ -98,6 +100,7 @@ function ManageOneActivity(){
 
   const [activity, setActivities] = useState<Activity | null>(null);
   const { id } = useParams<{ id: string }>();
+  const { me, isAdmin } = useAuth();
   
     useEffect(() => {
       (async () => {
@@ -140,20 +143,8 @@ function ManageOneActivity(){
 
 export function ManageActivity(){
     const { id } = useParams<{ id: string }>();
-    const [isAdmin, setIsAdmin] = useState(false)
     const navigate = useNavigate()
-
-    useEffect(() => {
-        (async () => {
-            const client = new ActivityClass()
-
-            if(me?.role == UserRole.admin){
-              setIsAdmin(true)
-            } else {
-              setIsAdmin(false)
-            }
-        })()
-    }, [id])
+    const { me, isAdmin } = useAuth();
 
     if(!id && !isAdmin){
       return <Loading />
