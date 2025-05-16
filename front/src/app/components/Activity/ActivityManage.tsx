@@ -138,26 +138,25 @@ function ManageOneActivity(){
 
 
 export function ManageActivity(){
-    const [userIsAdmin, setUserAdmin] = useState<boolean>()
     const { id } = useParams<{ id: string }>();
+    const [isAdmin, setIsAdmin] = useState(false)
     const navigate = useNavigate()
 
     useEffect(() => {
         (async () => {
             const client = new ActivityClass()
             await client.refreshUser()
-            setUserAdmin(client.isAdmin())
+
+            if (client.isAdmin() === false && !id) {
+              navigate(`${Route.manageMyActivity}`);
+              return
+            } else {
+              setIsAdmin(true)
+            }
         })()
     }, [])
 
-    useEffect(() => {
-        if (userIsAdmin === false && !id) {
-          navigate(`${Route.manageMyActivity}`);
-        }
-    }, [userIsAdmin, navigate, id]);
-
-
-    if(!id || userIsAdmin){
+    if(!id && !isAdmin){
       return <Loading />
     }
 
