@@ -17,7 +17,7 @@ const registerFields = [
 ];
 
 function Register() {
-  const { updateHeaderConnected } = useAuth();
+  const { updateConnection } = useAuth();
   const [formData, setFormData] = useState({
     name: '', lastname: '', phone: '', address: '', email: '', password: '', confirmPassword: ''
   });
@@ -46,7 +46,7 @@ function Register() {
       return;
     }
     if (res) {
-      updateHeaderConnected();
+      updateConnection();
       setErrors([]);
       navigate('/account');
     }
