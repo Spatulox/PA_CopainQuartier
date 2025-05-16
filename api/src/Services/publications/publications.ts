@@ -3,10 +3,10 @@ import { PublicationTable } from "../../DB_Schema/PublicationSchema";
 import { UserRole } from "../../DB_Schema/UserSchema";
 import { FilledPublication, Publication } from "../../Models/PublicationModel";
 import { User } from "../../Models/UserModel";
-import { ID } from "../../Utils/IDType";
 import { CreatePublicationParam, UpdatePublicationParam } from "../../Validators/publications";
 import { getActivityById, toActivityObject } from "../activities/activities";
 import { toUserObject } from "../users/usersPublic";
+import { ObjectID } from "../../DB_Schema/connexion";
 
 export async function getAllPublications(): Promise<FilledPublication[]> {
     const res = await PublicationTable.find().sort({ created_at: -1 })
@@ -30,7 +30,7 @@ export async function getAllMyPublications(user: User): Promise<FilledPublicatio
     return res.map(objectToPublication);
 }
 
-export async function getPublicationById(pub_id: ID): Promise<FilledPublication | null>{
+export async function getPublicationById(pub_id: ObjectID): Promise<FilledPublication | null>{
     const res = await PublicationTable.findById(pub_id)
     return objectToPublication(res)
 }
@@ -54,7 +54,7 @@ export async function createPublication(user: User, content: CreatePublicationPa
     return !!result;
 }
 
-export async function updatePublicationcontent(user: User, pub_id: ID, content: UpdatePublicationParam): Promise<boolean> {
+export async function updatePublicationcontent(user: User, pub_id: ObjectID, content: UpdatePublicationParam): Promise<boolean> {
     
     const updateFields: any = {};
     if (content.name !== undefined) updateFields.name = content.name;
@@ -70,7 +70,7 @@ export async function updatePublicationcontent(user: User, pub_id: ID, content: 
     return result.modifiedCount > 0;
 }
 
-export async function deletePublicationById(user: User, pub_id: ID): Promise<boolean> {
+export async function deletePublicationById(user: User, pub_id: ObjectID): Promise<boolean> {
     let condition: any = { _id: pub_id };
 
     if (user.role !== UserRole.admin) {

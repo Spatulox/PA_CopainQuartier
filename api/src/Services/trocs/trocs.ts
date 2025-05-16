@@ -2,10 +2,9 @@ import { ForbiddenError } from "routing-controllers";
 import { TrocTable } from "../../DB_Schema/TrocSchema";
 import { FilledTroc, Troc, TrocStatus, TrocType, TrocVisibility } from "../../Models/TrocModel";
 import { User } from "../../Models/UserModel";
-import { ID } from "../../Utils/IDType";
 import { CreateTrocBody, UpdateTrocBody } from "../../Validators/trocs";
 import { toUserObject } from "../users/usersPublic";
-import { toTrocObjectAdmin } from "./trocsAdmin";
+import { ObjectId } from "mongodb";
 
 export function toTrocObject(doc: any): FilledTroc {
     return {
@@ -41,7 +40,7 @@ export async function getAllMyTrocs(user: User): Promise<FilledTroc[]> {
 }
 
 // GET : Un troc par son ID
-export async function getTrocById(id: string): Promise<FilledTroc | null> {
+export async function getTrocById(id: ObjectId): Promise<FilledTroc | null> {
     const doc = await TrocTable.findById(id).exec();
     return doc ? toTrocObject(doc) : null;
 }
@@ -62,7 +61,7 @@ export async function createTroc(trocBody: CreateTrocBody, user: User): Promise<
 }
 
 // PUT : Update par l'auteur
-export async function updateTroc(id: ID, authorId: ID, data: UpdateTrocBody): Promise<FilledTroc | null> {
+export async function updateTroc(id: ObjectId, authorId: ObjectId, data: UpdateTrocBody): Promise<FilledTroc | null> {
     const doc = await TrocTable.findOneAndUpdate(
         { _id: id, author_id: authorId },
         data,
@@ -72,12 +71,12 @@ export async function updateTroc(id: ID, authorId: ID, data: UpdateTrocBody): Pr
 }
 
 // DELETE : Impossible si completed, admin ou auteur uniquement
-export async function deleteTroc(id: string, userId: string, isAdmin: boolean): Promise<boolean> {
+export async function deleteTroc(id: ObjectId, userId: ObjectId, isAdmin: boolean): Promise<boolean> {
     const troc = await TrocTable.findById(id).exec();
     if (!troc || troc.status === TrocStatus.completed) {
         throw new ForbiddenError("Can't delete a completed troc");
     }
-    if (isAdmin || troc.author_id.toString() === userId) {
+    if (isAdmin || troc.author_id.toString() === userId.toString()) {
         const res = await TrocTable.deleteOne({ _id: id }).exec();
         return res.deletedCount === 1;
     }
@@ -85,7 +84,7 @@ export async function deleteTroc(id: string, userId: string, isAdmin: boolean): 
 }
 
 // PATCH : Réserver (impossible si waitingForApproval / hide / reserved)
-export async function reserveTroc(id: string, userId: string): Promise<FilledTroc | null> {
+export async function reserveTroc(id: ObjectId, userId: ObjectId): Promise<FilledTroc | null> {
     const troc = await TrocTable.findById(id).exec();
     if (!troc) return null;
     if (
@@ -128,7 +127,7 @@ export async function reserveTroc(id: string, userId: string): Promise<FilledTro
 }
 
 // PATCH : Marquer comme complété (impossible si waitingForApproval ou hide)
-export async function completeTroc(id: string, authorId: string): Promise<FilledTroc | null> {
+export async function completeTroc(id: ObjectId, authorId: ObjectId): Promise<FilledTroc | null> {
     const troc = await TrocTable.findById(id).exec();
     if (!troc) return null;
     if (
@@ -146,7 +145,7 @@ export async function completeTroc(id: string, authorId: string): Promise<Filled
 }
 
 // PATCH : Annuler (impossible si completed, waitingForApproval ou hide)
-export async function cancelTroc(id: string, userId: string): Promise<FilledTroc | null> {
+export async function cancelTroc(id: ObjectId, userId: ObjectId): Promise<FilledTroc | null> {
     const troc = await TrocTable.findById(id).exec();
     if (!troc || troc.status === TrocStatus.completed ||
         troc.status === TrocStatus.waitingForApproval ||
@@ -166,7 +165,7 @@ export async function cancelTroc(id: string, userId: string): Promise<FilledTroc
 }
 
 // PATCH : Cacher un troc (par l'auteur)
-export async function hideTroc(id: string, authorId: string): Promise<FilledTroc | null> {
+export async function hideTroc(id: ObjectId, authorId: ObjectId): Promise<FilledTroc | null> {
     const doc = await TrocTable.findOneAndUpdate(
         { _id: id, author_id: authorId },
         { visibility: TrocVisibility.hide },

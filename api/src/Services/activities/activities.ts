@@ -1,8 +1,7 @@
-import mongoose from "mongoose";
+import { ObjectID } from "../../DB_Schema/connexion";
 import { ActivityTable } from "../../DB_Schema/ActivitiesSchema";
-import { Activity, FilledActivity, PublicActivity, PublicFilledActivity } from "../../Models/ActivityModel";
+import { Activity, FilledActivity, PublicFilledActivity } from "../../Models/ActivityModel";
 import { User } from "../../Models/UserModel";
-import { ID } from "../../Utils/IDType";
 import { ChannelAuth, ChannelTable } from "../../DB_Schema/ChannelSchema";
 import { PublicationTable } from "../../DB_Schema/PublicationSchema";
 import { CreateActivityParam, UpdateActivityParam } from "../../Validators/activities";
@@ -22,7 +21,7 @@ export async function getActivityById(id: string): Promise<FilledActivity | null
 }
 
 
-export async function getPublicActivityById(id: ID): Promise<PublicFilledActivity | null> {
+export async function getPublicActivityById(id: ObjectID): Promise<PublicFilledActivity | null> {
     const activity = await ActivityTable.findById(id)
     .populate("publication_id")
     .populate("author_id")
@@ -207,7 +206,7 @@ export async function createActivity(user: User, activity: CreateActivityParam):
 }
 
 
-export async function updateActivity(user: User, body: UpdateActivityParam, act_id: ID): Promise<FilledActivity | null> {
+export async function updateActivity(user: User, body: UpdateActivityParam, act_id: ObjectID): Promise<FilledActivity | null> {
     if (!act_id) {
         throw new ForbiddenError("Missing activity ID");
     }

@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 
-export interface Token {
-    _id: string,
+export type Token = {
+    _id: ObjectId,
     token: string,
     userID: string
 }

@@ -5,7 +5,7 @@ import { getAllPublicActivities, getPublicActivityById, deleteActivity, joinActi
 import { UserRole } from "../DB_Schema/UserSchema";
 import { User } from "../Models/UserModel";
 import { CreateActivityParam, UpdateActivityParam, zCreateActivity, zUpdateActivity } from "../Validators/activities";
-import { ID } from "../Utils/IDType";
+import { ObjectID } from "../DB_Schema/connexion";
 
 
 
@@ -50,7 +50,7 @@ export class ActivityController{
     @Get("/:id")
     async getActivityById(@Param("id") act_id: string): Promise<PublicFilledActivity | null>{
         const validId = zObjectId.parse(act_id)
-        return await getPublicActivityById(validId)
+        return await getPublicActivityById(new ObjectID(validId))
     }
 
     @Post("/")
@@ -65,7 +65,7 @@ export class ActivityController{
     async udpdateActivity(@CurrentUser() user: User, @Param("id") id: string, @Body() body: UpdateActivityParam): Promise<FilledActivity | null>{
         const validBody = zUpdateActivity.parse(body)
         const validID = zObjectId.parse(id)
-        return await updateActivity(user, validBody, validID)
+        return await updateActivity(user, validBody, new ObjectID(validID))
     }
 
     @Patch("/:id/join")
@@ -105,7 +105,7 @@ export class ActivityController{
         if(!acti){
             throw new NotFoundError("Activity not found")
         }
-        if(acti.author && user._id.toString() != acti.author._id && user.role != UserRole.admin ){
+        if(acti.author && user._id != acti.author._id && user.role != UserRole.admin ){
             throw new ForbiddenError("You can't delete an Activity if you are not the owner")
         }
         if(!await deleteActivity(acti)){

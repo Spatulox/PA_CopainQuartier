@@ -1,7 +1,6 @@
-import mongoose from "mongoose";
+import { ObjectID } from "../../DB_Schema/connexion";
 import { UserTable } from "../../DB_Schema/UserSchema";
 import { User } from "../../Models/UserModel";
-import { ID } from "../../Utils/IDType";
 import { toUserObject } from "./usersPublic";
 
 export async function getAllUsers(): Promise<User[]> {
@@ -15,7 +14,7 @@ export async function getUnverifiedUser(): Promise<User[]> {
     const users = await UserTable.find({ verified: false }).exec();
     return users.map(user => toUserObject(user)).filter(Boolean) as User[];
 }
-export async function verifyUser(user_id: ID): Promise<boolean> {
+export async function verifyUser(user_id: ObjectID): Promise<boolean> {
     const res = await UserTable.updateOne(
         { _id: user_id },
         { $set: { verified: true } }
@@ -24,7 +23,7 @@ export async function verifyUser(user_id: ID): Promise<boolean> {
 }
 
 
-export async function deleteUser(user_id: ID): Promise<boolean>{
+export async function deleteUser(user_id: ObjectID): Promise<boolean>{
     const result = await UserTable.deleteOne({ _id: user_id }).exec();
     return result.deletedCount > 0;
 }

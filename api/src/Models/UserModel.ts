@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
+import { ObjectId } from "mongodb";
 
-export interface User{
-    _id: string,
+export type User ={
+    _id: ObjectId,
     name: string,
     lastname: string,
     email: string,
@@ -9,12 +9,12 @@ export interface User{
     address: string,
     verified: boolean,
     role: string,
-    group_chat_list_ids: string[],
+    group_chat_list_ids: ObjectId[],
     troc_score?: string | null,
     phone: string,
 }
 
 export type PublicUser = Omit<User, "password" | "email" | "address" | "phone"> & {
-    common_channels: mongoose.Types.ObjectId[];
+    common_channels: ObjectId[];
 };
 

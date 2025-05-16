@@ -21,6 +21,7 @@ import { zApprove, zObjectId } from "../Validators/utils";
 import { cancelTroc, completeTroc, createTroc, deleteTroc, getAllMyTrocs, getAllTrocs, getTrocById, reserveTroc, updateTroc } from "../Services/trocs/trocs";
 import { UserRole } from "../DB_Schema/UserSchema";
 import { getAllAdminTrocs, getWaitingTrocs, updateWaitingTrocStatus } from "../Services/trocs/trocsAdmin";
+import { ObjectID } from "../DB_Schema/connexion";
   
 
 @JsonController("/admin/trocs")
@@ -70,7 +71,7 @@ export class TrocController {
     @Get("/:id")
     async getTrocById(@Param("id") id: string): Promise<FilledTroc | null> {
         const validId = zObjectId.parse(id);
-        return await getTrocById(validId);
+        return await getTrocById(new ObjectID(validId));
     }
   
     @Post("/")
@@ -86,7 +87,7 @@ export class TrocController {
     async updateTroc(@Param("id") id: string, @Body() body: UpdateTrocBody, @CurrentUser() user: User): Promise<void> {
         const validId = zObjectId.parse(id);
         const validData = zUpdateTrocSchema.parse(body)
-        if(!await updateTroc(validId, user._id, validData)){
+        if(!await updateTroc(new ObjectID(validId), user._id, validData)){
             throw new BadRequestError()
         };
     }
@@ -97,7 +98,7 @@ export class TrocController {
     async deleteTroc(@Param("id") id: string, @CurrentUser() user: User): Promise<void> {
         const validId = zObjectId.parse(id);
         const isAdmin = user.role === "admin";
-        if(!await deleteTroc(validId, user._id, isAdmin)){
+        if(!await deleteTroc(new ObjectID(validId), user._id, isAdmin)){
             throw new BadRequestError()
         };
     }
@@ -107,7 +108,7 @@ export class TrocController {
     @HttpCode(204)
     async reserveTroc(@Param("id") id: string, @CurrentUser() user: User): Promise<void> {
         const validId = zObjectId.parse(id);
-        if(!await reserveTroc(validId, user._id)){
+        if(!await reserveTroc(new ObjectID(validId), user._id)){
             throw new BadRequestError()
         };
     }
@@ -117,7 +118,7 @@ export class TrocController {
     @HttpCode(204)
     async completeTroc(@Param("id") id: string, @CurrentUser() user: User): Promise<void> {
         const validId = zObjectId.parse(id);
-        if(!await completeTroc(validId, user._id)){
+        if(!await completeTroc(new ObjectID(validId), user._id)){
             throw new BadRequestError()
         };
     }
@@ -127,7 +128,7 @@ export class TrocController {
     @HttpCode(204)
     async cancelTroc(@Param("id") id: string, @CurrentUser() user: User): Promise<void> {
         const validId = zObjectId.parse(id);
-        if(!await cancelTroc(validId, user._id)){
+        if(!await cancelTroc(new ObjectID(validId), user._id)){
             throw new BadRequestError()
         };
     }

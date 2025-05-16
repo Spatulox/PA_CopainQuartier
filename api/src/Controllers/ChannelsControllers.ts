@@ -5,6 +5,7 @@ import { User } from "../Models/UserModel";
 import { UserRole } from "../DB_Schema/UserSchema";
 import { zCreateChannel, zTransferChannel, zUpdateChannel } from "../Validators/channels";
 import { Channel, PublicChannel } from "../Models/ChannelModel";
+import { ObjectID } from "../DB_Schema/connexion";
 
 
 @JsonController("/admin/channels")
@@ -19,7 +20,7 @@ export class AdminChannelsController {
     @Get("/:id")
     @Authorized(UserRole.admin)
     async getChannelById(@CurrentUser() user: User, @Param('id') channel_id: string): Promise<Channel | null>{
-        const validId = zObjectId.parse(channel_id)
+        const validId = new ObjectID(zObjectId.parse(channel_id))
         return await getChannelById(validId)
     }
 }
@@ -36,9 +37,9 @@ export class ChannelsController {
     @Get('/:id')
     @Authorized()
     async getChannelById(@CurrentUser() user: User, @Param('id') channel_id: string): Promise<Channel | PublicChannel | null> {
-        const validId = zObjectId.parse(channel_id)
+        const validId = new ObjectID(zObjectId.parse(channel_id))
         // If the user is inside the channel, can see all data
-        if (user.group_chat_list_ids.map(id => id.toString()).includes(validId)) {
+        if (user.group_chat_list_ids.map(id => id.toString()).includes(validId.toString())) {
             return await getChannelById(validId)
         }
         // If the user is outside the channel, can only see the Public data (name, type, description...)
@@ -59,7 +60,7 @@ export class ChannelsController {
     @Authorized()
     @HttpCode(204)
     async inviteChannel(@CurrentUser() user: User, @Param("id")id: string):Promise<void>{
-        const validID = zObjectId.parse(id)
+        const validID = new ObjectID(zObjectId.parse(id))
         const channel = getChannelById(validID)
         if(!channel){
             throw new NotFoundError("This channel doesn't exist")
@@ -73,8 +74,8 @@ export class ChannelsController {
     @Authorized()
     @HttpCode(204)
     async addUserFromChannel(@CurrentUser() user: User, @Param('user_id') user_id: string, @Param('channel_id') channel_id: string):Promise<void>{
-        const validUserId = zObjectId.parse(user_id)
-        const validChannelId = zObjectId.parse(channel_id)
+        const validUserId = new ObjectID(zObjectId.parse(user_id))
+        const validChannelId = new ObjectID(zObjectId.parse(channel_id))
 
         const channel = await getChannelById(validChannelId)
         if(channel && (channel.admin_id.toString() != user._id.toString() && user.role != UserRole.admin)){
@@ -89,8 +90,8 @@ export class ChannelsController {
     @Authorized()
     @HttpCode(204)
     async removeUserFromChannel(@CurrentUser() user: User, @Param('user_id') user_id: string, @Param('channel_id') channel_id: string):Promise<void>{
-        const validUserId = zObjectId.parse(user_id)
-        const validChannelId = zObjectId.parse(channel_id)
+        const validUserId = new ObjectID(zObjectId.parse(user_id))
+        const validChannelId = new ObjectID(zObjectId.parse(channel_id))
 
         const channel = await getChannelById(validChannelId)
         if(channel && user._id.toString() != user_id &&(channel.admin_id.toString() != user._id.toString() && user.role != UserRole.admin)){
@@ -131,13 +132,13 @@ export class ChannelsController {
     @Authorized()
     @HttpCode(204)
     async updateChannel(@CurrentUser() user: User, @Param('id') channel_id: number, @Body() body: any): Promise<void> {
-        const validId = zObjectId.parse(channel_id)
+        const validId = new ObjectID(zObjectId.parse(channel_id))
         const channel = await getChannelById(validId)
         if (channel && (channel.admin_id.toString() != user._id.toString() && user.role != UserRole.admin)){
             throw new ForbiddenError("You are not the admin of the channel")
         }
         const validBody = zUpdateChannel.parse(body)
-        if(!await updateChannelAttribute(channel_id, validBody)){
+        if(!await updateChannelAttribute(validId, validBody)){
             throw new BadRequestError()
         }
     }
@@ -146,13 +147,13 @@ export class ChannelsController {
     @Authorized()
     @HttpCode(204)
     async transferChannel(@CurrentUser() user: User, @Param('id') channel_id: string, @Body() body: any): Promise<void> {
-        const validId = zObjectId.parse(channel_id)
+        const validId = new ObjectID(zObjectId.parse(channel_id))
         const channel = await getChannelById(validId)
         if (channel && (channel.admin_id.toString() != user._id.toString() && user.role != UserRole.admin)){
             throw new ForbiddenError("You can't transfer the admin right to another person")
         }
         const validBody = zTransferChannel.parse(body)
-        if(!await updateChannelAdmin(validBody, channel_id)){
+        if(!await updateChannelAdmin(validBody, validId)){
             throw new BadRequestError()
         }
     }
@@ -162,7 +163,7 @@ export class ChannelsController {
     @Authorized()
     @HttpCode(204)
     async deleteChannel(@CurrentUser() user: User, @Param("id") channel_id: string): Promise<void>{
-        const validId= zObjectId.parse(channel_id)
+        const validId = new ObjectID(zObjectId.parse(channel_id))
         
         const channel = await getChannelById(validId)
         if(channel && (channel.admin_id.toString() != user._id.toString() && user.role != UserRole.admin)){
@@ -173,7 +174,7 @@ export class ChannelsController {
             throw new ForbiddenError("Impossible to delete a channel linked to an activity")
         }
 
-        if(!await deleteChannel(channel_id)){
+        if(!await deleteChannel(validId)){
             throw new BadRequestError()
         }
     }

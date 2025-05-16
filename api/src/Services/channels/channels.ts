@@ -1,14 +1,14 @@
 import mongoose from "mongoose";
-import { Channel, ChannelToPublicChannel, createMessage, Message, MessageType, ObjectToChannel, PublicChannel } from "../../Models/ChannelModel";
+import { Channel, ChannelToPublicChannel, createMessage, FilledMessage, Message, MessageType, ObjectToChannel, PublicChannel } from "../../Models/ChannelModel";
 import { ChannelAuth, ChannelTable } from "../../DB_Schema/ChannelSchema";
 import { CreateChannelParam, PostMessageParam, TransferChannelParam, UpdateChannelParam } from "../../Validators/channels";
-import { ID } from "../../Utils/IDType";
 import { User } from "../../Models/UserModel";
 import { UserRole, UserTable } from "../../DB_Schema/UserSchema";
 import { toUserObject } from "../users/usersPublic";
 import { toActivityObject } from "../activities/activities";
+import { ObjectID } from "../../DB_Schema/connexion";
 
-export async function getChannelById(channel_id: ID): Promise<Channel | null>{
+export async function getChannelById(channel_id: ObjectID): Promise<Channel | null>{
     const res = await ChannelTable.findById(channel_id)
     .populate("admin_id")
     .populate("activity_id")
@@ -17,7 +17,7 @@ export async function getChannelById(channel_id: ID): Promise<Channel | null>{
     return ObjectToChannel(res)
 }
 
-export async function getPublicChannelById(channel_id: ID): Promise<PublicChannel | null>{
+export async function getPublicChannelById(channel_id: ObjectID): Promise<PublicChannel | null>{
     const channels = await ChannelTable.findById(channel_id).lean()
     if(!channels){
         return null
@@ -70,7 +70,7 @@ export async function createChannel(user: User, data: CreateChannelParam): Promi
     return objectToChannel(channeltmp);
 }
 
-export async function updateChannelAttribute(channel_id: ID, update: UpdateChannelParam): Promise<boolean> {
+export async function updateChannelAttribute(channel_id: ObjectID, update: UpdateChannelParam): Promise<boolean> {
     const result = await ChannelTable.updateOne(
         { _id: channel_id },
         { $set: update }
@@ -79,7 +79,7 @@ export async function updateChannelAttribute(channel_id: ID, update: UpdateChann
 }
 
 
-export async function updateChannelAdmin(param: TransferChannelParam, channel_id: ID): Promise<boolean> {
+export async function updateChannelAdmin(param: TransferChannelParam, channel_id: ObjectID): Promise<boolean> {
     const result = await ChannelTable.updateOne(
       { _id: channel_id },
       { $set: { admin_id: param.new_admin_id } }
@@ -87,7 +87,7 @@ export async function updateChannelAdmin(param: TransferChannelParam, channel_id
     return result.modifiedCount > 0;
 }
 
-export async function addSomeoneFromChannel(channel_id: ID, user_id: ID): Promise<boolean> {
+export async function addSomeoneFromChannel(channel_id: ObjectID, user_id: ObjectID): Promise<boolean> {
     const result = await ChannelTable.updateOne(
         { _id: channel_id },
         { $addToSet: { members: user_id } }
@@ -96,7 +96,7 @@ export async function addSomeoneFromChannel(channel_id: ID, user_id: ID): Promis
 }
 
 
-export async function removeSomeoneFromChannel(channel_id: ID, user_id: ID): Promise<boolean> {
+export async function removeSomeoneFromChannel(channel_id: ObjectID, user_id: ObjectID): Promise<boolean> {
     const result = await ChannelTable.updateOne(
         { _id: channel_id },
         { $pull: { members: user_id } }
@@ -104,7 +104,7 @@ export async function removeSomeoneFromChannel(channel_id: ID, user_id: ID): Pro
     return result.modifiedCount > 0;
 }
 
-export async function saveMessageToChannel(user: User | ID, channel_id: ID, content: PostMessageParam): Promise<boolean>{
+export async function saveMessageToChannel(user: User , channel_id: ObjectID, content: PostMessageParam): Promise<boolean>{
     const message = createMessage(content.message, user)
     const result = await ChannelTable.updateOne(
         { _id: channel_id },
@@ -113,7 +113,7 @@ export async function saveMessageToChannel(user: User | ID, channel_id: ID, cont
     return result.modifiedCount > 0
 }
 
-export async function deleteMessageFromChannel(channel_id: ID, message_id: ID): Promise<boolean> {
+export async function deleteMessageFromChannel(channel_id: ObjectID, message_id: ObjectID): Promise<boolean> {
     const result = await ChannelTable.updateOne(
         { _id: channel_id },
         { $pull: { messages: { _id: message_id } } }
@@ -122,7 +122,7 @@ export async function deleteMessageFromChannel(channel_id: ID, message_id: ID): 
 }
 
 
-export async function deleteChannel(channel_id: ID): Promise<boolean>{
+export async function deleteChannel(channel_id: ObjectID): Promise<boolean>{
     const res = await ChannelTable.deleteOne({_id: channel_id})
 
     await UserTable.updateMany(
@@ -166,11 +166,11 @@ export function objectToChannel(obj: any): any {
  * @param obj L'objet message provenant de la DB
  * @returns Un objet Message typé
  */
-function objectToMessage(obj: Message): Message {
+function objectToMessage(obj: any): FilledMessage {
     return {
         date: obj.date ? new Date(obj.date) : new Date(),
         content: obj.content,
-        author_id: obj.author_id ? obj.author_id.toString() : undefined,
+        author: obj.author_id ? toUserObject(obj.author_id) : null,
         type: obj.type,
     };
 }

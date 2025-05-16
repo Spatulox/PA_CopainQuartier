@@ -17,6 +17,9 @@ export async function connectDB() {
   }
 }
 
+export const ObjectID = mongoose.Types.ObjectId
+export type ObjectID = InstanceType<typeof ObjectID>
+
 export async function closeDB(){
     await mongoose.disconnect()
 }

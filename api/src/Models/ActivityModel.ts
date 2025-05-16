@@ -2,7 +2,7 @@ import mongoose, { ObjectId } from "mongoose";
 import { FilledPublication, Publication } from "./PublicationModel";
 import { User } from "./UserModel";
 
-export interface Activity {
+export type Activity = {
     _id: ObjectId,
     title: string,
     description: string,

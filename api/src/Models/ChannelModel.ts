@@ -1,17 +1,16 @@
 
-import mongoose from "mongoose";
+import  { ObjectId } from "mongodb";
 import { User } from "./UserModel";
-import { ID } from "../Utils/IDType";
 import { toActivityObject } from "../Services/activities/activities";
 import { toUserObject } from "../Services/users/usersPublic";
 
-export interface Channel {
-    _id: string,
+export type Channel = {
+    _id: ObjectId,
     name: string,
-    activity_id : string | null,
+    activity_id : ObjectId | null,
     type: string,
     description: string,
-    admin_id: string,
+    admin_id: ObjectId,
     messages?: Message[],
     members: string[],
     member_auth: string,
@@ -19,22 +18,24 @@ export interface Channel {
 }
 
 //export type PublicChannel = Omit<Channel, "admin_id" | "messages" | "members" | "member_auth">
-export interface PublicChannel {
-    _id: string;
+export type PublicChannel = {
+    _id: ObjectId;
     name: string;
-    activity_id: string | null;
+    activity_id: ObjectId | null;
     type: string;
     description: string;
     created_at: Date;
 }
 
 
-export interface Message {
+export type Message = {
     date: Date,
     content: string,
-    author_id?: string | "null" | mongoose.Types.ObjectId,
+    author_id?: ObjectId | null,
     type: MessageType
 }
+
+export type FilledMessage = Omit<Message, "author_id"> & {author: User | null}
 
 export enum MessageType {
     system = "system",
@@ -43,9 +44,9 @@ export enum MessageType {
 
 export function ChannelToPublicChannel(channel: Channel): PublicChannel {
     return {
-        _id: channel._id.toString(),
+        _id: channel._id,
         name: channel.name,
-        activity_id: channel.activity_id ? channel.activity_id.toString() : null,
+        activity_id: channel.activity_id ? channel.activity_id : null,
         type: channel.type,
         description: channel.description,
         created_at: channel.created_at,
@@ -80,21 +81,14 @@ export function ObjectToChannel(channel: any): any {
     };
 }
 
-export function createMessage(content: string, user: User | ID | null = null): Message {
+export function createMessage(content: string, user: User | null = null): Message {
     const data: Message = {
         date: new Date(),
         content: content,
         type: MessageType.system,
     };
     if (user != null) {
-
-        let author_id: mongoose.Types.ObjectId | null = null;
-        if (typeof user === 'object' && '_id' in user) {
-            author_id = new mongoose.Types.ObjectId(user._id);
-        } else {
-            author_id = new mongoose.Types.ObjectId(user as string);
-        }
-        data.author_id = author_id;
+        data.author_id = user._id;
         data.type = MessageType.user
     }
     return data;

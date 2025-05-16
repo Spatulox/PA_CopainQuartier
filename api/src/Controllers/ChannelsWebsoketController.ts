@@ -2,6 +2,8 @@ import { WebSocketServer, WebSocket, RawData } from 'ws';
 import { ChannelTable } from '../DB_Schema/ChannelSchema';
 import { getChannelById, saveMessageToChannel } from '../Services/channels/channels';
 import { getCurrentUserByToken } from '../Middleware/auth';
+import { getUserById } from '../Services/users/usersPublic';
+import { ObjectID } from '../DB_Schema/connexion';
 
 // Will store each client connection to know if they already request the WS with the INIT message
 // If yes, the client can do everything it wants
@@ -40,9 +42,9 @@ export async function handleMessage(wss: WebSocketServer, fromClient: WebSocket,
     try{
         const msgRaw = JSON.parse(data.toString());
         //console.log(`Message reçu pour le channel ${channel_id}:`, msgRaw);
-
+        const validChannelId = new ObjectID(channel_id)
         // check if channel exist
-        const channel = await getChannelById(channel_id)
+        const channel = await getChannelById(validChannelId)
         if(!channel){
             fromClient.send(createErrorMsg("This channel don't exist"))
             return
@@ -100,8 +102,10 @@ export async function handleMessage(wss: WebSocketServer, fromClient: WebSocket,
                     client.send(JSON.stringify(msg));
                 }
             });
-        
-            return await saveMessageToChannel(msg.user_id, channel_id, msg);
+            
+            const user = await getUserById(new ObjectID(msg.user_id))
+            if(user)
+            return await saveMessageToChannel(user, validChannelId, msg);
         }        
 
         const err ="Unknow Message Type, plz check the input";

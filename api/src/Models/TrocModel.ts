@@ -1,12 +1,12 @@
-import mongoose from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 import { User } from "./UserModel";
 
 export type Troc = {
-    _id: string,
+    _id: ObjectId,
     title: string,
     created_at: Date,
     description: string,
-    author_id: string,
+    author_id: ObjectId | User,
     reserved_at: Date,
     reserved_by: string,
     status: TrocStatus,
