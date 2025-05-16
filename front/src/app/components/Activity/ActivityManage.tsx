@@ -154,7 +154,7 @@ export function ManageActivity(){
               setIsAdmin(true)
             }
         })()
-    }, [])
+    }, [id])
 
     if(!id && !isAdmin){
       return <Loading />
