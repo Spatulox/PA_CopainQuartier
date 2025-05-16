@@ -70,7 +70,9 @@ export class ApiClient {
   }
   
   private goToLogin(): void{
-    window.location.href = window.location.origin+"/login"
+    if(window.location.href != window.location.origin+"/login"){
+      window.location.href = window.location.origin+"/login"
+    }
   }
 
   private async handleAuth(endpoint: string, payload: any): Promise<boolean> {

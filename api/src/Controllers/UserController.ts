@@ -56,14 +56,12 @@ export class UserController {
 
   @Get('/@me')
   @Authorized()
-  @HttpCode(204)
   async getMe(@CurrentUser() user: User): Promise<User | null> {
     return await getUserById(user._id)
   }
 
   @Get('/:id')
   @Authorized()
-  @HttpCode(204)
   async getUserById(@CurrentUser() user: User, @Param('id') user_id: string): Promise<PublicUser | null> {
     const validId = zObjectId.parse(user_id)
     return await getPublicUserById(user, validId)

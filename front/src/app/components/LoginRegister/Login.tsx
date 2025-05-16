@@ -12,7 +12,7 @@ const loginFields = [
 ];
 
 function Login() {
-  const { updateHeaderConnected } = useAuth();
+  const { updateConnection } = useAuth();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState<string[]>([]);
   const navigate = useNavigate();
@@ -38,7 +38,7 @@ function Login() {
       return;
     }
     if (res) {
-      updateHeaderConnected();
+      updateConnection();
       setErrors([]);
       navigate('/account');
     }
