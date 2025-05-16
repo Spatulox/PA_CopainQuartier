@@ -3,7 +3,7 @@ import { Activity, ActivityClass, AdminActivityClass } from "../../../api/activi
 import { useNavigate, useParams } from "react-router-dom";
 import { Route } from "../../constantes";
 import Loading from "../shared/loading";
-import { ShowActivity, ShowActivityButton } from "./SingleActivity";
+import { ShowActivity, ShowActivityButton, UpdateActivity } from "./SingleActivity";
 import { User } from "../../../api/user";
 
 export function ManageMyActivity() {
@@ -122,15 +122,19 @@ function ManageOneActivity(){
       return <Loading title="Chargement de l'activité" />
     }
 
+    const handlUpdate = async (id: string, option: object) => {
+        const client = new ActivityClass()
+        await client.updateActivity(id, option)
+    }
     
     return (
       <div>
         <h1>EN TRAVAUX</h1>
-        <ShowActivity 
-            key={activity._id}
-            activity={activity}
-            user={user}
-            buttonShow={ShowActivityButton.None}
+        <UpdateActivity
+          key={activity._id}
+          activity={activity}
+          user={user}
+          onUpdate={(id: string, option: object) => handlUpdate(id, option)}
         />
       </div>
     );

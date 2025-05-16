@@ -1,6 +1,6 @@
 // ShowActivity.tsx
 
-import React from "react";
+import React, { useState } from "react";
 import { Activity } from "../../../api/activity";
 import { User, UserRole } from "../../../api/user";
 import { Route } from "../../constantes";
@@ -17,16 +17,20 @@ export enum ShowActivityButton {
 type ShowActivityProps = {
     activity: Activity;
     user: User | undefined;
-    onViewActivity?: (id: string) => void;
     onViewPublication?: (id: string) => void;
     onManage?: (id: string) => void;
     buttonShow: ShowActivityButton
 };
 
+type UpdateActivityProps = {
+    activity: Activity;
+    user: User | undefined;
+    onUpdate: (id: string, option: object) => void;
+};
+
 export function ShowActivity({
     activity,
     user,
-    onViewActivity,
     onViewPublication,
     onManage,
     buttonShow
@@ -70,6 +74,82 @@ export function ShowActivity({
                                 Gérer l'activité
                             </button>
                     )}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+
+export function UpdateActivity({
+    activity,
+    user,
+    onUpdate
+}: UpdateActivityProps) {
+    const navigate = useNavigate();
+    const [title, setTitle] = useState(activity.title || "");
+    const [description, setDescription] = useState(activity.description || "");
+    const [dateReservation, setDateReservation] = useState(
+        activity.date_reservation
+            ? new Date(activity.date_reservation).toISOString().split("T")[0]
+            : ""
+    );
+
+    function handleUpdate() {
+        if (onUpdate) {
+            onUpdate(activity._id, {
+                title,
+                description,
+                date_reservation: dateReservation,
+            });
+        }
+    }
+
+    return (
+        <div key={activity._id}>
+            <h2>
+                <input
+                    type="text"
+                    value={title}
+                    onChange={e => setTitle(e.target.value)}
+                />
+            </h2>
+            <div>
+                <span>
+                    <input
+                        type="text"
+                        value={activity.author?.name || ""}
+                        disabled
+                    />
+                </span>
+                <span>
+                    <input
+                        type="text"
+                        value={new Date(activity.created_at).toLocaleDateString()}
+                        disabled
+                    />
+                </span>
+                <p>
+                    <textarea
+                        value={description}
+                        onChange={e => setDescription(e.target.value)}
+                    />
+                </p>
+                <span>
+                    <input
+                        type="date"
+                        value={dateReservation}
+                        onChange={e => setDateReservation(e.target.value)}
+                    />
+                </span>
+            </div>
+            <div>
+                <strong>Publication :</strong>
+                {activity.publication?.name}
+                <div>
+                    <button onClick={() => navigate(`${Route.publications}/${activity.publication._id}`)}>Voir la publication</button>
+                    <button onClick={() => window.location.reload()}>Recharger la page</button>
+                    <button onClick={handleUpdate}>Update Activity</button>
                 </div>
             </div>
         </div>
