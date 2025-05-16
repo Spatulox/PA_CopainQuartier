@@ -32,7 +32,7 @@ export class ActivityClass extends ApiClient{
         return activity//.data
     }
 
-    async createActivities(option: any): Promise<boolean>{
+    async createActivities(option: object): Promise<void>{
         return await this.Post(this.url, option)
     }
 }

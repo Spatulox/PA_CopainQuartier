@@ -25,7 +25,7 @@ export type User = {
 export class UserClass extends ApiClient{
     protected url = "/users"
 
-    async getUsers(): Promise<User>{
+    async getUsers(): Promise<User[]>{
         return await this.Get(this.url)
     }
 
@@ -58,11 +58,11 @@ export class AdminUserClass extends UserClass{
         return await this.Get(`${this.urlAdmin}/unverified`)
     }
 
-    async verifyUser(id: string, option: object): Promise<Boolean>{
+    async verifyUser(id: string, option: object): Promise<void>{
         return await this.Patch(`${this.urlAdmin}/${id}`, option)
     }
 
-    async deleteUser(id: string): Promise<Boolean>{
+    async deleteUser(id: string): Promise<void>{
         return await this.Delete(`${this.urlAdmin}/${id}`)
     }
 }
