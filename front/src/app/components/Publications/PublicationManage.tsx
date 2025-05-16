@@ -4,11 +4,13 @@ import { AdminPublicationClass, Publication, PublicationClass } from "../../../a
 import { Route } from "../../constantes";
 import Loading from "../shared/loading";
 import { ShowPublication, ShowPublicationButton } from "./SinglePublication";
-import { User } from "../../../api/user";
+import { User, UserRole } from "../../../api/user";
+import { useAuth } from "../shared/auth-context";
+
+const { me } = useAuth();
 
 export function ManageMyPublications(){
     const [publications, setPublications] = useState<Publication[] | null>(null);
-    const [user, setUser] = useState<User>(null)
     const navigate = useNavigate()
     
     useEffect(() => {
@@ -16,10 +18,6 @@ export function ManageMyPublications(){
         const client = new PublicationClass();
         const pub = await client.getMyPublications();
         setPublications(pub);
-
-        const use = await client.getMe()
-        setUser(use)
-
         })();
     }, []);
     
@@ -37,7 +35,7 @@ export function ManageMyPublications(){
             <ShowPublication
                 key={pub._id}
                 pub={pub}
-                user={user}
+                user={me}
                 onViewActivity={(id) => navigate(`${Route.activity}/${id}`)}
                 onManage={(id) => navigate(`${Route.manageActivity}/${id}`)}
                 buttonShow={ShowPublicationButton.ViewActivity | ShowPublicationButton.Manage}
@@ -49,21 +47,19 @@ export function ManageMyPublications(){
 function ManagePublicationAdmin(){
     const [publications, setPublications] = useState<Publication[] | null>(null);
     const navigate = useNavigate()
-    const [user, setUser] = useState<User | null>(null)
   
     useEffect(() => {
       (async () => {
         const client = new AdminPublicationClass();
-        await client.refreshUser()
-        if(!client.isAdmin()){
-          navigate(`${Route.publications}`)
-          return
+
+        if(me?.role != UserRole.admin){
+            navigate(`${Route.publications}`)
+            return
         }
+
         const publications = await client.getAllPublications();
         setPublications(publications);
-        
-        const use = await client.getMe()
-        setUser(use)
+
       })();
     }, []);
   
@@ -82,7 +78,7 @@ function ManagePublicationAdmin(){
             <ShowPublication
                 key={pub._id}
                 pub={pub}
-                user={user}
+                user={me}
                 onViewPublication={(actiId) => navigate(`${Route.activity}/${actiId}`)}
                 onManage={(pubId) => navigate(`${Route.managePublications}/${pubId}`)}
                 buttonShow={ShowPublicationButton.All}
@@ -96,7 +92,6 @@ function ManagePublicationAdmin(){
 function ManageOnePublication(){
     const { id } = useParams<{ id: string }>();
     const [publication, setPublication] = useState<Publication | null>(null)
-    const [user, setUser] = useState<User | null>(null)
     const navigate = useNavigate()
     useEffect(() => {
         (async ()=> {
@@ -105,8 +100,6 @@ function ManageOnePublication(){
                 const pub = await client.getPublicationById(id)
                 setPublication(pub)
             }
-            const use = await client.getMe()
-            setUser(use)
         })()
     }, [id])
 
@@ -117,11 +110,11 @@ function ManageOnePublication(){
     return <>
 
         <h1>EN TRAVAUX</h1>
-        {publication && user ?
+        {publication && me ?
             <ShowPublication
                 key={publication._id}
                 pub={publication}
-                user={user}
+                user={me}
                 onViewActivity={(id) => navigate(`${Route.activity}/${id}`)}
                 buttonShow={ShowPublicationButton.ViewActivity}
             />

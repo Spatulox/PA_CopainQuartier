@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react"
-import { User } from "../../../api/user"
+import { User, UserRole } from "../../../api/user"
 import { Channel, AdminChatClass } from "../../../api/chat"
 import Loading from "../shared/loading"
 import { useNavigate, useParams } from "react-router-dom"
 import { Route } from "../../constantes"
 import { ShowChat, ShowChatButton } from "./SingleChat"
+import { useAuth } from "../shared/auth-context";
+
+const { me } = useAuth();
 
 function ManageAdminChat(){
     return <h1>Manage one</h1>
 }
 
 function ManageOneChat(){
-    const [user, setUser] = useState<User | null>(null)
     const [channel, setChannel] = useState<Channel | null>(null)
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate()
@@ -23,10 +25,8 @@ function ManageOneChat(){
                 const client = new AdminChatClass()
                 const chan = await client.getChannelById(id)
                 setChannel(chan)
-                const use = await client.getMe()
-                setUser(use)
-                await client.refreshUser()
-                if(!client.isAdmin()){
+
+                if(me?.role != UserRole.admin){
                     navigate(Route.notfound)
                     return
                 }
@@ -34,14 +34,14 @@ function ManageOneChat(){
         })()
     }, [id])
 
-    if(!channel || !user || !id){
+    if(!channel || !me || !id){
         return <Loading />
     }
 
     if(channel){
         return <ShowChat
             channel={channel}
-            user={user}
+            user={me}
             buttonShow={ShowChatButton.None}
         />
     }

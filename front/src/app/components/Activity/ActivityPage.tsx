@@ -9,12 +9,13 @@ import { Activity, ActivityClass } from "../../../api/activity";
 import { User } from "../../../api/user";
 import { ShowActivity, ShowActivityButton } from "./SingleActivity";
 import Loading from "../shared/loading";
+import { useAuth } from "../shared/auth-context";
 
+const { me } = useAuth();
 
 function ShowActivityPage() {
     const { id } = useParams<{ id: string }>();
     const [activity, setActivity] = useState<Activity>();
-    const [user, setUser] = useState<User>();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -22,9 +23,7 @@ function ShowActivityPage() {
             const client = new ActivityClass();
             if (id) {
                 const activity = await client.getActivityByID(id);
-                const user = await client.getMe();
                 setActivity(activity);
-                setUser(user);
             }
         })();
     }, [id]);
@@ -37,7 +36,7 @@ function ShowActivityPage() {
         <ShowActivity
             key={activity._id}
             activity={activity}
-            user={user}
+            user={me}
             onViewPublication={(pubId) => navigate(`${Route.publications}/${pubId}`)}
             onManage={(actId) => navigate(`${Route.manageActivity}/${actId}`)}
             buttonShow={ShowActivityButton.ViewPublication | ShowActivityButton.Manage}

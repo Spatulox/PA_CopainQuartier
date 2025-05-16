@@ -1,11 +1,12 @@
-import { act, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Activity, ActivityClass } from "../../../api/activity";
-import CreateActivity from "./ActivityCreate";
-import { User, UserClass } from "../../../api/user";
 import { Route } from "../../constantes";
 import { useNavigate } from "react-router-dom";
 import { ShowActivity, ShowActivityButton } from "./SingleActivity";
 import Loading from "../shared/loading";
+import { useAuth } from "../shared/auth-context";
+
+const { me } = useAuth();
 
 type ActivityListMessage = {
     message: string
@@ -16,7 +17,6 @@ function ActivityList({message, limit}: ActivityListMessage){
 
     const [activity, setActivity] = useState<Activity[]>([])
     const navigate = useNavigate()
-    const [user, setUser] = useState<User | null>(null)
 
 
     useEffect(() => {
@@ -24,9 +24,6 @@ function ActivityList({message, limit}: ActivityListMessage){
             const client = new ActivityClass()
             const activities = await client.getActivities()
             setActivity(activities)
-
-            const use = await client.getMe()
-            setUser(use)
         })()
     }, [message])
     
@@ -47,7 +44,7 @@ function ActivityList({message, limit}: ActivityListMessage){
                 <ShowActivity
                     key={acti._id}
                     activity={acti}
-                    user={user}
+                    user={me}
                     onViewPublication={(pubId) => navigate(`${Route.publications}/${pubId}`)}
                     onManage={(actId) => navigate(`${Route.manageActivity}/${actId}`)}
                     buttonShow={ShowActivityButton.All}

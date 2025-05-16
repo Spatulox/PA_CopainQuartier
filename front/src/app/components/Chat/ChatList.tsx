@@ -6,6 +6,9 @@ import { ShowChat, ShowChatButton } from "./SingleChat";
 import { Route } from "../../constantes";
 import { useEffect, useState } from "react";
 import Loading from "../shared/loading";
+import { useAuth } from "../shared/auth-context";
+
+const { me } = useAuth();
 
 type ListProps = {
   channels: Channel[];
@@ -19,7 +22,6 @@ type ListSimpleProps = {
 
 export function ChannelList(/*{ channels }: ListSimpleProps*/) {
   const navigate = useNavigate()
-  const [user, setUser] = useState<User | null>(null)
   const [channel, setChannel] = useState<Channel[]>([])
 
   useEffect(() => {
@@ -27,8 +29,6 @@ export function ChannelList(/*{ channels }: ListSimpleProps*/) {
       const client = new ChatClass()
       const chan = await client.getChannel()
       setChannel(chan)
-      const use = await client.getMe()
-      setUser(use)
     })()
   }, [])
 

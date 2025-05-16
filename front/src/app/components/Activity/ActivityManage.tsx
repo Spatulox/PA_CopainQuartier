@@ -4,11 +4,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Route } from "../../constantes";
 import Loading from "../shared/loading";
 import { ShowActivity, ShowActivityButton, UpdateActivity } from "./SingleActivity";
-import { User } from "../../../api/user";
+import { User, UserRole } from "../../../api/user";
+import { useAuth } from "../shared/auth-context";
+
+const { me } = useAuth();
 
 export function ManageMyActivity() {
     const [activities, setActivities] = useState<Activity[] | null>(null);
-    const [user, setUser] = useState<User | null>(null)
     const navigate = useNavigate()
   
     useEffect(() => {
@@ -16,8 +18,6 @@ export function ManageMyActivity() {
         const client = new ActivityClass();
         const activities = await client.getMyActivities();
         setActivities(activities);
-        const use = await client.getMe()
-        setUser(use)
       })();
     }, []);
   
@@ -38,7 +38,7 @@ export function ManageMyActivity() {
               <ShowActivity
                 key={activity._id}
                 activity={activity}
-                user={user}
+                user={me}
                 onManage={(id) => navigate(`${Route.manageActivity}/${id}`)}
                 onViewPublication={(id) => navigate(`${Route.publications}/${id}`)}
                 buttonShow={ShowActivityButton.ViewPublication | ShowActivityButton.Manage}
@@ -54,7 +54,6 @@ export function ManageMyActivity() {
 function ManageActivityAdmin(){
     const [activities, setActivities] = useState<Activity[] | null>(null);
     const navigate = useNavigate()
-    const [user, setUser] = useState<User | null>(null)
   
     useEffect(() => {
       (async () => {
@@ -66,9 +65,6 @@ function ManageActivityAdmin(){
         }
         const activities = await client.getAllActivitiesAdmin();
         setActivities(activities);
-        
-        const use = await client.getMe()
-        setUser(use)
       })();
     }, []);
   
@@ -87,7 +83,7 @@ function ManageActivityAdmin(){
             <ShowActivity
                 key={activity._id}
                 activity={activity}
-                user={user}
+                user={me}
                 onViewPublication={(pubId) => navigate(`${Route.publications}/${pubId}`)}
                 onManage={(actId) => navigate(`${Route.manageActivity}/${actId}`)}
                 buttonShow={ShowActivityButton.All}
@@ -102,18 +98,13 @@ function ManageOneActivity(){
 
   const [activity, setActivities] = useState<Activity | null>(null);
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate()
-   const [user, setUser] = useState<User | null>(null)
   
     useEffect(() => {
       (async () => {
         const client = new ActivityClass();
         if(id){
           const activitie = await client.getActivityByID(id);
-          setActivities(activitie);
-
-          const use = await client.getMe()
-          setUser(use)
+          setActivities(activitie)
         }
       })();
     }, [id]);
@@ -138,7 +129,7 @@ function ManageOneActivity(){
         <UpdateActivity
           key={activity._id}
           activity={activity}
-          user={user}
+          user={me}
           onUpdate={(id: string, option: object) => handlUpdate(id, option)}
           onDelete={handlDelete}
         />
@@ -155,13 +146,11 @@ export function ManageActivity(){
     useEffect(() => {
         (async () => {
             const client = new ActivityClass()
-            await client.refreshUser()
 
-            if (client.isAdmin() === false && !id) {
-              navigate(`${Route.manageMyActivity}`);
-              return
-            } else {
+            if(me?.role == UserRole.admin){
               setIsAdmin(true)
+            } else {
+              setIsAdmin(false)
             }
         })()
     }, [id])

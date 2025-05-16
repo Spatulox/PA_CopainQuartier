@@ -9,6 +9,9 @@ import { ShowPublication, ShowPublicationButton } from "./SinglePublication";
 import { Publication, PublicationClass } from "../../../api/publications";
 import { User } from "../../../api/user";
 import Loading from "../shared/loading";
+import { useAuth } from "../shared/auth-context";
+
+const { me } = useAuth();
 
 
 function Publications(){
@@ -16,7 +19,6 @@ function Publications(){
     const [message, setMessage] = useState("");
     const { id } = useParams<{ id: string }>();
     const [publications, setPublications] = useState<Publication | null>(null)
-    const [user, setUser] = useState<User | null>(null)
 
     const handleUpdate = (newMsg:string) => {
         setMessage(newMsg);
@@ -29,8 +31,6 @@ function Publications(){
                 const pub = await client.getPublicationById(id)
                 setPublications(pub)
             }
-            const use = await client.getMe()
-            setUser(use)
         })()
     }, [id])
 
@@ -43,7 +43,7 @@ function Publications(){
             <ShowPublication
                 key={publications._id}
                 pub={publications}
-                user={user}
+                user={me}
                 onManage={() => navigate(`${Route.managePublications}/${publications._id}`)}
                 buttonShow={ShowPublicationButton.Manage}
             />

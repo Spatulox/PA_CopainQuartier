@@ -8,6 +8,9 @@ import { PopupConfirm } from "../Popup/PopupConfirm";
 import { ShowChat, ShowChatButton } from "./SingleChat";
 import { User, UserRole } from "../../../api/user";
 import { CreateChannel } from "./ChatCreate";
+import { useAuth } from "../shared/auth-context";
+
+const { me } = useAuth();
 
 function ChatPage() {
   const { id } = useParams<{ id: string }>();
@@ -181,9 +184,9 @@ function ChatPage() {
         <ManageChannelList
           channels={channels}
           action={handleAskConfirmation}
-          user={userRef.current.user}
+          user={me}
         />
-        {userRef.current.user?.role == UserRole.admin && (
+        {me?.role == UserRole.admin && (
           <button onClick={() => navigate(Route.manageChannels)}>Gérer les channels</button>
         )}
         <CreateChannel action={refreshChannel} />

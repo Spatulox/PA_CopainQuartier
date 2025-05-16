@@ -5,6 +5,9 @@ import { useNavigate } from "react-router-dom";
 import { Route } from "../../constantes";
 import { ShowPublication, ShowPublicationButton } from "./SinglePublication";
 import Loading from "../shared/loading";
+import { useAuth } from "../shared/auth-context";
+
+const { me } = useAuth();
 
 type PublicationListMessage = {
     message: string
@@ -13,7 +16,6 @@ type PublicationListMessage = {
 
 function PublicationList({message, limit}: PublicationListMessage){
     const [publications, setPublications] = useState<Publication[] | null>(null)
-    const [user, setUser] = useState<User>(null)
     const navigate = useNavigate()
 
 
@@ -21,13 +23,9 @@ function PublicationList({message, limit}: PublicationListMessage){
         (async () => {
             console.log('useEffect')
             const client = new PublicationClass()
-            const use = await client.getMe()
             const pub = await client.getAllPublications()
             if(pub){
                 setPublications(pub)
-            }
-            if(use){
-                setUser(use)
             }
         })()
     }, [message])
@@ -48,7 +46,7 @@ function PublicationList({message, limit}: PublicationListMessage){
                 <ShowPublication
                     key={pub._id}
                     pub={pub}
-                    user={user}
+                    user={me}
                     onViewPublication={(id) => navigate(`${Route.publications}/${id}`)}
                     onViewActivity={(id) => navigate(`${Route.activity}/${id}`)}
                     onManage={(id) => navigate(`${Route.managePublications}/${id}`)}
