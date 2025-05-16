@@ -14,26 +14,26 @@ import {
     InternalServerError,
     BadRequestError
   } from "routing-controllers";
-import { Troc, TrocStatus } from "../Models/TrocModel";
+import { FilledTroc, Troc, TrocStatus } from "../Models/TrocModel";
 import { User } from "../Models/UserModel";
 import { CreateTrocBody, UpdateTrocBody, zCreateTrocSchema, zUpdateTrocSchema } from "../Validators/trocs";
 import { zApprove, zObjectId } from "../Validators/utils";
-import { cancelTroc, completeTroc, createTroc, deleteTroc, getAllAdminTrocs, getAllMyTrocs, getAllTrocs, getTrocById, reserveTroc, updateTroc } from "../Services/trocs/trocs";
+import { cancelTroc, completeTroc, createTroc, deleteTroc, getAllMyTrocs, getAllTrocs, getTrocById, reserveTroc, updateTroc } from "../Services/trocs/trocs";
 import { UserRole } from "../DB_Schema/UserSchema";
-import { getWaitingTrocs, updateWaitingTrocStatus } from "../Services/trocs/trocsAdmin";
+import { getAllAdminTrocs, getWaitingTrocs, updateWaitingTrocStatus } from "../Services/trocs/trocsAdmin";
   
 
 @JsonController("/admin/trocs")
 export class AdminTrocController {
     @Get("/")
     @Authorized(UserRole.admin)
-    async getNonApprovedTroc(): Promise<Troc[] | null> {
+    async getNonApprovedTroc(): Promise<FilledTroc[] | null> {
         return await getWaitingTrocs();
     }
 
     @Get("/all")
     @Authorized(UserRole.admin)
-    async getAllTroc(): Promise<Troc[] | null> {
+    async getAllTroc(): Promise<FilledTroc[] | null> {
         return await getAllAdminTrocs();
     }
 
@@ -57,25 +57,25 @@ export class AdminTrocController {
 @JsonController("/trocs")
 export class TrocController {
     @Get("/")
-    async getAllTrocs(): Promise<Troc[]> {
+    async getAllTrocs(): Promise<FilledTroc[]> {
         return await getAllTrocs()
     }
 
     @Get("/@me")
     @Authorized()
-    async getAllMyTrocs(@CurrentUser() user: User): Promise<Troc[]> {
+    async getAllMyTrocs(@CurrentUser() user: User): Promise<FilledTroc[]> {
         return await getAllMyTrocs(user)
     }
 
     @Get("/:id")
-    async getTrocById(@Param("id") id: string): Promise<Troc | null> {
+    async getTrocById(@Param("id") id: string): Promise<FilledTroc | null> {
         const validId = zObjectId.parse(id);
         return await getTrocById(validId);
     }
   
     @Post("/")
     @Authorized()
-    async createTroc(@Body() body: CreateTrocBody, @CurrentUser() user: User): Promise<Troc> {
+    async createTroc(@Body() body: CreateTrocBody, @CurrentUser() user: User): Promise<FilledTroc> {
         const validData = zCreateTrocSchema.parse(body)
         return await createTroc(validData, user);
     }

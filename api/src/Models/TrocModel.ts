@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
+import { User } from "./UserModel";
 
-export interface Troc {
+export type Troc = {
     _id: string,
     title: string,
     created_at: Date,
@@ -33,3 +34,5 @@ export enum TrocStatus {
     reserved = "reserved",
     waitingForApproval = "waitingforapproval",
 }
+
+export type FilledTroc = Omit<Troc, "author_id"> & {author: User | null}
