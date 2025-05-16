@@ -8,7 +8,11 @@ import {
     Body,
     Authorized,
     CurrentUser,
-    Patch
+    Patch,
+    ForbiddenError,
+    HttpCode,
+    InternalServerError,
+    BadRequestError
   } from "routing-controllers";
 import { Troc, TrocStatus } from "../Models/TrocModel";
 import { User } from "../Models/UserModel";
@@ -35,13 +39,18 @@ export class AdminTrocController {
 
     @Patch("/:id/approve")
     @Authorized(UserRole.admin)
-    async approveTroc(@CurrentUser() user: User, @Param("id") id: string, @Body() body: any): Promise<Troc | null> {
+    @HttpCode(204)
+    async approveTroc(@CurrentUser() user: User, @Param("id") id: string, @Body() body: any): Promise<void> {
         const validID = zObjectId.parse(id)
         const validApprove = zApprove.parse(body)
         if(validApprove.approve == true){
-            return await updateWaitingTrocStatus(validID, TrocStatus.pending, user);
+            if(!await updateWaitingTrocStatus(validID, TrocStatus.pending, user)){
+                throw new BadRequestError()
+            };
         }
-        return await updateWaitingTrocStatus(validID, TrocStatus.hide, user);
+        if(!await updateWaitingTrocStatus(validID, TrocStatus.hide, user)){
+            throw new BadRequestError()
+        };
     }
 }
 
@@ -73,38 +82,53 @@ export class TrocController {
   
     @Put("/:id")
     @Authorized()
-    async updateTroc(@Param("id") id: string, @Body() body: UpdateTrocBody, @CurrentUser() user: User): Promise<Troc | null> {
+    @HttpCode(204)
+    async updateTroc(@Param("id") id: string, @Body() body: UpdateTrocBody, @CurrentUser() user: User): Promise<void> {
         const validId = zObjectId.parse(id);
         const validData = zUpdateTrocSchema.parse(body)
-        return await updateTroc(validId, user._id, validData);
+        if(!await updateTroc(validId, user._id, validData)){
+            throw new BadRequestError()
+        };
     }
   
     @Delete("/:id")
     @Authorized()
-    async deleteTroc(@Param("id") id: string, @CurrentUser() user: User): Promise<boolean> {
+    @HttpCode(204)
+    async deleteTroc(@Param("id") id: string, @CurrentUser() user: User): Promise<void> {
         const validId = zObjectId.parse(id);
         const isAdmin = user.role === "admin";
-        return await deleteTroc(validId, user._id, isAdmin);
+        if(!await deleteTroc(validId, user._id, isAdmin)){
+            throw new BadRequestError()
+        };
     }
   
     @Patch("/:id/reserve")
     @Authorized()
-    async reserveTroc(@Param("id") id: string, @CurrentUser() user: User): Promise<Troc | null> {
+    @HttpCode(204)
+    async reserveTroc(@Param("id") id: string, @CurrentUser() user: User): Promise<void> {
         const validId = zObjectId.parse(id);
-        return await reserveTroc(validId, user._id);
+        if(!await reserveTroc(validId, user._id)){
+            throw new BadRequestError()
+        };
     }
   
     @Patch("/:id/complete")
     @Authorized()
-    async completeTroc(@Param("id") id: string, @CurrentUser() user: User): Promise<Troc | null> {
+    @HttpCode(204)
+    async completeTroc(@Param("id") id: string, @CurrentUser() user: User): Promise<void> {
         const validId = zObjectId.parse(id);
-        return await completeTroc(validId, user._id);
+        if(!await completeTroc(validId, user._id)){
+            throw new BadRequestError()
+        };
     }
   
     @Patch("/:id/cancel")
     @Authorized()
-    async cancelTroc(@Param("id") id: string, @CurrentUser() user: User): Promise<Troc | null> {
+    @HttpCode(204)
+    async cancelTroc(@Param("id") id: string, @CurrentUser() user: User): Promise<void> {
         const validId = zObjectId.parse(id);
-        return await cancelTroc(validId, user._id);
+        if(!await cancelTroc(validId, user._id)){
+            throw new BadRequestError()
+        };
     }
 }

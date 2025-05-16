@@ -1,7 +1,7 @@
-import { JsonController, Param, Body, Get, Post, Put, Delete, HeaderParam, Authorized, CurrentUser, Patch } from 'routing-controllers';
-import { User } from "../Models/UserModel"
+import { JsonController, Param, Body, Get, Post, Put, Delete, HeaderParam, Authorized, CurrentUser, Patch, InternalServerError, ForbiddenError, HttpCode, BadRequestError } from 'routing-controllers';
+import { PublicUser, User } from "../Models/UserModel"
 import { deleteUser, getAllUsers, getUnverifiedUser, verifyUser } from '../Services/users/usersAdmin';
-import { zApprove, zId, zObjectId } from '../Validators/utils';
+import { zApprove, zObjectId } from '../Validators/utils';
 import { getPublicUserById, getUserById } from '../Services/users/usersPublic';
 import { UserRole } from '../DB_Schema/UserSchema';
 import { ZodObject } from 'zod';
@@ -29,20 +29,25 @@ export class AdminUserController {
 
   @Patch('/:id')
   @Authorized(UserRole.admin)
-  async verifyUser(@Param('id') user_id: string, @Body() body: any): Promise<boolean> {
+  @HttpCode(204)
+  async verifyUser(@Param('id') user_id: string, @Body() body: any): Promise<void> {
     const validId = zObjectId.parse(user_id)
     const validApprove = zApprove.parse(body)
     if(validApprove.approve == true){
-      return await verifyUser(validId);
+      if(!await verifyUser(validId)){
+        throw new BadRequestError()
+      };
     }
-    return false
   }
 
   @Delete('/:id')
   @Authorized(UserRole.admin)
-  async deleteUserById(@Param('id') user_id: string): Promise<boolean> {
+  @HttpCode(204)
+  async deleteUserById(@Param('id') user_id: string): Promise<void> {
     const validId = zObjectId.parse(user_id)
-    return await deleteUser(validId)
+    if(!await deleteUser(validId)){
+      throw new BadRequestError()
+    }
   }
 }
 
@@ -51,14 +56,16 @@ export class UserController {
 
   @Get('/@me')
   @Authorized()
-  async getMe(@CurrentUser() user: User) {
-    return await getUserById(user._id);
+  @HttpCode(204)
+  async getMe(@CurrentUser() user: User): Promise<User | null> {
+    return await getUserById(user._id)
   }
 
   @Get('/:id')
   @Authorized()
-  async getUserById(@CurrentUser() user: User, @Param('id') user_id: string) {
+  @HttpCode(204)
+  async getUserById(@CurrentUser() user: User, @Param('id') user_id: string): Promise<PublicUser | null> {
     const validId = zObjectId.parse(user_id)
-    return await getPublicUserById(user, validId);
+    return await getPublicUserById(user, validId)
   }
 }

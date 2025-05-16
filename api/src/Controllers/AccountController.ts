@@ -15,11 +15,9 @@ export class AccountController {
   @Patch('/')
   @Authorized()
   @HttpCode(204)
-  async updateMyAccount(@CurrentUser() user: User, @Body() body: any) {
+  async updateMyAccount(@CurrentUser() user: User, @Body() body: any): Promise<void>{
     const validBody = zUpdateAccount.parse(body)
-    if (await updateMyAccount(user, validBody)) {
-      return;
-    } else {
+    if (!await updateMyAccount(user, validBody)) {
       throw new BadRequestError("Erreur lors de la mise à jour du compte");
     }
   }
@@ -27,10 +25,8 @@ export class AccountController {
   @Delete('/')
   @Authorized()
   @HttpCode(204)
-  async deleteMyAccount(@CurrentUser() user: User){
-    if (await deleteMyAccount(user)) {
-      return;
-    } else {
+  async deleteMyAccount(@CurrentUser() user: User): Promise<void>{
+    if (!await deleteMyAccount(user)) {
       throw new BadRequestError("Erreur lors de la suppression du compte");
     }
   }

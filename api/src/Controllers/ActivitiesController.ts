@@ -1,4 +1,4 @@
-import { Authorized, Body, CurrentUser, Delete, ForbiddenError, Get, JsonController, NotFoundError, Param, Patch, Post, Req } from "routing-controllers";
+import { Authorized, BadRequestError, Body, CurrentUser, Delete, ForbiddenError, Get, HttpCode, InternalServerError, JsonController, NotFoundError, Param, Patch, Post, Req } from "routing-controllers";
 import { zId, zObjectId } from "../Validators/utils";
 import { Activity, PublicActivity } from "../Models/ActivityModel";
 import { getAllPublicActivities, getPublicActivityById, deleteActivity, joinActivityById, leaveActivityById, getActivityById, getMyActivities, getMyActivitiesAdmin, createActivity, updateActivity, getAllActivities } from "../Services/activities/activities";
@@ -70,29 +70,36 @@ export class ActivityController{
 
     @Patch("/:id/join")
     @Authorized()
-    async joinActivityById(@CurrentUser() user: User, @Param("id") act_id: string): Promise<boolean>{
+    @HttpCode(204)
+    async joinActivityById(@CurrentUser() user: User, @Param("id") act_id: string): Promise<void>{
         const validId = zObjectId.parse(act_id)
         const activity = await getActivityById(validId)
         if(!activity){
             throw new NotFoundError("Activity not found")
         }
-        return await joinActivityById(user, activity)
+        if(!await joinActivityById(user, activity)){
+            throw new BadRequestError()
+        }
     }
 
     @Patch("/:id/leave")
     @Authorized()
-    async leaveActivityById(@CurrentUser() user: User, @Param("id") act_id: string): Promise<boolean>{
+    @HttpCode(204)
+    async leaveActivityById(@CurrentUser() user: User, @Param("id") act_id: string): Promise<void>{
         const validId = zObjectId.parse(act_id)
         const activity = await getActivityById(validId)
         if(!activity){
             throw new NotFoundError("Activity not found")
         }
-        return await leaveActivityById(user, activity)
+        if(!await leaveActivityById(user, activity)){
+            throw new BadRequestError()
+        }
     }
 
     @Delete("/:id")
     @Authorized()
-    async deleteActivity(@CurrentUser() user: User, @Param("id") act_id: string): Promise<boolean>{
+    @HttpCode(204)
+    async deleteActivity(@CurrentUser() user: User, @Param("id") act_id: string): Promise<void>{
         const validId = zObjectId.parse(act_id)
         const acti = await getActivityById(validId)
         if(!acti){
@@ -101,6 +108,8 @@ export class ActivityController{
         if(user._id.toString() != acti.author_id.toString() && user.role != UserRole.admin ){
             throw new ForbiddenError("You can't delete an Activity if you are not the owner")
         }
-        return await deleteActivity(acti)
+        if(!await deleteActivity(acti)){
+            throw new BadRequestError()
+        }
     }
 }
