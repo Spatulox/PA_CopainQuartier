@@ -1,5 +1,5 @@
 import mongoose, { ObjectId } from "mongoose";
-import { User } from "./UserModel";
+import { FilledUser, User } from "./UserModel";
 
 export type Troc = {
     _id: ObjectId,
@@ -35,4 +35,4 @@ export enum TrocStatus {
     waitingForApproval = "waitingforapproval",
 }
 
-export type FilledTroc = Omit<Troc, "author_id"> & {author: User | null}
+export type FilledTroc = Omit<Troc, "author_id"> & {author: User | FilledUser | null}

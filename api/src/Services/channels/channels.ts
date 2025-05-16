@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { Channel, createMessage, FilledChannel, FilledMessage, Message, MessageType, PublicChannel, PublicFilledChannel } from "../../Models/ChannelModel";
 import { ChannelAuth, ChannelTable } from "../../DB_Schema/ChannelSchema";
 import { CreateChannelParam, PostMessageParam, TransferChannelParam, UpdateChannelParam } from "../../Validators/channels";
-import { User } from "../../Models/UserModel";
+import { FilledUser, User } from "../../Models/UserModel";
 import { UserRole, UserTable } from "../../DB_Schema/UserSchema";
 import { toUserObject } from "../users/usersPublic";
 import { toActivityObject } from "../activities/activities";
@@ -104,7 +104,7 @@ export async function removeSomeoneFromChannel(channel_id: ObjectID, user_id: Ob
     return result.modifiedCount > 0;
 }
 
-export async function saveMessageToChannel(user: User , channel_id: ObjectID, content: PostMessageParam): Promise<boolean>{
+export async function saveMessageToChannel(user: FilledUser , channel_id: ObjectID, content: PostMessageParam): Promise<boolean>{
     const message = createMessage(content.message, user)
     const result = await ChannelTable.updateOne(
         { _id: channel_id },

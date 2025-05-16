@@ -14,6 +14,20 @@ export type User ={
     phone: string,
 }
 
+export type FilledUser ={
+    _id: string,
+    name: string,
+    lastname: string,
+    email: string,
+    password: string,
+    address: string,
+    verified: boolean,
+    role: string,
+    group_chat_list_ids: ObjectId[],
+    troc_score?: string | null,
+    phone: string,
+}
+
 export type PublicUser = Omit<User, "password" | "email" | "address" | "phone"> & {
     common_channels: ObjectId[];
 };

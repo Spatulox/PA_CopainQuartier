@@ -1,6 +1,6 @@
 import mongoose, { ObjectId } from "mongoose";
 import { FilledPublication, Publication } from "./PublicationModel";
-import { User } from "./UserModel";
+import { FilledUser, User } from "./UserModel";
 
 export type Activity = {
     _id: ObjectId,
@@ -14,9 +14,9 @@ export type Activity = {
     participants_id: ObjectId[]
 }
 
-export type FilledActivity = Omit<Activity, "author_id" | "publication_id" | "participants_id"> & {author: User | null, publication: Publication | FilledPublication | null, participants: User[] | null}
+export type FilledActivity = Omit<Activity, "author_id" | "publication_id" | "participants_id"> & {author: FilledUser | null, publication: Publication | FilledPublication | null, participants: User[] | FilledUser[] | null}
 
 
 export type PublicActivity = Omit<Activity, "channel_chat_id" | "participants_id">;
 
-export type PublicFilledActivity = Omit<FilledActivity, "channel_chat_id" | "participants"> & {author: User | null, publication: Publication | FilledPublication | null};
+export type PublicFilledActivity = Omit<FilledActivity, "channel_chat_id" | "participants"> & {author: FilledUser | null, publication: Publication | FilledPublication | null};

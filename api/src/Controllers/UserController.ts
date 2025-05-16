@@ -1,5 +1,5 @@
 import { JsonController, Param, Body, Get, Post, Put, Delete, HeaderParam, Authorized, CurrentUser, Patch, InternalServerError, ForbiddenError, HttpCode, BadRequestError } from 'routing-controllers';
-import { PublicUser, User } from "../Models/UserModel"
+import { FilledUser, PublicUser, User } from "../Models/UserModel"
 import { deleteUser, getAllUsers, getUnverifiedUser, verifyUser } from '../Services/users/usersAdmin';
 import { zApprove, zObjectId } from '../Validators/utils';
 import { getPublicUserById, getUserById } from '../Services/users/usersPublic';
@@ -10,19 +10,19 @@ import { ObjectID } from '../DB_Schema/connexion';
 export class AdminUserController {
   @Get('/')
   @Authorized(UserRole.admin)
-  async getAll(): Promise<User[]> {
+  async getAll(): Promise<FilledUser[]> {
     return await getAllUsers()
   }
 
   @Get('/unverified')
   @Authorized(UserRole.admin)
-  async getUnverifiedUser(): Promise<User[] | null> {
+  async getUnverifiedUser(): Promise<FilledUser[] | null> {
     return await getUnverifiedUser();
   }
 
   @Get('/:id')
   @Authorized(UserRole.admin)
-  async getUserByIdAdmin(@Param('id') user_id: ObjectID): Promise<User | null> {
+  async getUserByIdAdmin(@Param('id') user_id: ObjectID): Promise<FilledUser | null> {
     const validId = zObjectId.parse(user_id)
     return await getUserById(new ObjectID(validId));
   }
@@ -56,7 +56,7 @@ export class UserController {
 
   @Get('/@me')
   @Authorized()
-  async getMe(@CurrentUser() user: User): Promise<User | null> {
+  async getMe(@CurrentUser() user: User): Promise<FilledUser | null> {
     return await getUserById(user._id)
   }
 

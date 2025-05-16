@@ -1,10 +1,10 @@
 import { UserTable } from "../../DB_Schema/UserSchema";
-import { User, PublicUser } from "../../Models/UserModel";
+import { User, PublicUser, FilledUser } from "../../Models/UserModel";
 import { objectToChannel } from "../channels/channels";
 import { UpdateAccountType } from "../../Validators/users";
 import { ObjectID } from "../../DB_Schema/connexion";
 
-export async function getUserById(userId: ObjectID): Promise<User | null> {
+export async function getUserById(userId: ObjectID): Promise<FilledUser | null> {
     const obj = await UserTable.findById(userId).populate("group_chat_list_ids").exec();
     return toUserObject(obj)
 }
@@ -55,10 +55,10 @@ export async function deleteMyAccount(user: User): Promise<boolean>{
 
 
 
-export function toUserObject(doc: User | null): User | null {
+export function toUserObject(doc: User | null): FilledUser | null {
     if(doc == null){return null}
     return {
-        _id: doc._id,
+        _id: doc._id.toString(),
         name: doc.name,
         lastname: doc.lastname,
         email: doc.email,

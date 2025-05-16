@@ -1,5 +1,5 @@
 import { JsonController, Param, Body, Get, Post, Put, Delete, HeaderParam, CurrentUser, Authorized, Patch, BadRequestError, HttpCode, OnUndefined } from 'routing-controllers';
-import { User } from "../Models/UserModel"
+import { FilledUser, User } from "../Models/UserModel"
 import { deleteMyAccount, getUserById, updateMyAccount } from '../Services/users/usersPublic';
 import { zUpdateAccount } from '../Validators/users';
 
@@ -8,7 +8,7 @@ export class AccountController {
 
   @Get('/')
   @Authorized()
-  async getMyAccount(@CurrentUser() user: User): Promise<User | null> {
+  async getMyAccount(@CurrentUser() user: User): Promise<FilledUser | null> {
     return await getUserById(user._id);
   }
 

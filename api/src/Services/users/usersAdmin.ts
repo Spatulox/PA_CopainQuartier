@@ -1,18 +1,18 @@
 import { ObjectID } from "../../DB_Schema/connexion";
 import { UserTable } from "../../DB_Schema/UserSchema";
-import { User } from "../../Models/UserModel";
+import { FilledUser, User } from "../../Models/UserModel";
 import { toUserObject } from "./usersPublic";
 
-export async function getAllUsers(): Promise<User[]> {
+export async function getAllUsers(): Promise<FilledUser[]> {
     const users = await UserTable.find()
         .populate("group_chat_list_ids")
         .exec();
-    return users.map(user => toUserObject(user)).filter(Boolean) as User[];
+    return users.map(user => toUserObject(user)).filter(u => u !== null);
 }
 
-export async function getUnverifiedUser(): Promise<User[]> {
+export async function getUnverifiedUser(): Promise<FilledUser[]> {
     const users = await UserTable.find({ verified: false }).exec();
-    return users.map(user => toUserObject(user)).filter(Boolean) as User[];
+    return users.map(user => toUserObject(user)).filter(u => u !== null);
 }
 export async function verifyUser(user_id: ObjectID): Promise<boolean> {
     const res = await UserTable.updateOne(

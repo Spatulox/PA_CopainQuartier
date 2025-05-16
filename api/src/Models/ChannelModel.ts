@@ -1,6 +1,6 @@
 
 import  { ObjectId } from "mongodb";
-import { User } from "./UserModel";
+import { FilledUser, User } from "./UserModel";
 import { toActivityObject } from "../Services/activities/activities";
 import { toUserObject } from "../Services/users/usersPublic";
 import { Activity, FilledActivity } from "./ActivityModel";
@@ -39,7 +39,7 @@ export type Message = {
     type: MessageType
 }
 
-export type FilledMessage = Omit<Message, "author_id"> & {author: User | null}
+export type FilledMessage = Omit<Message, "author_id"> & {author: User | FilledUser | null}
 
 export enum MessageType {
     system = "system",
@@ -74,14 +74,14 @@ export enum MessageType {
     };
 }*/
 
-export function createMessage(content: string, user: User | null = null): Message {
+export function createMessage(content: string, user: FilledUser | null = null): Message {
     const data: Message = {
         date: new Date(),
         content: content,
         type: MessageType.system,
     };
     if (user != null) {
-        data.author_id = user._id;
+        data.author_id = new ObjectId(user._id);
         data.type = MessageType.user
     }
     return data;
