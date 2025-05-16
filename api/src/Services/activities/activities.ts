@@ -10,7 +10,7 @@ import { ForbiddenError } from "routing-controllers";
 import { objectToPublication } from "../publications/publications";
 import { toUserObject } from "../users/usersPublic";
 import { objectToChannel } from "../channels/channels";
-import { UserTable } from "../../DB_Schema/UserSchema";
+import { UserRole, UserTable } from "../../DB_Schema/UserSchema";
 
 export async function getActivityById(id: string): Promise<Activity | null> {
     const activity = await ActivityTable.findById(id)
@@ -213,20 +213,40 @@ export async function updateActivity(
     if (!act_id) {
         throw new ForbiddenError("Missing activity ID");
     }
-
-    const doc = await ActivityTable.findOneAndUpdate(
-        { _id: act_id, author_id: user._id },
-        {
-            title: body.title,
-            description: body.description,
-            date_reservation: body.date_reservation,
-        },
-        { new: true }
-    ).exec();
+    let doc 
+    if(user.role == UserRole.admin){
+        doc = await ActivityTable.findOneAndUpdate(
+            { _id: act_id },
+            {
+                title: body.title,
+                description: body.description,
+                date_reservation: body.date_reservation,
+            },
+            { new: true }
+        )
+        .exec();
+    } else {
+        doc = await ActivityTable.findOneAndUpdate(
+            { _id: act_id, author_id: user._id },
+            {
+                title: body.title,
+                description: body.description,
+                date_reservation: body.date_reservation,
+            },
+            { new: true }
+        ).exec();
+    }
     
     if (!doc) {
         throw new ForbiddenError("You are not allowed to update this activity or it does not exist.");
     }
+
+    doc = await doc.populate([
+        { path: 'author_id' },
+        { path: 'channel_chat_id' },
+        { path: 'publication_id' },
+        { path: 'participants_id' }
+    ]);
 
     return toActivityObject(doc);
 }
