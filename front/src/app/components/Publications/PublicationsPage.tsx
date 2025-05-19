@@ -6,11 +6,12 @@ import { Route } from "../../constantes";
 import PublicationList from "./PublicationsList";
 import { useEffect, useState } from "react";
 import { ShowPublication, ShowPublicationButton } from "./SinglePublication";
-import { Publication, PublicationClass } from "../../../api/publications";
+import { AdminPublicationClass, Publication, PublicationClass } from "../../../api/publications";
 import { User } from "../../../api/user";
 import Loading from "../shared/loading";
 import { useAuth } from "../shared/auth-context";
 import NotFound from "../shared/notfound";
+import { AdminActivityClass } from "../../../api/activity";
 
 
 function Publications(){
@@ -27,14 +28,24 @@ function Publications(){
 
     useEffect(() => {
         (async () => {
-            const client = new PublicationClass()
             if(id){
-                const pub = await client.getPublicationById(id)
-                if(!pub){
-                    setNotFound(true)
-                    return
+                if(isAdmin){
+                    const client = new AdminPublicationClass()
+                    const pub = await client.getAdminPublicationById(id)
+                    if(!pub){
+                        setNotFound(true)
+                        return
+                    }
+                    setPublications(pub)
+                } else {
+                    const client = new PublicationClass()
+                    const pub = await client.getPublicationById(id)
+                    if(!pub){
+                        setNotFound(true)
+                        return
+                    }
+                    setPublications(pub)
                 }
-                setPublications(pub)
             }
         })()
     }, [id])
