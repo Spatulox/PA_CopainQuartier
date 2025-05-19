@@ -9,26 +9,37 @@ import { ShowTroc, ShowTrocButton } from "./SimpleTroc";
 import Loading from "../shared/loading";
 import { Troc, TrocClass } from "../../../api/troc";
 import { User } from "../../../api/user";
+import NotFound from "../shared/notfound";
 
 
 function ShowTrocPage() {
     const { id } = useParams<{ id: string }>();
     const [troc, setTroc] = useState<Troc>();
     const [user, setUser] = useState<User>();
+    const [notFound, setNotFound] = useState<boolean>(false)
     const navigate = useNavigate();
     
     useEffect(() => {
         (async () => {
             const client = new TrocClass();
             if (id) {
-                const activity = await client.getTrocByID(id);
-                const user = await client.getMe();
-                setTroc(activity);
-                setUser(user);
+                const trok = await client.getTrocByID(id);
+                if(!trok){
+                    setNotFound(true)
+                    return
+                }
+                setTroc(trok);
             }
         })();
     }, [id]);
 
+    if(notFound){
+        return <NotFound />
+    }
+    if(id == "me"){
+        navigate(`${Route.manageMyTrocs}`)
+        return
+    }
     if (!troc) {
         return <Loading title="Chargement de l'activité" />;
     }
