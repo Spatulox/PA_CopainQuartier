@@ -5,7 +5,7 @@ import { User } from "../../Models/UserModel";
 import { ChannelAuth, ChannelTable } from "../../DB_Schema/ChannelSchema";
 import { PublicationTable } from "../../DB_Schema/PublicationSchema";
 import { CreateActivityParam, UpdateActivityParam } from "../../Validators/activities";
-import { ForbiddenError } from "routing-controllers";
+import { ForbiddenError, InternalServerError } from "routing-controllers";
 import { objectToPublication } from "../publications/publications";
 import { toUserObject } from "../users/usersPublic";
 import { objectToChannel } from "../channels/channels";
@@ -359,7 +359,7 @@ export async function joinActivityById(user: User, activity: FilledActivity): Pr
     );
 
     const channelResult = await ChannelTable.updateOne(
-        { _id: activity.channel_chat_id },
+        { _id: activity.channel_chat?._id },
         { $addToSet: { members: user._id } }
     );
 
@@ -372,8 +372,20 @@ export async function leaveActivityById(user: User, activity: Activity | FilledA
         { $pull: { participants_id: user._id } }
     );
 
+    // Narrow the type to get the channel ID
+    let channelId: ObjectID | string | undefined;
+    if ('channel_chat_id' in activity) {
+        channelId = activity.channel_chat_id.toString();
+    } else if ('channel_chat' in activity && activity.channel_chat) {
+        channelId = activity.channel_chat._id;
+    }
+
+    if (!channelId) {
+        throw new InternalServerError("Something wen wrong when leaving an activity")
+    }
+
     const channelResult = await ChannelTable.updateOne(
-        { _id: activity.channel_chat_id },
+        { _id: channelId },
         { $pull: { members: user._id } }
     );
 
@@ -386,7 +398,7 @@ export async function deleteActivity(activity: FilledActivity): Promise<boolean>
     );
 
     const channelResult = await ChannelTable.deleteOne(
-        { _id: activity.channel_chat_id }
+        { _id: activity.channel_chat?._id }
     );
 
     const publicationResult = await PublicationTable.deleteOne(
@@ -408,13 +420,13 @@ export async function deleteActivity(activity: FilledActivity): Promise<boolean>
 export function toActivityObject(activityDoc: any): FilledActivity {
     const obj = activityDoc
     return {
-        _id: obj._id,
+        _id: obj._id.toString(),
         title: obj.title,
         description: obj.description,
         created_at: obj.created_at,
         date_reservation: obj.date_reservation,
         author: obj.author_id ? toUserObject(obj.author_id) : null,
-        channel_chat_id: obj.channel_chat_id ? objectToChannel(obj.channel_chat_id) : null,
+        channel_chat: obj.channel_chat_id ? objectToChannel(obj.channel_chat_id) : null,
         publication: obj.publication_id ? objectToPublication(obj.publication_id): null,
         participants: obj.participants_id ? obj.participants_id.map((user: any) => toUserObject(user)) : null,
     };
@@ -423,7 +435,7 @@ export function toActivityObject(activityDoc: any): FilledActivity {
 export function ActivityToPublicActivity(activity : FilledActivity | null): PublicFilledActivity | null {
     if(activity == null){return null}
     return {
-        _id: activity._id,
+        _id: activity._id.toString(),
         title: activity.title,
         description: activity.description,
         created_at: activity.created_at,

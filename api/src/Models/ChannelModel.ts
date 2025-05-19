@@ -28,8 +28,8 @@ export type PublicChannel = {
     created_at: Date;
 }
 
-export type FilledChannel = Omit<Channel, "activity_id" | "admin_id"> & {activity: FilledActivity | Activity | null, admin: User | null}
-export type PublicFilledChannel = Omit<PublicChannel, "activity_id"> & {activity: FilledActivity | Activity | null}
+export type FilledChannel = Omit<Channel, "activity_id" | "admin_id" | "_id"> & {_id: string, activity: FilledActivity | Activity | null, admin: User | FilledUser | null}
+export type PublicFilledChannel = Omit<PublicChannel, "activity_id" | "_id"> & {_id: string, activity: FilledActivity | Activity | null}
 
 
 export type Message = {

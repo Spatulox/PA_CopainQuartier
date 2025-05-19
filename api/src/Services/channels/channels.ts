@@ -144,14 +144,14 @@ export async function deleteChannel(channel_id: ObjectID): Promise<boolean>{
  * @param obj L'objet provenant de la DB (plain object ou document Mongoose)
  * @returns Un objet Channel typé
  */
-export function objectToChannel(obj: any): any {
+export function objectToChannel(obj: any): FilledChannel {
     return {
         _id: obj._id?.toString(),
         name: obj.name,
         activity: obj.activity_id ? toActivityObject(obj.activity_id) : null,
         type: obj.type,
         description: obj.description,
-        owner: obj.admin_id ? toUserObject(obj.admin_id) : null,
+        admin: obj.admin_id ? toUserObject(obj.admin_id) : null,
         messages: obj.messages?.map(objectToMessage) ?? [],
         members: Array.isArray(obj.members)
             ? obj.members.map((m: User) => toUserObject(m))
@@ -178,7 +178,7 @@ function objectToMessage(obj: any): FilledMessage {
 
 export function ChannelToPublicChannel(channel: Channel): PublicFilledChannel {
     return {
-        _id: channel._id,
+        _id: channel._id.toString(),
         name: channel.name,
         activity: channel.activity_id ? toActivityObject(channel.activity_id) : null,
         type: channel.type,

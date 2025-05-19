@@ -36,10 +36,10 @@ export async function getPublicationById(pub_id: ObjectID): Promise<FilledPublic
 }
 
 export async function createPublication(user: User, content: CreatePublicationParam): Promise<boolean> {
-    let acti: ObjectId | undefined
+    let acti: string | undefined
     if(content.activity_id){
         const activity = await getActivityById(content.activity_id)
-        acti = activity?._id
+        acti = activity?._id.toString()
     }
 
     const dataToSave = {
