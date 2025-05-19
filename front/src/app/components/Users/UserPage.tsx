@@ -5,10 +5,12 @@ import { ShowUser, ShowUserButton } from "./SingleUser";
 import { Route } from "../../constantes";
 import Loading from "../shared/loading";
 import { useAuth } from "../shared/auth-context";
+import NotFound from "../shared/notfound";
 
 function Users(){
     const { id } = useParams<{ id: string }>();
     const [user, setUser] = useState<User | null>(null)
+    const [notFound, setNotFound] = useState<boolean>(false)
     const { me, isAdmin } = useAuth();
     const navigate = useNavigate()
 
@@ -19,16 +21,31 @@ function Users(){
                     const client = new UserClass()
                     await client.refreshUser()
                     const use = await client.getUserByID(id)
+                    if(!use){
+                        setNotFound(true)
+                        return
+                    }
                     setUser(use)
                 } else if(isAdmin){
                     const client = new AdminUserClass()
                     const use = await client.getUserByID(id)
+                    if(!use){
+                        setNotFound(true)
+                        return
+                    }
                     setUser(use)
                 }
             }
         })()
     }, [id, isAdmin])
 
+    if(notFound){
+        return <NotFound />
+    }
+    if(id == "me"){
+        navigate(`${Route.user}`)
+        return
+    }
     if(!user && !me){
         return <Loading title="Chargement de l'utilisateur" />
     }

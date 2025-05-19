@@ -51,7 +51,7 @@ function ManageOneUser(){
     }
 
     if(user === null){
-        <Loading title="Chargement de l'utilisateur" />
+        return <Loading title="Chargement de l'utilisateur" />
     }
 
     return <>

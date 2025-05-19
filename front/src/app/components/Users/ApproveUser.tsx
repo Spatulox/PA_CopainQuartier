@@ -43,7 +43,7 @@ function ApproveUser({onUpdate}: ApproveUserType){
     }
 
     if(user && user.length == 0 && me == null){
-        <Loading title="Chargement des utilisateur à approuver..." />
+        return <Loading title="Chargement des utilisateur à approuver..." />
     }
 
     if(user && user.length == 0){
