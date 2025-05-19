@@ -1,3 +1,4 @@
+import { Channel } from "./chat";
 import { ApiClient } from "./client";
 
 
@@ -15,12 +16,11 @@ export type User = {
   address: string,
   verified: boolean,
   role: string,
-  group_chat_list_ids: [],
-  common_channels?: [],
-  troc_score: string | number | null,
+  group_chat_list_ids: Channel[],
+  common_channels?: Channel[],
+  troc_score?: string | number | null,
   phone: string
 } | null
-
 
 export class UserClass extends ApiClient{
     protected url = "/users"
