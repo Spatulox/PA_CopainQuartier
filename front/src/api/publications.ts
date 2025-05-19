@@ -27,16 +27,16 @@ export class PublicationClass extends ApiClient{
         return await this.Get(`${this.url}/${id}`)
     }
 
-    async createPublication(option: any){
+    async createPublication(option: any): Promise<Publication | null>{
         return await this.Post(`${this.url}`, option)
     }
 
-    async updatePublication(id: string, option: any){
-        return await this.Patch(`${this.url}/${id}`, option)
+    async updatePublication(id: string, option: any): Promise<void>{
+        await this.Patch(`${this.url}/${id}`, option)
     }
 
-    async deletePublication(id: string){
-        return await this.Delete(`${this.url}/${id}`)
+    async deletePublication(id: string): Promise<void>{
+        await this.Delete(`${this.url}/${id}`)
     }
 }
 

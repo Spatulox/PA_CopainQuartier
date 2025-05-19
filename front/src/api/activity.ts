@@ -32,16 +32,16 @@ export class ActivityClass extends ApiClient{
         return activity//.data
     }
 
-    async createActivities(option: object): Promise<void>{
+    async createActivities(option: object): Promise<Activity | null>{
         return await this.Post(this.url, option)
     }
 
     async updateActivity(id: string, option: object): Promise<void>{
-        return await this.Patch(`${this.url}/${id}`, option)
+        await this.Patch(`${this.url}/${id}`, option)
     }
 
     async deleteActivity(id: string): Promise<void>{
-        return await this.Delete(`${this.url}/${id}`)
+        await this.Delete(`${this.url}/${id}`)
     }
 }
 
@@ -63,7 +63,7 @@ export class AdminActivityClass extends ActivityClass{
         return activity//.data
     }
 
-    async getactivityAdminById(id: string):Promise<Activity>{
+    async getActivityAdminById(id: string):Promise<Activity>{
         const activity = await this.Get(`${this.urlAdmin}/${id}`)
         return activity//.data
     }

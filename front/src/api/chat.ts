@@ -50,15 +50,15 @@ export class ChatClass extends ApiClient {
   }
 
   async deleteChat(channel_id: string): Promise<void>{
-    return await this.Delete(`${this.url}/${channel_id}`)
+    await this.Delete(`${this.url}/${channel_id}`)
   }
 
   async leaveChat(id: string): Promise<void>{
-    return await this.Patch(`${this.url}/${id}/removeuser/${this.user?._id}`, {})
+    await this.Patch(`${this.url}/${id}/removeuser/${this.user?._id}`, {})
   }
 
   async joinChat(channel_id: string, user_id_to_add: string): Promise<void>{
-    return await this.Patch(`${this.url}/${channel_id}/adduser/${user_id_to_add}`, {})
+    await this.Patch(`${this.url}/${channel_id}/adduser/${user_id_to_add}`, {})
   }
 }
 

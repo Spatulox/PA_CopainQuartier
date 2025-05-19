@@ -59,10 +59,10 @@ export class AdminUserClass extends UserClass{
     }
 
     async verifyUser(id: string, option: object): Promise<void>{
-        return await this.Patch(`${this.urlAdmin}/${id}`, option)
+        await this.Patch(`${this.urlAdmin}/${id}`, option)
     }
 
     async deleteUser(id: string): Promise<void>{
-        return await this.Delete(`${this.urlAdmin}/${id}`)
+        await this.Delete(`${this.urlAdmin}/${id}`)
     }
 }

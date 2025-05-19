@@ -50,16 +50,16 @@ export class TrocClass extends ApiClient{
         return await this.Get(`${this.url}/${id}`)
     }
 
-    async createTroc(option: object): Promise<void>{
+    async createTroc(option: object): Promise<Troc | null>{
         return await this.Post(this.url, option)
     }
 
-    async updateTroc(id: string, option: any): Promise<Troc>{
-        return await this.Patch(`${this.url}/${id}`, option)
+    async updateTroc(id: string, option: any): Promise<void>{
+        await this.Patch(`${this.url}/${id}`, option)
     }
 
     async deleteTroc(id: string): Promise<void>{
-        return await this.Delete(`${this.url}/${id}`)
+        await this.Delete(`${this.url}/${id}`)
     }
 }
 
@@ -88,6 +88,6 @@ export class AdminTrocClass extends TrocClass{
     }
 
     async approveTroc(id: string, option: object): Promise<void>{
-        return await this.Patch(`${this.urlAdmin}/${id}/approve`, option)
+        await this.Patch(`${this.urlAdmin}/${id}/approve`, option)
     }
 }
