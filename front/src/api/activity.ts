@@ -9,7 +9,7 @@ export type Activity = {
     created_at: Date,
     date_reservation: Date,
     author: User,
-    channel_chat_id: string,
+    channel_chat: string,
     publication: Publication,
     participants: User[]
 }

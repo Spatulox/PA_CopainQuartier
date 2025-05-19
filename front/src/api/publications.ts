@@ -7,11 +7,10 @@ export type Publication = {
     name: string,
     created_at: Date,
     updated_at: Date,
-    author_id: string | User,
-    activity_id: string | Activity,
+    author: string | User,
+    activity: string | Activity,
     body: string
 }
-
 
 export class PublicationClass extends ApiClient{
     protected url = "/publications"

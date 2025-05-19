@@ -34,6 +34,7 @@ export enum TrocType {
     item = "item"
 }
 
+
 export class TrocClass extends ApiClient{
     protected url = "/trocs"
 

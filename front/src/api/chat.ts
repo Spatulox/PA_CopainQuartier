@@ -11,7 +11,7 @@ export type Message = {
 export type Channel = {
     _id: string;
     activity: Activity | null
-    owner: User
+    admin: User
     name: string;
     type: string,
     description: string,
@@ -20,6 +20,15 @@ export type Channel = {
     members: string[]
     messages: string[]
 };
+
+export type PublicChannel = {
+  _id: string;
+  name: string;
+  activity: Activity;
+  type: string;
+  description: string;
+  created_at: Date;
+}
 
 export class ChatClass extends ApiClient {
 
