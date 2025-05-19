@@ -81,7 +81,7 @@ export async function updatePublicationcontent(user: User, pub_id: ObjectID, con
     
     const updateFields: any = {};
     if (content.name !== undefined) updateFields.name = content.name;
-    if (content.activity_id !== undefined) updateFields.activity_id = new mongoose.Types.ObjectId(content.activity_id);
+    if (content.activity_id !== undefined) updateFields.activity_id = new ObjectID(content.activity_id);
     if (content.body !== undefined) updateFields.body = content.body;
     updateFields.updated_at = new Date();
 
@@ -89,7 +89,6 @@ export async function updatePublicationcontent(user: User, pub_id: ObjectID, con
         { _id: pub_id, author_id: user._id },
         { $set: updateFields }
     ).exec();
-
     return result.modifiedCount > 0;
 }
 
