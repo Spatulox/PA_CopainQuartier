@@ -10,10 +10,12 @@ import { User } from "../../../api/user";
 import { ShowActivity, ShowActivityButton } from "./SingleActivity";
 import Loading from "../shared/loading";
 import { useAuth } from "../shared/auth-context";
+import NotFound from "../shared/notfound";
 
 function ShowActivityPage() {
     const { id } = useParams<{ id: string }>();
     const [activity, setActivity] = useState<Activity>();
+    const [notFound, setNotFound] = useState<boolean>(false)
     const navigate = useNavigate();
     const { me, isAdmin } = useAuth();
 
@@ -22,11 +24,20 @@ function ShowActivityPage() {
             const client = new ActivityClass();
             if (id) {
                 const activity = await client.getActivityByID(id);
+                if(!activity){
+                    setNotFound(true)
+                    return
+                }
+        
                 setActivity(activity);
             }
         })();
     }, [id]);
 
+    if(notFound){
+        return <NotFound />
+    }
+    
     if (!activity) {
         return <Loading title="Chargement de l'activité" />;
     }
@@ -51,6 +62,11 @@ function ActivityComponent() {
     };
     const navigate = useNavigate();
 
+    if(id == "me"){
+        navigate(`${Route.manageMyActivity}`)
+        return
+    }
+    
     if (id) {
         return <ShowActivityPage />;
     }

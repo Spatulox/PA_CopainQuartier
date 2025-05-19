@@ -3,11 +3,12 @@ import { Activity, ActivityClass, AdminActivityClass } from "../../../api/activi
 import { useNavigate, useParams } from "react-router-dom";
 import { Route } from "../../constantes";
 import Loading from "../shared/loading";
-import { ShowActivity, ShowActivityButton, UpdateActivity } from "./SingleActivity";
-import { User, UserRole } from "../../../api/user";
+import { ShowActivity, ShowActivityButton } from "./SingleActivity";
 import { useAuth } from "../shared/auth-context";
 import { PopupConfirm } from "../Popup/PopupConfirm";
 import NotFound from "../shared/notfound";
+import { UpdateActivity } from "./UpdateActivity";
+
 
 export function ManageMyActivity() {
     const [activities, setActivities] = useState<Activity[] | null>(null);
@@ -174,7 +175,6 @@ function ManageOneActivity(){
     
     return (
       <div>
-        <h1>EN TRAVAUX</h1>
         <UpdateActivity
           key={activity._id}
           activity={activity}
