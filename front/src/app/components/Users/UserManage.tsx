@@ -7,6 +7,7 @@ import { AdminUserClass, User } from "../../../api/user";
 import UserList from "./UsersList";
 import ApproveUser from "./ApproveUser";
 import { useAuth } from "../shared/auth-context";
+import NotFound from "../shared/notfound";
 
 function ManageUserAdmin(){
     const [message, setMessage] = useState("");
@@ -24,12 +25,18 @@ function ManageOneUser(){
     const { id } = useParams<{ id: string }>();
     const { me, isAdmin } = useAuth();
     const [user, setUser] = useState<User | null>(null)
+    const [notFound, setNotFound] = useState<boolean>(false)
     const navigate = useNavigate()
+
     useEffect(() => {
         (async ()=> {
             const client = new AdminUserClass()
             if(id){
                 const use = await client.getUserByID(id)
+                if(!use){
+                    setNotFound(true)
+                    return
+                }
                 setUser(use)
             }
         })()
@@ -37,6 +44,10 @@ function ManageOneUser(){
 
     const handleDelete = (id: string) => {
         console.log(id)
+    }
+    
+    if(notFound){
+        return <NotFound />
     }
 
     if(user === null){

@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { Route } from "../../constantes";
 import { ShowUser, ShowUserButton } from "./SingleUser";
 import Loading from "../shared/loading";
+import { useAuth } from "../shared/auth-context";
+import NotFound from "../shared/notfound";
 
 type UserListType = {
     message: string
@@ -12,24 +14,27 @@ type UserListType = {
 
 function UserList({message}: UserListType){
     const [users, setUsers] = useState<User[] | null>(null)
-    const [me, setMe] = useState<User>(null)
+    const [notFound, setNotFound] = useState<boolean>(false)
     const navigate = useNavigate()
+    const {me, isAdmin} = useAuth()
 
 
     useEffect(() => {
         (async () => {
             console.log('useEffect')
             const client = new AdminUserClass()
-            const me = await client.getMe()
             const use = await client.getUsers()
             if(use){
                 setUsers(use)
-            }
-            if(me){
-                setMe(me)
+            } else {
+                setNotFound(false)
             }
         })()
     }, [message])
+    
+    if(notFound){
+        return <NotFound />
+    }
 
     if (users === null) {
         return <Loading title="Chargement des utilisateurs" />

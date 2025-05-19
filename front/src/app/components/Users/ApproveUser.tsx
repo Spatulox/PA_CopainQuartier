@@ -3,6 +3,9 @@ import { AdminUserClass, User } from "../../../api/user"
 import Loading from "../shared/loading"
 import { ShowUser, ShowUserButton } from "./SingleUser"
 import { useAuth } from "../shared/auth-context"
+import NotFound from "../shared/notfound"
+import { useNavigate } from "react-router-dom"
+import { Route } from "../../constantes"
 
 type ApproveUserType = {
   onUpdate: (message:string) => void
@@ -11,12 +14,18 @@ type ApproveUserType = {
 function ApproveUser({onUpdate}: ApproveUserType){
     const [user, setUser] = useState<User[]>([])
     const { me, isAdmin } = useAuth();
+    const [notFound, setNotFound] = useState<boolean>(false)
+    const navigate = useNavigate()
 
     const handleApprove = async (troc_id: string, bool: boolean) => {
             const client = new AdminUserClass()
             const option = {"approve": bool}
             await client.verifyUser(troc_id, option)
             const app = await client.getUnverifiedUsers()
+            if(!app){
+                setNotFound(true)
+                return
+            }    
             setUser(app)
             onUpdate("update")
     }
@@ -29,6 +38,10 @@ function ApproveUser({onUpdate}: ApproveUserType){
         })()
     }, [])
     
+    if(notFound){
+        return <NotFound />
+    }
+
     if(user && user.length == 0 && me == null){
         <Loading title="Chargement des utilisateur à approuver..." />
     }
@@ -45,8 +58,9 @@ function ApproveUser({onUpdate}: ApproveUserType){
                     key={use?._id}
                     theuser={use}
                     user={me}
+                    onManage={() => navigate(`${Route.manageUser}/${use?._id}`)}
                     onApprove={(handleApprove)}
-                    buttonShow={ShowUserButton.Approve}
+                    buttonShow={ShowUserButton.Approve | ShowUserButton.Manage}
                 />
             ))}
         </div>
