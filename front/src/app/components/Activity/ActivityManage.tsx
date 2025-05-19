@@ -6,20 +6,31 @@ import Loading from "../shared/loading";
 import { ShowActivity, ShowActivityButton, UpdateActivity } from "./SingleActivity";
 import { User, UserRole } from "../../../api/user";
 import { useAuth } from "../shared/auth-context";
+import { PopupConfirm } from "../Popup/PopupConfirm";
+import NotFound from "../shared/notfound";
 
 export function ManageMyActivity() {
     const [activities, setActivities] = useState<Activity[] | null>(null);
     const navigate = useNavigate()
+    const [notFound, setNotFound] = useState<boolean>(false)
     const { me } = useAuth();
   
     useEffect(() => {
       (async () => {
         const client = new ActivityClass();
         const activities = await client.getMyActivities();
+        if(!activities){
+          setNotFound(true)
+          return
+        }
         setActivities(activities);
       })();
     }, []);
-  
+    
+    if(notFound){
+      return <NotFound />
+    }
+
     if (activities === null) {
       return <Loading title="Chargement des activités" />
     }
@@ -53,6 +64,7 @@ export function ManageMyActivity() {
 function ManageActivityAdmin(){
     const [activities, setActivities] = useState<Activity[] | null>(null);
     const navigate = useNavigate()
+    const [notFound, setNotFound] = useState<boolean>(false);
     const { me, isAdmin } = useAuth();
 
     useEffect(() => {
@@ -60,6 +72,10 @@ function ManageActivityAdmin(){
         const client = new AdminActivityClass();
         await client.refreshUser()
         const activities = await client.getAllActivitiesAdmin();
+        if(!activities){
+          setNotFound(true)
+          return
+        }
         setActivities(activities);
       })();
     }, []);
@@ -69,7 +85,11 @@ function ManageActivityAdmin(){
             navigate(`${Route.activity}`);
         }
     }, [isAdmin, navigate]);
-  
+    
+    if(notFound){
+      return <NotFound />
+    }
+
     if (activities === null) {
       return <Loading title="Chargement des activités" />
     }
@@ -77,6 +97,7 @@ function ManageActivityAdmin(){
     if (activities.length === 0) {
       return <div>Aucune activitée trouvée.</div>;
     }
+
     return (
       <div>
         <h1>Activités</h1>
@@ -87,7 +108,7 @@ function ManageActivityAdmin(){
                 activity={activity}
                 user={me}
                 onViewPublication={(pubId) => navigate(`${Route.publications}/${pubId}`)}
-                onManage={(actId) => navigate(`${Route.manageActivity}/${actId}`)}
+                onManage={() => navigate(`${Route.manageActivity}/${activity._id}`)}
                 buttonShow={ShowActivityButton.All}
             />
           ))}
@@ -101,17 +122,28 @@ function ManageOneActivity(){
   const [activity, setActivities] = useState<Activity | null>(null);
   const { id } = useParams<{ id: string }>();
   const { me, isAdmin } = useAuth();
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [notFound, setNotFound] = useState<boolean>(false);
+  const navigate = useNavigate()
   
     useEffect(() => {
       (async () => {
         const client = new ActivityClass();
         if(id){
           const activitie = await client.getActivityByID(id);
-          setActivities(activitie)
+          if(!activitie){
+            setNotFound(true)
+            return
+          }
         }
       })();
     }, [id]);
   
+    if(notFound){
+      return <NotFound />
+    }
+
     if (activity === null) {
       return <Loading title="Chargement de l'activité" />
     }
@@ -122,9 +154,23 @@ function ManageOneActivity(){
     }
 
     const handlDelete = async (id: string) => {
-        const client = new ActivityClass()
-        await client.deleteActivity(id)
+      setDeleteId(id)
+      setShowConfirm(true)
     }
+
+    const confirmDelete = async () => {
+      if (deleteId) {
+        const client = new ActivityClass();
+        await client.deleteActivity(deleteId);
+        setShowConfirm(false);
+        setDeleteId(null);
+      }
+    };
+
+    const cancelDelete = () => {
+      setShowConfirm(false);
+      setDeleteId(null);
+    };
     
     return (
       <div>
@@ -136,6 +182,15 @@ function ManageOneActivity(){
           onUpdate={(id: string, option: object) => handlUpdate(id, option)}
           onDelete={handlDelete}
         />
+        {showConfirm && (
+          <PopupConfirm
+            key={deleteId}
+            title="Suppression d'une activité"
+            description="Voulez-vous réellement supprimer cette activité ?"
+            onConfirm={confirmDelete}
+            onCancel={cancelDelete}
+          />
+        )}
       </div>
     );
 }
