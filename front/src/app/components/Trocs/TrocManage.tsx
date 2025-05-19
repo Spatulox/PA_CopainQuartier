@@ -7,20 +7,30 @@ import { User } from "../../../api/user";
 import Loading from "../shared/loading";
 import ApproveTroc from "./ApproveTroc";
 import { useAuth } from "../shared/auth-context";
+import NotFound from "../shared/notfound";
 
 export function ManageMyTroc(){
   const { me, isAdmin } = useAuth();
     const [trocs, setTrocs] = useState<Troc[] | null>(null);
+    const [notFound, setNotFound] = useState<boolean>(false)
     const navigate = useNavigate()
   
     useEffect(() => {
       (async () => {
         const client = new TrocClass();
         const troc = await client.getAllMyTrocs();
+        if(!troc){
+          setNotFound(true)
+          return
+      }
         setTrocs(troc);
       })();
     }, []);
-  
+    
+    if(notFound){
+      return <NotFound />
+    }
+
     if (trocs === null) {
       return <Loading title="Chargement des trocs" />
     }
@@ -54,13 +64,17 @@ export function ManageMyTroc(){
 function ManageTrocAdmin(){
     const { me, isAdmin } = useAuth();
     const [trocs, setTrocs] = useState<Troc[] | null>(null);
+    const [notFound, setNotFound] = useState<boolean>(false)
     const navigate = useNavigate()
   
     useEffect(() => {
       (async () => {
         const client = new AdminTrocClass();
-        await client.refreshUser()
         const troc = await client.getAllAdminTroc();
+        if(!troc){
+          setNotFound(true)
+          return
+        }
         setTrocs(troc);
       })();
     }, []);
@@ -70,7 +84,11 @@ function ManageTrocAdmin(){
             navigate(`${Route.troc}`);
         }
     }, [isAdmin, navigate]);
-  
+    
+    if(notFound){
+      return <NotFound />
+    }
+
     if (trocs === null) {
       return <Loading title="Chargement des trocs" />
     }
@@ -96,24 +114,28 @@ function ManageTrocAdmin(){
 
 function ManageOneTroc(){
     const [troc, setActivities] = useState<Troc | null>(null);
+    const [notFound, setNotFound] = useState<boolean>(false)
     const { me, isAdmin } = useAuth();
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate()
-    const [user, setUser] = useState<User | null>(null)
   
     useEffect(() => {
       (async () => {
         const client = new TrocClass();
         if(id){
-          const activitie = await client.getTrocByID(id);
-          setActivities(activitie);
-
-          const use = await client.getMe()
-          setUser(use)
+          const rto = await client.getTrocByID(id);
+          if(!rto){
+            setNotFound(true)
+            return
+          }
+          setActivities(rto);
         }
       })();
     }, [id]);
-  
+    
+    if(notFound){
+      return <NotFound />
+    }
     if (troc === null) {
       return <Loading title="Chargement du troc" />
     }
@@ -125,7 +147,7 @@ function ManageOneTroc(){
         <ShowTroc
             key={troc._id}
             troc={troc}
-            user={user}
+            user={me}
             buttonShow={ShowTrocButton.None}
         />
       </div>

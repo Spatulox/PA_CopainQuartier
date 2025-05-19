@@ -2,16 +2,22 @@ import { useEffect, useState } from "react"
 import { ShowTroc, ShowTrocButton } from "./SimpleTroc"
 import { AdminTrocClass, Troc } from "../../../api/troc"
 import { useAuth } from "../shared/auth-context"
+import NotFound from "../shared/notfound";
 
 function ApproveTroc(){
     const { me, isAdmin } = useAuth();
     const [troc, setTroc] = useState<Troc[]>([])
+    const [notFound, setNotFound] = useState<boolean>(false)
 
     const handleApprove = async (troc_id: string, bool: boolean) => {
         const client = new AdminTrocClass()
         const option = {"approve": bool}
         await client.approveTroc(troc_id, option)
         const app = await client.getWaitingTroc()
+        if(!app){
+            setNotFound(true)
+            return
+        }
         setTroc(app)
     }
 
@@ -22,6 +28,9 @@ function ApproveTroc(){
             setTroc(trok)
         })()
     }, [])
+    if(notFound){
+        return <NotFound />
+    }
 
     return <>
         <div>
