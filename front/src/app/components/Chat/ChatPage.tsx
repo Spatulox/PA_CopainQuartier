@@ -9,6 +9,7 @@ import { ShowChat, ShowChatButton } from "./SingleChat";
 import { User, UserRole } from "../../../api/user";
 import { CreateChannel } from "./ChatCreate";
 import { useAuth } from "../shared/auth-context";
+import NotFound from "../shared/notfound";
 
 function ChatPage() {
   const { me, isAdmin } = useAuth();
@@ -23,6 +24,7 @@ function ChatPage() {
   const messagesDivRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<ChatClass>(new ChatClass());
   const [confirmChannelDeletion, setChannelDeletion] = useState<{ id: string, isDelete: boolean } | null>(null);
+  const [notFound, setNotFound] = useState<boolean>(false)
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,6 +38,10 @@ function ChatPage() {
           return;
         }
         const channels = await user.getChannel();
+        if(!channels){
+          setNotFound(true)
+          return
+      }
         if (isMounted) setChannels(channels);
         setMessages([])
       })();
@@ -55,6 +61,15 @@ function ChatPage() {
         setStatusColor("orange");
         return;
       }
+
+      if(notFound){
+        return <NotFound />
+      }
+
+      if(id == "me"){
+        navigate(`${Route.chat}`)
+        return
+    }
 
       setChannelAuth(channel.member_auth == ChannelRight.read_send ? ChannelRight.read_send : ChannelRight.read_only)
 
