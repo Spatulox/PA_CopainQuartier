@@ -6,20 +6,30 @@ import Loading from "../shared/loading";
 import { ShowPublication, ShowPublicationButton } from "./SinglePublication";
 import { User, UserRole } from "../../../api/user";
 import { useAuth } from "../shared/auth-context";
+import NotFound from "../shared/notfound";
 
 export function ManageMyPublications(){
     const { me, isAdmin } = useAuth();
     const [publications, setPublications] = useState<Publication[] | null>(null);
     const navigate = useNavigate()
+    const [notFound, setNotFound] = useState<boolean>(false)
     
     useEffect(() => {
         (async () => {
         const client = new PublicationClass();
         const pub = await client.getMyPublications();
+        if(!pub){
+            setNotFound(true)
+            return
+        }
         setPublications(pub);
         })();
     }, []);
     
+    if(notFound){
+        return <NotFound />
+    }
+
     if (publications === null) {
         return <Loading title="Chargement des publications" />
     }
@@ -47,14 +57,24 @@ function ManagePublicationAdmin(){
     const { me, isAdmin } = useAuth();
     const [publications, setPublications] = useState<Publication[] | null>(null);
     const navigate = useNavigate()
+    const [notFound, setNotFound] = useState<boolean>(false)
   
     useEffect(() => {
       (async () => {
         const client = new AdminPublicationClass();
         const publications = await client.getAllPublications();
+        if(!publications){
+            setNotFound(true)
+            return
+        }
+
         setPublications(publications);
       })();
     }, []);
+
+    if(notFound){
+        return <NotFound />
+    }
 
     if(!isAdmin){
         navigate(`${Route.publications}`)
@@ -93,15 +113,25 @@ function ManageOnePublication(){
     const { id } = useParams<{ id: string }>();
     const [publication, setPublication] = useState<Publication | null>(null)
     const navigate = useNavigate()
+    const [notFound, setNotFound] = useState<boolean>(false)
+
     useEffect(() => {
         (async ()=> {
             const client = new PublicationClass()
             if(id){
                 const pub = await client.getPublicationById(id)
+                if(!pub){
+                    setNotFound(true)
+                    return
+                }
                 setPublication(pub)
             }
         })()
     }, [id])
+
+    if(notFound){
+        return <NotFound />
+    }
 
     if(publication === null){
         <Loading title="Chargement de la publication" />
