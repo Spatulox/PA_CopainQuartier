@@ -130,12 +130,23 @@ function ManageOneActivity(){
   
     useEffect(() => {
       (async () => {
-        const client = new ActivityClass();
         if(id){
-          const activitie = await client.getActivityByID(id);
-          if(!activitie){
-            setNotFound(true)
-            return
+          if(isAdmin){
+            const client = new AdminActivityClass();
+            const activitie = await client.getActivityAdminById(id);
+            if(!activitie){
+              setNotFound(true)
+              return
+            }
+            setActivities(activitie)
+          } else {
+            const client = new ActivityClass();
+            const activitie = await client.getActivityByID(id);
+            if(!activitie){
+              setNotFound(true)
+              return
+            }
+            setActivities(activitie)
           }
         }
       })();

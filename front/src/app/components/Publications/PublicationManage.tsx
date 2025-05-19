@@ -121,15 +121,24 @@ function ManageOnePublication(){
 
     useEffect(() => {
         (async ()=> {
-            const client = new AdminPublicationClass()
             if(id){
-                const pub = await client.getAdminPublicationById(id)
-                console.log(pub)
-                if(!pub){
-                    setNotFound(true)
-                    return
+                if(isAdmin){
+                    const client = new AdminPublicationClass()
+                    const pub = await client.getAdminPublicationById(id)
+                    if(!pub){
+                        setNotFound(true)
+                        return
+                    }
+                    setPublication(pub)
+                } else {
+                    const client = new PublicationClass()
+                    const pub = await client.getPublicationById(id)
+                    if(!pub){
+                        setNotFound(true)
+                        return
+                    }
+                    setPublication(pub)
                 }
-                setPublication(pub)
             }
         })()
     }, [id])

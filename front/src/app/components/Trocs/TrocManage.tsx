@@ -121,14 +121,24 @@ function ManageOneTroc(){
   
     useEffect(() => {
       (async () => {
-        const client = new TrocClass();
         if(id){
-          const rto = await client.getTrocByID(id);
-          if(!rto){
-            setNotFound(true)
-            return
+          if(isAdmin){
+            const client = new AdminTrocClass();
+            const rto = await client.getAdminTrocByID(id);
+            if(!rto){
+              setNotFound(true)
+              return
+            }
+            setActivities(rto);
+          } else {
+            const client = new TrocClass();
+            const rto = await client.getTrocByID(id);
+            if(!rto){
+              setNotFound(true)
+              return
+            }
+            setActivities(rto);
           }
-          setActivities(rto);
         }
       })();
     }, [id]);
