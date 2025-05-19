@@ -7,7 +7,7 @@ import { authMiddleware, getCurrentUser } from './Middleware/auth';
 import { ActivityController, AdminActivityController } from './Controllers/ActivitiesController';
 import { AccountController } from './Controllers/AccountController';
 import { AdminChannelsController, ChannelsController } from './Controllers/ChannelsControllers';
-import { PublicationsController } from './Controllers/PublicationsController';
+import { AdminPublicationsController, PublicationsController } from './Controllers/PublicationsController';
 import { AdminTrocController, TrocController } from './Controllers/TrocsController';
 import { WebSocketServer } from 'ws';
 import http from 'http';
@@ -36,6 +36,7 @@ async function main(){
       AdminUserController,
       AdminActivityController,
       AdminChannelsController,
+      AdminPublicationsController,
 
       AccountController,
       ActivityController,

@@ -10,7 +10,7 @@ import { ObjectID } from "../../DB_Schema/connexion";
 
 export async function getAllPublications(): Promise<FilledPublication[]> {
     const res = await PublicationTable.find().sort({ created_at: -1 })
-    .populate("author_id")
+    .populate("activity_id")
     .exec();
     const finaleRes: FilledPublication[] = []
     res.forEach(re => {
@@ -30,8 +30,31 @@ export async function getAllMyPublications(user: User): Promise<FilledPublicatio
     return res.map(objectToPublication);
 }
 
+export async function getAllAdminPublications(): Promise<FilledPublication[]> {
+    const res = await PublicationTable.find().sort({ created_at: -1 })
+    .populate("author_id")
+    .populate("activity_id")
+    .exec();
+    const finaleRes: FilledPublication[] = []
+    res.forEach(re => {
+        finaleRes.push(objectToPublication(re))
+    })
+    return finaleRes
+}
+
 export async function getPublicationById(pub_id: ObjectID): Promise<FilledPublication | null>{
     const res = await PublicationTable.findById(pub_id)
+    .exec()
+    if (!res) return null
+    return objectToPublication(res)
+}
+
+export async function getAdminPublicationById(pub_id: ObjectID): Promise<FilledPublication | null>{
+    const res = await PublicationTable.findById(pub_id)
+    .populate("author_id")
+    .populate("activity_id")
+    .exec()
+    if (!res) return null
     return objectToPublication(res)
 }
 

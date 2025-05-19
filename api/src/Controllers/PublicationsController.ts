@@ -1,12 +1,29 @@
 import { Authorized, BadRequestError, Body, CurrentUser, Delete, ForbiddenError, Get, HttpCode, InternalServerError, JsonController, Param, Patch, Post } from "routing-controllers";
 import { FilledPublication, Publication } from "../Models/PublicationModel";
-import { getAllPublications, getPublicationById, deletePublicationById, createPublication, updatePublicationcontent, getAllMyPublications } from "../Services/publications/publications";
+import { getAllPublications, getPublicationById, deletePublicationById, createPublication, updatePublicationcontent, getAllMyPublications, getAdminPublicationById, getAllAdminPublications } from "../Services/publications/publications";
 import { zObjectId } from "../Validators/utils";
 import { User } from "../Models/UserModel";
 import { zCreatePublication, zUpdatePublication } from "../Validators/publications";
 import { UserRole } from "../DB_Schema/UserSchema";
 import { ObjectID } from "../DB_Schema/connexion";
 
+
+@JsonController("/admin/publications")
+export class AdminPublicationsController {
+
+    @Get("/")
+    @Authorized(UserRole.admin)
+    async getAllPublications(): Promise<FilledPublication[]>{
+        return await getAllAdminPublications()
+    }
+
+    @Get("/:id")
+    @Authorized(UserRole.admin)
+    async getPublicationById(@Param("id") pub_id: string): Promise<FilledPublication | null>{
+        const validId = new ObjectID(zObjectId.parse(pub_id))
+        return await getAdminPublicationById(validId)
+    }
+}
 
 @JsonController("/publications")
 export class PublicationsController {
