@@ -41,17 +41,17 @@ export function ShowChat({
         <div key={channel._id}>
             <h2>{channel.name}</h2>
             <div>
-                <span>Créé par : {channel.owner ? channel.owner.email : ""}</span>
+                <span>Créé par : {channel.admin ? channel.admin.email : ""}</span>
                 <span>Créé le : {new Date(channel.created_at).toLocaleDateString()}</span>
                 <p>{channel.description}</p>
-                {(user?._id === channel.owner?._id || user?.role === UserRole.admin) && (
+                {(user?._id === channel.admin?._id || user?.role === UserRole.admin) && (
                     <ul>
                         <li>Autorisations : {channel.member_auth}</li>
                         <li>Membres : {channel.members?.length || 0}</li>
                         <li>Type : {channel.type}</li>
                     </ul>
                 )}
-                {(user?._id !== channel.owner?._id && user?.role != UserRole.admin) && (
+                {(user?._id !== channel.admin?._id && user?.role != UserRole.admin) && (
                     <ul>
                         <li>Type : {channel.type}</li>
                         <li>Membres : {channel.members?.length || 0}</li>
@@ -74,7 +74,7 @@ export function ShowChat({
                 {(buttonShow & ShowChatButton.Manage) !== 0 &&
                     onManage &&
                     user &&
-                    (channel.owner?._id === user._id || user.role == UserRole.admin) && (
+                    (channel.admin?._id === user._id || user.role == UserRole.admin) && (
                         <button onClick={() => onManage(channel._id)}>
                             Gérer le channel
                         </button>

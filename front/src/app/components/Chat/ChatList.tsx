@@ -62,7 +62,7 @@ export function ManageChannelList({ channels, action, user }: ListProps) {
           <button><Link to={`${Route.chat}/${channel._id}`}>{channel.name}</Link></button>
           <span>{channel.description}</span>
           <button onClick={()=>action(channel._id, user?._id)}>
-              {user?._id == channel.owner?._id ? "Supprimer le Chat" : "Quitter le Chat"}
+              {user?._id == channel.admin?._id ? "Supprimer le Chat" : "Quitter le Chat"}
           </button>
         </p>
       ))

@@ -6,6 +6,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import { Route } from "../../constantes"
 import { ShowChat, ShowChatButton } from "./SingleChat"
 import { useAuth } from "../shared/auth-context";
+import NotFound from "../shared/notfound"
 
 function ManageAdminChat(){
     return <h1>Manage one</h1>
@@ -13,6 +14,7 @@ function ManageAdminChat(){
 
 function ManageOneChat(){
     const [channel, setChannel] = useState<Channel | null>(null)
+    const [notFound, setNotFound] = useState<boolean>(false)
     const { id } = useParams<{ id: string }>();
     const { me, isAdmin } = useAuth();
     const navigate = useNavigate()
@@ -23,6 +25,10 @@ function ManageOneChat(){
             if(id){
                 const client = new AdminChatClass()
                 const chan = await client.getChannelById(id)
+                if(!chan){
+                    setNotFound(true)
+                    return
+                }
                 setChannel(chan)
             }
         })()
@@ -35,12 +41,17 @@ function ManageOneChat(){
         }
     }, [id, isAdmin, navigate])
 
+    if(notFound){
+        return <NotFound />
+    }
+
     if(!channel || !me || !id){
         return <Loading />
     }
 
     if(channel){
         return <ShowChat
+            key={channel._id}
             channel={channel}
             user={me}
             buttonShow={ShowChatButton.None}
@@ -54,12 +65,17 @@ function ManageChat(){
     const { id } = useParams<{ id: string }>();
     const { me, isAdmin } = useAuth();
     const navigate = useNavigate()
+    const [notFound, setNotFound] = useState<boolean>(false)
 
 
     useEffect(() => {
         (async () => {
             const client = new AdminChatClass()
             const chan = await client.getAllChannel()
+            if(!chan){
+                setNotFound(true)
+                return
+            }
             setChannels(chan)
         })()
     }, [])
@@ -70,6 +86,10 @@ function ManageChat(){
             return
         }
     }, [id, isAdmin, navigate])
+
+    if(notFound){
+        return <NotFound />
+    }
 
     if(!channel || !me){
         return <Loading />
@@ -86,6 +106,7 @@ function ManageChat(){
     return <>
         {channel && channel.map((chan) => (
             <ShowChat
+                key={chan._id}
                 channel={chan}
                 user={me}
                 onViewChat={() => navigate(`${Route.chat}/${chan._id}`)}

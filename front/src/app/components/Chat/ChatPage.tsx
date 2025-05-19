@@ -132,7 +132,7 @@ function ChatPage() {
 
   function handleAskConfirmation(id_channel: string, user_id: string | undefined) {
     const channel = channels.find(c => c._id === id_channel);
-    if (channel && user_id && channel.owner?._id === user_id) {
+    if (channel && user_id && channel.admin?._id === user_id) {
       setChannelDeletion({ id: id_channel, isDelete: true });
     } else {
       setChannelDeletion({ id: id_channel, isDelete: false });
@@ -164,7 +164,7 @@ function ChatPage() {
     async function leaveDeleteGroup(id_channel: string, user_id: string | undefined) {
       const chat = new ChatClass();
       const channel = await chat.getChannelById(id_channel);
-      if (channel && user_id && channel.owner?._id === user_id) {
+      if (channel && user_id && channel.admin?._id === user_id) {
         await chat.deleteChat(id_channel);
       } else {
         await chat.leaveChat(id_channel);
