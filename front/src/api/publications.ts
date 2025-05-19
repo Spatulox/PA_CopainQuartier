@@ -7,8 +7,8 @@ export type Publication = {
     name: string,
     created_at: Date,
     updated_at: Date,
-    author: string | User,
-    activity: string | Activity,
+    author: User | null,
+    activity: Activity | undefined,
     body: string
 }
 
@@ -41,7 +41,7 @@ export class PublicationClass extends ApiClient{
 }
 
 export class AdminPublicationClass extends PublicationClass{
-    protected urlAdmin = "/publications"
+    protected urlAdmin = "/admin/publications"
 
     constructor() {
         super();
@@ -50,5 +50,13 @@ export class AdminPublicationClass extends PublicationClass{
                 throw new Error("User is not admin");
             }
         })
+    }
+
+    async getAdminAllPublication(): Promise<Publication[]>{
+        return await this.Get(this.urlAdmin)
+    }
+    
+    async getAdminPublicationById(id:string): Promise<Publication>{
+        return await this.Get(`${this.urlAdmin}/${id}`)
     }
 }
