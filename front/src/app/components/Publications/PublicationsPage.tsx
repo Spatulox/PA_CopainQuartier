@@ -10,6 +10,7 @@ import { Publication, PublicationClass } from "../../../api/publications";
 import { User } from "../../../api/user";
 import Loading from "../shared/loading";
 import { useAuth } from "../shared/auth-context";
+import NotFound from "../shared/notfound";
 
 
 function Publications(){
@@ -17,6 +18,7 @@ function Publications(){
     const [message, setMessage] = useState("");
     const { id } = useParams<{ id: string }>();
     const [publications, setPublications] = useState<Publication | null>(null)
+    const [notFound, setNotFound] = useState<boolean>(false)
     const { me, isAdmin } = useAuth();
 
     const handleUpdate = (newMsg:string) => {
@@ -28,11 +30,22 @@ function Publications(){
             const client = new PublicationClass()
             if(id){
                 const pub = await client.getPublicationById(id)
+                if(!pub){
+                    setNotFound(true)
+                    return
+                }
                 setPublications(pub)
             }
         })()
     }, [id])
 
+    if(notFound){
+        return <NotFound />
+    }
+    if(id == "me"){
+        navigate(`${Route.manageMyPublications}`)
+        return
+    }
     if(id && publications == null){
         return <Loading title="Chargement de la publications" />
     }
