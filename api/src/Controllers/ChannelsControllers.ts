@@ -59,7 +59,7 @@ export class ChannelsController {
     @Post("/invite/:id")
     @Authorized()
     @HttpCode(204)
-    async inviteChannel(@CurrentUser() user: User, @Param("id")id: string):Promise<void>{
+    async inviteChannel(@CurrentUser() user: User, @Param("id")id: string):Promise<boolean>{
         const validID = new ObjectID(zObjectId.parse(id))
         const channel = getChannelById(validID)
         if(!channel){
@@ -68,12 +68,13 @@ export class ChannelsController {
         if(!await addSomeoneFromChannel(validID, user._id)){
             throw new BadRequestError()
         }
+        return true
     }
 
     @Patch("/:channel_id/adduser/:user_id")
     @Authorized()
     @HttpCode(204)
-    async addUserFromChannel(@CurrentUser() user: User, @Param('user_id') user_id: string, @Param('channel_id') channel_id: string):Promise<void>{
+    async addUserFromChannel(@CurrentUser() user: User, @Param('user_id') user_id: string, @Param('channel_id') channel_id: string):Promise<boolean>{
         const validUserId = new ObjectID(zObjectId.parse(user_id))
         const validChannelId = new ObjectID(zObjectId.parse(channel_id))
 
@@ -84,12 +85,13 @@ export class ChannelsController {
         if(!await addSomeoneFromChannel(validChannelId, validUserId)){
             throw new BadRequestError()
         }
+        return true
     }
 
     @Patch("/:channel_id/removeuser/:user_id")
     @Authorized()
     @HttpCode(204)
-    async removeUserFromChannel(@CurrentUser() user: User, @Param('user_id') user_id: string, @Param('channel_id') channel_id: string):Promise<void>{
+    async removeUserFromChannel(@CurrentUser() user: User, @Param('user_id') user_id: string, @Param('channel_id') channel_id: string):Promise<boolean>{
         const validUserId = new ObjectID(zObjectId.parse(user_id))
         const validChannelId = new ObjectID(zObjectId.parse(channel_id))
 
@@ -100,6 +102,7 @@ export class ChannelsController {
         if(!await removeSomeoneFromChannel(validChannelId, validUserId)){
             throw new BadRequestError()
         }
+        return true
     }
 
     /* Useless, messages are now websockets */
@@ -131,7 +134,7 @@ export class ChannelsController {
     @Patch('/:id')
     @Authorized()
     @HttpCode(204)
-    async updateChannel(@CurrentUser() user: User, @Param('id') channel_id: number, @Body() body: any): Promise<void> {
+    async updateChannel(@CurrentUser() user: User, @Param('id') channel_id: number, @Body() body: any): Promise<boolean> {
         const validId = new ObjectID(zObjectId.parse(channel_id))
         const channel = await getChannelById(validId)
         if (channel && (channel.admin?._id.toString() != user._id.toString() && user.role != UserRole.admin)){
@@ -141,12 +144,13 @@ export class ChannelsController {
         if(!await updateChannelAttribute(validId, validBody)){
             throw new BadRequestError()
         }
+        return true
     }
 
     @Patch('/transfer/:id')
     @Authorized()
     @HttpCode(204)
-    async transferChannel(@CurrentUser() user: User, @Param('id') channel_id: string, @Body() body: any): Promise<void> {
+    async transferChannel(@CurrentUser() user: User, @Param('id') channel_id: string, @Body() body: any): Promise<boolean> {
         const validId = new ObjectID(zObjectId.parse(channel_id))
         const channel = await getChannelById(validId)
         if (channel && (channel.admin?._id.toString() != user._id.toString() && user.role != UserRole.admin)){
@@ -156,13 +160,14 @@ export class ChannelsController {
         if(!await updateChannelAdmin(validBody, validId)){
             throw new BadRequestError()
         }
+        return true
     }
 
 
     @Delete("/:id")
     @Authorized()
     @HttpCode(204)
-    async deleteChannel(@CurrentUser() user: User, @Param("id") channel_id: string): Promise<void>{
+    async deleteChannel(@CurrentUser() user: User, @Param("id") channel_id: string): Promise<boolean>{
         const validId = new ObjectID(zObjectId.parse(channel_id))
         
         const channel = await getChannelById(validId)
@@ -177,5 +182,6 @@ export class ChannelsController {
         if(!await deleteChannel(validId)){
             throw new BadRequestError()
         }
+        return true
     }
 }

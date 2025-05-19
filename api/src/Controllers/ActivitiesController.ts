@@ -71,7 +71,7 @@ export class ActivityController{
     @Patch("/:id/join")
     @Authorized()
     @HttpCode(204)
-    async joinActivityById(@CurrentUser() user: User, @Param("id") act_id: string): Promise<void>{
+    async joinActivityById(@CurrentUser() user: User, @Param("id") act_id: string): Promise<boolean>{
         const validId = zObjectId.parse(act_id)
         const activity = await getActivityById(validId)
         if(!activity){
@@ -80,12 +80,13 @@ export class ActivityController{
         if(!await joinActivityById(user, activity)){
             throw new BadRequestError()
         }
+        return true
     }
 
     @Patch("/:id/leave")
     @Authorized()
     @HttpCode(204)
-    async leaveActivityById(@CurrentUser() user: User, @Param("id") act_id: string): Promise<void>{
+    async leaveActivityById(@CurrentUser() user: User, @Param("id") act_id: string): Promise<boolean>{
         const validId = zObjectId.parse(act_id)
         const activity = await getActivityById(validId)
         if(!activity){
@@ -94,12 +95,13 @@ export class ActivityController{
         if(!await leaveActivityById(user, activity)){
             throw new BadRequestError()
         }
+        return true
     }
 
     @Delete("/:id")
     @Authorized()
     @HttpCode(204)
-    async deleteActivity(@CurrentUser() user: User, @Param("id") act_id: string): Promise<void>{
+    async deleteActivity(@CurrentUser() user: User, @Param("id") act_id: string): Promise<boolean>{
         const validId = zObjectId.parse(act_id)
         const acti = await getActivityById(validId)
         if(!acti){
@@ -111,5 +113,6 @@ export class ActivityController{
         if(!await deleteActivity(acti)){
             throw new BadRequestError()
         }
+        return true
     }
 }

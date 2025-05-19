@@ -30,7 +30,7 @@ export class AdminUserController {
   @Patch('/:id')
   @Authorized(UserRole.admin)
   @HttpCode(204)
-  async verifyUser(@Param('id') user_id: ObjectID, @Body() body: any): Promise<void> {
+  async verifyUser(@Param('id') user_id: ObjectID, @Body() body: any): Promise<boolean> {
     const validId = zObjectId.parse(user_id)
     const validApprove = zApprove.parse(body)
     if(validApprove.approve == true){
@@ -38,16 +38,18 @@ export class AdminUserController {
         throw new BadRequestError()
       };
     }
+    return true
   }
 
   @Delete('/:id')
   @Authorized(UserRole.admin)
   @HttpCode(204)
-  async deleteUserById(@Param('id') user_id: ObjectID): Promise<void> {
+  async deleteUserById(@Param('id') user_id: ObjectID): Promise<boolean> {
     const validId = zObjectId.parse(user_id)
     if(!await deleteUser(new ObjectID(validId))){
       throw new BadRequestError()
     }
+    return true
   }
 }
 
