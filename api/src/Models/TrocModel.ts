@@ -6,9 +6,9 @@ export type Troc = {
     title: string,
     created_at: Date,
     description: string,
-    author_id: ObjectId | User,
+    author_id: ObjectId,
     reserved_at: Date,
-    reserved_by: string,
+    reserved_by: ObjectId[],
     status: TrocStatus,
     type: TrocType,
     visibility : TrocVisibility
@@ -35,4 +35,4 @@ export enum TrocStatus {
     waitingForApproval = "waitingforapproval",
 }
 
-export type FilledTroc = Omit<Troc, "author_id"> & {author: User | FilledUser | null}
+export type FilledTroc = Omit<Troc, "author_id" | "reserved_by"> & {author: User | FilledUser | null, reserved_by: User | FilledUser | string}
