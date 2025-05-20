@@ -58,6 +58,10 @@ export class TrocClass extends ApiClient{
         await this.Patch(`${this.url}/${id}`, option)
     }
 
+    async cancelTroc(id: string): Promise<void>{
+        await this.Patch(`${this.url}/${id}`, {})
+    }
+
     async deleteTroc(id: string): Promise<void>{
         await this.Delete(`${this.url}/${id}`)
     }
