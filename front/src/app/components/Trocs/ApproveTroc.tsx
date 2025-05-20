@@ -8,6 +8,7 @@ function ApproveTroc(){
     const { me, isAdmin } = useAuth();
     const [troc, setTroc] = useState<Troc[]>([])
     const [notFound, setNotFound] = useState<boolean>(false)
+    const [refresh, setRefresh] = useState(0)
 
     const handleApprove = async (troc_id: string, bool: boolean) => {
         const client = new AdminTrocClass()
@@ -19,6 +20,7 @@ function ApproveTroc(){
             return
         }
         setTroc(app)
+        setRefresh(r => r + 1)
     }
 
     useEffect(() => {
@@ -27,7 +29,8 @@ function ApproveTroc(){
             const trok = await client.getWaitingTroc()
             setTroc(trok)
         })()
-    }, [])
+    }, [refresh])
+
     if(notFound){
         return <NotFound />
     }

@@ -33,14 +33,19 @@ function CreateTroc({onUpdate} : CreateTrocType){
 
     async function handleCreateChannel(formData: TrocForm): Promise<void> {
         const client = new TrocClass()
+        console.log(formData)
         switch (formData.type){
             case RadioType.object:
                 formData.type = RadioTypeToTrocType.item
+                break;
             case RadioType.service:
                 formData.type = RadioTypeToTrocType.service
+                break;
             case RadioType.multipleService:
                 formData.type = RadioTypeToTrocType.serviceMorethanOnePerson
+                break;
         }
+        console.log(formData)
         if(await client.createTroc(formData)){
             onUpdate("update")
         }

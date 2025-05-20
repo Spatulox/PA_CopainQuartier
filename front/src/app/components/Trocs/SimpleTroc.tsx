@@ -3,6 +3,7 @@ import { User, UserRole } from "../../../api/user";
 import { Route } from "../../constantes";
 import { useNavigate } from "react-router-dom";
 import { Troc, TrocStatus } from "../../../api/troc";
+import { useAuth } from "../shared/auth-context";
 
 // Enum pour les boutons
 export enum ShowTrocButton {
@@ -37,6 +38,7 @@ export function ShowTroc({
     buttonShow
 }: ShowTrocProps) {
     const navigate = useNavigate();
+    const {isAdmin} = useAuth()
 
     return (
         <div key={troc._id}>
@@ -45,7 +47,7 @@ export function ShowTroc({
                 <span>Auteur : {troc.author ? troc.author.email : ""}</span>
                 <span>Créé le : {new Date(troc.created_at).toLocaleDateString()}</span>
                 <p>{troc.description}</p>
-                {user?._id == troc.author?._id || user?.role == UserRole.admin && (
+                {(isAdmin || user?._id == troc.author?._id) && (
                     <>
                     <ul>
                         <li>Visibilité : {troc.visibility}</li>
@@ -54,7 +56,7 @@ export function ShowTroc({
                     </ul>
                     </>
                 )}
-                {user?._id != troc.author?._id && user?.role != UserRole.admin && (
+                {(user?._id != troc.author?._id && !isAdmin) && (
                     <>
                     <ul>
                         <li>Type : {troc.type}</li>
@@ -64,8 +66,10 @@ export function ShowTroc({
                 {troc.reserved_at && (
                     <span>Réservé le : {new Date(troc.reserved_at).toLocaleDateString()}</span>
                 )}
-                {troc.reserved_by && (
-                    <span>Réservé par : {troc.reserved_by}</span>
+                {troc.reserved_by && troc.reserved_by.length > 0 && (
+                    <span>Réservé par : {troc.reserved_by.map((user) => (
+                        user?.email
+                    ))}</span>
                 )}
             </div>
             <div>
