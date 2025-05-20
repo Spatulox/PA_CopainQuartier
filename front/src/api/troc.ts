@@ -8,7 +8,7 @@ export type Troc = {
     description: string,
     author: User,
     reserved_at: Date,
-    reserved_by: string,
+    reserved_by: User[],
     status: TrocStatus,
     type: TrocType,
     visibility : TrocVisibility
