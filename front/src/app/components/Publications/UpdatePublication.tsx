@@ -43,13 +43,12 @@ export function UpdatePublication({
                 <span>
                     <button onClick={ () => navigate(`${Route.user}/${publication.author?._id}`)}>{publication.author?.email || publication.author?._id == user?._id ? user?.email : "Unknown"}</button>
                 </span>
-                <span>
-                    <input
-                        type="text"
-                        value={new Date(publication.created_at).toLocaleDateString()}
-                        disabled
-                    />
-                </span>
+                <div>
+                    <span>
+                        Date de creation : {new Date(publication.created_at).toLocaleDateString()}
+                    </span>
+                    <span>Date de modification : {new Date(publication.updated_at).toLocaleDateString()}</span>
+                </div>
                 <p>
                     <textarea
                         value={body}
@@ -58,6 +57,8 @@ export function UpdatePublication({
                 </p>
             </div>
             <div>
+                {publication.activity != null ? <button onClick={() => navigate(`${Route.activity}/${publication.activity?._id}`)}>Voir l'activité</button> : ""}
+                <button onClick={() => window.location.reload()}>Recharger la page</button>
                 <button onClick={handleUpdate}>Update Publication</button>
                 <button onClick={() => onDelete(publication._id)}>Supprimer la publication</button>
             </div>

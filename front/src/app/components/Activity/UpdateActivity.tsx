@@ -47,19 +47,13 @@ export function UpdateActivity({
             </h2>
             <div>
                 <span>
-                    <input
-                        type="text"
-                        value={activity.author?.name || ""}
-                        disabled
-                    />
+                    <button onClick={ () => navigate(`${Route.user}/${activity.author?._id}`)}>{activity.author?.email || activity.author?._id == user?._id ? user?.email : "Unknown"}</button>
                 </span>
-                <span>
-                    <input
-                        type="text"
-                        value={new Date(activity.created_at).toLocaleDateString()}
-                        disabled
-                    />
-                </span>
+                <div>
+                    <span>
+                        Date de création :{new Date(activity.created_at).toLocaleDateString()}
+                    </span>
+                </div>
                 <p>
                     <textarea
                         value={description}
