@@ -56,6 +56,7 @@ export class AdminTrocController {
             if(!await updateWaitingTrocStatus(validID, TrocStatus.pending, user)){
                 throw new BadRequestError()
             };
+            return true
         }
         if(!await updateWaitingTrocStatus(validID, TrocStatus.hide, user)){
             throw new BadRequestError()
