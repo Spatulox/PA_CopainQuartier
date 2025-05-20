@@ -8,6 +8,8 @@ import Loading from "../shared/loading";
 import ApproveTroc from "./ApproveTroc";
 import { useAuth } from "../shared/auth-context";
 import NotFound from "../shared/notfound";
+import { UpdateTroc } from "./UpdateTroc";
+import { PopupConfirm } from "../Popup/PopupConfirm";
 
 export function ManageMyTroc(){
   const { me, isAdmin } = useAuth();
@@ -115,6 +117,8 @@ function ManageTrocAdmin(){
 function ManageOneTroc(){
     const [troc, setActivities] = useState<Troc | null>(null);
     const [notFound, setNotFound] = useState<boolean>(false)
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [deleteId, setDeleteId] = useState<string | null>(null);
     const { me, isAdmin } = useAuth();
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate()
@@ -142,26 +146,73 @@ function ManageOneTroc(){
         }
       })();
     }, [id]);
-    
+
     if(notFound){
       return <NotFound />
     }
+
+    if(!id){
+      navigate(`${Route.troc}`)
+      return
+    }
+
     if (troc === null) {
       return <Loading title="Chargement du troc" />
     }
 
     
-    return (
-      <div>
-        <h1>EN TRAVAUX</h1>
-        <ShowTroc
-            key={troc._id}
-            troc={troc}
+    const handlUpdate = async (id: string, option: object) => {
+      const client = new TrocClass()
+      await client.updateTroc(id, option)
+    }
+    
+    const handlDelete = async (id: string) => {
+      setDeleteId(id)
+      setShowConfirm(true)
+    }
+
+    const confirmCancelReservation = async () => {
+      if (deleteId) {
+        const client = new AdminTrocClass();
+        await client.deleteTroc(id);
+        setShowConfirm(false);
+        setDeleteId(null);
+      }
+    };
+
+    const confirmDelete = async () => {
+        if (deleteId) {
+        const client = new AdminTrocClass();
+        await client.deleteTroc(deleteId);
+        setShowConfirm(false);
+        setDeleteId(null);
+        }
+    };
+
+    const cancelDelete = () => {
+        setShowConfirm(false);
+        setDeleteId(null);
+    };
+    
+    return <>
+        <UpdateTroc
+            key={troc!._id}
+            troc={troc!}
             user={me}
-            buttonShow={ShowTrocButton.None}
+            onUpdate={(id: string, option: object) => handlUpdate(id, option)}
+            onDelete={handlDelete}
+            onCancelReservation={confirmCancelReservation}
         />
-      </div>
-    );
+        {showConfirm && (
+            <PopupConfirm
+            key={deleteId}
+            title="Suppression d'une publication"
+            description="Voulez-vous réellement supprimer cette publication ?"
+            onConfirm={confirmDelete}
+            onCancel={cancelDelete}
+            />
+        )}
+    </>
 }
 
 export function ManageTroc(){
