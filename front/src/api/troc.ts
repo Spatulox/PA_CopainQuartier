@@ -9,6 +9,7 @@ export type Troc = {
     author: User,
     reserved_at: Date,
     reserved_by: User[],
+    updated_at: Date,
     status: TrocStatus,
     type: TrocType,
     visibility : TrocVisibility
