@@ -17,7 +17,8 @@ export function UpdateTroc({
     troc,
     user,
     onUpdate,
-    onDelete
+    onDelete,
+    onCancelReservation
 }: UpdateTrocProps) {
     const navigate = useNavigate();
     const [title, setTitle] = useState(troc.title || "");
@@ -75,18 +76,26 @@ export function UpdateTroc({
                                 <span>{troc.status}</span>
                                 <span>{troc.type}</span>
                                 <span>{troc.visibility}</span>
-                                <span>{troc.reserved_by.map((reservedUser) => (
+                                {troc.reserved_by.length > 0 && (
                                     <ul>
-                                        <li>{reservedUser?.email}</li>
+                                    <span>{troc.reserved_by.map((reservedUser) => (
+                                            <li>{reservedUser?.email}</li>
+                                    ))}</span>
                                     </ul>
-                                ))}</span>
-                            
+                                )}
                             </>
                         )}
 
                         {/* Si j'ai réservé le troc */}
                         {user?._id && isReservedByUser() && (
-                            <></>
+                            <>
+                                <span>{troc.status}</span>
+                                <span>{troc.type}</span>
+                                <span>{troc.visibility}</span>
+                                {troc.reserved_by.length > 1 && (
+                                    <span>Réservé par {troc.reserved_by.length -1} autres personnes</span>
+                                )}
+                            </>
                         )}
                     </div>
                 </div>
@@ -118,7 +127,7 @@ export function UpdateTroc({
                     {/* Si j'ai réservé le troc */}
                     {user?._id && isReservedByUser() && (
                         <>
-                    <button onClick={onCancel}>Annuler la réservation</button>
+                        <button onClick={() => onCancelReservation(troc._id)}>Annuler la réservation</button>
                         </>
                     )}
                 </div>
