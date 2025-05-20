@@ -14,7 +14,7 @@ type ActivityListMessage = {
 function ActivityList({message, limit}: ActivityListMessage){
     const { me } = useAuth();
 
-    const [activity, setActivity] = useState<Activity[]>([])
+    const [activity, setActivity] = useState<Activity[] | null>(null)
     const navigate = useNavigate()
 
 
