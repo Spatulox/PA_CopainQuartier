@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { User, UserRole } from "../../../api/user";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Route } from "../../constantes";
-import { Troc } from "../../../api/troc";
+import { Troc, TrocStatus, TrocType, TrocVisibility } from "../../../api/troc";
 import { useAuth } from "../shared/auth-context";
 
 type UpdateTrocProps = {
@@ -23,24 +23,43 @@ export function UpdateTroc({
     const navigate = useNavigate();
     const [title, setTitle] = useState(troc.title || "");
     const [description, setDescription] = useState(troc.description || "");
-    const [status, setStatus] = useState(troc.status || "");
-    const [type, setType] = useState(troc.type || "");
-    const [visibility, setVisibility] = useState(troc.visibility || "");
+    const [status, setStatus] = useState<string>(troc.status || "");
+    const [type, setType] = useState<string>(troc.type || "");
+    const [visibility, setVisibility] = useState<string>(troc.visibility || "");
     const [dateReservation, setDateReservation] = useState(
         troc.reserved_at
-            ? new Date(troc.reserved_at).toISOString().split("T")[0]
-            : ""
-    );
+          ? new Date(troc.reserved_at).toISOString().split("T")[0]
+          : ""
+      );
+    const [timeReservation, setTimeReservation] = useState(
+        troc.reserved_at
+          ? new Date(troc.reserved_at).toTimeString().slice(0,5)
+          : ""
+      );
+    
+      const fullDate = dateReservation && timeReservation
+      ? new Date(`${dateReservation}T${timeReservation}`)
+      : null;
+      
     const {me, isAdmin} = useAuth()
 
     function handleUpdate() {
         if (onUpdate) {
+            console.log({
+                title,
+                description,
+                status,
+                type,
+                visibility,
+                reserved_at: fullDate?.toISOString(),
+            })
             onUpdate(troc._id, {
                 title,
                 description,
                 status,
                 type,
-                visibility
+                visibility,
+                reserved_at: fullDate?.toISOString(),
             });
         }
     }
@@ -66,35 +85,75 @@ export function UpdateTroc({
                     <button onClick={ () => navigate(`${Route.user}/${troc.author?._id}`)}>{troc.author?.email || troc.author?._id == user?._id ? user?.email : "Unknown"}</button>
                 </span>
                 <div>
-                    <span>
-                        Date de création :{new Date(troc.created_at).toLocaleDateString()}
-                    </span>
+                    <div>
+                        <span>
+                            Date de création :{new Date(troc.created_at).toLocaleString()}
+                        </span>
+                        <span>
+                            Mise à jour le :{new Date(troc.updated_at).toLocaleString()}
+                        </span>
+                    </div>
                     <div>
                         {/* Si Admin ou propriétaire */}
                         {(isAdmin || user?._id == troc.author?._id) && (
                             <>
-                                <span>{troc.status}</span>
-                                <span>{troc.type}</span>
-                                <span>{troc.visibility}</span>
-                                {troc.reserved_by.length > 0 && (
-                                    <ul>
-                                    <span>{troc.reserved_by.map((reservedUser) => (
-                                            <li>{reservedUser?.email}</li>
-                                    ))}</span>
-                                    </ul>
+                                <span>
+                                    {isAdmin && (
+                                        <>
+                                        Status :
+                                        <select value={status} onChange={e => setStatus(e.target.value)}>
+                                        {Object.values(TrocStatus).map((option: string) => (
+                                            <option key={option} value={option}>{option}</option>
+                                        ))}
+                                        </select> 
+                                        </>
+                                    )}
+                                    {!isAdmin && (
+                                        <>
+                                        Status : {status}
+                                        </>
+                                    )}
+                                </span>
+                                <span>
+                                    Type : 
+                                    <select value={type} onChange={e => setType(e.target.value)}>
+                                    {Object.values(TrocType).map((option: string) => (
+                                        <option key={option} value={option}>{option}</option>
+                                    ))}
+                                    </select>
+                                </span>
+                                <span>
+                                    Visibility : 
+                                    <select value={visibility} onChange={e => setVisibility(e.target.value)}>
+                                    {Object.values(TrocVisibility).map((option: string) => (
+                                        <option key={option} value={option}>{option}</option>
+                                    ))}
+                                    </select>
+                                </span>
+                                {troc.reserved_by.length > 0 ? (
+                                <ul>
+                                    {troc.reserved_by.map((reservedUser) => (
+                                    <li key={reservedUser?._id}>{reservedUser?.email}</li>
+                                    ))}
+                                </ul>
+                                ) : (
+                                <span>Aucune réservations</span>
                                 )}
                             </>
                         )}
 
+
                         {/* Si j'ai réservé le troc */}
                         {user?._id && isReservedByUser() && (
                             <>
-                                <span>{troc.status}</span>
-                                <span>{troc.type}</span>
-                                <span>{troc.visibility}</span>
-                                {troc.reserved_by.length > 1 && (
-                                    <span>Réservé par {troc.reserved_by.length -1} autres personnes</span>
-                                )}
+                                <div>
+                                    <span>Status : {status}</span>
+                                    <span>Type : {type}</span>
+                                    <span>Visibility : {visibility}</span>
+                                    {troc.reserved_by.length > 1 && (
+                                        <span>Réservé par {troc.reserved_by.length -1} autres personnes</span>
+                                    )}
+                                </div>
                             </>
                         )}
                     </div>
@@ -106,11 +165,25 @@ export function UpdateTroc({
                     />
                 </p>
                 <span>
-                    <input
-                        type="date"
-                        value={dateReservation}
-                        onChange={e => setDateReservation(e.target.value)}
-                    />
+                    {troc.type != TrocType.item ? (
+                        <>
+                        <div>
+                            Réservé le : 
+                            <input
+                                type="date"
+                                value={dateReservation}
+                                onChange={e => setDateReservation(e.target.value)}
+                            />
+                            <input
+                                type="time"
+                                value={timeReservation}
+                                onChange={e => setTimeReservation(e.target.value)}
+                            />
+                        </div>
+                        </>
+                    ) : (
+                        <span>{new Date(dateReservation).toLocaleString()}</span>
+                    )}
                 </span>
             </div>
             <div>
@@ -118,6 +191,7 @@ export function UpdateTroc({
                     {/* Si Admin ou propriétaire */}
                     {(isAdmin || user?._id == troc.author?._id) && (
                         <>
+                        <button onClick={() => navigate(`${Route.troc}/${troc._id}`)}>Voir le troc</button>
                         <button onClick={() => window.location.reload()}>Recharger la page</button>
                         <button onClick={handleUpdate}>Update Activity</button>
                         <button onClick={() => onDelete(troc._id)}>Supprimer le troc</button>

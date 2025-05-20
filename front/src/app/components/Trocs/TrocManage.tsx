@@ -115,10 +115,12 @@ function ManageTrocAdmin(){
 }
 
 function ManageOneTroc(){
-    const [troc, setActivities] = useState<Troc | null>(null);
+    const [troc, setTroc] = useState<Troc | null>(null);
     const [notFound, setNotFound] = useState<boolean>(false)
     const [showConfirm, setShowConfirm] = useState(false);
     const [deleteId, setDeleteId] = useState<string | null>(null);
+    const [refresh, setRefresh] = useState(0);
+
     const { me, isAdmin } = useAuth();
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate()
@@ -133,7 +135,7 @@ function ManageOneTroc(){
               setNotFound(true)
               return
             }
-            setActivities(rto);
+            setTroc(rto);
           } else {
             const client = new TrocClass();
             const rto = await client.getTrocByID(id);
@@ -141,11 +143,11 @@ function ManageOneTroc(){
               setNotFound(true)
               return
             }
-            setActivities(rto);
+            setTroc(rto);
           }
         }
       })();
-    }, [id]);
+    }, [id, refresh]);
 
     if(notFound){
       return <NotFound />
@@ -165,12 +167,14 @@ function ManageOneTroc(){
       if(troc.author?._id == me?._id || isAdmin){
         const client = new TrocClass()
         await client.updateTroc(id, option)
+        setRefresh(r => r + 1)
       }
     }
     
     const handlDelete = async (id: string) => {
       setDeleteId(id)
       setShowConfirm(true)
+      setRefresh(r => r + 1)
     }
 
     const confirmCancelReservation = async () => {
@@ -189,6 +193,7 @@ function ManageOneTroc(){
             await client.deleteTroc(deleteId);
             setShowConfirm(false);
             setDeleteId(null);
+            setRefresh(r => r + 1)
           }
         }
     };
