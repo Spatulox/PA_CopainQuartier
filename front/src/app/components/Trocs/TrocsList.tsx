@@ -13,7 +13,7 @@ type TrocListMessage = {
 }
 
 function TrocList({message, limit}: TrocListMessage){
-    const [troc, setTroc] = useState<Troc[]>([])
+    const [troc, setTroc] = useState<Troc[] | null>(null)
     const { me, isAdmin } = useAuth();
     const navigate = useNavigate()
 
@@ -25,8 +25,12 @@ function TrocList({message, limit}: TrocListMessage){
         })()
     }, [message])
 
-    if(troc && troc.length == 0){
+    if(!troc){
         return <Loading title="Chargement des trocs..."/>
+    }
+
+    if(troc && troc.length == 0){
+        return <p>Aucun Troc à afficher</p>
     }
 
     return <>

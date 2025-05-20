@@ -162,8 +162,10 @@ function ManageOneTroc(){
 
     
     const handlUpdate = async (id: string, option: object) => {
-      const client = new TrocClass()
-      await client.updateTroc(id, option)
+      if(troc.author?._id == me?._id || isAdmin){
+        const client = new TrocClass()
+        await client.updateTroc(id, option)
+      }
     }
     
     const handlDelete = async (id: string) => {
@@ -173,8 +175,8 @@ function ManageOneTroc(){
 
     const confirmCancelReservation = async () => {
       if (deleteId) {
-        const client = new AdminTrocClass();
-        await client.deleteTroc(id);
+        const client = new TrocClass();
+        await client.cancelTroc(id);
         setShowConfirm(false);
         setDeleteId(null);
       }
@@ -182,10 +184,12 @@ function ManageOneTroc(){
 
     const confirmDelete = async () => {
         if (deleteId) {
-        const client = new AdminTrocClass();
-        await client.deleteTroc(deleteId);
-        setShowConfirm(false);
-        setDeleteId(null);
+          const client = new TrocClass();
+          if(troc.author?._id == me?._id || isAdmin){
+            await client.deleteTroc(deleteId);
+            setShowConfirm(false);
+            setDeleteId(null);
+          }
         }
     };
 
