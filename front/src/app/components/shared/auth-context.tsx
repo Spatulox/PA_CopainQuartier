@@ -44,7 +44,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => window.removeEventListener('storage', handler);
   }, [updateConnection]);
 
-  setTimeout(async() => {await updateConnection()}, 10000)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      updateConnection();
+    }, 10000); // 10 sec
+  
+    return () => clearInterval(interval);
+  }, [updateConnection]);  
 
   return (
     <AuthContext.Provider value={{ isConnected, isAdmin, me, updateConnection, refreshMe }}>
