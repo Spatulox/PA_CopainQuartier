@@ -22,6 +22,8 @@ function CreateTroc({onUpdate} : CreateTrocType){
     const fields: FieldForm[] = [
         { name: "title", label: "Nom du Troc", type: "text", required: true },
         { name: "description", label: "Description", type: "text", required: true },
+        { name: "date", label: "Jour", type: "date", required: true },
+        { name: "hour", label: "Heure", type: "time", required: true },
         { name: "type", label: "type", type: "radio", value:[RadioType.object, RadioType.service, RadioType.multipleService], required: true },
     ];
     
@@ -29,6 +31,9 @@ function CreateTroc({onUpdate} : CreateTrocType){
         title: string,
         description: string,
         type: RadioType | RadioTypeToTrocType,
+        reserved_at: string
+        date: Date,
+        hour: Date,
     };
 
     async function handleCreateChannel(formData: TrocForm): Promise<void> {
@@ -45,7 +50,7 @@ function CreateTroc({onUpdate} : CreateTrocType){
                 formData.type = RadioTypeToTrocType.serviceMorethanOnePerson
                 break;
         }
-        console.log(formData)
+        formData.reserved_at = new Date(`${formData.date}T${formData.hour}:00Z`).toISOString()
         if(await client.createTroc(formData)){
             onUpdate("update")
         }
