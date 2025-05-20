@@ -8,11 +8,12 @@ const TrocSchema = new Schema<Troc>({
     description: {type: String, required: true},
     reserved_at : { type: Date, default: null },
     reserved_by: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    updated_at: { type: Date },
     status : { type: String, _type: ['pending', 'completed', 'cancelled'] },
     type: { type: String, _type: ['service', 'item'] },
     visibility : {type: String, _type: ['visible', 'hide']}
 }, {
-    timestamps: { createdAt: 'created_at', updatedAt: 'reserved_at' }
+    timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }
 });
 
 

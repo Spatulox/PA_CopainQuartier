@@ -14,7 +14,8 @@ export function toTrocObject(doc: any): FilledTroc {
         author: doc.author_id ? toUserObject(doc.author_id) : null,
         description : doc.description,
         reserved_at: doc.reserved_at || null,
-        reserved_by: doc.reserved_by ? doc.reserved_by.toString() : null,
+        reserved_by: doc.reserved_by ? doc.reserved_by.map((user: User) => {toUserObject(user)}) : [],
+        updated_at: doc.updated_at,
         status: doc.status,
         type: doc.type,
         visibility: doc.visibility
@@ -53,6 +54,7 @@ export async function createTroc(trocBody: CreateTrocBody, user: User): Promise<
         description : trocBody.description,
         status: TrocStatus.waitingForApproval,
         created_at: new Date(),
+        updated_at: new Date(),
         visibility: TrocVisibility.visible
     }
     const troc = new TrocTable(data);
@@ -60,7 +62,7 @@ export async function createTroc(trocBody: CreateTrocBody, user: User): Promise<
     return toTrocObject(troc);
 }
 
-// PUT : Update par l'auteur
+// PATCH : Update par l'auteur
 export async function updateTroc(id: ObjectId, authorId: ObjectId, data: UpdateTrocBody): Promise<FilledTroc | null> {
     const doc = await TrocTable.findOneAndUpdate(
         { _id: id, author_id: authorId },

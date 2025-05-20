@@ -20,8 +20,9 @@ import { CreateTrocBody, UpdateTrocBody, zCreateTrocSchema, zUpdateTrocSchema } 
 import { zApprove, zObjectId } from "../Validators/utils";
 import { cancelTroc, completeTroc, createTroc, deleteTroc, getAllMyTrocs, getAllTrocs, getTrocById, reserveTroc, updateTroc } from "../Services/trocs/trocs";
 import { UserRole } from "../DB_Schema/UserSchema";
-import { getAllAdminTrocs, getWaitingTrocs, updateWaitingTrocStatus } from "../Services/trocs/trocsAdmin";
+import { getAllAdminTrocs, getWaitingTrocs, updateWaitingTrocStatus, getAdminTrocById } from "../Services/trocs/trocsAdmin";
 import { ObjectID } from "../DB_Schema/connexion";
+import { z } from "zod";
   
 
 @JsonController("/admin/trocs")
@@ -36,6 +37,13 @@ export class AdminTrocController {
     @Authorized(UserRole.admin)
     async getAllTroc(): Promise<FilledTroc[] | null> {
         return await getAllAdminTrocs();
+    }
+
+    @Get("/:id")
+    @Authorized(UserRole.admin)
+    async getAdminTrocByID(@Param("id") id: string): Promise<FilledTroc | null> {
+        const validID = new ObjectID(zObjectId.parse(id))
+        return await getAdminTrocById(validID);
     }
 
     @Patch("/:id/approve")
@@ -82,7 +90,7 @@ export class TrocController {
         return await createTroc(validData, user);
     }
   
-    @Put("/:id")
+    @Patch("/:id")
     @Authorized()
     @HttpCode(204)
     async updateTroc(@Param("id") id: string, @Body() body: UpdateTrocBody, @CurrentUser() user: User): Promise<boolean> {
