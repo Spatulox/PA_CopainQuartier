@@ -147,6 +147,11 @@ function ManageOnePublication(){
         return <NotFound />
     }
 
+    if(!id){
+        navigate(`${Route.publications}`)
+        return
+    }
+
     if(publication === null){
         return <Loading title="Chargement de la publication" />
     }

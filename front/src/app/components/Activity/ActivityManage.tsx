@@ -156,6 +156,11 @@ function ManageOneActivity(){
       return <NotFound />
     }
 
+    if(!id){
+      navigate(`${Route.activity}`)
+      return
+  }
+
     if (activity === null) {
       return <Loading title="Chargement de l'activité" />
     }
