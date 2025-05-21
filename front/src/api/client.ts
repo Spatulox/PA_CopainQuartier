@@ -139,9 +139,8 @@ export class ApiClient {
     return res//.data;
   }
 
-  async updateUser(id: string, data: any): Promise<User> {
-    const res = await this.Patch(`/users/${id}`, data);
-    return res//.data;
+  async updateUser(id: string, data: any): Promise<void> {
+    await this.Patch(`/users/${id}`, data);
   }
 
   isAdmin(){
