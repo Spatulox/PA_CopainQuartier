@@ -32,6 +32,10 @@ export class UserClass extends ApiClient{
     async getUserByID(id: string): Promise<User>{
         return await this.Get(`${this.url}/${id}`)
     }
+
+    async deleteUser(id: string): Promise<void>{
+        await this.Delete(`${this.url}/${id}`)
+    }
 }
 
 export class AdminUserClass extends UserClass{
@@ -59,10 +63,6 @@ export class AdminUserClass extends UserClass{
     }
 
     async verifyUser(id: string, option: object): Promise<void>{
-        await this.Patch(`${this.urlAdmin}/${id}`, option)
-    }
-
-    async deleteUser(id: string): Promise<void>{
-        await this.Delete(`${this.urlAdmin}/${id}`)
+        await this.Patch(`${this.urlAdmin}/${id}/verify`, option)
     }
 }
