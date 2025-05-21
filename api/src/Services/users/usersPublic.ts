@@ -1,7 +1,7 @@
 import { UserTable } from "../../DB_Schema/UserSchema";
 import { User, PublicUser, FilledUser } from "../../Models/UserModel";
 import { objectToChannel } from "../channels/channels";
-import { UpdateAccountType } from "../../Validators/users";
+import { UpdateAccountType, UpdateAdminAccountType } from "../../Validators/users";
 import { ObjectID } from "../../DB_Schema/connexion";
 
 export async function getUserById(userId: ObjectID): Promise<FilledUser | null> {
