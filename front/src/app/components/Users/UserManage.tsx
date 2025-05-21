@@ -3,11 +3,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Route } from "../../constantes";
 import Loading from "../shared/loading";
 import { ShowUser, ShowUserButton } from "./SingleUser";
-import { AdminUserClass, User } from "../../../api/user";
+import { AdminUserClass, User, UserClass, UserRole } from "../../../api/user";
 import UserList from "./UsersList";
 import ApproveUser from "./ApproveUser";
 import { useAuth } from "../shared/auth-context";
 import NotFound from "../shared/notfound";
+import { UpdateUser, UpdateUserType, UpdateUserTypeAdmin } from "./UpdateUser";
 
 function ManageUserAdmin(){
     const [message, setMessage] = useState("");
@@ -28,6 +29,8 @@ function ManageOneUser(){
     const [notFound, setNotFound] = useState<boolean>(false)
     const navigate = useNavigate()
 
+    const [refresh, setRefresh] = useState(0)
+
     useEffect(() => {
         (async ()=> {
             const client = new AdminUserClass()
@@ -40,10 +43,33 @@ function ManageOneUser(){
                 setUser(use)
             }
         })()
-    }, [id])
+    }, [id, refresh])
 
-    const handleDelete = (id: string) => {
-        console.log(id)
+    const handleDelete = async (id: string) => {
+        const client = new UserClass()
+        await client.deleteUser(id)
+        setRefresh((r) => r+1)
+    }
+
+    const handleUpdate = async (id: string, option: object) => {
+        if(isAdmin){
+            const client = new AdminUserClass()
+            await client.updateUser(id, option)
+        } else {
+            const client = new UserClass()
+            await client.updateUser(id, option)
+        }
+        setRefresh((r) => r+1)
+    }
+
+    const handleApprove = async (id: string, bool: boolean) => {
+        if(isAdmin){
+            const client = new AdminUserClass()
+            await client.verifyUser(id, {approve: bool})
+        } else {
+            return
+        }
+        setRefresh((r) => r+1)
     }
     
     if(notFound){
@@ -58,14 +84,16 @@ function ManageOneUser(){
 
         <h1>EN TRAVAUX</h1>
         {user && me ?
-            <ShowUser
+            <>
+            <UpdateUser
                 key={user._id}
                 theuser={user}
                 user={me}
-                onViewUser={(id) => navigate(`${Route.user}/${id}`)}
-                onDelete={handleDelete}
-                buttonShow={ShowUserButton.ViewUser | ShowUserButton.Delete}
+                onUpdate={(id, option: UpdateUserType | UpdateUserTypeAdmin) => handleUpdate(id, option)}
+                onApprove={(id: string, bool: boolean) => handleApprove(id, bool)}
+                onDelete={(id)=> handleDelete(id)}
             />
+            </>
         :() => navigate(Route.user)}
     </>
 }
