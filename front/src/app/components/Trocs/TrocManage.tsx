@@ -174,7 +174,6 @@ function ManageOneTroc(){
     const handlDelete = async (id: string) => {
       setDeleteId(id)
       setShowConfirm(true)
-      setRefresh(r => r + 1)
     }
 
     const confirmCancelReservation = async () => {
