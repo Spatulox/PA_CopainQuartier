@@ -7,6 +7,8 @@ export const enum Route {
     resetPassword = "/reset",
 
     account = "/account",
+    manageMyAccount = "/account/manage/me",
+
     chat = "/chat",
     manageChannels = "/chat/manage",
 
