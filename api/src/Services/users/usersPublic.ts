@@ -41,7 +41,7 @@ export async function updateMyAccount(user: User, option: UpdateAccountType): Pr
             { _id: user._id },
             { $set: option }
         );
-        return result.modifiedCount === 1
+        return result.modifiedCount === 1 || result.matchedCount === 1
     } catch(e: any){
         console.log(e)
         return false
