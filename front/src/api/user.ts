@@ -65,4 +65,8 @@ export class AdminUserClass extends UserClass{
     async verifyUser(id: string, option: object): Promise<void>{
         await this.Patch(`${this.urlAdmin}/${id}/verify`, option)
     }
+
+    async updateUserAdmin(id: string, data: any): Promise<void> {
+    await this.Patch(`${this.urlAdmin}/${id}`, data);
+  }
 }
