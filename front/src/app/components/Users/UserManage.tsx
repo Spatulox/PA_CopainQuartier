@@ -9,6 +9,7 @@ import ApproveUser from "./ApproveUser";
 import { useAuth } from "../shared/auth-context";
 import NotFound from "../shared/notfound";
 import { UpdateUser, UpdateUserType, UpdateUserTypeAdmin } from "./UpdateUser";
+import { PopupConfirm } from "../Popup/PopupConfirm";
 
 function ManageUserAdmin(){
     const [message, setMessage] = useState("");
@@ -27,6 +28,8 @@ function ManageOneUser(){
     const { me, isAdmin } = useAuth();
     const [user, setUser] = useState<User | null>(null)
     const [notFound, setNotFound] = useState<boolean>(false)
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [deleteId, setDeleteId] = useState<string | null>(null);
     const navigate = useNavigate()
 
     const [refresh, setRefresh] = useState(0)
@@ -46,10 +49,24 @@ function ManageOneUser(){
     }, [id, refresh])
 
     const handleDelete = async (id: string) => {
-        const client = new UserClass()
-        await client.deleteUser(id)
-        setRefresh((r) => r+1)
+        setDeleteId(id)
+        setShowConfirm(true)
     }
+
+    const confirmDelete = async () => {
+        if (deleteId) {
+            const client = new UserClass()
+            await client.deleteUser(deleteId)
+            setRefresh((r) => r+1)
+            setDeleteId(null)
+            setShowConfirm(false)
+        }
+    };
+
+    const cancelDelete = () => {
+        setShowConfirm(false);
+        setDeleteId(null);
+    };
 
     const handleUpdate = async (id: string, option: object) => {
         if(isAdmin){
@@ -93,6 +110,15 @@ function ManageOneUser(){
             />
             </>
         : (<Navigate to={Route.user} replace />)}
+        {showConfirm && (
+            <PopupConfirm
+            key={deleteId}
+            title="Suppression d'un utilisateur"
+            description={`Voulez-vous réellement supprimer cet utilisateur : ${user.email} ?`}
+            onConfirm={confirmDelete}
+            onCancel={cancelDelete}
+            />
+        )}
     </>
 }
 

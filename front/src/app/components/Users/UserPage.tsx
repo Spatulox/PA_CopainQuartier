@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { AdminUserClass, User, UserClass } from "../../../api/user"
-import { useNavigate, useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { ShowUser, ShowUserButton } from "./SingleUser";
 import { Route } from "../../constantes";
 import Loading from "../shared/loading";
@@ -46,8 +46,17 @@ function Users(){
         navigate(`${Route.user}`)
         return
     }
+
     if(!user && !me){
         return <Loading title="Chargement de l'utilisateur" />
+    }
+
+    if(!id && me){
+        return <>
+            {isAdmin && < Navigate to={Route.manageUser} />}
+            {!isAdmin &&
+            <Navigate to={Route.account} />}
+        </>
     }
 
     if(!user && me){
