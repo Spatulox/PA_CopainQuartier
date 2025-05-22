@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { Route } from "../../constantes";
 import Loading from "../shared/loading";
 import { ShowUser, ShowUserButton } from "./SingleUser";
@@ -54,7 +54,7 @@ function ManageOneUser(){
     const handleUpdate = async (id: string, option: object) => {
         if(isAdmin){
             const client = new AdminUserClass()
-            await client.updateUser(id, option)
+            await client.updateUserAdmin(id, option)
         } else {
             const client = new UserClass()
             await client.updateUser(id, option)
@@ -81,9 +81,7 @@ function ManageOneUser(){
     }
 
     return <>
-
-        <h1>EN TRAVAUX</h1>
-        {user && me ?
+        {user && me ? 
             <>
             <UpdateUser
                 key={user._id}
@@ -94,7 +92,7 @@ function ManageOneUser(){
                 onDelete={(id)=> handleDelete(id)}
             />
             </>
-        :() => navigate(Route.user)}
+        : (<Navigate to={Route.user} replace />)}
     </>
 }
 
@@ -110,12 +108,10 @@ function ManageUser(){
     }, [isAdmin, id, navigate]);
 
     if(id){
-        return <><ManageOneUser /></>
+        return <ManageOneUser />
     }
 
-    return <>
-        <ManageUserAdmin />
-    </>
+    return <ManageUserAdmin />
 
 }
 
