@@ -5,7 +5,7 @@ import { zApprove, zObjectId } from '../Validators/utils';
 import { getPublicUserById, getUserById, updateMyAccount } from '../Services/users/usersPublic';
 import { UserRole } from '../DB_Schema/UserSchema';
 import { ObjectID } from '../DB_Schema/connexion';
-import { zUpdateAccount } from '../Validators/users';
+import { zUpdateAccount, zUpdateAccountAdmin } from '../Validators/users';
 
 @JsonController("/admin/users")
 export class AdminUserController {
@@ -47,7 +47,7 @@ export class AdminUserController {
   @HttpCode(204)
   async updateUser(@Param('id') user_id: ObjectID, @CurrentUser() user: User, @Body() body: any): Promise<boolean> {
     const validId = new ObjectID(zObjectId.parse(user_id))
-    const validBody = zUpdateAccount.parse(body)
+    const validBody = zUpdateAccountAdmin.parse(body)
     if(!await updateAccountAdmin(validId, validBody)){
       throw new BadRequestError()
     };
@@ -92,7 +92,6 @@ export class UserController {
   @Authorized()
   async deleteUserById(@Param('id') user_id: ObjectID, @CurrentUser() user: User): Promise<boolean> {
     const validId = new ObjectID(zObjectId.parse(user_id))
-    console.log("coucou")
     if(user._id != validId && user.role != UserRole.admin){
       throw new ForbiddenError("You can't do that")
     }
