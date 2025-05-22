@@ -54,6 +54,7 @@ export function UpdateUser({
             onUpdate(theuser._id, { name, lastname, phone, address });
         }
     }
+    
     if(theuser && user)
     return (
         <div key={theuser._id}>
@@ -173,19 +174,23 @@ export function UpdateUser({
                             </ul>
                         </div>
                         <div>
-                            <span>Common Channels</span>
-                            <ul>
-                                {theuser.hasOwnProperty("common_channels") && theuser.common_channels!.length > 0 && theuser.common_channels!.map((chat: Channel) => (
-                                    <ShowChat
-                                        key={chat._id}
-                                        channel={chat}
-                                        user={theuser}
-                                        onViewChat={(id) => navigate(`${Route.chat}/${id}`)}
-                                        onManage={(id) => navigate(`${Route.manageChannels}/${id}`)}
-                                        buttonShow={ShowChatButton.Chat | ShowChatButton.Manage}
-                                    />
-                                ))}
-                            </ul>
+                            {theuser.hasOwnProperty("common_channels") && theuser.common_channels!.length > 0 && (
+                                <>
+                                <span>Common Channels</span>
+                                <ul>
+                                    {theuser.hasOwnProperty("common_channels") && theuser.common_channels!.length > 0 && theuser.common_channels!.map((chat: Channel) => (
+                                        <ShowChat
+                                            key={chat._id}
+                                            channel={chat}
+                                            user={theuser}
+                                            onViewChat={(id) => navigate(`${Route.chat}/${id}`)}
+                                            onManage={(id) => navigate(`${Route.manageChannels}/${id}`)}
+                                            buttonShow={ShowChatButton.Chat | ShowChatButton.Manage}
+                                        />
+                                    ))}
+                                </ul>
+                                </>
+                            )}
                         </div>
                 </div>
                 <div>
