@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import Loading from "../shared/loading";
 import { PopupConfirm } from "../Popup/PopupConfirm";
 import { AccountClass } from "../../../api/account";
+import Errors from "../shared/errors";
 
 function Account(){
     const { me } = useAuth();
@@ -40,6 +41,8 @@ function Account(){
                 </div>
             </div>
         )
+    } else {
+        return <Errors errors={ {message: "Nothing to Show"} } />
     }
 }
 
