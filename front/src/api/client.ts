@@ -1,9 +1,14 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { User } from "./user"
+import { popup } from '../app/scripts/popup-slide';
 
 type AuthResponse = {
   accessToken: string,
   refreshToken: string
+}
+
+export type ErrorMessage = {
+  message: string
 }
 
 export class ApiClient {
@@ -15,6 +20,7 @@ export class ApiClient {
   private username = ""
   private password = ""
   user: User = null
+  errors: ErrorMessage | any | null = null
 
   // You can create an ApiClient instance in two way :
   // new ApiClient(username, password) => Get the token from the API
@@ -53,6 +59,7 @@ export class ApiClient {
           const newAccessToken = await this.refreshAccessToken();
           if (newAccessToken) {
             originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+            this.errors = {message:""}
             return this.client(originalRequest);
           } else {
             alert("Déconnexion forcée")
@@ -62,6 +69,10 @@ export class ApiClient {
         } else if(error.hasOwnProperty("response") && error.response.status !== 401) {
             alert(error.code + " " + error.response.statusText)
             console.log(error.response.data)
+            this.errors = error.response.data
+            if(this.errors && this.errors.hasOwnProperty("message")){
+              popup(this.errors.message)
+            }
         }
 
         return Promise.reject(error);
