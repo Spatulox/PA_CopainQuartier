@@ -145,7 +145,7 @@ function ManageOneActivity(){
   const [activity, setActivities] = useState<Activity | null>(null);
   const [err, setErrors] = useState<ErrorMessage | null>(null)
   const [delErr, setDelErrors] = useState<ErrorMessage | null>(null)
-  const [updErr, setUpdateErrors] = useState<ErrorMessage | null>(null)
+  const [updErr, setUpdateErrors] = useState<any | null>(null)
   const { id } = useParams<{ id: string }>();
   const { me, isAdmin } = useAuth();
   const [showConfirm, setShowConfirm] = useState(false);
@@ -257,6 +257,7 @@ function ManageOneActivity(){
             key={deleteId}
             title="Suppression d'une activité"
             description="Voulez-vous réellement supprimer cette activité ?"
+            errors={delErr}
             onConfirm={confirmDelete}
             onCancel={cancelDelete}
           />

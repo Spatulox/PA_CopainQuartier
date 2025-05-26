@@ -43,7 +43,6 @@ export function UpdateActivity({
 
     useEffect(() => {
         if(APIerror){
-            console.log("caca")
             const errTMP: string[] = []
             for (const err in APIerror){
                 errTMP.push(`${err} : ${APIerror[err]}`)
@@ -51,17 +50,21 @@ export function UpdateActivity({
             if(errTMP.length > 0){
                 setError(errTMP)
             }
+        } else {
+            setError([])
         }
     }, [APIerror])
     
 
     return (
         <div key={activity._id}>
-            <div>
-                {err && err.length > 0 && err.map((e) => (
-                   <p>{e}</p>
-                ))}
-            </div>
+            {err && err.length > 0 && <>
+                <div className="error-messages">
+                    {err.map((e: any) => (
+                    <p>{e}</p>
+                    ))}
+                </div>
+            </>}
             <h2>
                 <input
                     type="text"
