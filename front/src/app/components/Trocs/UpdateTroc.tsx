@@ -8,6 +8,7 @@ import { useAuth } from "../shared/auth-context";
 type UpdateTrocProps = {
     troc: Troc;
     user: User | undefined;
+    APIerror: any;
     onUpdate: (id: string, option: object) => void;
     onDelete: (id: string) => void;
     onCancelReservation: (id: string) => void;
@@ -16,6 +17,7 @@ type UpdateTrocProps = {
 export function UpdateTroc({
     troc,
     user,
+    APIerror,
     onUpdate,
     onDelete,
     onCancelReservation
@@ -42,6 +44,22 @@ export function UpdateTroc({
       : null;
       
     const {me, isAdmin} = useAuth()
+    const [err, setError] = useState<string[]>([])
+
+
+    useEffect(() => {
+        if(APIerror){
+            const errTMP: string[] = []
+            for (const err in APIerror){
+                errTMP.push(`${err} : ${APIerror[err]}`)
+            }
+            if(errTMP.length > 0){
+                setError(errTMP)
+            }
+        } else {
+            setError([])
+        }
+    }, [APIerror])
 
     function handleUpdate() {
         if (onUpdate) {
@@ -73,6 +91,13 @@ export function UpdateTroc({
 
     return (
         <div key={troc._id}>
+            {err && err.length > 0 && <>
+            <div className="error-messages">
+              {err && err.length > 0 && err.map((e: any) => (
+                  <p>{e}</p>
+              ))}
+              </div>
+            </>}
             <h2>
                 <input
                     type="text"

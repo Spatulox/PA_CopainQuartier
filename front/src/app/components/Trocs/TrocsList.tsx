@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom"
 import { Route } from "../../constantes"
 import Loading from "../shared/loading"
 import { useAuth } from "../shared/auth-context"
+import { ErrorMessage } from "../../../api/client"
+import Errors from "../shared/errors"
 
 type TrocListMessage = {
     message: string
@@ -16,15 +18,25 @@ function TrocList({message, limit}: TrocListMessage){
     const [troc, setTroc] = useState<Troc[] | null>(null)
     const { me, isAdmin } = useAuth();
     const navigate = useNavigate()
+    const [err, setErrors] = useState<ErrorMessage | null>(null)
 
     useEffect(() => {
         (async () => {
             const client = new TrocClass()
-            const tro = await client.getAllTrocs()
-            setTroc(tro)
+            try{
+                const tro = await client.getAllTrocs()
+                setTroc(tro)
+                setErrors(null)
+            } catch(e){
+                setErrors(client.errors)
+            }
         })()
     }, [message])
 
+    if(err != null){
+        return <Errors errors={err} />
+    }
+    
     if(!troc){
         return <Loading title="Chargement des trocs..."/>
     }

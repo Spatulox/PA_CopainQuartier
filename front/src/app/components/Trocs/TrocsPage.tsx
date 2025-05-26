@@ -10,6 +10,7 @@ import Loading from "../shared/loading";
 import { Troc, TrocClass } from "../../../api/troc";
 import { User } from "../../../api/user";
 import NotFound from "../shared/notfound";
+import { ErrorMessage } from "../../../api/client";
 
 
 function ShowTrocPage() {
@@ -17,18 +18,24 @@ function ShowTrocPage() {
     const [troc, setTroc] = useState<Troc>();
     const [user, setUser] = useState<User>();
     const [notFound, setNotFound] = useState<boolean>(false)
+    const [err, setErrors] = useState<ErrorMessage | null>(null)
     const navigate = useNavigate();
     
     useEffect(() => {
         (async () => {
             const client = new TrocClass();
-            if (id) {
-                const trok = await client.getTrocByID(id);
-                if(!trok){
-                    setNotFound(true)
-                    return
+            try{
+                if (id) {
+                    const trok = await client.getTrocByID(id);
+                    if(!trok){
+                        setNotFound(true)
+                        return
+                    }
+                    setTroc(trok);
                 }
-                setTroc(trok);
+                setErrors(null)
+            }catch(e){
+                setErrors(client.errors)
             }
         })();
     }, [id]);

@@ -10,24 +10,36 @@ import { useAuth } from "../shared/auth-context";
 import NotFound from "../shared/notfound";
 import { UpdateTroc } from "./UpdateTroc";
 import { PopupConfirm } from "../Popup/PopupConfirm";
+import { ErrorMessage } from "../../../api/client";
+import Errors from "../shared/errors";
 
 export function ManageMyTroc(){
   const { me, isAdmin } = useAuth();
     const [trocs, setTrocs] = useState<Troc[] | null>(null);
     const [notFound, setNotFound] = useState<boolean>(false)
+    const [err, setErrors] = useState<ErrorMessage | null>(null)
     const navigate = useNavigate()
   
     useEffect(() => {
       (async () => {
         const client = new TrocClass();
-        const troc = await client.getAllMyTrocs();
-        if(!troc){
-          setNotFound(true)
-          return
-      }
-        setTrocs(troc);
+        try{
+          const troc = await client.getAllMyTrocs();
+          if(!troc){
+            setNotFound(true)
+            return
+          }
+          setTrocs(troc);
+          setErrors(null)
+        }catch(e){
+          setErrors(client.errors)
+        }
       })();
     }, []);
+    
+    if(err != null){
+        return <Errors errors={err} />
+    }
     
     if(notFound){
       return <NotFound />
@@ -67,17 +79,23 @@ function ManageTrocAdmin(){
     const { me, isAdmin } = useAuth();
     const [trocs, setTrocs] = useState<Troc[] | null>(null);
     const [notFound, setNotFound] = useState<boolean>(false)
+    const [err, setErrors] = useState<ErrorMessage | null>(null)
     const navigate = useNavigate()
   
     useEffect(() => {
       (async () => {
         const client = new AdminTrocClass();
-        const troc = await client.getAllAdminTroc();
-        if(!troc){
-          setNotFound(true)
-          return
+        try{
+          const troc = await client.getAllAdminTroc();
+          if(!troc){
+            setNotFound(true)
+            return
+          }
+          setTrocs(troc);
+          setErrors(null)
+        } catch(e){
+          setErrors(client.errors)
         }
-        setTrocs(troc);
       })();
     }, []);
 
@@ -87,6 +105,10 @@ function ManageTrocAdmin(){
         }
     }, [isAdmin, navigate]);
     
+    if(err != null){
+        return <Errors errors={err} />
+    }
+
     if(notFound){
       return <NotFound />
     }
@@ -121,6 +143,10 @@ function ManageOneTroc(){
     const [deleteId, setDeleteId] = useState<string | null>(null);
     const [refresh, setRefresh] = useState(0);
 
+    const [err, setError] = useState<ErrorMessage | null>(null)
+    const [delErr, setDeleteError] = useState<ErrorMessage | null>(null)
+    const [updErr, setUpdateError] = useState<ErrorMessage | null>(null)
+
     const { me, isAdmin } = useAuth();
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate()
@@ -130,24 +156,38 @@ function ManageOneTroc(){
         if(id){
           if(isAdmin){
             const client = new AdminTrocClass();
-            const rto = await client.getAdminTrocByID(id);
-            if(!rto){
-              setNotFound(true)
-              return
+            try{
+              const rto = await client.getAdminTrocByID(id);
+              if(!rto){
+                setNotFound(true)
+                return
+              }
+              setTroc(rto);
+              setError(null)
+            } catch(e){
+              setError(client.errors)
             }
-            setTroc(rto);
           } else {
             const client = new TrocClass();
-            const rto = await client.getTrocByID(id);
-            if(!rto){
-              setNotFound(true)
-              return
+            try{
+              const rto = await client.getTrocByID(id);
+              if(!rto){
+                setNotFound(true)
+                return
+              }
+              setTroc(rto);
+              setError(null)
+            } catch(e){
+              setError(client.errors)
             }
-            setTroc(rto);
           }
         }
       })();
     }, [id, refresh]);
+
+    if(err != null){
+        return <Errors errors={err} />
+    }
 
     if(notFound){
       return <NotFound />
@@ -166,8 +206,13 @@ function ManageOneTroc(){
     const handlUpdate = async (id: string, option: object) => {
       if(troc.author?._id == me?._id || isAdmin){
         const client = new TrocClass()
-        await client.updateTroc(id, option)
-        setRefresh(r => r + 1)
+        try{
+          await client.updateTroc(id, option)
+          setRefresh(r => r + 1)
+          setUpdateError(null)
+        } catch(e){
+          setUpdateError(client.errors)
+        }
       }
     }
     
@@ -179,20 +224,30 @@ function ManageOneTroc(){
     const confirmCancelReservation = async () => {
       if (deleteId) {
         const client = new TrocClass();
-        await client.cancelTroc(id);
-        setShowConfirm(false);
-        setDeleteId(null);
+        try{
+          await client.cancelTroc(id);
+          setShowConfirm(false);
+          setDeleteId(null);
+          setDeleteError(null)
+        } catch(e){
+          setDeleteError(client.errors)
+        }
       }
     };
 
     const confirmDelete = async () => {
         if (deleteId) {
           const client = new TrocClass();
-          if(troc.author?._id == me?._id || isAdmin){
-            await client.deleteTroc(deleteId);
-            setShowConfirm(false);
-            setDeleteId(null);
-            setRefresh(r => r + 1)
+          try{
+            if(troc.author?._id == me?._id || isAdmin){
+              await client.deleteTroc(deleteId);
+              setShowConfirm(false);
+              setDeleteId(null);
+              setRefresh(r => r + 1)
+            }
+            setDeleteError(null)
+          }catch(e){
+            setDeleteError(client.errors)
           }
         }
     };
@@ -200,6 +255,7 @@ function ManageOneTroc(){
     const cancelDelete = () => {
         setShowConfirm(false);
         setDeleteId(null);
+        setDeleteError(null)
     };
     
     return <>
@@ -207,6 +263,7 @@ function ManageOneTroc(){
             key={troc!._id}
             troc={troc!}
             user={me}
+            APIerror={updErr}
             onUpdate={(id: string, option: object) => handlUpdate(id, option)}
             onDelete={handlDelete}
             onCancelReservation={confirmCancelReservation}
@@ -216,6 +273,7 @@ function ManageOneTroc(){
             key={deleteId}
             title="Suppression d'une publication"
             description="Voulez-vous réellement supprimer cette publication ?"
+            errors={delErr}
             onConfirm={confirmDelete}
             onCancel={cancelDelete}
             />
@@ -226,18 +284,28 @@ function ManageOneTroc(){
 export function ManageTroc(){
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate()
-    
+    const [err, setErrors] = useState<ErrorMessage | null>(null)
+
     // USed to redirect someone if in the url it's /manage and it's not an admin user
     useEffect(() => {
         (async () => {
             const client = new TrocClass()
-            await client.refreshUser()
-            if(client.isAdmin() === false && !id){
-              navigate(`${Route.manageMyTrocs}`);
+            try{
+              await client.refreshUser()
+              if(client.isAdmin() === false && !id){
+                navigate(`${Route.manageMyTrocs}`);
+              }
+              setErrors(null)
+            } catch(e){
+              setErrors(client.errors)
             }
         })()
     }, [])
 
+    if(err != null){
+        return <Errors errors={err} />
+    }
+    
     if(id){
         return <><ManageOneTroc/></>
     }

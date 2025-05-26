@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { TrocClass, TrocType } from "../../../api/troc";
 import { FieldForm, PopupForm } from "../Popup/PopupForm";
 
@@ -18,6 +19,7 @@ enum RadioTypeToTrocType {
 }
 
 function CreateTroc({onUpdate} : CreateTrocType){
+    const [err, setError] = useState<any>(null)
     
     const fields: FieldForm[] = [
         { name: "title", label: "Nom du Troc", type: "text", required: true },
@@ -38,21 +40,25 @@ function CreateTroc({onUpdate} : CreateTrocType){
 
     async function handleCreateChannel(formData: TrocForm): Promise<void> {
         const client = new TrocClass()
-        console.log(formData)
-        switch (formData.type){
-            case RadioType.object:
-                formData.type = RadioTypeToTrocType.item
-                break;
-            case RadioType.service:
-                formData.type = RadioTypeToTrocType.service
-                break;
-            case RadioType.multipleService:
-                formData.type = RadioTypeToTrocType.serviceMorethanOnePerson
-                break;
-        }
-        formData.reserved_at = new Date(`${formData.date}T${formData.hour}:00Z`).toISOString()
-        if(await client.createTroc(formData)){
-            onUpdate("update")
+        try{
+            switch (formData.type){
+                case RadioType.object:
+                    formData.type = RadioTypeToTrocType.item
+                    break;
+                case RadioType.service:
+                    formData.type = RadioTypeToTrocType.service
+                    break;
+                case RadioType.multipleService:
+                    formData.type = RadioTypeToTrocType.serviceMorethanOnePerson
+                    break;
+            }
+            formData.reserved_at = new Date(`${formData.date}T${formData.hour}:00Z`).toISOString()
+            if(await client.createTroc(formData)){
+                onUpdate("update")
+            }
+            setError(null)
+        } catch(e){
+            setError(client.errors)
         }
     }
     
@@ -60,6 +66,7 @@ function CreateTroc({onUpdate} : CreateTrocType){
     <PopupForm<TrocForm>
         title="Créer un Troc"
         fields={fields}
+        APIerrors={err}
         initialFormData={{ title: "", description: "", type: RadioType.object }}
         onSubmit={handleCreateChannel}
         submitLabel="Créer"
