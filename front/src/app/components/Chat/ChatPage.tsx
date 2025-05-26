@@ -10,6 +10,7 @@ import { User, UserRole } from "../../../api/user";
 import { CreateChannel } from "./ChatCreate";
 import { useAuth } from "../shared/auth-context";
 import NotFound from "../shared/notfound";
+import { ErrorMessage } from "../../../api/client";
 
 function ChatPage() {
   const { me, isAdmin } = useAuth();
@@ -26,6 +27,10 @@ function ChatPage() {
   const [confirmChannelDeletion, setChannelDeletion] = useState<{ id: string, isDelete: boolean } | null>(null);
   const [notFound, setNotFound] = useState<boolean>(false)
   const navigate = useNavigate();
+
+  const [err, setErrors] = useState<ErrorMessage | null>(null)
+  const [delErr, setDeleteErrors] = useState<string[]>([])
+  const [updErr, setUpdateErrors] = useState<[]>([])
 
   useEffect(() => {
     let isMounted = true;
@@ -178,23 +183,38 @@ function ChatPage() {
 
     async function leaveDeleteGroup(id_channel: string, user_id: string | undefined) {
       const chat = new ChatClass();
-      const channel = await chat.getChannelById(id_channel);
-      if (channel && user_id && channel.admin?._id === user_id) {
-        await chat.deleteChat(id_channel);
-      } else {
-        await chat.leaveChat(id_channel);
+      try{
+        const channel = await chat.getChannelById(id_channel);
+        if (channel && user_id && channel.admin?._id === user_id) {
+          await chat.deleteChat(id_channel);
+        } else {
+          await chat.leaveChat(id_channel);
+        }
+        const updatedChannels = await chat.getChannel();
+        setChannels(updatedChannels);
+        setDeleteErrors([])
+      } catch(e){
+        setDeleteErrors(chat.errors)
       }
-      const updatedChannels = await chat.getChannel();
-      setChannels(updatedChannels);
     }
 
     async function refreshChannel() {
-      const channels = await userRef.current.getChannel();
-      setChannels(channels)
+      try{
+        const channels = await userRef.current.getChannel();
+        setChannels(channels)
+        setErrors(null)
+      } catch(e){
+        setErrors(userRef.current.errors)
+      }
     }
 
     return (
       <>
+        {err && err.hasOwnProperty("message") && (
+          <div className="error-messages">
+            {err.message}
+          </div>
+        )}        
         <ManageChannelList
           channels={channels}
           action={handleAskConfirmation}
@@ -212,6 +232,7 @@ function ChatPage() {
                 ? "Êtes-vous sûr de vouloir supprimer ce chat ? Cette action est irréversible."
                 : "Êtes-vous sûr de vouloir quitter ce chat ?"
             }
+            errors={delErr}
             onConfirm={async () => {
               await leaveDeleteGroup(confirmChannelDeletion.id, userRef.current.user!._id);
               setChannelDeletion(null);

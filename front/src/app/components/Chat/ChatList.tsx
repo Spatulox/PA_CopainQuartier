@@ -31,6 +31,7 @@ export function ChannelList(/*{ channels }: ListSimpleProps*/) {
       try{
         const chan = await client.getChannel()
         setChannel(chan)
+        setErrors(null)
       } catch(e){
         setErrors(client.errors)
       }

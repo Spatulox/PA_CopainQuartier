@@ -26,6 +26,7 @@ export function CreateChannel({action} : CreateProps){
       if(resp){
         action()
       }
+      setErrors([])
     } catch(e){
       setErrors(client.errors)
     }
