@@ -48,7 +48,7 @@ export function PopupForm<T extends Record<string, string>>({
     const APIerrs: string[] = [];
     if(APIerrors){
       for (const key in APIerrors){
-        APIerrs.push(`Le champ ${key} est obligatoire`)
+        APIerrs.push(`${key} : ${APIerrors[key]}`)
       }
       if(APIerrs.length > 0){
         setErrors(APIerrs)
