@@ -52,6 +52,9 @@ export function ManageMyAccount(){
     const { me, isAdmin } = useAuth();
 
     const [showConfirm, setShowConfirm] = useState(false);
+    const [err, setError] = useState<any | null>(null)
+    const [delErr, setDeleteError] = useState<any | null>(null)
+    const [updErr, setUpdateError] = useState<any | null>(null)
 
     useEffect(() => {
         if (!isAdmin) {
@@ -66,16 +69,26 @@ export function ManageMyAccount(){
 
     const handleUpdate = async (id: string, option: object) => {
         const client = new AccountClass()
-        if (id != me._id){
-            return
+        try{
+            if (id != me._id){
+                return
+            }
+            await client.updateAccount(option)
+            setUpdateError(null)
+        } catch(e){
+            setUpdateError(client.errors)
         }
-        await client.updateAccount(option)
     }
     
     const confirmDelete = async () => {
         const client = new AccountClass();
-        await client.deleteAccount();
-        setShowConfirm(false);
+        try{
+            await client.deleteAccount();
+            setShowConfirm(false);
+            setDeleteError(null)
+        }catch(e){
+            setDeleteError(client.errors)
+        }
     };
 
     const cancelDelete = () => {
@@ -86,6 +99,7 @@ export function ManageMyAccount(){
         <UpdateAccount
             key={me.email}
             account={me}
+            APIerror={updErr}
             onUpdate={handleUpdate}
             onDelete={() => setShowConfirm(true)}
         />
@@ -94,6 +108,7 @@ export function ManageMyAccount(){
             key={me._id}
             title="Suppression de votre compte"
             description="Voulez-vous réellement supprimer votre compte ?"
+            errors={delErr}
             onConfirm={confirmDelete}
             onCancel={cancelDelete}
             />
