@@ -11,7 +11,7 @@
     z-index: 1000;
 }
 
-.popup-confirm-card {
+.popup-confirm-card, .popup-info-card {
     background: #444;
     position: relative;
     min-width: 300px;
