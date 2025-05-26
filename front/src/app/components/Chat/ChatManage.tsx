@@ -49,7 +49,6 @@ function ManageOneChat(){
     }, [id, isAdmin, navigate])
 
     if(err != null){
-        console.log("coucou")
         return <Errors errors={err} />
     }
 
