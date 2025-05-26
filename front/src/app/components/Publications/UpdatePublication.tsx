@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Publication } from "../../../api/publications";
 import { User } from "../../../api/user";
 import { Route } from "../../constantes";
@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 type UpdatePublicationProps = {
     publication: Publication;
+    APIerror: any;
     user: User | undefined;
     onUpdate: (id: string, option: object) => void;
     onDelete: (id: string) => void;
@@ -14,11 +15,13 @@ type UpdatePublicationProps = {
 export function UpdatePublication({
     publication,
     user,
+    APIerror,
     onUpdate,
     onDelete
 }: UpdatePublicationProps) {
     const [name, setName] = useState(publication.name || "");
     const [body, setBody] = useState(publication.body || "");
+    const [err, setError] = useState<string[]>([])
     const navigate = useNavigate()
 
     function handleUpdate() {
@@ -28,10 +31,30 @@ export function UpdatePublication({
                 body,
             });
         }
+        setError([])
     }
+
+    useEffect(() => {
+            if(APIerror){
+                const errTMP: string[] = []
+                for (const err in APIerror){
+                    errTMP.push(`${err} : ${APIerror[err]}`)
+                }
+                if(errTMP.length > 0){
+                    setError(errTMP)
+                }
+            } else {
+                setError([])
+            }
+        }, [APIerror])
 
     return (
         <div key={publication._id}>
+            <div className="error-messages">
+                {err && err.length > 0 && err.map((e: any) => (
+                   <p>{e}</p>
+                ))}
+            </div>
             <h2>
                 <input
                     type="text"

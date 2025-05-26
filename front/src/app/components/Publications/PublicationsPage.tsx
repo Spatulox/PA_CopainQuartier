@@ -12,6 +12,8 @@ import Loading from "../shared/loading";
 import { useAuth } from "../shared/auth-context";
 import NotFound from "../shared/notfound";
 import { AdminActivityClass } from "../../../api/activity";
+import { ErrorMessage } from "../../../api/client";
+import Errors from "../shared/errors";
 
 
 function Publications(){
@@ -19,6 +21,7 @@ function Publications(){
     const [message, setMessage] = useState("");
     const { id } = useParams<{ id: string }>();
     const [publications, setPublications] = useState<Publication | null>(null)
+    const [err, setErrors] = useState<ErrorMessage | null>(null)
     const [notFound, setNotFound] = useState<boolean>(false)
     const { me, isAdmin } = useAuth();
 
@@ -31,24 +34,38 @@ function Publications(){
             if(id){
                 if(isAdmin){
                     const client = new AdminPublicationClass()
-                    const pub = await client.getAdminPublicationById(id)
-                    if(!pub){
-                        setNotFound(true)
-                        return
+                    try{
+                        const pub = await client.getAdminPublicationById(id)
+                        if(!pub){
+                            setNotFound(true)
+                            return
+                        }
+                        setPublications(pub)
+                        setErrors(null)
+                    } catch(e){
+                        setErrors(client.errors)
                     }
-                    setPublications(pub)
                 } else {
                     const client = new PublicationClass()
-                    const pub = await client.getPublicationById(id)
-                    if(!pub){
-                        setNotFound(true)
-                        return
+                    try {
+                        const pub = await client.getPublicationById(id)
+                        if(!pub){
+                            setNotFound(true)
+                            return
+                        }
+                        setPublications(pub)
+                        setErrors(null)
+                    } catch(e){
+                        setErrors(client.errors)
                     }
-                    setPublications(pub)
                 }
             }
         })()
     }, [id])
+
+    if(err != null){
+        return <Errors errors={err} />
+    }
 
     if(notFound){
         return <NotFound />
