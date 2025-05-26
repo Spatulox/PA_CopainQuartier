@@ -133,7 +133,7 @@ function Form<T extends Record<string, string>>({
         <div className="auth-container">
           <div className="auth-card">
             <h2>{title}</h2>
-            {errors.length > 0 && (
+            {errors && errors.length > 0 && (
               <div className="error-messages">
                 {errors.map((error, index) => (
                   <p key={index} className="error">⚠️ {error}</p>
