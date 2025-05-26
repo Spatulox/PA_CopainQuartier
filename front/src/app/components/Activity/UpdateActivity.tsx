@@ -72,7 +72,9 @@ export function UpdateActivity({
                 <strong>Publication :</strong>
                 {activity.publication?.name}
                 <div>
-                    <button onClick={() => navigate(`${Route.publications}/${activity.publication._id}`)}>Voir la publication</button>
+                    {activity.publication && (
+                        <button onClick={() => navigate(`${Route.publications}/${activity.publication._id}`)}>Voir la publication</button>
+                    )}
                     <button onClick={() => window.location.reload()}>Recharger la page</button>
                     <button onClick={handleUpdate}>Update Activity</button>
                     <button onClick={() => onDelete(activity._id)}>Supprimer l'activité</button>
