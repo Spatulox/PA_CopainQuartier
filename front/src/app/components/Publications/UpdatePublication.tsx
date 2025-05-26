@@ -50,11 +50,13 @@ export function UpdatePublication({
 
     return (
         <div key={publication._id}>
-            <div className="error-messages">
-                {err && err.length > 0 && err.map((e: any) => (
-                   <p>{e}</p>
-                ))}
-            </div>
+            {err && err.length > 0 && (
+                <div className="error-messages">
+                    {err && err.length > 0 && err.map((e: any) => (
+                    <p>{e}</p>
+                    ))}
+                </div>
+            )}
             <h2>
                 <input
                     type="text"
