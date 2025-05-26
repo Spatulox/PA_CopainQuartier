@@ -36,7 +36,6 @@ export function ManageMyActivity() {
     }, []);
     
     if(err != null){
-        console.log("coucou")
         return <Errors errors={err} />
     }
 

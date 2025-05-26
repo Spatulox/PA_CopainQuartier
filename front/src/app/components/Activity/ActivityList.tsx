@@ -35,7 +35,6 @@ function ActivityList({message, limit}: ActivityListMessage){
     }, [message])
     
     if(err != null){
-        console.log("coucou")
         return <Errors errors={err} />
     }
 

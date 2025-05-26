@@ -43,7 +43,6 @@ function ShowActivityPage() {
     }, [id]);
 
     if(err != null){
-        console.log("coucou")
         return <Errors errors={err} />
     }
     
