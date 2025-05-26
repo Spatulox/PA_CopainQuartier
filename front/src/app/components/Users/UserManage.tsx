@@ -10,6 +10,8 @@ import { useAuth } from "../shared/auth-context";
 import NotFound from "../shared/notfound";
 import { UpdateUser, UpdateUserType, UpdateUserTypeAdmin } from "./UpdateUser";
 import { PopupConfirm } from "../Popup/PopupConfirm";
+import { ErrorMessage } from "../../../api/client";
+import Errors from "../shared/errors";
 
 function ManageUserAdmin(){
     const [message, setMessage] = useState("");
@@ -32,18 +34,27 @@ function ManageOneUser(){
     const [deleteId, setDeleteId] = useState<string | null>(null);
     const navigate = useNavigate()
 
+    const [err, setError] = useState<ErrorMessage | null>(null)
+    const [updErr, setUpdateError] = useState<ErrorMessage | null>(null)
+    const [delErr, setDeleteError] = useState<ErrorMessage | null>(null)
+
     const [refresh, setRefresh] = useState(0)
 
     useEffect(() => {
         (async ()=> {
             const client = new AdminUserClass()
-            if(id){
-                const use = await client.getUserByID(id)
-                if(!use){
-                    setNotFound(true)
-                    return
+            try{
+                if(id){
+                    const use = await client.getUserByID(id)
+                    if(!use){
+                        setNotFound(true)
+                        return
+                    }
+                    setUser(use)
                 }
-                setUser(use)
+                setError(null)
+            }catch(e){
+                setError(client.errors)
             }
         })()
     }, [id, refresh])
@@ -56,10 +67,15 @@ function ManageOneUser(){
     const confirmDelete = async () => {
         if (deleteId) {
             const client = new UserClass()
-            await client.deleteUser(deleteId)
-            setRefresh((r) => r+1)
-            setDeleteId(null)
-            setShowConfirm(false)
+            try{
+                await client.deleteUser(deleteId)
+                setRefresh((r) => r+1)
+                setDeleteId(null)
+                setShowConfirm(false)
+                setDeleteError(null)
+            } catch(e){
+                setDeleteError(client.errors)
+            }
         }
     };
 
@@ -71,10 +87,20 @@ function ManageOneUser(){
     const handleUpdate = async (id: string, option: object) => {
         if(isAdmin){
             const client = new AdminUserClass()
-            await client.updateUserAdmin(id, option)
+            try{
+                await client.updateUserAdmin(id, option)
+                setUpdateError(null)
+            } catch(e){
+                setUpdateError(client.errors)
+            }
         } else {
             const client = new UserClass()
-            await client.updateUser(id, option)
+            try{
+                await client.updateUser(id, option)
+                setUpdateError(null)
+            } catch(e){
+                setUpdateError(client.errors)
+            }
         }
         setRefresh((r) => r+1)
     }
@@ -82,13 +108,22 @@ function ManageOneUser(){
     const handleApprove = async (id: string, bool: boolean) => {
         if(isAdmin){
             const client = new AdminUserClass()
-            await client.verifyUser(id, {approve: bool})
+            try{
+                await client.verifyUser(id, {approve: bool})
+                setUpdateError(null)
+            } catch(e){
+                setUpdateError(client.errors)
+            }
         } else {
             return
         }
         setRefresh((r) => r+1)
     }
     
+    if(err != null){
+        return <Errors errors={err} />
+    }
+
     if(notFound){
         return <NotFound />
     }
@@ -104,6 +139,7 @@ function ManageOneUser(){
                 key={user._id}
                 theuser={user}
                 user={me}
+                APIerror={err}
                 onUpdate={(id, option: UpdateUserType | UpdateUserTypeAdmin) => handleUpdate(id, option)}
                 onApprove={(id: string, bool: boolean) => handleApprove(id, bool)}
                 onDelete={(id)=> handleDelete(id)}
@@ -115,6 +151,7 @@ function ManageOneUser(){
             key={deleteId}
             title="Suppression d'un utilisateur"
             description={`Voulez-vous réellement supprimer cet utilisateur : ${user.email} ?`}
+            errors={delErr}
             onConfirm={confirmDelete}
             onCancel={cancelDelete}
             />

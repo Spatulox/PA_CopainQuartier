@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { User, UserRole } from "../../../api/user";
 import { useAuth } from "../shared/auth-context";
 import { ShowChat, ShowChatButton } from "../Chat/SingleChat";
@@ -9,6 +9,7 @@ import { Channel } from "../../../api/chat";
 type UpdateUserProps = {
     theuser: User;
     user: User | null;
+    APIerror: any;
     onUpdate: (id: string, update: UpdateUserType | UpdateUserTypeAdmin) => void;
     onApprove?: (id: string, bool: boolean) => void;
     onDelete?: (id: string) => void;
@@ -28,6 +29,7 @@ export type UpdateUserTypeAdmin = {
 export function UpdateUser({
     theuser,
     user,
+    APIerror,
     onUpdate,
     onApprove,
     onDelete
@@ -43,6 +45,7 @@ export function UpdateUser({
     const [address, setAddress] = useState(theuser.address || "");
     const [role, setRole] = useState<UserRole>(theuser.role == UserRole.admin ? UserRole.admin : UserRole.member);
     const navigate = useNavigate()
+    const [err, setError] = useState<string[]>([])
 
     // Détermine si l'utilisateur courant édite son propre profil
     const isSelf = user?._id === theuser._id;
@@ -55,9 +58,30 @@ export function UpdateUser({
         }
     }
     
+    useEffect(() => {
+        if(APIerror){
+            const errTMP: string[] = []
+            for (const err in APIerror){
+                errTMP.push(`${err} : ${APIerror[err]}`)
+            }
+            if(errTMP.length > 0){
+                setError(errTMP)
+            }
+        } else {
+            setError([])
+        }
+    }, [APIerror])
+    
     if(theuser && user)
     return (
         <div key={theuser._id}>
+            {err && err.length > 0 && <>
+            <div className="error-messages">
+              {err && err.length > 0 && err.map((e: any) => (
+                  <p>{e}</p>
+              ))}
+              </div>
+            </>}
             <h2>Modifier l'utilisateur</h2>
             <form
                 onSubmit={e => {

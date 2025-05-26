@@ -7,6 +7,8 @@ import { ShowUser, ShowUserButton } from "./SingleUser";
 import Loading from "../shared/loading";
 import { useAuth } from "../shared/auth-context";
 import NotFound from "../shared/notfound";
+import { ErrorMessage } from "../../../api/client";
+import Errors from "../shared/errors";
 
 type UserListType = {
     message: string
@@ -17,20 +19,30 @@ function UserList({message}: UserListType){
     const [notFound, setNotFound] = useState<boolean>(false)
     const navigate = useNavigate()
     const {me, isAdmin} = useAuth()
+    const [err, setErrors] = useState<ErrorMessage | null>(null)
 
 
     useEffect(() => {
         (async () => {
             console.log('useEffect')
             const client = new AdminUserClass()
-            const use = await client.getUsers()
-            if(use){
-                setUsers(use)
-            } else {
-                setNotFound(false)
+            try{
+                const use = await client.getUsers()
+                if(use){
+                    setUsers(use)
+                } else {
+                    setNotFound(false)
+                }
+                setErrors(null)
+            } catch(e){
+                setErrors(client.errors)
             }
         })()
     }, [message])
+    
+    if(err != null){
+        return <Errors errors={err} />
+    }
     
     if(notFound){
         return <NotFound />

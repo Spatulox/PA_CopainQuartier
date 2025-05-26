@@ -6,6 +6,8 @@ import { useAuth } from "../shared/auth-context"
 import NotFound from "../shared/notfound"
 import { useNavigate } from "react-router-dom"
 import { Route } from "../../constantes"
+import { ErrorMessage } from "../../../api/client"
+import Errors from "../shared/errors"
 
 type ApproveUserType = {
   onUpdate: (message:string) => void
@@ -15,29 +17,44 @@ function ApproveUser({onUpdate}: ApproveUserType){
     const [user, setUser] = useState<User[]>([])
     const { me, isAdmin } = useAuth();
     const [notFound, setNotFound] = useState<boolean>(false)
+    const [err, setErrors] = useState<ErrorMessage | null>(null)
     const navigate = useNavigate()
 
     const handleApprove = async (troc_id: string, bool: boolean) => {
             const client = new AdminUserClass()
-            const option = {"approve": bool}
-            await client.verifyUser(troc_id, option)
-            const app = await client.getUnverifiedUsers()
-            if(!app){
-                setNotFound(true)
-                return
-            }    
-            setUser(app)
-            onUpdate("update")
+            try{
+                const option = {"approve": bool}
+                await client.verifyUser(troc_id, option)
+                const app = await client.getUnverifiedUsers()
+                if(!app){
+                    setNotFound(true)
+                    return
+                }    
+                setUser(app)
+                onUpdate("update")
+                setErrors(null)
+            } catch(e){
+                setErrors(client.errors)
+            }
     }
 
     useEffect(() => {
         (async() => {
             const client = new AdminUserClass()
-            const use = await client.getUnverifiedUsers()
-            setUser(use)
+            try{
+                const use = await client.getUnverifiedUsers()
+                setUser(use)
+                setErrors(null)
+            } catch(e){
+                setErrors(client.errors)
+            }
         })()
     }, [])
     
+    if(err != null){
+        return <Errors errors={err} />
+    }
+
     if(notFound){
         return <NotFound />
     }
