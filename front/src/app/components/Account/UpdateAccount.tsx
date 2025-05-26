@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { User } from "../../../api/user";
 
 type UpdateAccountProps = {
     account: User;
+    APIerror: any
     onUpdate: (id: string, update: UpdateAccountType) => void;
     onDelete: () => void;
 };
@@ -14,7 +15,7 @@ export type UpdateAccountType = {
     phone: string;
 };
 
-export function UpdateAccount({ account, onUpdate, onDelete }: UpdateAccountProps) {
+export function UpdateAccount({ account, APIerror, onUpdate, onDelete }: UpdateAccountProps) {
     if(!account){
         return <p>User is null</p>
     }
@@ -22,14 +23,36 @@ export function UpdateAccount({ account, onUpdate, onDelete }: UpdateAccountProp
     const [lastname, setLastname] = useState(account.lastname || "");
     const [phone, setPhone] = useState(account.phone || "");
     const [address, setAddress] = useState(account.address || "");
+    const [err, setError] = useState<string[]>()
 
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         onUpdate(account!._id, { name, lastname, phone, address });
     }
 
+    useEffect(() => {
+        if(APIerror){
+            const errTMP: string[] = []
+            for (const err in APIerror){
+                errTMP.push(`${err} : ${APIerror[err]}`)
+            }
+            if(errTMP.length > 0){
+                setError(errTMP)
+            }
+        } else {
+            setError([])
+        }
+    }, [APIerror])
+
     return (
         <div>
+            {err && err.length > 0 && <>
+            <div className="error-messages">
+                {err && err.length > 0 && err.map((e: any) => (
+                   <p>{e}</p>
+                ))}
+            </div>
+            </>}
             <h2>Modifier mon compte</h2>
             <form onSubmit={handleSubmit}>
                 <div>
