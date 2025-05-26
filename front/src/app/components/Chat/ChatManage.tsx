@@ -7,6 +7,8 @@ import { Route } from "../../constantes"
 import { ShowChat, ShowChatButton } from "./SingleChat"
 import { useAuth } from "../shared/auth-context";
 import NotFound from "../shared/notfound"
+import { ErrorMessage } from "../../../api/client"
+import Errors from "../shared/errors"
 
 function ManageAdminChat(){
     return <h1>Manage one</h1>
@@ -15,6 +17,7 @@ function ManageAdminChat(){
 function ManageOneChat(){
     const [channel, setChannel] = useState<Channel | null>(null)
     const [notFound, setNotFound] = useState<boolean>(false)
+    const [err, setErrors] = useState<ErrorMessage | null>(null)
     const { id } = useParams<{ id: string }>();
     const { me, isAdmin } = useAuth();
     const navigate = useNavigate()
@@ -24,12 +27,16 @@ function ManageOneChat(){
         (async () => {
             if(id){
                 const client = new AdminChatClass()
-                const chan = await client.getChannelById(id)
-                if(!chan){
-                    setNotFound(true)
-                    return
+                try{
+                    const chan = await client.getChannelById(id)
+                    if(!chan){
+                        setNotFound(true)
+                        return
+                    }
+                    setChannel(chan)
+                } catch(e){
+                    setErrors(client.errors)
                 }
-                setChannel(chan)
             }
         })()
     }, [id])
@@ -40,6 +47,11 @@ function ManageOneChat(){
             return
         }
     }, [id, isAdmin, navigate])
+
+    if(err != null){
+        console.log("coucou")
+        return <Errors errors={err} />
+    }
 
     if(notFound){
         return <NotFound />

@@ -7,6 +7,8 @@ import { Route } from "../../constantes";
 import { useEffect, useState } from "react";
 import Loading from "../shared/loading";
 import { useAuth } from "../shared/auth-context";
+import Errors from "../shared/errors";
+import { ErrorMessage } from "../../../api/client";
 
 type ListProps = {
   channels: Channel[];
@@ -21,17 +23,26 @@ type ListSimpleProps = {
 export function ChannelList(/*{ channels }: ListSimpleProps*/) {
   const navigate = useNavigate()
   const [channel, setChannel] = useState<Channel[]>([])
+  const [err, setErrors] = useState<ErrorMessage | null>(null)
 
   useEffect(() => {
     (async () => {
       const client = new ChatClass()
-      const chan = await client.getChannel()
-      setChannel(chan)
+      try{
+        const chan = await client.getChannel()
+        setChannel(chan)
+      } catch(e){
+        setErrors(client.errors)
+      }
     })()
   }, [])
 
   if(channel && channel.length == 0){
     return <Loading title="Chargement des channels" />
+  }
+
+  if(err != null){
+      return <Errors errors={err} />
   }
 
   return (
