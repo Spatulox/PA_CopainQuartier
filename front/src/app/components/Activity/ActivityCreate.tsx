@@ -29,6 +29,7 @@ function CreateActivity({onUpdate}: CreateActivityType){
           formData.date_reservation = formData.date + "T" + formData.hour + ":00Z"
           await client.createActivities(formData)
           onUpdate("update")
+          setErrors([])
         } catch(e){
           setErrors(client.errors)
         }

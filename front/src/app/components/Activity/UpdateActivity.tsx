@@ -1,11 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { Activity } from "../../../api/activity";
 import { User } from "../../../api/user";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Route } from "../../constantes";
+import { ErrorMessage } from "../../../api/client";
 
 type UpdateActivityProps = {
     activity: Activity;
+    APIerror: any;
     user: User | undefined;
     onUpdate: (id: string, option: object) => void;
     onDelete: (id: string) => void;
@@ -13,11 +15,13 @@ type UpdateActivityProps = {
 
 export function UpdateActivity({
     activity,
+    APIerror,
     user,
     onUpdate,
     onDelete
 }: UpdateActivityProps) {
     const navigate = useNavigate();
+    const [err, setError] = useState<string[]>([])
     const [title, setTitle] = useState(activity.title || "");
     const [description, setDescription] = useState(activity.description || "");
     const [dateReservation, setDateReservation] = useState(
@@ -34,10 +38,30 @@ export function UpdateActivity({
                 date_reservation: dateReservation,
             });
         }
+        setError([])
     }
+
+    useEffect(() => {
+        if(APIerror){
+            console.log("caca")
+            const errTMP: string[] = []
+            for (const err in APIerror){
+                errTMP.push(`${err} : ${APIerror[err]}`)
+            }
+            if(errTMP.length > 0){
+                setError(errTMP)
+            }
+        }
+    }, [APIerror])
+    
 
     return (
         <div key={activity._id}>
+            <div>
+                {err && err.length > 0 && err.map((e) => (
+                   <p>{e}</p>
+                ))}
+            </div>
             <h2>
                 <input
                     type="text"

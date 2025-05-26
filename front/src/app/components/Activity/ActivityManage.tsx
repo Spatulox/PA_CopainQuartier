@@ -10,6 +10,7 @@ import NotFound from "../shared/notfound";
 import { UpdateActivity } from "./UpdateActivity";
 import Errors from "../shared/errors";
 import { ErrorMessage } from "../../../api/client";
+import { popup } from "../../scripts/popup-slide";
 
 
 export function ManageMyActivity() {
@@ -29,6 +30,7 @@ export function ManageMyActivity() {
             return
           }
           setActivities(activities);
+          setErrors(null)
         } catch (e){
           setErrors(client.errors)
         }
@@ -75,6 +77,7 @@ export function ManageMyActivity() {
 
 function ManageActivityAdmin(){
     const [activities, setActivities] = useState<Activity[] | null>(null);
+    const [err, setErrors] = useState<ErrorMessage | null>(null)
     const navigate = useNavigate()
     const [notFound, setNotFound] = useState<boolean>(false);
     const { me, isAdmin } = useAuth();
@@ -82,13 +85,17 @@ function ManageActivityAdmin(){
     useEffect(() => {
       (async () => {
         const client = new AdminActivityClass();
-        await client.refreshUser()
-        const activities = await client.getAllActivitiesAdmin();
-        if(!activities){
-          setNotFound(true)
-          return
+        try{
+          await client.refreshUser()
+          const activities = await client.getAllActivitiesAdmin();
+          if(!activities){
+            setNotFound(true)
+            return
+          }
+          setActivities(activities);
+        } catch(e){
+          setErrors(client.errors)
         }
-        setActivities(activities);
       })();
     }, []);
 
@@ -97,7 +104,11 @@ function ManageActivityAdmin(){
             navigate(`${Route.activity}`);
         }
     }, [isAdmin, navigate]);
-    
+  
+    if(err != null){
+        return <Errors errors={err} />
+    }
+
     if(notFound){
       return <NotFound />
     }
@@ -132,6 +143,9 @@ function ManageActivityAdmin(){
 function ManageOneActivity(){
 
   const [activity, setActivities] = useState<Activity | null>(null);
+  const [err, setErrors] = useState<ErrorMessage | null>(null)
+  const [delErr, setDelErrors] = useState<ErrorMessage | null>(null)
+  const [updErr, setUpdateErrors] = useState<ErrorMessage | null>(null)
   const { id } = useParams<{ id: string }>();
   const { me, isAdmin } = useAuth();
   const [showConfirm, setShowConfirm] = useState(false);
@@ -144,25 +158,39 @@ function ManageOneActivity(){
         if(id){
           if(isAdmin){
             const client = new AdminActivityClass();
-            const activitie = await client.getActivityAdminById(id);
-            if(!activitie){
-              setNotFound(true)
-              return
+            try{
+              const activitie = await client.getActivityAdminById(id);
+              if(!activitie){
+                setNotFound(true)
+                return
+              }
+              setActivities(activitie)
+              setErrors(null)
+            } catch(e){
+              setErrors(client.errors)
             }
-            setActivities(activitie)
           } else {
             const client = new ActivityClass();
-            const activitie = await client.getActivityByID(id);
-            if(!activitie){
-              setNotFound(true)
-              return
+            try{
+              const activitie = await client.getActivityByID(id);
+              if(!activitie){
+                setNotFound(true)
+                return
+              }
+              setErrors(null)
+              setActivities(activitie)
+            } catch(e){
+              setErrors(client.errors)
             }
-            setActivities(activitie)
           }
         }
       })();
     }, [id]);
-  
+
+    if(err != null){
+        return <Errors errors={err} />
+    }
+
     if(notFound){
       return <NotFound />
     }
@@ -178,7 +206,12 @@ function ManageOneActivity(){
 
     const handlUpdate = async (id: string, option: object) => {
         const client = new ActivityClass()
-        await client.updateActivity(id, option)
+        try{
+          await client.updateActivity(id, option)
+          setUpdateErrors(null)
+        } catch(e){
+          setUpdateErrors(client.errors)
+        }
     }
 
     const handlDelete = async (id: string) => {
@@ -189,9 +222,14 @@ function ManageOneActivity(){
     const confirmDelete = async () => {
       if (deleteId) {
         const client = new ActivityClass();
-        await client.deleteActivity(deleteId);
-        setShowConfirm(false);
-        setDeleteId(null);
+        try{
+          await client.deleteActivity(deleteId);
+          setShowConfirm(false);
+          setDeleteId(null);
+          setDelErrors(null)
+        } catch(e){
+          setDelErrors(client.errors)
+        }
       }
     };
 
@@ -199,12 +237,17 @@ function ManageOneActivity(){
       setShowConfirm(false);
       setDeleteId(null);
     };
-    
+
+    if(delErr){
+      popup(delErr.message)
+    }
+
     return (
       <div>
         <UpdateActivity
           key={activity._id}
           activity={activity}
+          APIerror={updErr}
           user={me}
           onUpdate={(id: string, option: object) => handlUpdate(id, option)}
           onDelete={handlDelete}

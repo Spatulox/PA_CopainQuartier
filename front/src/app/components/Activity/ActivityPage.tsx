@@ -34,6 +34,7 @@ function ShowActivityPage() {
                     }
             
                     setActivity(activity);
+                    setErrors(null)
                 }
             } catch (e){
                 setErrors(client.errors)
