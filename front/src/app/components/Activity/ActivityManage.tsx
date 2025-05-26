@@ -8,10 +8,13 @@ import { useAuth } from "../shared/auth-context";
 import { PopupConfirm } from "../Popup/PopupConfirm";
 import NotFound from "../shared/notfound";
 import { UpdateActivity } from "./UpdateActivity";
+import Errors from "../shared/errors";
+import { ErrorMessage } from "../../../api/client";
 
 
 export function ManageMyActivity() {
     const [activities, setActivities] = useState<Activity[] | null>(null);
+    const [err, setErrors] = useState<ErrorMessage | null>(null)
     const navigate = useNavigate()
     const [notFound, setNotFound] = useState<boolean>(false)
     const { me } = useAuth();
@@ -19,15 +22,24 @@ export function ManageMyActivity() {
     useEffect(() => {
       (async () => {
         const client = new ActivityClass();
-        const activities = await client.getMyActivities();
-        if(!activities){
-          setNotFound(true)
-          return
+        try{
+          const activities = await client.getMyActivities();
+          if(!activities){
+            setNotFound(true)
+            return
+          }
+          setActivities(activities);
+        } catch (e){
+          setErrors(client.errors)
         }
-        setActivities(activities);
       })();
     }, []);
     
+    if(err != null){
+        console.log("coucou")
+        return <Errors errors={err} />
+    }
+
     if(notFound){
       return <NotFound />
     }

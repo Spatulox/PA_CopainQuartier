@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { ShowActivity, ShowActivityButton } from "./SingleActivity";
 import Loading from "../shared/loading";
 import { useAuth } from "../shared/auth-context";
+import { ErrorMessage } from "../../../api/client";
+import Errors from "../shared/errors";
 
 type ActivityListMessage = {
     message: string
@@ -15,17 +17,28 @@ function ActivityList({message, limit}: ActivityListMessage){
     const { me } = useAuth();
 
     const [activity, setActivity] = useState<Activity[] | null>(null)
+    const [err, setErrors] = useState<ErrorMessage | null>(null)
     const navigate = useNavigate()
 
 
     useEffect(() => {
         (async () => {
             const client = new ActivityClass()
-            const activities = await client.getActivities()
-            setActivity(activities)
+            try{
+                const activities = await client.getActivities()
+                setActivity(activities)
+                setErrors(null)
+            } catch(e){
+                setErrors(client.errors)
+            }
         })()
     }, [message])
     
+    if(err != null){
+        console.log("coucou")
+        return <Errors errors={err} />
+    }
+
     if(activity == null){
         return <Loading title="Chargement des activités" />
     }

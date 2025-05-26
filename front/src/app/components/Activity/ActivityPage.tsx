@@ -11,9 +11,12 @@ import { ShowActivity, ShowActivityButton } from "./SingleActivity";
 import Loading from "../shared/loading";
 import { useAuth } from "../shared/auth-context";
 import NotFound from "../shared/notfound";
+import { ErrorMessage } from "../../../api/client";
+import Errors from "../shared/errors";
 
 function ShowActivityPage() {
     const { id } = useParams<{ id: string }>();
+    const [err, setErrors] = useState<ErrorMessage | null>(null)
     const [activity, setActivity] = useState<Activity>();
     const [notFound, setNotFound] = useState<boolean>(false)
     const navigate = useNavigate();
@@ -22,18 +25,28 @@ function ShowActivityPage() {
     useEffect(() => {
         (async () => {
             const client = new ActivityClass();
-            if (id) {
-                const activity = await client.getActivityByID(id);
-                if(!activity){
-                    setNotFound(true)
-                    return
+            try{
+                if (id) {
+                    const activity = await client.getActivityByID(id);
+                    if(!activity){
+                        setNotFound(true)
+                        return
+                    }
+            
+                    setActivity(activity);
                 }
-        
-                setActivity(activity);
+            } catch (e){
+                setErrors(client.errors)
             }
+            
         })();
     }, [id]);
 
+    if(err != null){
+        console.log("coucou")
+        return <Errors errors={err} />
+    }
+    
     if(notFound){
         return <NotFound />
     }
