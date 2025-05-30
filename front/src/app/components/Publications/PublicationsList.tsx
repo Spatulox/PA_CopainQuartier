@@ -12,9 +12,10 @@ import Errors from "../shared/errors";
 type PublicationListMessage = {
     message: string
     limit?: number
+    activity_id?: string
 }
 
-function PublicationList({message, limit}: PublicationListMessage){
+function PublicationList({message, limit, activity_id}: PublicationListMessage){
     const [publications, setPublications] = useState<Publication[] | null>(null)
     const [err, setErrors] = useState<ErrorMessage | null>(null)
     const navigate = useNavigate()
@@ -24,9 +25,15 @@ function PublicationList({message, limit}: PublicationListMessage){
         (async () => {
             const client = new PublicationClass()
             try{
-                const pub = await client.getAllPublications()
-                if(pub){
+
+                if(activity_id){
+                    const pub = await client.getAllPublicationsViaActivityID(activity_id)
                     setPublications(pub)
+                } else {
+                    const pub = await client.getAllPublications()
+                    if(pub){
+                        setPublications(pub)
+                    }
                 }
                 setErrors(null)
             } catch(e){
@@ -48,7 +55,7 @@ function PublicationList({message, limit}: PublicationListMessage){
     }
 
     return <>    
-        <h2>Publications</h2>
+        <h2>Publications {activity_id ? "associés" : ""}</h2>
         <section>{publications
         .slice(0, limit ?? publications.length)
         .map((pub) => (

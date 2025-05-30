@@ -19,6 +19,10 @@ export class PublicationClass extends ApiClient{
         return await this.Get(this.url)
     }
 
+    async getAllPublicationsViaActivityID(activity_id: string): Promise<Publication[]>{
+        return await this.Get(`${this.url}/activity/${activity_id}`)
+    }
+
     async getMyPublications(): Promise<Publication[]>{
         return await this.Get(`${this.url}/@me`)
     }

@@ -13,6 +13,7 @@ import { useAuth } from "../shared/auth-context";
 import NotFound from "../shared/notfound";
 import { ErrorMessage } from "../../../api/client";
 import Errors from "../shared/errors";
+import PublicationList from "../Publications/PublicationsList";
 
 function ShowActivityPage() {
     const { id } = useParams<{ id: string }>();
@@ -56,6 +57,7 @@ function ShowActivityPage() {
     }
 
     return (
+        <>
         <ShowActivity
             key={activity._id}
             activity={activity}
@@ -64,6 +66,8 @@ function ShowActivityPage() {
             onManage={(actId) => navigate(`${Route.manageActivity}/${actId}`)}
             buttonShow={ShowActivityButton.ViewPublication | ShowActivityButton.Manage}
         />
+        <PublicationList message="" activity_id={activity._id} />
+        </>
     );
 }
 
