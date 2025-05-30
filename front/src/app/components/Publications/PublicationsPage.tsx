@@ -85,7 +85,8 @@ function Publications(){
                 pub={publications}
                 user={me}
                 onManage={() => navigate(`${Route.managePublications}/${publications._id}`)}
-                buttonShow={ShowPublicationButton.Manage}
+                onViewActivity={() => navigate(`${Route.activity}/${publications.activity?._id}`)}
+                buttonShow={ShowPublicationButton.Manage | ShowPublicationButton.ViewActivity}
             />
         </section>
     }
