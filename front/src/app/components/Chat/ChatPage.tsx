@@ -1,33 +1,36 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../shared/auth-context";
 import NotFound from "../shared/notfound";
 import { Channel, ChatClass, Message } from "../../../api/chat";
-import { ApiClient } from "../../../api/client";
 import ChatRoom, { ChannelRight } from "./ChatRoom";
 
 function ChatPage() {
-
   const { me } = useAuth();
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [messages, setMessages] = useState<Message[]>([]);
-  const [token, setToken] = useState<string | null>(null)
+  const [token, setToken] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [status, setStatus] = useState("Déconnecté");
-  const [channel, setChannel] = useState<Channel | null>(null)
+  const [channel, setChannel] = useState<Channel | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  // Connexion WebSocket et gestion des messages
-  useEffect(() => {
+  // Pour le reconnexion automatique
+  const reconnectTimeout = useRef<number | null>(null);
+  const reconnectDelay = useRef<number>(1000); // 1s de base
+
+  // Fonction pour ouvrir la connexion WebSocket
+  const openWebSocket = React.useCallback(() => {
     if (!id) return;
+
     const ws = new window.WebSocket(`ws://localhost:3000/channel/${id}`);
     wsRef.current = ws;
 
-    const user = new ChatClass()
-    setToken(user.getAuthToken())
+    const user = new ChatClass();
+    setToken(user.getAuthToken());
 
     const fetchChannel = async () => {
       const chan = await user.getChannelById(id);
@@ -37,12 +40,24 @@ function ChatPage() {
 
     ws.onopen = () => {
       setStatus("Connecté");
-      ws.send(JSON.stringify({ type: "INIT", token: token }));
+      reconnectDelay.current = 1000; // reset le délai au succès
+      ws.send(JSON.stringify({ type: "INIT", token: user.getAuthToken() }));
       setMessages([]);
     };
 
-    ws.onclose = () => setStatus("Déconnecté");
-    ws.onerror = () => setStatus("Erreur");
+    ws.onclose = () => {
+      setStatus("Déconnecté");
+      if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);
+      reconnectTimeout.current = setTimeout(() => {
+        reconnectDelay.current = Math.min(reconnectDelay.current * 1.2, 30000); // max 30s
+        openWebSocket();
+      }, reconnectDelay.current);
+    };
+
+    ws.onerror = () => {
+      setStatus("Erreur");
+      ws.close(); // Ferme pour déclencher onclose et donc la reconnexion
+    };
 
     ws.onmessage = async (event) => {
       let data = typeof event.data === "string" ? event.data : await event.data.text();
@@ -57,10 +72,18 @@ function ChatPage() {
       if (msg.type === "HISTORY") setMessages(msg.messages);
       if (msg.type === "MESSAGE") setMessages(prev => [...prev, msg]);
     };
+  }, [id]);
 
-    return () => ws.close();
-  }, [id, token]);
+  // useEffect principal
+  useEffect(() => {
+    openWebSocket();
+    return () => {
+      if (wsRef.current) wsRef.current.close();
+      if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);
+    };
+  }, [id, openWebSocket]);
 
+  // Scroll auto
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -77,8 +100,11 @@ function ChatPage() {
   if (!id) return <div>Liste des channels ici</div>;
   if (!me) return <NotFound />;
 
-  const statusColor = (status == "Connecté" ? "#00FF00" : "#FF0000")
-  const thechannelAuth = channel?.member_auth == ChannelRight.read_send ? ChannelRight.read_send : ChannelRight.read_only
+  const statusColor = status === "Connecté" ? "#00FF00" : "#FF0000";
+  const thechannelAuth =
+    channel?.member_auth === ChannelRight.read_send
+      ? ChannelRight.read_send
+      : ChannelRight.read_only;
 
   return (
     <ChatRoom
