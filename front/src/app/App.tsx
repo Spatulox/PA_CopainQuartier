@@ -3,7 +3,7 @@ import './css/App.css'
 import './css/index.css'
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Account from './components/Account/AccountPage';
+import Account, { ManageMyAccount } from './components/Account/AccountPage';
 import Chat from './components/Chat/ChatPage';
 import { Route as CRoute } from './constantes';
 import Register from './components/LoginRegister/Register';
@@ -18,6 +18,11 @@ import Trocs from './components/Trocs/TrocsPage';
 import ResetPassword from './components/LoginRegister/ResetPassword';
 import ManageActivity, { ManageMyActivity } from './components/Activity/ActivityManage';
 import ManagePublication, { ManageMyPublications } from './components/Publications/PublicationManage';
+import ManageTroc, { ManageMyTroc } from './components/Trocs/TrocManage';
+import ManageChat from './components/Chat/ChatManage';
+import ManageUser from './components/Users/UserManage';
+import NotFound from './components/shared/notfound';
+import Users from './components/Users/UserPage';
 
 function App() {
   return (
@@ -34,7 +39,11 @@ function App() {
 
 
           <Route path={CRoute.account} element={<Account />} />
+          <Route path={CRoute.manageMyAccount} element={<ManageMyAccount />} />
           <Route path={`${CRoute.chat}`} element={<Chat />} />
+          <Route path={`${CRoute.chat}/:id`} element={<Chat />} />
+          <Route path={`${CRoute.manageChannels}`} element={<ManageChat />} />
+          <Route path={`${CRoute.manageChannels}/:id`} element={<ManageChat />} />
 
 
           <Route path={CRoute.activity} element={<ActivityComponent />} />
@@ -52,10 +61,18 @@ function App() {
 
           <Route path={CRoute.troc} element={<Trocs />} />
           <Route path={`${CRoute.troc}/:id`} element={<Trocs />} />
-          <Route path={CRoute.manageTrocs} element={<Trocs />} />
-          <Route path={`${CRoute.manageTrocs}/:id`} element={<Trocs />} />
-          <Route path={`${CRoute.manageMyTrocs}`} element={<Trocs />} />
-          {/* ... autres routes */}
+          <Route path={CRoute.manageTrocs} element={<ManageTroc />} />
+          <Route path={`${CRoute.manageTrocs}/:id`} element={<ManageTroc />} />
+          <Route path={`${CRoute.manageMyTrocs}`} element={<ManageMyTroc />} />
+
+          <Route path={CRoute.user} element={<Users />} />
+          <Route path={`${CRoute.user}/:id`} element={<Users />} />
+          <Route path={CRoute.manageUser} element={<ManageUser />} />
+          <Route path={`${CRoute.manageUser}/:id`} element={<ManageUser />} />
+
+
+          <Route path="404" element={<NotFound />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
         </main>
         <Footer />

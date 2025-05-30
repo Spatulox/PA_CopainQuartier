@@ -6,13 +6,14 @@ export type FieldForm = {
   name: string;
   label: string;
   type: string;
-  value?: string[];
+  value?: {value: string, label: string}[] | string[]; 
   required?: boolean;
 };
 
 type PopupFormProps<T extends Record<string, string>> = {
   title: string;
   fields: FieldForm[];
+  APIerrors: any;
   initialFormData: T;
   onSubmit: (formData: T) => Promise<void> | void;
   submitLabel: string;
@@ -23,6 +24,7 @@ type PopupFormProps<T extends Record<string, string>> = {
 export function PopupForm<T extends Record<string, string>>({
   title,
   fields,
+  APIerrors,
   initialFormData,
   onSubmit,
   submitLabel,
@@ -42,6 +44,18 @@ export function PopupForm<T extends Record<string, string>>({
         errs.push(`Le champ "${field.label}" est obligatoire.`);
       }
     });
+
+    const APIerrs: string[] = [];
+    if(APIerrors){
+      for (const key in APIerrors){
+        APIerrs.push(`${key} : ${APIerrors[key]}`)
+      }
+      if(APIerrs.length > 0){
+        setErrors(APIerrs)
+        return
+      }
+    }
+
     setErrors(errs);
     if (errs.length === 0) {
       await onSubmit(formData);

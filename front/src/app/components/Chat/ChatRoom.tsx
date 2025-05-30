@@ -28,7 +28,6 @@ const ChatRoom: React.FC<Props> = ({
     <div id="status" style={{ color: statusColor, marginBottom: 8 }}>{status}</div>
     <div
       id="messages"
-      ref={messagesDivRef}
       style={{
         border: "1px solid #ccc",
         height: 300,
@@ -38,8 +37,12 @@ const ChatRoom: React.FC<Props> = ({
       }}
     >
       {messages.map((msg, idx) => (
-        <div key={idx}>{msg.content}</div>
+        <div key={idx}>
+          <span>{msg.username}</span>
+          <p>{msg.content}</p>
+        </div>
       ))}
+      <div ref={messagesDivRef}/>
     </div>
     {memberRight === ChannelRight.read_send && (
       <form id="formulaire" onSubmit={handleSubmit} style={{ display: "flex", gap: 8 }}>

@@ -1,130 +1,109 @@
+// --- Dépendances et imports ---
 import { WebSocketServer, WebSocket, RawData } from 'ws';
-import { ChannelTable } from '../DB_Schema/ChannelSchema';
 import { getChannelById, saveMessageToChannel } from '../Services/channels/channels';
 import { getCurrentUserByToken } from '../Middleware/auth';
+import { getUserById } from '../Services/users/usersPublic';
+import { ObjectID } from '../DB_Schema/connexion';
+import { UserRole, UserTable } from '../DB_Schema/UserSchema';
 
-// Will store each client connection to know if they already request the WS with the INIT message
-// If yes, the client can do everything it wants
-// If no, nothing will be accessible
-export const initAccessMap = new Map<WebSocket, number>();
-const INIT_TIMEOUT = 60 * 60 * 1000; // 1h in ms
+// --- Stockage des connexions et abonnements ---
+export const accessMap = new Map<WebSocket, number>();
+export const channelClients = new Map<string, Set<WebSocket>>();
+const INIT_TIMEOUT = 60 * 60 * 1000; // 1h
 
-export const channelSubscriptions = new Map<string, Set<WebSocket>>(); // to avoid sending al message to all users
+// --- Types de messages ---
+type InitMsg = { type: "INIT"; token: string; };
+type ChatMsg = { type: "MESSAGE"; content: string; username: string };
+type ErrorMsg = { type: "ERROR"; error: string; };
+type HistoryMsg = { type: "HISTORY"; messages: any[]; };
+type ServerMsg = ErrorMsg | HistoryMsg | ChatMsg
 
-
-
-function createErrorMsg(content: string){
-    return JSON.stringify({"err":content})
+// --- Utilitaires ---
+function send(ws: WebSocket, msg: ServerMsg) {
+  if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(msg));
 }
 
-type INIT = {
-    connection: string;
-};
+// --- Handler principal ---
+export async function handleMessage(
+  wss: WebSocketServer,
+  ws: WebSocket,
+  data: RawData,
+  channel_id: string
+) {
+  try {
+    const msg = JSON.parse(data.toString());
+    const validChannelId = new ObjectID(channel_id);
+    const channel = await getChannelById(validChannelId);
+    if (!channel) return send(ws, { type: "ERROR", error: "Channel inexistant" });
 
-type MSG = {
-    message: string;
-    user_id: string;
-    channel_id: string
-};
-
-// Type guards
-function isINIT(obj: any): obj is INIT {
-    return typeof obj === 'object' && obj !== null && 'connection' in obj;
-}
-
-function isMSG(obj: any): obj is MSG {
-    return typeof obj === 'object' && obj !== null && 'message' in obj && 'user_id' in obj;
-}
-
-export async function handleMessage(wss: WebSocketServer, fromClient: WebSocket, data: RawData, channel_id: string) {
-    try{
-        const msgRaw = JSON.parse(data.toString());
-        //console.log(`Message reçu pour le channel ${channel_id}:`, msgRaw);
-
-        // check if channel exist
-        const channel = await getChannelById(channel_id)
-        if(!channel){
-            fromClient.send(createErrorMsg("This channel don't exist"))
-            return
-        }
-
-        if (isINIT(msgRaw)) {
-            const msg: INIT = msgRaw;
-            initAccessMap.set(fromClient, Date.now());
-            const jwt = msg.connection;
-        
-            // Get the user with the jwt
-            const user = await getCurrentUserByToken(jwt)
-            if (
-                !user ||
-                !channel ||
-                !Array.isArray(channel.members) ||
-                !channel.members.map((m: any) => m._id.toString()).includes(user._id.toString())
-            ) {
-                fromClient.send(createErrorMsg("You don't have access to this channel"));
-                return;
-            }
-        
-            // Subscribing to channel
-            if (!channelSubscriptions.has(channel_id)) {
-                channelSubscriptions.set(channel_id, new Set());
-            }
-            channelSubscriptions.get(channel_id)!.add(fromClient);
-        
-            if (channel_id && fromClient.readyState === WebSocket.OPEN) {
-                fromClient.send(JSON.stringify(channel.messages));
-            }
-            return;
-        }        
-
-        const lastInit = initAccessMap.get(fromClient);
-        if (!lastInit || Date.now() - lastInit > INIT_TIMEOUT) {
-            const err = "Accès refusé : veuillez vous \"reconnecter\" (INIT message).";
-            if (fromClient.readyState === WebSocket.OPEN) {
-            fromClient.send(createErrorMsg(err));
-            }
-            return;
-        }
-
-        if (isMSG(msgRaw)) {
-            const msg: MSG = msgRaw;
-            if(!channel.members.map((m: any) => m._id.toString()).includes(msg.user_id.toString())){
-                fromClient.send(createErrorMsg("You don't have access to it"))
-                return
-            }
-        
-            // Send message only to subscribed users
-            const clients = channelSubscriptions.get(channel_id) || new Set();
-            clients.forEach((client) => {
-                if (client.readyState === WebSocket.OPEN) {
-                    client.send(JSON.stringify(msg));
-                }
-            });
-        
-            return await saveMessageToChannel(msg.user_id, channel_id, msg);
-        }        
-
-        const err ="Unknow Message Type, plz check the input";
-        if (fromClient.readyState === WebSocket.OPEN) {
-            fromClient.send(createErrorMsg(err));
-        }
-        console.log("Le message ne correspond à aucun type")
-    } catch (e: any){
-        fromClient.send(createErrorMsg("Something went wrong"))
-        console.log(e)
-    }
-}
-
-setInterval(() => {
-    console.log("Cleaning old websocket connection")
-    const now = Date.now();
-    for (const [ws, timestamp] of initAccessMap.entries()) {
-      if (now - timestamp > INIT_TIMEOUT) {
-        initAccessMap.delete(ws);
-        for (const clients of channelSubscriptions.values()) {
-          clients.delete(ws);
-        }
+    // --- INIT ---
+    if (msg.type === "INIT") {
+      const user = await getCurrentUserByToken(msg.token);
+      if (
+        !user ||
+        (!channel.members.map((m: any) => m._id.toString()).includes(user._id.toString()) && user.role !== UserRole.admin)
+      ) {
+        return send(ws, { type: "ERROR", error: "Accès refusé à ce channel" });
       }
-    }
-}, 10 * 60 * 1000);
+      // Abonnement
+      accessMap.set(ws, Date.now());
+      if (!channelClients.has(channel_id)) channelClients.set(channel_id, new Set());
+      channelClients.get(channel_id)!.add(ws);
 
+      // Envoi de l'historique
+      if(!channel.messages){
+        return
+      }
+      const authorIds = [...new Set(channel.messages.map((m: any) => m.author?._id?.toString()))];
+      const users = await UserTable.find({ _id: { $in: authorIds } }).select('_id name').lean();
+      const userMap = new Map(users.map(u => [u._id.toString(), u.name]));
+      const messages = channel.messages.map((m: any) => ({
+        type: "MESSAGE",
+        content: m.content,
+        username: userMap.get(m.author?._id.toString()) || "Inconnu"
+      }));
+      send(ws, { type: "HISTORY", messages });
+      return;
+    }
+
+    // --- Vérification d'accès ---
+    const lastInit = accessMap.get(ws);
+    if (!lastInit || Date.now() - lastInit > INIT_TIMEOUT) {
+      return send(ws, { type: "ERROR", error: "Session expirée, veuillez vous reconnecter." });
+    }
+
+    // --- MESSAGE ---
+    if (msg.type === "MESSAGE") {
+      const user = await getUserById(new ObjectID(msg.user_id));
+      if (
+        !user ||
+        (!channel.members.map((m: any) => m._id.toString()).includes(msg.user_id.toString()) && user.role !== UserRole.admin)
+      ) {
+        return send(ws, { type: "ERROR", error: "Accès refusé" });
+      }
+      // Diffusion
+      const clients = channelClients.get(channel_id) || new Set();
+      const chatMsg: ServerMsg = { type: "MESSAGE", content: msg.content, username: user.name || "Inconnu" };
+      clients.forEach(client => send(client, chatMsg));
+      await saveMessageToChannel(user, validChannelId, msg);
+      return;
+    }
+
+    // --- Type inconnu ---
+    send(ws, { type: "ERROR", error: "Type de message inconnu" });
+  } catch (e) {
+    send(ws, { type: "ERROR", error: "Erreur serveur" });
+    console.error(e);
+  }
+}
+
+// --- Nettoyage périodique ---
+setInterval(() => {
+  const now = Date.now();
+  for (const [ws, t] of accessMap.entries()) {
+    if (now - t > INIT_TIMEOUT) {
+      accessMap.delete(ws);
+      for (const clients of channelClients.values()) clients.delete(ws);
+    }
+  }
+}, 10 * 60 * 1000);

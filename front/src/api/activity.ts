@@ -8,41 +8,64 @@ export type Activity = {
     description: string,
     created_at: Date,
     date_reservation: Date,
-    author_id: User,
-    channel_chat_id: string,
+    author: User,
+    channel_chat: string,
     publication: Publication,
     participants: User[]
 }
 
 export class ActivityClass extends ApiClient{
-    private url = "/activities"
+    protected url = "/activities"
 
     async getActivities():Promise<Activity[]>{
         const activity = await this.Get(this.url)
-        return activity.data
+        return activity//.data
     }
 
     async getActivityByID(id: string):Promise<Activity>{
         const activity = await this.Get(`${this.url}/${id}`)
-        return activity.data
+        return activity//.data
     }
 
     async getMyActivities():Promise<Activity[]>{
         const activity = await this.Get(`${this.url}/@me`)
-        return activity.data
+        return activity//.data
+    }
+
+    async createActivities(option: object): Promise<Activity | null>{
+        return await this.Post(this.url, option)
+    }
+
+    async updateActivity(id: string, option: object): Promise<void>{
+        await this.Patch(`${this.url}/${id}`, option)
+    }
+
+    async deleteActivity(id: string): Promise<void>{
+        await this.Delete(`${this.url}/${id}`)
+    }
+}
+
+export class AdminActivityClass extends ActivityClass{
+
+    protected urlAdmin = "/admin/activities"
+
+    constructor() {
+        super();
+        this.refreshUser().then(() => {
+            if (!this.isAdmin()) {
+                throw new Error("User is not admin");
+            }
+        })
     }
 
     async getAllActivitiesAdmin():Promise<Activity[]>{
-        const activity = await this.Get(`admin${this.url}/`)
-        return activity.data
+        const activity = await this.Get(`${this.urlAdmin}/`)
+        return activity//.data
     }
 
-    async getactivityAdminById(id: string):Promise<Activity>{
-        const activity = await this.Get(`admin${this.url}/${id}`)
-        return activity.data
+    async getActivityAdminById(id: string):Promise<Activity>{
+        const activity = await this.Get(`${this.urlAdmin}/${id}`)
+        return activity//.data
     }
 
-    async createActivities(option: any): Promise<boolean>{
-        return await this.Post(this.url, option)
-    }
 }

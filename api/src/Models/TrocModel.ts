@@ -1,15 +1,18 @@
-import mongoose from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
+import { FilledUser, User } from "./UserModel";
 
-export interface Troc {
-    _id: string,
+export type Troc = {
+    _id: ObjectId,
     title: string,
     created_at: Date,
-    author_id: string,
+    description: string,
+    author_id: ObjectId,
     reserved_at: Date,
-    reserved_by: string,
-    status: string,
-    type: string,
-    visibility : string
+    reserved_by: ObjectId[],
+    updated_at: Date,
+    status: TrocStatus,
+    type: TrocType,
+    visibility : TrocVisibility
 }
 
 export enum TrocType {
@@ -18,6 +21,7 @@ export enum TrocType {
     item = "item"
 }
 
+// Troc visibility set by the owner
 export enum TrocVisibility {
     hide = "hide",
     visible = "visible"
@@ -26,8 +30,10 @@ export enum TrocVisibility {
 export enum TrocStatus {
     completed = "completed",
     cancelled = "cancelled",
-    hide = "hide",
+    hide = "hide", // TrocStatus.hice troc non approve by admin
     pending = "pending",
     reserved = "reserved",
     waitingForApproval = "waitingforapproval",
 }
+
+export type FilledTroc = Omit<Troc, "author_id" | "reserved_by"> & {author: User | FilledUser | null, reserved_by: User | FilledUser | string}

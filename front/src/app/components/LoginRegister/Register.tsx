@@ -17,7 +17,7 @@ const registerFields = [
 ];
 
 function Register() {
-  const { updateHeaderConnected } = useAuth();
+  const { updateConnection } = useAuth();
   const [formData, setFormData] = useState({
     name: '', lastname: '', phone: '', address: '', email: '', password: '', confirmPassword: ''
   });
@@ -32,18 +32,21 @@ function Register() {
     if (formData.password !== formData.confirmPassword) newErrors.push('Les mots de passe ne correspondent pas');
     if (newErrors.length > 0) { setErrors(newErrors); return; }
     const client = new ApiClient(formData.email, formData.password);
+    console.log(client)
     let res;
     try {
       res = await client.register(formData);
     } catch (e: any) {
-      for (const err in e.response.data) {
-        newErrors.push(`${err} : ${e.response.data[err]}`);
+      if(e.hasOwnProperty("response")){
+          for (const err in e.response.data) {
+          newErrors.push(`${err} : ${e.response.data[err]}`);
+        }
+        setErrors(newErrors);
       }
-      setErrors(newErrors);
       return;
     }
     if (res) {
-      updateHeaderConnected();
+      updateConnection();
       setErrors([]);
       navigate('/account');
     }

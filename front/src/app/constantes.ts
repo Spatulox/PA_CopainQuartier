@@ -1,11 +1,14 @@
 export const enum Route {
     base= "/",
+    notfound="/404",
 
     login = "/login",
     register = "/register",
     resetPassword = "/reset",
 
     account = "/account",
+    manageMyAccount = "/account/manage/me",
+
     chat = "/chat",
     manageChannels = "/chat/manage",
 
@@ -20,4 +23,7 @@ export const enum Route {
     troc = "/trocs",
     manageTrocs = "/trocs/manage",
     manageMyTrocs = "/trocs/manage/me",
+
+    user = "/users",
+    manageUser = "/users/manage",
 }

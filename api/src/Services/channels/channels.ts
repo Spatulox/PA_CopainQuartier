@@ -1,17 +1,24 @@
 import mongoose from "mongoose";
-import { Channel, ChannelToPublicChannel, createMessage, Message, MessageType, ObjectToChannel, PublicChannel } from "../../Models/ChannelModel";
+import { Channel, createMessage, FilledChannel, FilledMessage, Message, MessageType, PublicChannel, PublicFilledChannel } from "../../Models/ChannelModel";
 import { ChannelAuth, ChannelTable } from "../../DB_Schema/ChannelSchema";
 import { CreateChannelParam, PostMessageParam, TransferChannelParam, UpdateChannelParam } from "../../Validators/channels";
-import { ID } from "../../Utils/IDType";
-import { User } from "../../Models/UserModel";
-import { UserTable } from "../../DB_Schema/UserSchema";
+import { FilledUser, User } from "../../Models/UserModel";
+import { UserRole, UserTable } from "../../DB_Schema/UserSchema";
+import { toUserObject } from "../users/usersPublic";
+import { toActivityObject } from "../activities/activities";
+import { ObjectID } from "../../DB_Schema/connexion";
+import { ActivityTable } from "../../DB_Schema/ActivitiesSchema";
 
-export async function getChannelById(channel_id: ID): Promise<Channel | null>{
+export async function getChannelById(channel_id: ObjectID): Promise<FilledChannel | null>{
     const res = await ChannelTable.findById(channel_id)
-    return ObjectToChannel(res)
+    .populate("admin_id")
+    .populate("activity_id")
+    .exec()
+    
+    return objectToChannel(res)
 }
 
-export async function getPublicChannelById(channel_id: ID): Promise<PublicChannel | null>{
+export async function getPublicChannelById(channel_id: ObjectID): Promise<PublicFilledChannel | null>{
     const channels = await ChannelTable.findById(channel_id).lean()
     if(!channels){
         return null
@@ -19,14 +26,25 @@ export async function getPublicChannelById(channel_id: ID): Promise<PublicChanne
     return ChannelToPublicChannel(channels)
 }
 
-export async function getMyChannel(user: User): Promise<Channel[] | null>{
+export async function getMyChannel(user: User): Promise<FilledChannel[] | null>{
     const res = await ChannelTable.find({
         admin_id: user._id
     }).lean().exec()
     return res.map(objectToChannel);
 }
 
-export async function createChannel(user: User, data: CreateChannelParam): Promise<Channel | null>{
+export async function getAllChannel(user: User): Promise<FilledChannel[] | null>{
+    if (user.role != UserRole.admin){return null}
+
+    const res = await ChannelTable.find({
+    }).lean()
+    .populate("admin_id")
+    .populate("members")
+    .exec()
+    return res.map(objectToChannel);
+}
+
+export async function createChannel(user: User, data: CreateChannelParam): Promise<FilledChannel | null>{
     const mes: Message = createMessage("This is the start of the conversation", null)
 
     const dataToSave: any = {
@@ -38,7 +56,8 @@ export async function createChannel(user: User, data: CreateChannelParam): Promi
         messages: [mes],
         members: [user._id],
         member_auth: ChannelAuth.read_send,
-        created_at: new Date()
+        created_at: new Date(),
+        activity_id: data.activity_id_linked ? data.activity_id_linked : undefined
 
     }
 
@@ -53,7 +72,7 @@ export async function createChannel(user: User, data: CreateChannelParam): Promi
     return objectToChannel(channeltmp);
 }
 
-export async function updateChannelAttribute(channel_id: ID, update: UpdateChannelParam): Promise<boolean> {
+export async function updateChannelAttribute(channel_id: ObjectID, update: UpdateChannelParam): Promise<boolean> {
     const result = await ChannelTable.updateOne(
         { _id: channel_id },
         { $set: update }
@@ -62,7 +81,7 @@ export async function updateChannelAttribute(channel_id: ID, update: UpdateChann
 }
 
 
-export async function updateChannelAdmin(param: TransferChannelParam, channel_id: ID): Promise<boolean> {
+export async function updateChannelAdmin(param: TransferChannelParam, channel_id: ObjectID): Promise<boolean> {
     const result = await ChannelTable.updateOne(
       { _id: channel_id },
       { $set: { admin_id: param.new_admin_id } }
@@ -70,7 +89,7 @@ export async function updateChannelAdmin(param: TransferChannelParam, channel_id
     return result.modifiedCount > 0;
 }
 
-export async function addSomeoneFromChannel(channel_id: ID, user_id: ID): Promise<boolean> {
+export async function addSomeoneFromChannel(channel_id: ObjectID, user_id: ObjectID): Promise<boolean> {
     const result = await ChannelTable.updateOne(
         { _id: channel_id },
         { $addToSet: { members: user_id } }
@@ -79,7 +98,7 @@ export async function addSomeoneFromChannel(channel_id: ID, user_id: ID): Promis
 }
 
 
-export async function removeSomeoneFromChannel(channel_id: ID, user_id: ID): Promise<boolean> {
+export async function removeSomeoneFromChannel(channel_id: ObjectID, user_id: ObjectID): Promise<boolean> {
     const result = await ChannelTable.updateOne(
         { _id: channel_id },
         { $pull: { members: user_id } }
@@ -87,8 +106,8 @@ export async function removeSomeoneFromChannel(channel_id: ID, user_id: ID): Pro
     return result.modifiedCount > 0;
 }
 
-export async function saveMessageToChannel(user: User | ID, channel_id: ID, content: PostMessageParam): Promise<boolean>{
-    const message = createMessage(content.message, user)
+export async function saveMessageToChannel(user: FilledUser , channel_id: ObjectID, content: PostMessageParam): Promise<boolean>{
+    const message = createMessage(content.content, user)
     const result = await ChannelTable.updateOne(
         { _id: channel_id },
         { $push: { messages: message } }
@@ -96,7 +115,7 @@ export async function saveMessageToChannel(user: User | ID, channel_id: ID, cont
     return result.modifiedCount > 0
 }
 
-export async function deleteMessageFromChannel(channel_id: ID, message_id: ID): Promise<boolean> {
+export async function deleteMessageFromChannel(channel_id: ObjectID, message_id: ObjectID): Promise<boolean> {
     const result = await ChannelTable.updateOne(
         { _id: channel_id },
         { $pull: { messages: { _id: message_id } } }
@@ -105,7 +124,23 @@ export async function deleteMessageFromChannel(channel_id: ID, message_id: ID): 
 }
 
 
-export async function deleteChannel(channel_id: ID): Promise<boolean>{
+export async function deleteChannelLinkedTOActivity(channel_id: ObjectID, activity_id: ObjectID): Promise<boolean>{
+    const res = await ChannelTable.deleteOne({_id: channel_id})
+
+    await UserTable.updateMany(
+        { group_channel_list: channel_id },
+        { $pull: { group_channel_list: channel_id } }
+    );
+
+    const res2 = await ActivityTable.updateOne(
+        { _id: activity_id },
+        { $pull: { channel_chat_id: channel_id } }
+    );
+
+    return res.deletedCount > 0 && res2.modifiedCount > 0
+}
+
+export async function deleteChannel(channel_id: ObjectID): Promise<boolean>{
     const res = await ChannelTable.deleteOne({_id: channel_id})
 
     await UserTable.updateMany(
@@ -127,17 +162,17 @@ export async function deleteChannel(channel_id: ID): Promise<boolean>{
  * @param obj L'objet provenant de la DB (plain object ou document Mongoose)
  * @returns Un objet Channel typé
  */
-export function objectToChannel(obj: any): Channel {
+export function objectToChannel(obj: any): FilledChannel {
     return {
         _id: obj._id?.toString(),
         name: obj.name,
-        activity_id: obj.activity_id ? obj.activity_id.toString() : null,
+        activity: obj.activity_id ? toActivityObject(obj.activity_id) : null,
         type: obj.type,
         description: obj.description,
-        admin_id: obj.admin_id?.toString(),
+        admin: obj.admin_id ? toUserObject(obj.admin_id) : null,
         messages: obj.messages?.map(objectToMessage) ?? [],
         members: Array.isArray(obj.members)
-            ? obj.members.map((m: any) => m?.toString())
+            ? obj.members.map((m: User) => toUserObject(m))
             : [],
         member_auth: obj.member_auth,
         created_at: obj.created_at ? new Date(obj.created_at) : new Date(),
@@ -149,11 +184,23 @@ export function objectToChannel(obj: any): Channel {
  * @param obj L'objet message provenant de la DB
  * @returns Un objet Message typé
  */
-function objectToMessage(obj: any): Message {
+function objectToMessage(obj: any): FilledMessage {
     return {
         date: obj.date ? new Date(obj.date) : new Date(),
         content: obj.content,
-        author_id: obj.author_id ? obj.author_id.toString() : undefined,
+        author: obj.author_id ? toUserObject(obj.author_id) : null,
         type: obj.type,
+    };
+}
+
+
+export function ChannelToPublicChannel(channel: Channel): PublicFilledChannel {
+    return {
+        _id: channel._id.toString(),
+        name: channel.name,
+        activity: channel.activity_id ? toActivityObject(channel.activity_id) : null,
+        type: channel.type,
+        description: channel.description,
+        created_at: channel.created_at,
     };
 }

@@ -1,205 +1,111 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ChatClass, Channel, Message } from "../../../api/chat";
-import { CreateChannel, ManageChannelList } from "./ChatList";
+import { useAuth } from "../shared/auth-context";
+import NotFound from "../shared/notfound";
+import { Channel, ChatClass, Message } from "../../../api/chat";
 import ChatRoom, { ChannelRight } from "./ChatRoom";
-import { Route } from "../../constantes";
-import { PopupConfirm } from "../Popup/PopupConfirm";
 
-const ChatPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const [thechannelAuth, setChannelAuth] = useState<ChannelRight>(ChannelRight.read_only);
-  const [status, setStatus] = useState("Déconnecté");
-  const [statusColor, setStatusColor] = useState("red");
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState("");
-  const [channels, setChannels] = useState<Channel[]>([]);
-  const wsRef = useRef<WebSocket | null>(null);
-  const messagesDivRef = useRef<HTMLDivElement>(null);
-  const userRef = useRef<ChatClass>(new ChatClass());
-  const [confirmChannelDeletion, setChannelDeletion] = useState<{ id: string, isDelete: boolean } | null>(null);
+function ChatPage() {
+  const { me } = useAuth();
+  const { id } = useParams();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    let isMounted = true;
-    const user = userRef.current;
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [token, setToken] = useState<string | null>(null);
+  const [input, setInput] = useState("");
+  const [status, setStatus] = useState("Déconnecté");
+  const [channel, setChannel] = useState<Channel | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-    if (!id) {
-      (async () => {
-        if (!(await user.connect())) {
-          navigate(Route.login);
-          return;
-        }
-        const channels = await user.getChannel();
-        if (isMounted) setChannels(channels);
-      })();
-      return () => {
-        isMounted = false;
-      };
-    }
+  // Pour le reconnexion automatique
+  const reconnectTimeout = useRef<number | null>(null);
+  const reconnectDelay = useRef<number>(1000); // 1s de base
 
-    (async () => {
-      if (!(await user.connect())) {
-        navigate(Route.login);
-        return;
-      }
-      const channel = await user.getChannelById(id);
-      if (!channel) {
-        setStatus("Aucun channel trouvé");
-        setStatusColor("orange");
-        return;
-      }
+  // Fonction pour ouvrir la connexion WebSocket
+  const openWebSocket = React.useCallback(() => {
+    if (!id) return;
 
-      setChannelAuth(channel.member_auth == ChannelRight.read_send ? ChannelRight.read_send : ChannelRight.read_only)
+    const ws = new window.WebSocket(`ws://localhost:3000/channel/${id}`);
+    wsRef.current = ws;
 
-      const ws = new WebSocket(`ws://localhost:3000/channel/${channel._id}`);
-      wsRef.current = ws;
+    const user = new ChatClass();
+    setToken(user.getAuthToken());
 
-      ws.onopen = () => {
-        setStatus("Connecté");
-        setStatusColor("green");
-        ws.send(JSON.stringify({ connection: user.getAuthToken() }));
-      };
-
-      ws.onclose = () => {
-        setStatus("Déconnecté");
-        setStatusColor("red");
-      };
-
-      ws.onerror = () => {
-        setStatus("Erreur de connexion");
-        setStatusColor("orange");
-      };
-
-      ws.onmessage = async (event) => {
-        let dataStr = "";
-
-        if (event.data instanceof Blob) {
-          dataStr = await event.data.text();
-        } else if (typeof event.data === "string") {
-          dataStr = event.data;
-        } else {
-          console.error("Type de message WebSocket inattendu :", event.data);
-          return;
-        }
-
-        let res;
-        try {
-          res = JSON.parse(dataStr);
-        } catch (e) {
-          console.error("Message reçu n'est pas du JSON valide :", dataStr);
-          return;
-        }
-
-        if (res.hasOwnProperty("err")) {
-          alert(res.err.toString());
-          ws.close();
-          return;
-        }
-
-        if (Array.isArray(res)) {
-          if (isMounted) {
-            setMessages((prev) => [...prev, ...res]);
-          }
-        }
-
-        if (res.hasOwnProperty("message")) {
-          if (isMounted) {
-            setMessages((prev) => [...prev, { content: res.message }]);
-          }
-        }
-      };
-    })();
-
-    return () => {
-      isMounted = false;
-      wsRef.current?.close();
+    const fetchChannel = async () => {
+      const chan = await user.getChannelById(id);
+      setChannel(chan);
     };
-  }, [id, navigate]);
+    fetchChannel();
 
+    ws.onopen = () => {
+      setStatus("Connecté");
+      reconnectDelay.current = 1000; // reset le délai au succès
+      ws.send(JSON.stringify({ type: "INIT", token: user.getAuthToken() }));
+      setMessages([]);
+    };
+
+    ws.onclose = () => {
+      setStatus("Déconnecté");
+      if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);
+      reconnectTimeout.current = setTimeout(() => {
+        reconnectDelay.current = Math.min(reconnectDelay.current * 1.2, 30000); // max 30s
+        openWebSocket();
+      }, reconnectDelay.current);
+    };
+
+    ws.onerror = () => {
+      setStatus("Erreur");
+      ws.close(); // Ferme pour déclencher onclose et donc la reconnexion
+    };
+
+    ws.onmessage = async (event) => {
+      let data = typeof event.data === "string" ? event.data : await event.data.text();
+      let msg;
+      try { msg = JSON.parse(data); } catch { return; }
+
+      if (msg.type === "ERROR") {
+        alert(msg.error);
+        ws.close();
+        return;
+      }
+      if (msg.type === "HISTORY") setMessages(msg.messages);
+      if (msg.type === "MESSAGE") setMessages(prev => [...prev, msg]);
+    };
+  }, [id]);
+
+  // useEffect principal
   useEffect(() => {
-    if (messagesDivRef.current) {
-      messagesDivRef.current.scrollTop = messagesDivRef.current.scrollHeight;
-    }
+    openWebSocket();
+    return () => {
+      if (wsRef.current) wsRef.current.close();
+      if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);
+    };
+  }, [id, openWebSocket]);
+
+  // Scroll auto
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  function handleAskConfirmation(id_channel: string, user_id: string | undefined) {
-    const channel = channels.find(c => c._id === id_channel);
-    if (channel && user_id && channel.admin_id.toString() === user_id) {
-      setChannelDeletion({ id: id_channel, isDelete: true });
-    } else {
-      setChannelDeletion({ id: id_channel, isDelete: false });
-    }
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
+  // Envoi d'un message
+  const handleSubmit = (e: any) => {
     e.preventDefault();
-    const user = userRef.current;
-    if (
-      input &&
-      wsRef.current &&
-      wsRef.current.readyState === 1 &&
-      user.user && user.user._id
-    ) {
-      wsRef.current.send(
-        JSON.stringify({
-          message: input,
-          user_id: user.user._id,
-          channel_id: id,
-        })
-      );
+    if (input && wsRef.current && wsRef.current.readyState === 1) {
+      wsRef.current.send(JSON.stringify({ type: "MESSAGE", content: input, user_id: me?._id }));
       setInput("");
     }
   };
 
-  if (!id) {
+  if (!id) return <div>Liste des channels ici</div>;
+  if (!me) return <NotFound />;
 
-    async function leaveDeleteGroup(id_channel: string, user_id: string | undefined) {
-      const chat = new ChatClass();
-      const channel = await chat.getChannelById(id_channel);
-      if (channel && user_id && channel.admin_id.toString() === user_id) {
-        await chat.deleteChat(id_channel);
-      } else {
-        await chat.leaveChat(id_channel);
-      }
-      const updatedChannels = await chat.getChannel();
-      setChannels(updatedChannels);
-    }
+  const statusColor = status === "Connecté" ? "#00FF00" : "#FF0000";
+  const thechannelAuth =
+    channel?.member_auth === ChannelRight.read_send
+      ? ChannelRight.read_send
+      : ChannelRight.read_only;
 
-    async function refreshChannel() {
-      const channels = await userRef.current.getChannel();
-      setChannels(channels)
-    }
-
-    return (
-      <>
-        <ManageChannelList
-          channels={channels}
-          action={handleAskConfirmation}
-          user={userRef.current.user}
-        />
-        <CreateChannel action={refreshChannel} />
-        {confirmChannelDeletion && (
-          <PopupConfirm
-            title={confirmChannelDeletion.isDelete ? "Supprimer le chat" : "Quitter le chat"}
-            description={
-              confirmChannelDeletion.isDelete
-                ? "Êtes-vous sûr de vouloir supprimer ce chat ? Cette action est irréversible."
-                : "Êtes-vous sûr de vouloir quitter ce chat ?"
-            }
-            onConfirm={async () => {
-              await leaveDeleteGroup(confirmChannelDeletion.id, userRef.current.user!._id);
-              setChannelDeletion(null);
-            }}
-            onCancel={() => setChannelDeletion(null)}
-            confirmLabel={confirmChannelDeletion.isDelete ? "Supprimer" : "Quitter"}
-            cancelLabel="Annuler"
-          />
-        )}
-      </>
-    );
-  }
-  
   return (
     <ChatRoom
       id={id}
@@ -210,9 +116,9 @@ const ChatPage: React.FC = () => {
       input={input}
       setInput={setInput}
       handleSubmit={handleSubmit}
-      messagesDivRef={messagesDivRef}
+      messagesDivRef={messagesEndRef}
     />
   );
-};
+}
 
 export default ChatPage;

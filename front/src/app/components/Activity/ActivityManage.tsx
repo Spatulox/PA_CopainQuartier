@@ -1,26 +1,56 @@
 import { useEffect, useState } from "react"
-import { Activity, ActivityClass } from "../../../api/activity"
+import { Activity, ActivityClass, AdminActivityClass } from "../../../api/activity"
 import { useNavigate, useParams } from "react-router-dom";
 import { Route } from "../../constantes";
+import Loading from "../shared/loading";
+import { ShowActivity, ShowActivityButton } from "./SingleActivity";
+import { useAuth } from "../shared/auth-context";
+import { PopupConfirm } from "../Popup/PopupConfirm";
+import NotFound from "../shared/notfound";
+import { UpdateActivity } from "./UpdateActivity";
+import Errors from "../shared/errors";
+import { ErrorMessage } from "../../../api/client";
+import { popup } from "../../scripts/popup-slide";
+
 
 export function ManageMyActivity() {
     const [activities, setActivities] = useState<Activity[] | null>(null);
+    const [err, setErrors] = useState<ErrorMessage | null>(null)
     const navigate = useNavigate()
+    const [notFound, setNotFound] = useState<boolean>(false)
+    const { me } = useAuth();
   
     useEffect(() => {
       (async () => {
         const client = new ActivityClass();
-        const activities = await client.getMyActivities();
-        setActivities(activities);
+        try{
+          const activities = await client.getMyActivities();
+          if(!activities){
+            setNotFound(true)
+            return
+          }
+          setActivities(activities);
+          setErrors(null)
+        } catch (e){
+          setErrors(client.errors)
+        }
       })();
     }, []);
-  
+    
+    if(err != null){
+        return <Errors errors={err} />
+    }
+
+    if(notFound){
+      return <NotFound />
+    }
+
     if (activities === null) {
-      return <div>Chargement des activités...</div>;
+      return <Loading title="Chargement des activités" />
     }
   
     if (activities.length === 0) {
-      return <div>Aucune activité trouvée.</div>;
+      return <div>Aucune activitée trouvée.</div>;
     }
   
     return (
@@ -28,32 +58,17 @@ export function ManageMyActivity() {
         <h1>Mes Activités</h1>
         <div>
           {activities.map((activity) => (
-            <div key={activity._id}>
-              <h2>{activity.title}</h2>
-              <div>
-                Créée le {new Date(activity.created_at).toLocaleDateString()}<br />
-                Réservation : {new Date(activity.date_reservation).toLocaleString()}
-              </div>
-              <div>
-                <strong>Description :</strong>
-                <div>{activity.description}</div>
-              </div>
-              <div>
-                <strong>Auteur :</strong> {activity.author_id?.name}
-              </div>
-              <div>
-                <strong>Participants ({activity.participants.length}) :</strong>
-                <ul>
-                  {activity.participants.map((user) => (
-                    <li key={user?._id}>{user?.name}</li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <button onClick={() => navigate(Route.publications+"/"+activity.publication._id)}>Voir la Publication</button>
-                <button onClick={() => navigate(Route.activity+"/manage/"+activity._id)}>Editer</button>
-              </div>
-            </div>
+            <section>
+              <ShowActivity
+                key={activity._id}
+                activity={activity}
+                user={me}
+                onManage={(id) => navigate(`${Route.manageActivity}/${id}`)}
+                onViewPublication={(id) => navigate(`${Route.publications}/${id}`)}
+                buttonShow={ShowActivityButton.ViewPublication | ShowActivityButton.Manage}
+              />
+            </section>
+            
           ))}
         </div>
       </div>
@@ -62,140 +77,211 @@ export function ManageMyActivity() {
 
 function ManageActivityAdmin(){
     const [activities, setActivities] = useState<Activity[] | null>(null);
+    const [err, setErrors] = useState<ErrorMessage | null>(null)
     const navigate = useNavigate()
-  
+    const [notFound, setNotFound] = useState<boolean>(false);
+    const { me, isAdmin } = useAuth();
+
     useEffect(() => {
       (async () => {
-        const client = new ActivityClass();
-        if(!client.isAdmin()){
-          return
+        const client = new AdminActivityClass();
+        try{
+          await client.refreshUser()
+          const activities = await client.getAllActivitiesAdmin();
+          if(!activities){
+            setNotFound(true)
+            return
+          }
+          setActivities(activities);
+        } catch(e){
+          setErrors(client.errors)
         }
-        const activities = await client.getAllActivitiesAdmin();
-        setActivities(activities);
       })();
     }, []);
+
+    useEffect(() => {
+        if (!isAdmin) {
+            navigate(`${Route.activity}`);
+        }
+    }, [isAdmin, navigate]);
   
+    if(err != null){
+        return <Errors errors={err} />
+    }
+
+    if(notFound){
+      return <NotFound />
+    }
+
     if (activities === null) {
-      return <div>Chargement des activités...</div>;
+      return <Loading title="Chargement des activités" />
     }
   
     if (activities.length === 0) {
-      return <div>Aucune activité trouvée.</div>;
+      return <div>Aucune activitée trouvée.</div>;
     }
-  
+
     return (
       <div>
         <h1>Activités</h1>
         <div>
           {activities.map((activity) => (
-            <div key={activity._id}>
-              <h2>{activity.title}</h2>
-              <div>
-                Créée le {new Date(activity.created_at).toLocaleDateString()}<br />
-                Réservation : {new Date(activity.date_reservation).toLocaleString()}
-              </div>
-              <div>
-                <strong>Description :</strong>
-                <div>{activity.description}</div>
-              </div>
-              <div>
-                <strong>Auteur :</strong> {activity.author_id?.name}
-              </div>
-              <div>
-                <strong>Participants ({activity.participants.length}) :</strong>
-                <ul>
-                  {activity.participants.map((user) => (
-                    <li key={user?._id}>{user?.name}</li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <button onClick={() => navigate(Route.publications+"/"+activity.publication._id)}>Voir la Publication</button>
-                <button onClick={() => navigate(Route.activity+"/manage/"+activity._id)}>Editer</button>
-              </div>
-            </div>
+            <ShowActivity
+                key={activity._id}
+                activity={activity}
+                user={me}
+                onViewPublication={(pubId) => navigate(`${Route.publications}/${pubId}`)}
+                onManage={() => navigate(`${Route.manageActivity}/${activity._id}`)}
+                buttonShow={ShowActivityButton.All}
+            />
           ))}
         </div>
       </div>
     );
 }
 
-
 function ManageOneActivity(){
 
   const [activity, setActivities] = useState<Activity | null>(null);
+  const [err, setErrors] = useState<ErrorMessage | null>(null)
+  const [delErr, setDelErrors] = useState<ErrorMessage | null>(null)
+  const [updErr, setUpdateErrors] = useState<any | null>(null)
   const { id } = useParams<{ id: string }>();
+  const { me, isAdmin } = useAuth();
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [notFound, setNotFound] = useState<boolean>(false);
   const navigate = useNavigate()
   
     useEffect(() => {
       (async () => {
-        const client = new ActivityClass();
         if(id){
-          const activitie = await client.getactivityAdminById(id);
-          setActivities(activitie);
+          if(isAdmin){
+            const client = new AdminActivityClass();
+            try{
+              const activitie = await client.getActivityAdminById(id);
+              if(!activitie){
+                setNotFound(true)
+                return
+              }
+              setActivities(activitie)
+              setErrors(null)
+            } catch(e){
+              setErrors(client.errors)
+            }
+          } else {
+            const client = new ActivityClass();
+            try{
+              const activitie = await client.getActivityByID(id);
+              if(!activitie){
+                setNotFound(true)
+                return
+              }
+              setErrors(null)
+              setActivities(activitie)
+            } catch(e){
+              setErrors(client.errors)
+            }
+          }
         }
       })();
     }, [id]);
-  
-    if (activity === null) {
-      return <div>Chargement des activités...</div>;
+
+    if(err != null){
+        return <Errors errors={err} />
     }
+
+    if(notFound){
+      return <NotFound />
+    }
+
+    if(!id){
+      navigate(`${Route.activity}`)
+      return
+  }
+
+    if (activity === null) {
+      return <Loading title="Chargement de l'activité" />
+    }
+
+    const handlUpdate = async (id: string, option: object) => {
+        const client = new ActivityClass()
+        try{
+          await client.updateActivity(id, option)
+          setUpdateErrors(null)
+        } catch(e){
+          setUpdateErrors(client.errors)
+        }
+    }
+
+    const handlDelete = async (id: string) => {
+      setDeleteId(id)
+      setShowConfirm(true)
+    }
+
+    const confirmDelete = async () => {
+      if (deleteId) {
+        const client = new ActivityClass();
+        try{
+          await client.deleteActivity(deleteId);
+          setShowConfirm(false);
+          setDeleteId(null);
+          setDelErrors(null)
+        } catch(e){
+          setDelErrors(client.errors)
+        }
+      }
+    };
+
+    const cancelDelete = () => {
+      setShowConfirm(false);
+      setDeleteId(null);
+    };
+
+    if(delErr){
+      popup(delErr.message)
+    }
+
     return (
       <div>
-        <h1>EN TRAVAUX</h1>
-        <div key={activity._id}>
-          <h2>{activity.title}</h2>
-          <div>
-            Créée le {new Date(activity.created_at).toLocaleDateString()}<br />
-            Réservation : {new Date(activity.date_reservation).toLocaleString()}
-          </div>
-          <div>
-            <strong>Description :</strong>
-            <div>{activity.description}</div>
-          </div>
-          <div>
-            <strong>Auteur :</strong> {activity.author_id?.name}
-          </div>
-          <div>
-            <strong>Participants ({activity.participants.length}) :</strong>
-            <ul>
-              {activity.participants ? activity.participants.map((user) => (
-                <li key={user?._id}>{user?.name}</li>
-              )): "Rien"}
-            </ul>
-          </div>
-          <div>
-            <button onClick={() => navigate(Route.publications+"/manage/"+activity.publication._id)}>Voir/Gérer la Publication</button>
-          </div>
-        </div>
+        <UpdateActivity
+          key={activity._id}
+          activity={activity}
+          APIerror={updErr}
+          user={me}
+          onUpdate={(id: string, option: object) => handlUpdate(id, option)}
+          onDelete={handlDelete}
+        />
+        {showConfirm && (
+          <PopupConfirm
+            key={deleteId}
+            title="Suppression d'une activité"
+            description="Voulez-vous réellement supprimer cette activité ?"
+            errors={delErr}
+            onConfirm={confirmDelete}
+            onCancel={cancelDelete}
+          />
+        )}
       </div>
     );
 }
 
 
 export function ManageActivity(){
-    const [userIsAdmin, setUserAdmin] = useState(false)
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate()
-    useEffect(() => {
-        (async () => {
-            const client = new ActivityClass()
-            setUserAdmin(client.isAdmin())
-        })
-    }, [])
+    const { me, isAdmin } = useAuth();
 
-    useEffect(() => {
-        if (userIsAdmin === false && !id) {
-            navigate(`${Route.manageMyActivity}`);
-        }
-    }, [userIsAdmin, navigate]);
+    if(!id && !isAdmin){
+      return <Loading />
+    }
 
     if(id){
         return <><ManageOneActivity/></>
     }
     return <>
-      <button onClick={() => navigate(`${Route.manageActivity}/me`)}>Manage My Activies</button>
         <ManageActivityAdmin />
+        <button onClick={() => navigate(`${Route.manageMyActivity}`)}>Gérer mes Activités</button>
     </>
 }
 
