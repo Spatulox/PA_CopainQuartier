@@ -52,6 +52,7 @@ export function UpdateUser({
 
     function handleUpdate() {
         if (isAdmin && theuser) {
+        if (isAdmin && theuser && !isSelf) {
             onUpdate(theuser._id, { role });
         } else if (isSelf && theuser) {
             onUpdate(theuser._id, { name, lastname, phone, address });
@@ -220,9 +221,9 @@ export function UpdateUser({
                 <div>
                     <button id={theuser._id} onClick={() => navigate((theuser._id))}>Voir l'utilisateur</button>
 
-                    <button type="submit" onClick={() => onUpdate(user._id, {name, lastname, phone, address, role})}>Mettre à jour</button>
+                    <button type="submit" onClick={() => handleUpdate()/* onUpdate(user._id, {name, lastname, phone, address, role})*/}>Mettre à jour</button>
                     
-                    { onApprove && (
+                    { onApprove && !theuser.verified && (
                         <button onClick={() => onApprove(theuser._id, true)}>Approuver l'utilisateur</button>
                     )}
                     
