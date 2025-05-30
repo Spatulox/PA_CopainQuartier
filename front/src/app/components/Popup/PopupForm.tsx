@@ -6,7 +6,7 @@ export type FieldForm = {
   name: string;
   label: string;
   type: string;
-  value?: string[];
+  value?: {value: string, label: string}[] | string[]; 
   required?: boolean;
 };
 
