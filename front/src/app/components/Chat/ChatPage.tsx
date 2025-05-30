@@ -1,251 +1,85 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ChatClass, Channel, Message } from "../../../api/chat";
-import { ManageChannelList } from "./ChatList";
-import ChatRoom, { ChannelRight } from "./ChatRoom";
-import { Route } from "../../constantes";
-import { PopupConfirm } from "../Popup/PopupConfirm";
-import { ShowChat, ShowChatButton } from "./SingleChat";
-import { User, UserRole } from "../../../api/user";
-import { CreateChannel } from "./ChatCreate";
 import { useAuth } from "../shared/auth-context";
 import NotFound from "../shared/notfound";
-import { ErrorMessage } from "../../../api/client";
+import { Channel, ChatClass, Message } from "../../../api/chat";
+import { ApiClient } from "../../../api/client";
+import ChatRoom, { ChannelRight } from "./ChatRoom";
 
 function ChatPage() {
-  const { me, isAdmin } = useAuth();
-  const { id } = useParams<{ id: string }>();
-  const [thechannelAuth, setChannelAuth] = useState<ChannelRight>(ChannelRight.read_only);
-  const [status, setStatus] = useState("Déconnecté");
-  const [statusColor, setStatusColor] = useState("red");
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState("");
-  const [channels, setChannels] = useState<Channel[]>([]);
-  const wsRef = useRef<WebSocket | null>(null);
-  const messagesDivRef = useRef<HTMLDivElement>(null);
-  const userRef = useRef<ChatClass>(new ChatClass());
-  const [confirmChannelDeletion, setChannelDeletion] = useState<{ id: string, isDelete: boolean } | null>(null);
-  const [notFound, setNotFound] = useState<boolean>(false)
+
+  const { me } = useAuth();
+  const { id } = useParams();
   const navigate = useNavigate();
 
-  const [err, setErrors] = useState<ErrorMessage | null>(null)
-  const [delErr, setDeleteErrors] = useState<string[]>([])
-  const [updErr, setUpdateErrors] = useState<[]>([])
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [token, setToken] = useState<string | null>(null)
+  const [input, setInput] = useState("");
+  const [status, setStatus] = useState("Déconnecté");
+  const [channel, setChannel] = useState<Channel | null>(null)
+  const wsRef = useRef<WebSocket | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
+  // Connexion WebSocket et gestion des messages
   useEffect(() => {
-    let isMounted = true;
-    const user = userRef.current;
+    if (!id) return;
+    const ws = new window.WebSocket(`ws://localhost:3000/channel/${id}`);
+    wsRef.current = ws;
 
-    if (!id) {
-      (async () => {
-        if (!(await user.connect())) {
-          navigate(Route.login);
-          return;
-        }
-        const channels = await user.getChannel();
-        if(!channels){
-          setNotFound(true)
-          return
-      }
-        if (isMounted) setChannels(channels);
-        setMessages([])
-      })();
-      return () => {
-        isMounted = false;
-      };
-    }
+    const user = new ChatClass()
+    setToken(user.getAuthToken())
 
-    (async () => {
-      if (!(await user.connect())) {
-        navigate(Route.login);
-        return;
-      }
-      const channel = await user.getChannelById(id);
-      if (!channel) {
-        setStatus("Aucun channel trouvé");
-        setStatusColor("orange");
-        return;
-      }
-
-      if(notFound){
-        return <NotFound />
-      }
-
-      if(id == "me"){
-        navigate(`${Route.chat}`)
-        return
-    }
-
-      setChannelAuth(channel.member_auth == ChannelRight.read_send ? ChannelRight.read_send : ChannelRight.read_only)
-
-      const ws = new WebSocket(`ws://localhost:3000/channel/${channel._id}`);
-      wsRef.current = ws;
-
-      ws.onopen = () => {
-        setStatus("Connecté");
-        setStatusColor("green");
-        ws.send(JSON.stringify({ connection: user.getAuthToken() }));
-        setMessages([])
-      };
-
-      ws.onclose = () => {
-        setStatus("Déconnecté");
-        setStatusColor("red");
-      };
-
-      ws.onerror = () => {
-        setStatus("Erreur de connexion");
-        setStatusColor("orange");
-      };
-
-      ws.onmessage = async (event) => {
-        let dataStr = "";
-
-        if (event.data instanceof Blob) {
-          dataStr = await event.data.text();
-        } else if (typeof event.data === "string") {
-          dataStr = event.data;
-        } else {
-          console.error("Type de message WebSocket inattendu :", event.data);
-          return;
-        }
-
-        let res;
-        try {
-          res = JSON.parse(dataStr);
-        } catch (e) {
-          console.error("Message reçu n'est pas du JSON valide :", dataStr);
-          return;
-        }
-
-        if (res.hasOwnProperty("err")) {
-          alert(res.err.toString());
-          ws.close();
-          return;
-        }
-
-        if (Array.isArray(res)) {
-          if (isMounted) {
-            setMessages((prev) => [...prev, ...res]);
-          }
-        }
-
-        if (res.hasOwnProperty("message")) {
-          if (isMounted) {
-            setMessages((prev) => [...prev, { content: res.message }]);
-          }
-        }
-      };
-    })();
-
-    return () => {
-      isMounted = false;
-      wsRef.current?.close();
+    const fetchChannel = async () => {
+      const chan = await user.getChannelById(id);
+      setChannel(chan);
     };
-  }, [id, navigate]);
+    fetchChannel();
+
+    ws.onopen = () => {
+      setStatus("Connecté");
+      ws.send(JSON.stringify({ type: "INIT", token: token }));
+      setMessages([]);
+    };
+
+    ws.onclose = () => setStatus("Déconnecté");
+    ws.onerror = () => setStatus("Erreur");
+
+    ws.onmessage = async (event) => {
+      let data = typeof event.data === "string" ? event.data : await event.data.text();
+      let msg;
+      try { msg = JSON.parse(data); } catch { return; }
+
+      if (msg.type === "ERROR") {
+        alert(msg.error);
+        ws.close();
+        return;
+      }
+      if (msg.type === "HISTORY") setMessages(msg.messages);
+      if (msg.type === "MESSAGE") setMessages(prev => [...prev, msg]);
+    };
+
+    return () => ws.close();
+  }, [id, token]);
 
   useEffect(() => {
-    if (messagesDivRef.current) {
-      messagesDivRef.current.scrollTop = messagesDivRef.current.scrollHeight;
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  function handleAskConfirmation(id_channel: string, user_id: string | undefined) {
-    const channel = channels.find(c => c._id === id_channel);
-    if (channel && user_id && channel.admin?._id === user_id) {
-      setChannelDeletion({ id: id_channel, isDelete: true });
-    } else {
-      setChannelDeletion({ id: id_channel, isDelete: false });
-    }
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
+  // Envoi d'un message
+  const handleSubmit = (e: any) => {
     e.preventDefault();
-    const user = userRef.current;
-    if (
-      input &&
-      wsRef.current &&
-      wsRef.current.readyState === 1 &&
-      user.user && user.user._id
-    ) {
-      wsRef.current.send(
-        JSON.stringify({
-          message: input,
-          user_id: user.user._id,
-          channel_id: id,
-        })
-      );
+    if (input && wsRef.current && wsRef.current.readyState === 1) {
+      wsRef.current.send(JSON.stringify({ type: "MESSAGE", content: input, user_id: me?._id }));
       setInput("");
     }
   };
 
-  if (!id) {
+  if (!id) return <div>Liste des channels ici</div>;
+  if (!me) return <NotFound />;
 
-    async function leaveDeleteGroup(id_channel: string, user_id: string | undefined) {
-      const chat = new ChatClass();
-      try{
-        const channel = await chat.getChannelById(id_channel);
-        if (channel && user_id && channel.admin?._id === user_id) {
-          await chat.deleteChat(id_channel);
-        } else {
-          await chat.leaveChat(id_channel);
-        }
-        const updatedChannels = await chat.getChannel();
-        setChannels(updatedChannels);
-        setDeleteErrors([])
-      } catch(e){
-        setDeleteErrors(chat.errors)
-      }
-    }
+  const statusColor = (status == "Connecté" ? "#00FF00" : "#FF0000")
+  const thechannelAuth = channel?.member_auth == ChannelRight.read_send ? ChannelRight.read_send : ChannelRight.read_only
 
-    async function refreshChannel() {
-      try{
-        const channels = await userRef.current.getChannel();
-        setChannels(channels)
-        setErrors(null)
-      } catch(e){
-        setErrors(userRef.current.errors)
-      }
-    }
-
-    return (
-      <>
-        {err && err.hasOwnProperty("message") && (
-          <div className="error-messages">
-            {err.message}
-          </div>
-        )}        
-        <ManageChannelList
-          channels={channels}
-          action={handleAskConfirmation}
-          user={me}
-        />
-        {me?.role == UserRole.admin && (
-          <button onClick={() => navigate(Route.manageChannels)}>Gérer les channels</button>
-        )}
-        <CreateChannel action={refreshChannel} />
-        {confirmChannelDeletion && (
-          <PopupConfirm
-            title={confirmChannelDeletion.isDelete ? "Supprimer le chat" : "Quitter le chat"}
-            description={
-              confirmChannelDeletion.isDelete
-                ? "Êtes-vous sûr de vouloir supprimer ce chat ? Cette action est irréversible."
-                : "Êtes-vous sûr de vouloir quitter ce chat ?"
-            }
-            errors={delErr}
-            onConfirm={async () => {
-              await leaveDeleteGroup(confirmChannelDeletion.id, userRef.current.user!._id);
-              setChannelDeletion(null);
-            }}
-            onCancel={() => setChannelDeletion(null)}
-            confirmLabel={confirmChannelDeletion.isDelete ? "Supprimer" : "Quitter"}
-            cancelLabel="Annuler"
-          />
-        )}
-      </>
-    );
-  }
-  
   return (
     <ChatRoom
       id={id}
@@ -256,9 +90,9 @@ function ChatPage() {
       input={input}
       setInput={setInput}
       handleSubmit={handleSubmit}
-      messagesDivRef={messagesDivRef}
+      messagesDivRef={messagesEndRef}
     />
   );
-};
+}
 
 export default ChatPage;
