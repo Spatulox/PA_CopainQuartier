@@ -1,6 +1,6 @@
 import { Authorized, BadRequestError, Body, CurrentUser, Delete, ForbiddenError, Get, HttpCode, InternalServerError, JsonController, NotFoundError, Param, Patch, Post } from "routing-controllers";
 import { zId, zObjectId } from "../Validators/utils";
-import { addSomeoneFromChannel, createChannel, deleteChannel, deleteMessageFromChannel, getChannelById, getPublicChannelById, saveMessageToChannel, removeSomeoneFromChannel, updateChannelAdmin, updateChannelAttribute, getMyChannel, getAllChannel } from "../Services/channels/channels";
+import { addSomeoneFromChannel, createChannel, deleteChannel, deleteMessageFromChannel, getChannelById, getPublicChannelById, saveMessageToChannel, removeSomeoneFromChannel, updateChannelAdmin, updateChannelAttribute, getMyChannel, getAllChannel, deleteChannelLinkedTOActivity } from "../Services/channels/channels";
 import { User } from "../Models/UserModel";
 import { UserRole } from "../DB_Schema/UserSchema";
 import { zCreateChannel, zTransferChannel, zUpdateChannel } from "../Validators/channels";
@@ -176,6 +176,9 @@ export class ChannelsController {
         }
 
         if(channel && channel.activity?._id){
+            if(await deleteChannelLinkedTOActivity(validId, new ObjectID(channel.activity._id.toString()))){
+                return true
+            }
             throw new ForbiddenError("Impossible to delete a channel linked to an activity")
         }
 

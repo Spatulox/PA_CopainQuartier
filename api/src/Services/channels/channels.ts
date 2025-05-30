@@ -7,6 +7,7 @@ import { UserRole, UserTable } from "../../DB_Schema/UserSchema";
 import { toUserObject } from "../users/usersPublic";
 import { toActivityObject } from "../activities/activities";
 import { ObjectID } from "../../DB_Schema/connexion";
+import { ActivityTable } from "../../DB_Schema/ActivitiesSchema";
 
 export async function getChannelById(channel_id: ObjectID): Promise<FilledChannel | null>{
     const res = await ChannelTable.findById(channel_id)
@@ -121,6 +122,22 @@ export async function deleteMessageFromChannel(channel_id: ObjectID, message_id:
     return result.modifiedCount > 0;
 }
 
+
+export async function deleteChannelLinkedTOActivity(channel_id: ObjectID, activity_id: ObjectID): Promise<boolean>{
+    const res = await ChannelTable.deleteOne({_id: channel_id})
+
+    await UserTable.updateMany(
+        { group_channel_list: channel_id },
+        { $pull: { group_channel_list: channel_id } }
+    );
+
+    const res2 = await ActivityTable.updateOne(
+        { _id: activity_id },
+        { $pull: { channel_chat_id: channel_id } }
+    );
+
+    return res.deletedCount > 0 && res2.modifiedCount > 0
+}
 
 export async function deleteChannel(channel_id: ObjectID): Promise<boolean>{
     const res = await ChannelTable.deleteOne({_id: channel_id})
