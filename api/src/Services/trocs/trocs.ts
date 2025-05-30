@@ -1,13 +1,12 @@
-import { ForbiddenError, UnauthorizedError } from "routing-controllers";
+import { ForbiddenError } from "routing-controllers";
 import { TrocTable } from "../../DB_Schema/TrocSchema";
-import { Troc, TrocStatus, TrocType, TrocVisibility } from "../../Models/TrocModel";
+import { FilledTroc, Troc, TrocStatus, TrocType, TrocVisibility } from "../../Models/TrocModel";
 import { User } from "../../Models/UserModel";
-import { ID } from "../../Utils/IDType";
 import { CreateTrocBody, UpdateTrocBody } from "../../Validators/trocs";
-import { UserRole } from "../../DB_Schema/UserSchema";
 import { toUserObject } from "../users/usersPublic";
+import { ObjectId } from "mongodb";
 
-export function toTrocObject(doc: any): any {
+export function toTrocObject(doc: any): FilledTroc {
     return {
         _id: doc._id.toString(),
         title: doc.title,
@@ -15,7 +14,8 @@ export function toTrocObject(doc: any): any {
         author: doc.author_id ? toUserObject(doc.author_id) : null,
         description : doc.description,
         reserved_at: doc.reserved_at || null,
-        reserved_by: doc.reserved_by ? doc.reserved_by.toString() : null,
+        reserved_by: doc.reserved_by ? doc.reserved_by.map((user: User) => {toUserObject(user)}) : [],
+        updated_at: doc.updated_at,
         status: doc.status,
         type: doc.type,
         visibility: doc.visibility
@@ -23,7 +23,7 @@ export function toTrocObject(doc: any): any {
 }
 
 // GET : Trocs visibles (pas completed, pas reserved, pas waiting, pas hide) // Seulement pending (en attente d'un mec qui veut l'objet/le troc)
-export async function getAllTrocs(): Promise<Troc[]> {
+export async function getAllTrocs(): Promise<FilledTroc[]> {
     const docs = await TrocTable.find({
         status: { $nin: [TrocStatus.completed, TrocStatus.cancelled, TrocStatus.waitingForApproval, TrocStatus.reserved, TrocStatus.hide] }, // TrocStatus.hide is non approve troc by admin
         visibility: { $ne: TrocVisibility.hide }
@@ -33,14 +33,7 @@ export async function getAllTrocs(): Promise<Troc[]> {
     return docs.map(toTrocObject);
 }
 
-export async function getAllAdminTrocs(): Promise<Troc[]> {
-    const docs = await TrocTable.find().sort({ created_at: -1 })
-    .populate("author_id")
-    .exec();
-    return docs.map(toTrocObject);
-}
-
-export async function getAllMyTrocs(user: User): Promise<Troc[]> {
+export async function getAllMyTrocs(user: User): Promise<FilledTroc[]> {
     const docs = await TrocTable.find({author_id: user._id}).sort({ created_at: -1 })
     .populate("author_id")
     .exec();
@@ -48,19 +41,20 @@ export async function getAllMyTrocs(user: User): Promise<Troc[]> {
 }
 
 // GET : Un troc par son ID
-export async function getTrocById(id: string): Promise<Troc | null> {
+export async function getTrocById(id: ObjectId): Promise<FilledTroc | null> {
     const doc = await TrocTable.findById(id).exec();
     return doc ? toTrocObject(doc) : null;
 }
 
 // POST : Création (toujours waitingForApproval)
-export async function createTroc(trocBody: CreateTrocBody, user: User): Promise<Troc> {
+export async function createTroc(trocBody: CreateTrocBody, user: User): Promise<FilledTroc> {
     const data = {
         ...trocBody,
         author_id: user._id,
         description : trocBody.description,
         status: TrocStatus.waitingForApproval,
         created_at: new Date(),
+        updated_at: new Date(),
         visibility: TrocVisibility.visible
     }
     const troc = new TrocTable(data);
@@ -68,8 +62,8 @@ export async function createTroc(trocBody: CreateTrocBody, user: User): Promise<
     return toTrocObject(troc);
 }
 
-// PUT : Update par l'auteur
-export async function updateTroc(id: ID, authorId: ID, data: UpdateTrocBody): Promise<Troc | null> {
+// PATCH : Update par l'auteur
+export async function updateTroc(id: ObjectId, authorId: ObjectId, data: UpdateTrocBody): Promise<FilledTroc | null> {
     const doc = await TrocTable.findOneAndUpdate(
         { _id: id, author_id: authorId },
         data,
@@ -79,12 +73,12 @@ export async function updateTroc(id: ID, authorId: ID, data: UpdateTrocBody): Pr
 }
 
 // DELETE : Impossible si completed, admin ou auteur uniquement
-export async function deleteTroc(id: string, userId: string, isAdmin: boolean): Promise<boolean> {
+export async function deleteTroc(id: ObjectId, userId: ObjectId, isAdmin: boolean): Promise<boolean> {
     const troc = await TrocTable.findById(id).exec();
     if (!troc || troc.status === TrocStatus.completed) {
         throw new ForbiddenError("Can't delete a completed troc");
     }
-    if (isAdmin || troc.author_id.toString() === userId) {
+    if (isAdmin || troc.author_id.toString() === userId.toString()) {
         const res = await TrocTable.deleteOne({ _id: id }).exec();
         return res.deletedCount === 1;
     }
@@ -92,7 +86,7 @@ export async function deleteTroc(id: string, userId: string, isAdmin: boolean): 
 }
 
 // PATCH : Réserver (impossible si waitingForApproval / hide / reserved)
-export async function reserveTroc(id: string, userId: string): Promise<Troc | null> {
+export async function reserveTroc(id: ObjectId, userId: ObjectId): Promise<FilledTroc | null> {
     const troc = await TrocTable.findById(id).exec();
     if (!troc) return null;
     if (
@@ -135,7 +129,7 @@ export async function reserveTroc(id: string, userId: string): Promise<Troc | nu
 }
 
 // PATCH : Marquer comme complété (impossible si waitingForApproval ou hide)
-export async function completeTroc(id: string, authorId: string): Promise<Troc | null> {
+export async function completeTroc(id: ObjectId, authorId: ObjectId): Promise<FilledTroc | null> {
     const troc = await TrocTable.findById(id).exec();
     if (!troc) return null;
     if (
@@ -153,7 +147,7 @@ export async function completeTroc(id: string, authorId: string): Promise<Troc |
 }
 
 // PATCH : Annuler (impossible si completed, waitingForApproval ou hide)
-export async function cancelTroc(id: string, userId: string): Promise<Troc | null> {
+export async function cancelTroc(id: ObjectId, userId: ObjectId): Promise<FilledTroc | null> {
     const troc = await TrocTable.findById(id).exec();
     if (!troc || troc.status === TrocStatus.completed ||
         troc.status === TrocStatus.waitingForApproval ||
@@ -173,7 +167,7 @@ export async function cancelTroc(id: string, userId: string): Promise<Troc | nul
 }
 
 // PATCH : Cacher un troc (par l'auteur)
-export async function hideTroc(id: string, authorId: string): Promise<Troc | null> {
+export async function hideTroc(id: ObjectId, authorId: ObjectId): Promise<FilledTroc | null> {
     const doc = await TrocTable.findOneAndUpdate(
         { _id: id, author_id: authorId },
         { visibility: TrocVisibility.hide },

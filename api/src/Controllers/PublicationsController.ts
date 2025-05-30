@@ -1,70 +1,100 @@
-import { Authorized, BadRequestError, Body, CurrentUser, Delete, ForbiddenError, Get, HttpCode, InternalServerError, JsonController, Param, Patch, Post } from "routing-controllers";
-import { Publication } from "../Models/PublicationModel";
-import { getAllPublications, getPublicationById, deletePublicationById, createPublication, updatePublicationcontent, getAllMyPublications } from "../Services/publications/publications";
-import { zId, zObjectId } from "../Validators/utils";
+import { Authorized, BadRequestError, Body, CurrentUser, Delete, ForbiddenError, Get, HttpCode, InternalServerError, JsonController, NotFoundError, Param, Patch, Post } from "routing-controllers";
+import { FilledPublication, Publication } from "../Models/PublicationModel";
+import { getAllPublications, getPublicationById, deletePublicationById, createPublication, updatePublicationcontent, getAllMyPublications, getAdminPublicationById, getAllAdminPublications, getAllPublicationsByActivityId } from "../Services/publications/publications";
+import { zObjectId } from "../Validators/utils";
 import { User } from "../Models/UserModel";
 import { zCreatePublication, zUpdatePublication } from "../Validators/publications";
 import { UserRole } from "../DB_Schema/UserSchema";
+import { ObjectID } from "../DB_Schema/connexion";
 
+
+@JsonController("/admin/publications")
+export class AdminPublicationsController {
+
+    @Get("/")
+    @Authorized(UserRole.admin)
+    async getAllPublications(): Promise<FilledPublication[]>{
+        return await getAllAdminPublications()
+    }
+
+    @Get("/:id")
+    @Authorized(UserRole.admin)
+    async getPublicationById(@Param("id") pub_id: string): Promise<FilledPublication | null>{
+        const validId = new ObjectID(zObjectId.parse(pub_id))
+        return await getAdminPublicationById(validId)
+    }
+}
 
 @JsonController("/publications")
 export class PublicationsController {
 
     @Get("/")
-    async getAllPublications(): Promise<Publication[]>{
+    async getAllPublications(): Promise<FilledPublication[]>{
         return await getAllPublications()
     }
 
     @Get("/@me")
     @Authorized()
-    async getAllMyPublications(@CurrentUser() user: User): Promise<Publication[]>{
+    async getAllMyPublications(@CurrentUser() user: User): Promise<FilledPublication[]>{
         return await getAllMyPublications(user)
     }
 
     @Get("/:id")
-    async getPublicationById(@Param("id") pub_id: string): Promise<Publication | null>{
-        const validId = zObjectId.parse(pub_id)
+    async getPublicationById(@Param("id") pub_id: string): Promise<FilledPublication | null>{
+        const validId = new ObjectID(zObjectId.parse(pub_id))
         return await getPublicationById(validId)
+    }
+
+    @Get("/activity/:id")
+    async getAllPublicationsByActivityId(@Param("id") acti_id: string): Promise<FilledPublication[] | null>{
+        const validId = new ObjectID(zObjectId.parse(acti_id))
+        return await getAllPublicationsByActivityId(validId)
     }
 
     @Post("/")
     @Authorized()
     @HttpCode(204)
-    async createPublication(@CurrentUser() user: User, @Body() body: any): Promise<void>{
+    async createPublication(@CurrentUser() user: User, @Body() body: any): Promise<boolean>{
         const validBody = zCreatePublication.parse(body)
         if(!await createPublication(user, validBody)){
             throw new BadRequestError()
         }
+        return true
     }
 
     @Patch("/:id")
     @Authorized()
     @HttpCode(204)
-    async updateContentPublication(@CurrentUser() user: User, @Param("id") pub_id: string, @Body() body: any): Promise<void>{
-        const validId = zObjectId.parse(pub_id)
+    async updateContentPublication(@CurrentUser() user: User, @Param("id") pub_id: string, @Body() body: any): Promise<boolean>{
+        const validId = new ObjectID(zObjectId.parse(pub_id))
         const validBody = zUpdatePublication.parse(body)
         const pub = await getPublicationById(validId)
-        
-        if(pub && pub.author_id.toString() != user._id.toString()){
+        if(!pub){
+            throw new NotFoundError()
+        }
+        if(pub && pub.author?._id.toString() != user._id.toString()){
             throw new ForbiddenError("This publication isn't yours")
         }
-        if(!await updatePublicationcontent(user, pub_id, validBody)){
+        const resp = await updatePublicationcontent(user, validId, validBody)
+        if(!resp){
             throw new BadRequestError()
         }
+        return true
     }
 
     @Delete("/:id")
     @Authorized()
     @HttpCode(204)
-    async deletePublicationById(@CurrentUser() user: User, @Param("id") pub_id: string): Promise<void>{
-        const validId = zObjectId.parse(pub_id)
+    async deletePublicationById(@CurrentUser() user: User, @Param("id") pub_id: string): Promise<boolean>{
+        const validId = new ObjectID(zObjectId.parse(pub_id))
         const pub = await getPublicationById(validId)
-        if(pub && (pub.author_id != user._id && user.role != UserRole.admin) ){
+        if(pub && (pub.author?._id != user._id && user.role != UserRole.admin) ){
             throw new ForbiddenError("This publication isn't yours")
         }
         if(!await deletePublicationById(user, validId)){
             throw new BadRequestError()
         }
+        return true
     }
     
 }

@@ -5,13 +5,15 @@ import { User } from "./user";
 
 export type Message = {
   content: string;
+  username: string;
+  type : ["MESSAGE", "HISTORY", "ERROR"]
   // autres champs si besoin
 };
 
 export type Channel = {
     _id: string;
     activity: Activity | null
-    owner: User
+    admin: User
     name: string;
     type: string,
     description: string,
@@ -20,6 +22,15 @@ export type Channel = {
     members: string[]
     messages: string[]
 };
+
+export type PublicChannel = {
+  _id: string;
+  name: string;
+  activity: Activity;
+  type: string;
+  description: string;
+  created_at: Date;
+}
 
 export class ChatClass extends ApiClient {
 
@@ -41,15 +52,15 @@ export class ChatClass extends ApiClient {
   }
 
   async deleteChat(channel_id: string): Promise<void>{
-    return await this.Delete(`${this.url}/${channel_id}`)
+    await this.Delete(`${this.url}/${channel_id}`)
   }
 
   async leaveChat(id: string): Promise<void>{
-    return await this.Patch(`${this.url}/${id}/removeuser/${this.user?._id}`, {})
+    await this.Patch(`${this.url}/${id}/removeuser/${this.user?._id}`, {})
   }
 
   async joinChat(channel_id: string, user_id_to_add: string): Promise<void>{
-    return await this.Patch(`${this.url}/${channel_id}/adduser/${user_id_to_add}`, {})
+    await this.Patch(`${this.url}/${channel_id}/adduser/${user_id_to_add}`, {})
   }
 }
 

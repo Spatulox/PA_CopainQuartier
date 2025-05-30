@@ -1,6 +1,6 @@
 // ShowActivity.tsx
 
-import React from "react";
+import React, { useState } from "react";
 import { Activity } from "../../../api/activity";
 import { User, UserRole } from "../../../api/user";
 import { Route } from "../../constantes";
@@ -17,7 +17,6 @@ export enum ShowActivityButton {
 type ShowActivityProps = {
     activity: Activity;
     user: User | undefined;
-    onViewActivity?: (id: string) => void;
     onViewPublication?: (id: string) => void;
     onManage?: (id: string) => void;
     buttonShow: ShowActivityButton
@@ -26,7 +25,6 @@ type ShowActivityProps = {
 export function ShowActivity({
     activity,
     user,
-    onViewActivity,
     onViewPublication,
     onManage,
     buttonShow

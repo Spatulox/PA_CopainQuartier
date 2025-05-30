@@ -4,25 +4,46 @@ import { AdminPublicationClass, Publication, PublicationClass } from "../../../a
 import { Route } from "../../constantes";
 import Loading from "../shared/loading";
 import { ShowPublication, ShowPublicationButton } from "./SinglePublication";
-import { User } from "../../../api/user";
+import { User, UserRole } from "../../../api/user";
+import { useAuth } from "../shared/auth-context";
+import NotFound from "../shared/notfound";
+import { UpdatePublication } from "./UpdatePublication";
+import { PopupConfirm } from "../Popup/PopupConfirm";
+import { ErrorMessage } from "../../../api/client";
+import Errors from "../shared/errors";
 
 export function ManageMyPublications(){
+    const { me, isAdmin } = useAuth();
     const [publications, setPublications] = useState<Publication[] | null>(null);
-    const [user, setUser] = useState<User>(null)
+    const [err, setErrors] = useState<ErrorMessage | null>(null)
     const navigate = useNavigate()
+    const [notFound, setNotFound] = useState<boolean>(false)
     
     useEffect(() => {
         (async () => {
         const client = new PublicationClass();
-        const pub = await client.getMyPublications();
-        setPublications(pub);
-
-        const use = await client.getMe()
-        setUser(use)
-
+        try{
+            const pub = await client.getMyPublications();
+            if(!pub){
+                setNotFound(true)
+                return
+            }
+            setPublications(pub);
+            setErrors
+        } catch(e){
+            setErrors(client.errors)
+        }
         })();
     }, []);
     
+    if(err != null){
+        return <Errors errors={err} />
+    }
+
+    if(notFound){
+        return <NotFound />
+    }
+
     if (publications === null) {
         return <Loading title="Chargement des publications" />
     }
@@ -37,7 +58,7 @@ export function ManageMyPublications(){
             <ShowPublication
                 key={pub._id}
                 pub={pub}
-                user={user}
+                user={me}
                 onViewActivity={(id) => navigate(`${Route.activity}/${id}`)}
                 onManage={(id) => navigate(`${Route.manageActivity}/${id}`)}
                 buttonShow={ShowPublicationButton.ViewActivity | ShowPublicationButton.Manage}
@@ -47,25 +68,42 @@ export function ManageMyPublications(){
 }
 
 function ManagePublicationAdmin(){
+    const { me, isAdmin } = useAuth();
     const [publications, setPublications] = useState<Publication[] | null>(null);
+    const [err, setErrors] = useState<ErrorMessage | null>(null)
     const navigate = useNavigate()
-    const [user, setUser] = useState<User | null>(null)
+    const [notFound, setNotFound] = useState<boolean>(false)
   
     useEffect(() => {
       (async () => {
         const client = new AdminPublicationClass();
-        await client.refreshUser()
-        if(!client.isAdmin()){
-          navigate(`${Route.publications}`)
-          return
+        try{
+            const publications = await client.getAdminAllPublication();
+            if(!publications){
+                setNotFound(true)
+                return
+            }
+
+            setPublications(publications);
+            setErrors(null)
+        } catch(e){
+            setErrors(client.errors)
         }
-        const publications = await client.getAllPublications();
-        setPublications(publications);
-        
-        const use = await client.getMe()
-        setUser(use)
       })();
     }, []);
+
+    if(err != null){
+        return <Errors errors={err} />
+    }
+
+    if(notFound){
+        return <NotFound />
+    }
+
+    if(!isAdmin){
+        navigate(`${Route.publications}`)
+        return
+    }
   
     if (publications === null) {
       return <Loading title="Chargement des publications" />
@@ -74,6 +112,7 @@ function ManagePublicationAdmin(){
     if (publications.length === 0) {
       return <div>Aucune publications trouvée.</div>;
     }
+
     return (
       <div>
         <h1>Publications</h1>
@@ -82,7 +121,7 @@ function ManagePublicationAdmin(){
             <ShowPublication
                 key={pub._id}
                 pub={pub}
-                user={user}
+                user={me}
                 onViewPublication={(actiId) => navigate(`${Route.activity}/${actiId}`)}
                 onManage={(pubId) => navigate(`${Route.managePublications}/${pubId}`)}
                 buttonShow={ShowPublicationButton.All}
@@ -94,58 +133,140 @@ function ManagePublicationAdmin(){
 }
 
 function ManageOnePublication(){
+    const { me, isAdmin } = useAuth();
     const { id } = useParams<{ id: string }>();
     const [publication, setPublication] = useState<Publication | null>(null)
-    const [user, setUser] = useState<User | null>(null)
+    const [err, setErrors] = useState<ErrorMessage | null>(null)
+    const [updErr, setUpdateErrors] = useState<any | null>(null)
+    const [delErr, setDeleteErrors] = useState<ErrorMessage | null>(null)
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [deleteId, setDeleteId] = useState<string | null>(null);
     const navigate = useNavigate()
+    const [notFound, setNotFound] = useState<boolean>(false)
+
     useEffect(() => {
         (async ()=> {
-            const client = new PublicationClass()
             if(id){
-                const pub = await client.getPublicationById(id)
-                setPublication(pub)
+                if(isAdmin){
+                    const client = new AdminPublicationClass()
+                    try{
+                        const pub = await client.getAdminPublicationById(id)
+                        if(!pub){
+                            setNotFound(true)
+                            return
+                        }
+                        setPublication(pub)
+                        setErrors(null)
+                    } catch(e){
+                        setErrors(client.errors)
+                    }
+                } else {
+                    const client = new PublicationClass()
+                    try{
+                        const pub = await client.getPublicationById(id)
+                        if(!pub){
+                            setNotFound(true)
+                            return
+                        }
+                        setPublication(pub)
+                        setErrors(null)
+                    } catch(e){
+                        setErrors(client.errors)
+                    }
+                }
             }
-            const use = await client.getMe()
-            setUser(use)
         })()
     }, [id])
 
-    if(publication === null){
-        <Loading title="Chargement de la publication" />
+    if(err != null){
+        return <Errors errors={err} />
     }
 
-    return <>
+    if(notFound){
+        return <NotFound />
+    }
 
-        <h1>EN TRAVAUX</h1>
-        {publication && user ?
-            <ShowPublication
-                key={publication._id}
-                pub={publication}
-                user={user}
-                onViewActivity={(id) => navigate(`${Route.activity}/${id}`)}
-                buttonShow={ShowPublicationButton.ViewActivity}
+    if(!id){
+        navigate(`${Route.publications}`)
+        return
+    }
+
+    if(publication === null){
+        return <Loading title="Chargement de la publication" />
+    }
+
+    const handlUpdate = async (id: string, option: object) => {
+        const client = new PublicationClass()
+        try{
+            await client.updatePublication(id, option)
+            setUpdateErrors(null)
+        } catch(e){
+            setUpdateErrors(client.errors)
+        }
+    }
+    
+    const handlDelete = async (id: string) => {
+        setDeleteId(id)
+        setShowConfirm(true)
+        setDeleteErrors(null)
+    }
+
+    const confirmDelete = async () => {
+        if (deleteId) {
+        const client = new AdminPublicationClass();
+        try{
+            await client.deletePublication(deleteId);
+            setShowConfirm(false);
+            setDeleteId(null);
+            setDeleteErrors(null)
+        } catch(e){
+            setDeleteErrors(client.errors)
+        }
+        }
+    };
+
+    const cancelDelete = () => {
+        setShowConfirm(false);
+        setDeleteId(null);
+        setDeleteErrors(null)
+    };
+    
+    return <>
+        <UpdatePublication
+            key={publication!._id}
+            publication={publication!}
+            user={me}
+            APIerror={updErr}
+            onUpdate={(id: string, option: object) => handlUpdate(id, option)}
+            onDelete={handlDelete}
+        />
+        {showConfirm && (
+            <PopupConfirm
+            key={deleteId}
+            title="Suppression d'une publication"
+            description="Voulez-vous réellement supprimer cette publication ?"
+            errors={delErr}
+            onConfirm={confirmDelete}
+            onCancel={cancelDelete}
             />
-        :() => navigate(Route.publications)}
+        )}
     </>
 }
 
 function ManagePublication(){
     const { id } = useParams<{ id: string }>();
-    const [userIsAdmin, setUserAdmin] = useState(false)
     const navigate = useNavigate()
+    const { me, isAdmin } = useAuth();
 
     useEffect(() => {
-        (async () => {
-            const client = new PublicationClass()
-            await client.refreshUser()
-            const useAdmin = client.isAdmin()
-            setUserAdmin(useAdmin)
-            if (useAdmin === false && !id) {
-                navigate(`${Route.publications}`);
-            }
-        })()
-    }, [])
+        if (!isAdmin && !id) {
+            navigate(`${Route.publications}`);
+        }
+    }, [isAdmin, id, navigate]);
 
+    if(!id){
+        return <Loading title="Chargement des Publications"/>
+    }
 
     if(id){
         return <><ManageOnePublication /></>

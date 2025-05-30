@@ -9,39 +9,65 @@ import { Activity, ActivityClass } from "../../../api/activity";
 import { User } from "../../../api/user";
 import { ShowActivity, ShowActivityButton } from "./SingleActivity";
 import Loading from "../shared/loading";
-
+import { useAuth } from "../shared/auth-context";
+import NotFound from "../shared/notfound";
+import { ErrorMessage } from "../../../api/client";
+import Errors from "../shared/errors";
+import PublicationList from "../Publications/PublicationsList";
 
 function ShowActivityPage() {
     const { id } = useParams<{ id: string }>();
+    const [err, setErrors] = useState<ErrorMessage | null>(null)
     const [activity, setActivity] = useState<Activity>();
-    const [user, setUser] = useState<User>();
+    const [notFound, setNotFound] = useState<boolean>(false)
     const navigate = useNavigate();
+    const { me, isAdmin } = useAuth();
 
     useEffect(() => {
         (async () => {
             const client = new ActivityClass();
-            if (id) {
-                const activity = await client.getActivityByID(id);
-                const user = await client.getMe();
-                setActivity(activity);
-                setUser(user);
+            try{
+                if (id) {
+                    const activity = await client.getActivityByID(id);
+                    if(!activity){
+                        setNotFound(true)
+                        return
+                    }
+            
+                    setActivity(activity);
+                    setErrors(null)
+                }
+            } catch (e){
+                setErrors(client.errors)
             }
+            
         })();
     }, [id]);
 
+    if(err != null){
+        return <Errors errors={err} />
+    }
+    
+    if(notFound){
+        return <NotFound />
+    }
+    
     if (!activity) {
         return <Loading title="Chargement de l'activité" />;
     }
 
     return (
+        <>
         <ShowActivity
             key={activity._id}
             activity={activity}
-            user={user}
+            user={me}
             onViewPublication={(pubId) => navigate(`${Route.publications}/${pubId}`)}
             onManage={(actId) => navigate(`${Route.manageActivity}/${actId}`)}
             buttonShow={ShowActivityButton.ViewPublication | ShowActivityButton.Manage}
         />
+        <PublicationList message="" activity_id={activity._id} />
+        </>
     );
 }
 
@@ -53,6 +79,11 @@ function ActivityComponent() {
     };
     const navigate = useNavigate();
 
+    if(id == "me"){
+        navigate(`${Route.manageMyActivity}`)
+        return
+    }
+    
     if (id) {
         return <ShowActivityPage />;
     }

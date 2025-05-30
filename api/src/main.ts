@@ -7,11 +7,11 @@ import { authMiddleware, getCurrentUser } from './Middleware/auth';
 import { ActivityController, AdminActivityController } from './Controllers/ActivitiesController';
 import { AccountController } from './Controllers/AccountController';
 import { AdminChannelsController, ChannelsController } from './Controllers/ChannelsControllers';
-import { PublicationsController } from './Controllers/PublicationsController';
+import { AdminPublicationsController, PublicationsController } from './Controllers/PublicationsController';
 import { AdminTrocController, TrocController } from './Controllers/TrocsController';
 import { WebSocketServer } from 'ws';
 import http from 'http';
-import { channelSubscriptions, handleMessage, initAccessMap } from './Controllers/ChannelsWebsoketController';
+import { channelClients, handleMessage, accessMap } from './Controllers/ChannelsWebsoketController';
 import { parse } from 'url';
 import { AuthController } from './Controllers/AuthController';
 import cors from 'cors'
@@ -36,6 +36,7 @@ async function main(){
       AdminUserController,
       AdminActivityController,
       AdminChannelsController,
+      AdminPublicationsController,
 
       AccountController,
       ActivityController,
@@ -77,10 +78,10 @@ async function main(){
     ws.on('close', () => {
       console.log('Client déconnecté');
       // Nettoyage des abonnements
-      for (const clients of channelSubscriptions.values()) {
+      for (const clients of channelClients.values()) {
         clients.delete(ws);
       }
-      initAccessMap.delete(ws);
+      accessMap.delete(ws);
     });
   });
 }

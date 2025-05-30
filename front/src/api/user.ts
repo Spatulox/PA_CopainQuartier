@@ -1,3 +1,4 @@
+import { Channel } from "./chat";
 import { ApiClient } from "./client";
 
 
@@ -15,12 +16,11 @@ export type User = {
   address: string,
   verified: boolean,
   role: string,
-  group_chat_list_ids: [],
-  common_channels?: [],
-  troc_score: string | number | null,
+  group_chat_list_ids: Channel[],
+  common_channels?: Channel[],
+  troc_score?: string | number | null,
   phone: string
 } | null
-
 
 export class UserClass extends ApiClient{
     protected url = "/users"
@@ -31,6 +31,10 @@ export class UserClass extends ApiClient{
 
     async getUserByID(id: string): Promise<User>{
         return await this.Get(`${this.url}/${id}`)
+    }
+
+    async deleteUser(id: string): Promise<void>{
+        await this.Delete(`${this.url}/${id}`)
     }
 }
 
@@ -59,10 +63,10 @@ export class AdminUserClass extends UserClass{
     }
 
     async verifyUser(id: string, option: object): Promise<void>{
-        return await this.Patch(`${this.urlAdmin}/${id}`, option)
+        await this.Patch(`${this.urlAdmin}/${id}/verify`, option)
     }
 
-    async deleteUser(id: string): Promise<void>{
-        return await this.Delete(`${this.urlAdmin}/${id}`)
-    }
+    async updateUserAdmin(id: string, data: any): Promise<void> {
+    await this.Patch(`${this.urlAdmin}/${id}`, data);
+  }
 }

@@ -4,7 +4,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from './auth-context';
 import { ApiClient } from '../../../api/client';
 import { Route } from '../../constantes';
-import { useRef, useEffect } from 'react';
+
+import "../Popup/Popup.css"
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -31,6 +32,7 @@ function Header() {
 
 
   return (
+    <>
     <header className="header">
       <div className="header-content">
 
@@ -107,7 +109,11 @@ function Header() {
           </nav>
         </div>
       </div>
+      <div id="popup-slide" className="popup-slide">
+            The popup slide
+      </div>
     </header>
+    </>
   );
 }
 

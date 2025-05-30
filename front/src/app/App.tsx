@@ -3,7 +3,7 @@ import './css/App.css'
 import './css/index.css'
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Account from './components/Account/AccountPage';
+import Account, { ManageMyAccount } from './components/Account/AccountPage';
 import Chat from './components/Chat/ChatPage';
 import { Route as CRoute } from './constantes';
 import Register from './components/LoginRegister/Register';
@@ -39,6 +39,7 @@ function App() {
 
 
           <Route path={CRoute.account} element={<Account />} />
+          <Route path={CRoute.manageMyAccount} element={<ManageMyAccount />} />
           <Route path={`${CRoute.chat}`} element={<Chat />} />
           <Route path={`${CRoute.chat}/:id`} element={<Chat />} />
           <Route path={`${CRoute.manageChannels}`} element={<ManageChat />} />

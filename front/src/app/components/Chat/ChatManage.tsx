@@ -1,19 +1,25 @@
 import { useEffect, useState } from "react"
-import { User } from "../../../api/user"
+import { User, UserRole } from "../../../api/user"
 import { Channel, AdminChatClass } from "../../../api/chat"
 import Loading from "../shared/loading"
 import { useNavigate, useParams } from "react-router-dom"
 import { Route } from "../../constantes"
 import { ShowChat, ShowChatButton } from "./SingleChat"
+import { useAuth } from "../shared/auth-context";
+import NotFound from "../shared/notfound"
+import { ErrorMessage } from "../../../api/client"
+import Errors from "../shared/errors"
 
 function ManageAdminChat(){
     return <h1>Manage one</h1>
 }
 
 function ManageOneChat(){
-    const [user, setUser] = useState<User | null>(null)
     const [channel, setChannel] = useState<Channel | null>(null)
+    const [notFound, setNotFound] = useState<boolean>(false)
+    const [err, setErrors] = useState<ErrorMessage | null>(null)
     const { id } = useParams<{ id: string }>();
+    const { me, isAdmin } = useAuth();
     const navigate = useNavigate()
 
 
@@ -21,27 +27,44 @@ function ManageOneChat(){
         (async () => {
             if(id){
                 const client = new AdminChatClass()
-                const chan = await client.getChannelById(id)
-                setChannel(chan)
-                const use = await client.getMe()
-                setUser(use)
-                await client.refreshUser()
-                if(!client.isAdmin()){
-                    navigate(Route.notfound)
-                    return
+                try{
+                    const chan = await client.getChannelById(id)
+                    if(!chan){
+                        setNotFound(true)
+                        return
+                    }
+                    setChannel(chan)
+                } catch(e){
+                    setErrors(client.errors)
                 }
             }
         })()
     }, [id])
 
-    if(!channel || !user || !id){
+    useEffect(() => {
+        if(!isAdmin){
+            navigate(Route.notfound)
+            return
+        }
+    }, [id, isAdmin, navigate])
+
+    if(err != null){
+        return <Errors errors={err} />
+    }
+
+    if(notFound){
+        return <NotFound />
+    }
+
+    if(!channel || !me || !id){
         return <Loading />
     }
 
     if(channel){
         return <ShowChat
+            key={channel._id}
             channel={channel}
-            user={user}
+            user={me}
             buttonShow={ShowChatButton.None}
         />
     }
@@ -49,28 +72,37 @@ function ManageOneChat(){
 
 
 function ManageChat(){
-    const [user, setUser] = useState<User | null>(null)
     const [channel, setChannels] = useState<Channel[] | null>(null)
     const { id } = useParams<{ id: string }>();
+    const { me, isAdmin } = useAuth();
     const navigate = useNavigate()
+    const [notFound, setNotFound] = useState<boolean>(false)
 
 
     useEffect(() => {
         (async () => {
             const client = new AdminChatClass()
             const chan = await client.getAllChannel()
-            setChannels(chan)
-            const use = await client.getMe()
-            setUser(use)
-            await client.refreshUser()
-            if(!client.isAdmin()){
-                navigate(Route.notfound)
+            if(!chan){
+                setNotFound(true)
                 return
             }
+            setChannels(chan)
         })()
     }, [])
 
-    if(!channel || !user){
+    useEffect(() => {
+        if(!isAdmin){
+            navigate(Route.notfound)
+            return
+        }
+    }, [id, isAdmin, navigate])
+
+    if(notFound){
+        return <NotFound />
+    }
+
+    if(!channel || !me){
         return <Loading />
     }
 
@@ -85,8 +117,9 @@ function ManageChat(){
     return <>
         {channel && channel.map((chan) => (
             <ShowChat
+                key={chan._id}
                 channel={chan}
-                user={user}
+                user={me}
                 onViewChat={() => navigate(`${Route.chat}/${chan._id}`)}
                 onManage={() => navigate(`${Route.manageChannels}/${chan._id}`)}
                 buttonShow={ShowChatButton.Chat | ShowChatButton.Manage}

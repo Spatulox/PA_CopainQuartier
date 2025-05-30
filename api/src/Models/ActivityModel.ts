@@ -1,17 +1,29 @@
-import mongoose from "mongoose";
-import { Publication } from "./PublicationModel";
+import mongoose, { ObjectId } from "mongoose";
+import { FilledPublication, Publication } from "./PublicationModel";
+import { FilledUser, User } from "./UserModel";
+import { Channel, FilledChannel } from "./ChannelModel";
 
-export interface Activity {
-    _id: string,
+export type Activity = {
+    _id: ObjectId,
     title: string,
     description: string,
     created_at: Date,
     date_reservation: Date,
-    author_id: string,
-    channel_chat_id: string,
-    publication_id: string,
-    participants_id: string
+    author_id: ObjectId,
+    channel_chat_id: ObjectId,
+    publication_id: ObjectId,
+    participants_id: ObjectId[]
+}
+
+export type FilledActivity = Omit<Activity, "author_id" | "publication_id" | "participants_id" | "_id" | "channel_chat_id"> &{
+    _id: string,
+    author: FilledUser | null,
+    publication: Publication | FilledPublication | null,
+    participants: User[] | FilledUser[] | null,
+    channel_chat: FilledChannel | null
 }
 
 
 export type PublicActivity = Omit<Activity, "channel_chat_id" | "participants_id">;
+
+export type PublicFilledActivity = Omit<FilledActivity, "channel_chat" | "participants"> & {author: FilledUser | null, publication: Publication | FilledPublication | null};

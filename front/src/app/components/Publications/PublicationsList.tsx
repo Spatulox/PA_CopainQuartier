@@ -5,32 +5,46 @@ import { useNavigate } from "react-router-dom";
 import { Route } from "../../constantes";
 import { ShowPublication, ShowPublicationButton } from "./SinglePublication";
 import Loading from "../shared/loading";
+import { useAuth } from "../shared/auth-context";
+import { ErrorMessage } from "../../../api/client";
+import Errors from "../shared/errors";
 
 type PublicationListMessage = {
     message: string
     limit?: number
+    activity_id?: string
 }
 
-function PublicationList({message, limit}: PublicationListMessage){
+function PublicationList({message, limit, activity_id}: PublicationListMessage){
     const [publications, setPublications] = useState<Publication[] | null>(null)
-    const [user, setUser] = useState<User>(null)
+    const [err, setErrors] = useState<ErrorMessage | null>(null)
     const navigate = useNavigate()
-
+    const { me, isAdmin } = useAuth();
 
     useEffect(() => {
         (async () => {
-            console.log('useEffect')
             const client = new PublicationClass()
-            const use = await client.getMe()
-            const pub = await client.getAllPublications()
-            if(pub){
-                setPublications(pub)
-            }
-            if(use){
-                setUser(use)
+            try{
+
+                if(activity_id){
+                    const pub = await client.getAllPublicationsViaActivityID(activity_id)
+                    setPublications(pub)
+                } else {
+                    const pub = await client.getAllPublications()
+                    if(pub){
+                        setPublications(pub)
+                    }
+                }
+                setErrors(null)
+            } catch(e){
+                setErrors(client.errors)
             }
         })()
     }, [message])
+
+    if(err != null){
+        return <Errors errors={err} />
+    }
 
     if (publications === null) {
         return <Loading title="Chargement des publications" />
@@ -41,14 +55,14 @@ function PublicationList({message, limit}: PublicationListMessage){
     }
 
     return <>    
-        <h2>Publications</h2>
+        <h2>Publications {activity_id ? "associés" : ""}</h2>
         <section>{publications
         .slice(0, limit ?? publications.length)
         .map((pub) => (
                 <ShowPublication
                     key={pub._id}
                     pub={pub}
-                    user={user}
+                    user={me}
                     onViewPublication={(id) => navigate(`${Route.publications}/${id}`)}
                     onViewActivity={(id) => navigate(`${Route.activity}/${id}`)}
                     onManage={(id) => navigate(`${Route.managePublications}/${id}`)}

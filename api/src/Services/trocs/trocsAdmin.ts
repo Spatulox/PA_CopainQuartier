@@ -1,11 +1,13 @@
 import { ForbiddenError, UnauthorizedError } from "routing-controllers";
 import { TrocTable } from "../../DB_Schema/TrocSchema";
-import { Troc, TrocStatus, TrocVisibility } from "../../Models/TrocModel";
+import { FilledTroc, Troc, TrocStatus, TrocVisibility } from "../../Models/TrocModel";
 import { User } from "../../Models/UserModel";
 import { UserRole } from "../../DB_Schema/UserSchema";
+import { toTrocObject } from "./trocs";
+import { ObjectID } from "../../DB_Schema/connexion";
 
 // Formate un document Mongo en Troc plat
-export function toTrocObject(doc: any): Troc {
+export function toTrocObjectAdmin(doc: any): Troc {
     return {
         _id: doc._id.toString(),
         title: doc.title,
@@ -16,21 +18,41 @@ export function toTrocObject(doc: any): Troc {
         reserved_by: Array.isArray(doc.reserved_by)
             ? doc.reserved_by.map((id: any) => id.toString())
             : [],
+        updated_at: doc.updated_at,
         status: doc.status,
         type: doc.type,
         visibility: doc.visibility
     };
 }
 
-export async function getWaitingTrocs(): Promise<Troc[]> {
-    const docs = await TrocTable.find({
-        status: TrocStatus.waitingForApproval,
-        visibility: { $ne: TrocVisibility.hide }
-    }).sort({ created_at: -1 }).exec();
+export async function getAllAdminTrocs(): Promise<FilledTroc[]> {
+    const docs = await TrocTable.find().sort({ created_at: -1 })
+    .populate("author_id")
+    .populate("reserved_by")
+    .exec();
     return docs.map(toTrocObject);
 }
 
-export async function updateWaitingTrocStatus(id: string, status: TrocStatus.pending | TrocStatus.cancelled | TrocStatus.hide, admin: User): Promise<Troc | null> {
+export async function getAdminTrocById(id: ObjectID): Promise<FilledTroc | null> {
+    const doc = await TrocTable.findById(id)
+    .populate("author_id")
+    .populate("reserved_by")
+    .exec();
+    return doc ? toTrocObject(doc) : null;
+}
+
+export async function getWaitingTrocs(): Promise<FilledTroc[]> {
+    const docs = await TrocTable.find({
+        status: TrocStatus.waitingForApproval,
+        visibility: { $ne: TrocVisibility.hide }
+    }).sort({ created_at: -1 })
+    .populate("author_id")
+    .populate("reserved_by")
+    .exec();
+    return docs.map(toTrocObject);
+}
+
+export async function updateWaitingTrocStatus(id: string, status: TrocStatus.pending | TrocStatus.cancelled | TrocStatus.hide, admin: User): Promise<boolean | null> {
     if (admin.role !== UserRole.admin) {
         throw new UnauthorizedError("Only admins can validate trocs");
     }
@@ -42,5 +64,5 @@ export async function updateWaitingTrocStatus(id: string, status: TrocStatus.pen
         { status },
         { new: true }
     ).exec();
-    return doc ? toTrocObject(doc) : null;
+    return doc ? true : false;
 }

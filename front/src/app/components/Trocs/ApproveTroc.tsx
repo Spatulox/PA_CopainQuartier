@@ -1,31 +1,56 @@
 import { useEffect, useState } from "react"
 import { ShowTroc, ShowTrocButton } from "./SimpleTroc"
-import { AdminTrocClass, Troc, TrocClass } from "../../../api/troc"
-import { User } from "../../../api/user"
+import { AdminTrocClass, Troc } from "../../../api/troc"
+import { useAuth } from "../shared/auth-context"
+import NotFound from "../shared/notfound";
+import { ErrorMessage } from "../../../api/client";
+import Errors from "../shared/errors";
 
 function ApproveTroc(){
-
+    const { me, isAdmin } = useAuth();
     const [troc, setTroc] = useState<Troc[]>([])
-    const [user, setUser] = useState<User | null>(null)
-
+    const [notFound, setNotFound] = useState<boolean>(false)
+    const [refresh, setRefresh] = useState(0)
+    const [err, setError] = useState<ErrorMessage | null>(null)
 
     const handleApprove = async (troc_id: string, bool: boolean) => {
         const client = new AdminTrocClass()
-        const option = {"approve": bool}
-        await client.approveTroc(troc_id, option)
-        const app = await client.getWaitingTroc()
-        setTroc(app)
+        try{
+            const option = {"approve": bool}
+            await client.approveTroc(troc_id, option)
+            const app = await client.getWaitingTroc()
+            if(!app){
+                setNotFound(true)
+                return
+            }
+            setTroc(app)
+            setRefresh(r => r + 1)
+            setError(null)
+        }catch(e){
+            setError(client.errors)
+        }
     }
 
     useEffect(() => {
         (async () => {
             const client = new AdminTrocClass()
-            const trok = await client.getWaitingTroc()
-            setTroc(trok)
-            const use = await client.getMe()
-            setUser(use)
+            try{
+                const trok = await client.getWaitingTroc()
+                setTroc(trok)
+                setError(null)
+            } catch(e){
+                setError(client.errors)
+            }
         })()
-    }, [])
+    }, [refresh])
+
+    if(err != null){
+        return <Errors errors={err} />
+    }
+
+    if(notFound){
+        return <NotFound />
+    }
 
     return <>
         <div>
@@ -34,7 +59,7 @@ function ApproveTroc(){
                 <ShowTroc
                     key={trok._id}
                     troc={trok}
-                    user={user}
+                    user={me}
                     onApprove={handleApprove}
                     buttonShow={ShowTrocButton.Approve}
                 />

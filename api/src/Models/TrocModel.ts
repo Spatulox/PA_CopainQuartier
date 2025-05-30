@@ -1,13 +1,15 @@
-import mongoose from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
+import { FilledUser, User } from "./UserModel";
 
-export interface Troc {
-    _id: string,
+export type Troc = {
+    _id: ObjectId,
     title: string,
     created_at: Date,
     description: string,
-    author_id: string,
+    author_id: ObjectId,
     reserved_at: Date,
-    reserved_by: string,
+    reserved_by: ObjectId[],
+    updated_at: Date,
     status: TrocStatus,
     type: TrocType,
     visibility : TrocVisibility
@@ -33,3 +35,5 @@ export enum TrocStatus {
     reserved = "reserved",
     waitingForApproval = "waitingforapproval",
 }
+
+export type FilledTroc = Omit<Troc, "author_id" | "reserved_by"> & {author: User | FilledUser | null, reserved_by: User | FilledUser | string}

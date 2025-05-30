@@ -6,6 +6,9 @@ import { ShowChat, ShowChatButton } from "./SingleChat";
 import { Route } from "../../constantes";
 import { useEffect, useState } from "react";
 import Loading from "../shared/loading";
+import { useAuth } from "../shared/auth-context";
+import Errors from "../shared/errors";
+import { ErrorMessage } from "../../../api/client";
 
 type ListProps = {
   channels: Channel[];
@@ -19,21 +22,28 @@ type ListSimpleProps = {
 
 export function ChannelList(/*{ channels }: ListSimpleProps*/) {
   const navigate = useNavigate()
-  const [user, setUser] = useState<User | null>(null)
   const [channel, setChannel] = useState<Channel[]>([])
+  const [err, setErrors] = useState<ErrorMessage | null>(null)
 
   useEffect(() => {
     (async () => {
       const client = new ChatClass()
-      const chan = await client.getChannel()
-      setChannel(chan)
-      const use = await client.getMe()
-      setUser(use)
+      try{
+        const chan = await client.getChannel()
+        setChannel(chan)
+        setErrors(null)
+      } catch(e){
+        setErrors(client.errors)
+      }
     })()
   }, [])
 
   if(channel && channel.length == 0){
     return <Loading title="Chargement des channels" />
+  }
+
+  if(err != null){
+      return <Errors errors={err} />
   }
 
   return (
@@ -64,7 +74,7 @@ export function ManageChannelList({ channels, action, user }: ListProps) {
           <button><Link to={`${Route.chat}/${channel._id}`}>{channel.name}</Link></button>
           <span>{channel.description}</span>
           <button onClick={()=>action(channel._id, user?._id)}>
-              {user?._id == channel.owner?._id ? "Supprimer le Chat" : "Quitter le Chat"}
+              {user?._id == channel.admin?._id ? "Supprimer le Chat" : "Quitter le Chat"}
           </button>
         </p>
       ))

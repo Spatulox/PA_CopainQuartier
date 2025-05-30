@@ -9,12 +9,12 @@ export class AccountClass extends ActivityClass{
         return await this.Get(`${this.url}/`)
     }
 
-    async updateAccount(option: object):Promise<any>{
-        return await this.Patch(`${this.url}/`, option)
+    async updateAccount(option: object): Promise<void>{
+        await this.Patch(`${this.url}/`, option)
     }
 
-    async deleteAccount(id: string){
-        return await this.Delete(`${this.url}/${id}`)
+    async deleteAccount(): Promise<void>{
+        await this.Delete(`${this.url}/`)
     }
 
 }

@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { Route } from "../../constantes";
 import Loading from "../shared/loading";
 import { ShowUser, ShowUserButton } from "./SingleUser";
-import { AdminUserClass, User } from "../../../api/user";
+import { AdminUserClass, User, UserClass, UserRole } from "../../../api/user";
 import UserList from "./UsersList";
 import ApproveUser from "./ApproveUser";
-
+import { useAuth } from "../shared/auth-context";
+import NotFound from "../shared/notfound";
+import { UpdateUser, UpdateUserType, UpdateUserTypeAdmin } from "./UpdateUser";
+import { PopupConfirm } from "../Popup/PopupConfirm";
+import { ErrorMessage } from "../../../api/client";
+import Errors from "../shared/errors";
 
 function ManageUserAdmin(){
     const [message, setMessage] = useState("");
@@ -22,68 +27,154 @@ function ManageUserAdmin(){
 
 function ManageOneUser(){
     const { id } = useParams<{ id: string }>();
+    const { me, isAdmin } = useAuth();
     const [user, setUser] = useState<User | null>(null)
-    const [me, setMe] = useState<User | null>(null)
+    const [notFound, setNotFound] = useState<boolean>(false)
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [deleteId, setDeleteId] = useState<string | null>(null);
     const navigate = useNavigate()
+
+    const [err, setError] = useState<ErrorMessage | null>(null)
+    const [updErr, setUpdateError] = useState<ErrorMessage | null>(null)
+    const [delErr, setDeleteError] = useState<ErrorMessage | null>(null)
+
+    const [refresh, setRefresh] = useState(0)
+
     useEffect(() => {
         (async ()=> {
             const client = new AdminUserClass()
-            if(id){
-                const use = await client.getUserByID(id)
-                setUser(use)
+            try{
+                if(id){
+                    const use = await client.getUserByID(id)
+                    if(!use){
+                        setNotFound(true)
+                        return
+                    }
+                    setUser(use)
+                }
+                setError(null)
+            }catch(e){
+                setError(client.errors)
             }
-            const use = await client.getMe()
-            setMe(use)
         })()
-    }, [id])
+    }, [id, refresh])
 
-    const handleDelete = (id: string) => {
-        console.log(id)
+    const handleDelete = async (id: string) => {
+        setDeleteId(id)
+        setShowConfirm(true)
+    }
+
+    const confirmDelete = async () => {
+        if (deleteId) {
+            const client = new UserClass()
+            try{
+                await client.deleteUser(deleteId)
+                setRefresh((r) => r+1)
+                setDeleteId(null)
+                setShowConfirm(false)
+                setDeleteError(null)
+            } catch(e){
+                setDeleteError(client.errors)
+            }
+        }
+    };
+
+    const cancelDelete = () => {
+        setShowConfirm(false);
+        setDeleteId(null);
+    };
+
+    const handleUpdate = async (id: string, option: object) => {
+        if(isAdmin){
+            const client = new AdminUserClass()
+            try{
+                await client.updateUserAdmin(id, option)
+                setUpdateError(null)
+            } catch(e){
+                setUpdateError(client.errors)
+            }
+        } else {
+            const client = new UserClass()
+            try{
+                await client.updateUser(id, option)
+                setUpdateError(null)
+            } catch(e){
+                setUpdateError(client.errors)
+            }
+        }
+        setRefresh((r) => r+1)
+    }
+
+    const handleApprove = async (id: string, bool: boolean) => {
+        if(isAdmin){
+            const client = new AdminUserClass()
+            try{
+                await client.verifyUser(id, {approve: bool})
+                setUpdateError(null)
+            } catch(e){
+                setUpdateError(client.errors)
+            }
+        } else {
+            return
+        }
+        setRefresh((r) => r+1)
+    }
+    
+    if(err != null){
+        return <Errors errors={err} />
+    }
+
+    if(notFound){
+        return <NotFound />
     }
 
     if(user === null){
-        <Loading title="Chargement de l'utilisateur" />
+        return <Loading title="Chargement de l'utilisateur" />
     }
 
     return <>
-
-        <h1>EN TRAVAUX</h1>
-        {user && me ?
-            <ShowUser
+        {user && me ? 
+            <>
+            <UpdateUser
                 key={user._id}
                 theuser={user}
                 user={me}
-                onViewUser={(id) => navigate(`${Route.user}/${id}`)}
-                onDelete={handleDelete}
-                buttonShow={ShowUserButton.ViewUser | ShowUserButton.Delete}
+                APIerror={err}
+                onUpdate={(id, option: UpdateUserType | UpdateUserTypeAdmin) => handleUpdate(id, option)}
+                onApprove={(id: string, bool: boolean) => handleApprove(id, bool)}
+                onDelete={(id)=> handleDelete(id)}
             />
-        :() => navigate(Route.user)}
+            </>
+        : (<Navigate to={Route.user} replace />)}
+        {showConfirm && (
+            <PopupConfirm
+            key={deleteId}
+            title="Suppression d'un utilisateur"
+            description={`Voulez-vous réellement supprimer cet utilisateur : ${user.email} ?`}
+            errors={delErr}
+            onConfirm={confirmDelete}
+            onCancel={cancelDelete}
+            />
+        )}
     </>
 }
 
 function ManageUser(){
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate()
+    const { me, isAdmin } = useAuth();
 
     useEffect(() => {
-        (async () => {
-            const client = new AdminUserClass()
-            await client.refreshUser()
-            const useAdmin = client.isAdmin()
-            if (useAdmin === false) {
-                navigate(`${Route.base}`);
-            }
-        })()
-    }, [])
-
+        if (!isAdmin && !id) {
+            navigate(`${Route.base}`);
+        }
+    }, [isAdmin, id, navigate]);
 
     if(id){
-        return <><ManageOneUser /></>
+        return <ManageOneUser />
     }
 
-    return <>
-        <ManageUserAdmin />
-    </>
+    return <ManageUserAdmin />
 
 }
 

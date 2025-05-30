@@ -2,7 +2,6 @@
 .header {
     background-color: #444;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    padding: 1rem 2rem;
     color: white;
     z-index: 10;
     position: relative;
@@ -13,6 +12,7 @@
     justify-content: space-between;
     align-items: center;
     margin: 0 auto;
+    padding: 1rem 2rem;
   }
   
   .header-section {

@@ -5,7 +5,7 @@ type Field = {
   name: string;
   label: string;
   type: string;
-  value?: string[]
+  value?: {value: string, label: string}[] | string[]
   required?: boolean;
 };
 
@@ -52,11 +52,23 @@ function Form<T extends Record<string, string>>({
               required={field.required !== false}
             >
               <option value="">-- Sélectionner --</option>
-              {(field.value || []).map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
+                {(field.value || []).map((option) => {
+                  if (typeof option === "string") {
+                    // string[]
+                    return (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    );
+                  } else {
+                    // { value, label }[]
+                    return (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    );
+                  }
+                })}
             </select>
           );
         case "textarea":
@@ -90,27 +102,55 @@ function Form<T extends Record<string, string>>({
           return (
             <fieldset>
               <legend>{field.label}</legend>
-              {(field.value || []).map((option) => (
-                <label key={option} style={{ marginRight: 10 }}>
-                  <input
-                    type="radio"
-                    name={field.name}
-                    value={option}
-                    checked={formData[field.name] === option}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        [field.name]: e.target.value,
-                      }))
-                    }
-                    required={field.required !== false}
-                  />
-                  {option}
-                </label>
-              ))}
+              {(field.value || []).map((option) => {
+                if (typeof option === "string") {
+                  // string[]
+                  return (
+                    <label key={option} style={{ marginRight: 10 }}>
+                      <input
+                        type="radio"
+                        name={field.name}
+                        value={option}
+                        checked={formData[field.name] === option}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            [field.name]: e.target.value,
+                          }))
+                        }
+                        required={field.required !== false}
+                      />
+                      {option}
+                    </label>
+                  );
+                } else {
+                  // { value, label }[]
+                  return (
+                    <label key={option.value} style={{ marginRight: 10 }}>
+                      <input
+                        type="radio"
+                        name={field.name}
+                        value={option.value}
+                        checked={formData[field.name] === option.value}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            [field.name]: e.target.value,
+                          }))
+                        }
+                        required={field.required !== false}
+                      />
+                      {option.label}
+                    </label>
+                  );
+                }
+              })}
             </fieldset>
           );
-        // Ajoute ici d'autres types personnalisés si besoin
+        
+
+
+
         default:
           return (
             <input
@@ -133,7 +173,7 @@ function Form<T extends Record<string, string>>({
         <div className="auth-container">
           <div className="auth-card">
             <h2>{title}</h2>
-            {errors.length > 0 && (
+            {errors && errors.length > 0 && (
               <div className="error-messages">
                 {errors.map((error, index) => (
                   <p key={index} className="error">⚠️ {error}</p>

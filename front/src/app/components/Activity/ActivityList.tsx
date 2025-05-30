@@ -1,11 +1,12 @@
-import { act, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Activity, ActivityClass } from "../../../api/activity";
-import CreateActivity from "./ActivityCreate";
-import { User, UserClass } from "../../../api/user";
 import { Route } from "../../constantes";
 import { useNavigate } from "react-router-dom";
 import { ShowActivity, ShowActivityButton } from "./SingleActivity";
 import Loading from "../shared/loading";
+import { useAuth } from "../shared/auth-context";
+import { ErrorMessage } from "../../../api/client";
+import Errors from "../shared/errors";
 
 type ActivityListMessage = {
     message: string
@@ -13,23 +14,30 @@ type ActivityListMessage = {
 }
 
 function ActivityList({message, limit}: ActivityListMessage){
+    const { me } = useAuth();
 
-    const [activity, setActivity] = useState<Activity[]>([])
+    const [activity, setActivity] = useState<Activity[] | null>(null)
+    const [err, setErrors] = useState<ErrorMessage | null>(null)
     const navigate = useNavigate()
-    const [user, setUser] = useState<User | null>(null)
 
 
     useEffect(() => {
         (async () => {
             const client = new ActivityClass()
-            const activities = await client.getActivities()
-            setActivity(activities)
-
-            const use = await client.getMe()
-            setUser(use)
+            try{
+                const activities = await client.getActivities()
+                setActivity(activities)
+                setErrors(null)
+            } catch(e){
+                setErrors(client.errors)
+            }
         })()
     }, [message])
     
+    if(err != null){
+        return <Errors errors={err} />
+    }
+
     if(activity == null){
         return <Loading title="Chargement des activités" />
     }
@@ -47,7 +55,7 @@ function ActivityList({message, limit}: ActivityListMessage){
                 <ShowActivity
                     key={acti._id}
                     activity={acti}
-                    user={user}
+                    user={me}
                     onViewPublication={(pubId) => navigate(`${Route.publications}/${pubId}`)}
                     onManage={(actId) => navigate(`${Route.manageActivity}/${actId}`)}
                     buttonShow={ShowActivityButton.All}

@@ -6,9 +6,14 @@ import { Route } from "../../constantes";
 import PublicationList from "./PublicationsList";
 import { useEffect, useState } from "react";
 import { ShowPublication, ShowPublicationButton } from "./SinglePublication";
-import { Publication, PublicationClass } from "../../../api/publications";
+import { AdminPublicationClass, Publication, PublicationClass } from "../../../api/publications";
 import { User } from "../../../api/user";
 import Loading from "../shared/loading";
+import { useAuth } from "../shared/auth-context";
+import NotFound from "../shared/notfound";
+import { AdminActivityClass } from "../../../api/activity";
+import { ErrorMessage } from "../../../api/client";
+import Errors from "../shared/errors";
 
 
 function Publications(){
@@ -16,7 +21,9 @@ function Publications(){
     const [message, setMessage] = useState("");
     const { id } = useParams<{ id: string }>();
     const [publications, setPublications] = useState<Publication | null>(null)
-    const [user, setUser] = useState<User | null>(null)
+    const [err, setErrors] = useState<ErrorMessage | null>(null)
+    const [notFound, setNotFound] = useState<boolean>(false)
+    const { me, isAdmin } = useAuth();
 
     const handleUpdate = (newMsg:string) => {
         setMessage(newMsg);
@@ -24,16 +31,49 @@ function Publications(){
 
     useEffect(() => {
         (async () => {
-            const client = new PublicationClass()
             if(id){
-                const pub = await client.getPublicationById(id)
-                setPublications(pub)
+                if(isAdmin){
+                    const client = new AdminPublicationClass()
+                    try{
+                        const pub = await client.getAdminPublicationById(id)
+                        if(!pub){
+                            setNotFound(true)
+                            return
+                        }
+                        setPublications(pub)
+                        setErrors(null)
+                    } catch(e){
+                        setErrors(client.errors)
+                    }
+                } else {
+                    const client = new PublicationClass()
+                    try {
+                        const pub = await client.getPublicationById(id)
+                        if(!pub){
+                            setNotFound(true)
+                            return
+                        }
+                        setPublications(pub)
+                        setErrors(null)
+                    } catch(e){
+                        setErrors(client.errors)
+                    }
+                }
             }
-            const use = await client.getMe()
-            setUser(use)
         })()
     }, [id])
 
+    if(err != null){
+        return <Errors errors={err} />
+    }
+
+    if(notFound){
+        return <NotFound />
+    }
+    if(id == "me"){
+        navigate(`${Route.manageMyPublications}`)
+        return
+    }
     if(id && publications == null){
         return <Loading title="Chargement de la publications" />
     }
@@ -43,9 +83,10 @@ function Publications(){
             <ShowPublication
                 key={publications._id}
                 pub={publications}
-                user={user}
+                user={me}
                 onManage={() => navigate(`${Route.managePublications}/${publications._id}`)}
-                buttonShow={ShowPublicationButton.Manage}
+                onViewActivity={() => navigate(`${Route.activity}/${publications.activity?._id}`)}
+                buttonShow={ShowPublicationButton.Manage | ShowPublicationButton.ViewActivity}
             />
         </section>
     }
