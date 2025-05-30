@@ -5,6 +5,8 @@ import { User } from "./user";
 
 export type Message = {
   content: string;
+  username: string;
+  type : ["MESSAGE", "HISTORY", "ERROR"]
   // autres champs si besoin
 };
 
