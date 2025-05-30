@@ -49,6 +49,27 @@ export async function getPublicationById(pub_id: ObjectID): Promise<FilledPublic
     return objectToPublication(res)
 }
 
+export async function getAllPublicationsByActivityId(activity_id: ObjectID): Promise<FilledPublication[] | null> {
+  try {
+    const publications = await PublicationTable.find({ activity_id }).sort({ created_at: -1 })
+      .populate('author_id', 'name')
+      .populate('activity_id', 'title')
+      .exec();
+
+    if (!publications || publications.length === 0) {
+      return [];
+    }
+    if(publications){
+        return publications.map((pub) => objectToPublication(pub))
+    } else {
+        return null
+    }
+  } catch (error) {
+    console.error('Erreur lors de la récupération des publications :', error);
+    return null;
+  }
+}
+
 export async function getAdminPublicationById(pub_id: ObjectID): Promise<FilledPublication | null>{
     const res = await PublicationTable.findById(pub_id)
     .populate("author_id")
@@ -71,7 +92,7 @@ export async function createPublication(user: User, content: CreatePublicationPa
         activity_id: acti ? acti : undefined,
         body: content.body,
         created_at: new Date(),
-        updated_at: new Date()
+        updated_at: new Date(),
     };
     const result = await PublicationTable.create(dataToSave);
     return !!result;

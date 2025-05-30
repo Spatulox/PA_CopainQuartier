@@ -1,6 +1,6 @@
 import { Authorized, BadRequestError, Body, CurrentUser, Delete, ForbiddenError, Get, HttpCode, InternalServerError, JsonController, NotFoundError, Param, Patch, Post } from "routing-controllers";
 import { FilledPublication, Publication } from "../Models/PublicationModel";
-import { getAllPublications, getPublicationById, deletePublicationById, createPublication, updatePublicationcontent, getAllMyPublications, getAdminPublicationById, getAllAdminPublications } from "../Services/publications/publications";
+import { getAllPublications, getPublicationById, deletePublicationById, createPublication, updatePublicationcontent, getAllMyPublications, getAdminPublicationById, getAllAdminPublications, getAllPublicationsByActivityId } from "../Services/publications/publications";
 import { zObjectId } from "../Validators/utils";
 import { User } from "../Models/UserModel";
 import { zCreatePublication, zUpdatePublication } from "../Validators/publications";
@@ -43,6 +43,12 @@ export class PublicationsController {
     async getPublicationById(@Param("id") pub_id: string): Promise<FilledPublication | null>{
         const validId = new ObjectID(zObjectId.parse(pub_id))
         return await getPublicationById(validId)
+    }
+
+    @Get("/activity/:id")
+    async getAllPublicationsByActivityId(@Param("id") acti_id: string): Promise<FilledPublication[] | null>{
+        const validId = new ObjectID(zObjectId.parse(acti_id))
+        return await getAllPublicationsByActivityId(validId)
     }
 
     @Post("/")
