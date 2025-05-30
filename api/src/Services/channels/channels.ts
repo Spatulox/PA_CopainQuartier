@@ -107,7 +107,7 @@ export async function removeSomeoneFromChannel(channel_id: ObjectID, user_id: Ob
 }
 
 export async function saveMessageToChannel(user: FilledUser , channel_id: ObjectID, content: PostMessageParam): Promise<boolean>{
-    const message = createMessage(content.message, user)
+    const message = createMessage(content.content, user)
     const result = await ChannelTable.updateOne(
         { _id: channel_id },
         { $push: { messages: message } }

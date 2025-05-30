@@ -11,7 +11,7 @@ import { AdminPublicationsController, PublicationsController } from './Controlle
 import { AdminTrocController, TrocController } from './Controllers/TrocsController';
 import { WebSocketServer } from 'ws';
 import http from 'http';
-import { channelSubscriptions, handleMessage, initAccessMap } from './Controllers/ChannelsWebsoketController';
+import { channelClients, handleMessage, accessMap } from './Controllers/ChannelsWebsoketController';
 import { parse } from 'url';
 import { AuthController } from './Controllers/AuthController';
 import cors from 'cors'
@@ -78,10 +78,10 @@ async function main(){
     ws.on('close', () => {
       console.log('Client déconnecté');
       // Nettoyage des abonnements
-      for (const clients of channelSubscriptions.values()) {
+      for (const clients of channelClients.values()) {
         clients.delete(ws);
       }
-      initAccessMap.delete(ws);
+      accessMap.delete(ws);
     });
   });
 }

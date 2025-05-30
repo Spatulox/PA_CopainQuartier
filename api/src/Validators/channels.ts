@@ -20,7 +20,7 @@ export const zCreateChannel = z.object({
 })
 
 export const zPostMessage = z.object({
-    message: z.string(),
+    content: z.string(),
     user_id: z.string()
 })
 
