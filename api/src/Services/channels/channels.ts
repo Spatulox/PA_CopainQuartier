@@ -56,7 +56,8 @@ export async function createChannel(user: User, data: CreateChannelParam): Promi
         messages: [mes],
         members: [user._id],
         member_auth: ChannelAuth.read_send,
-        created_at: new Date()
+        created_at: new Date(),
+        activity_id: data.activity_id_linked ? data.activity_id_linked : undefined
 
     }
 

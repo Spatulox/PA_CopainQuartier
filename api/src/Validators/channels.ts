@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { zObjectId } from "./utils";
 
 export const zUpdateChannel = z.object({
     name: z.string().optional(),
@@ -14,7 +15,8 @@ export const zTransferChannel = z.object({
 export const zCreateChannel = z.object({
     name: z.string(),
     type: z.enum(["text", "vocal"]),
-    description: z.string()
+    description: z.string(),
+    activity_id_linked: zObjectId.optional()
 })
 
 export const zPostMessage = z.object({
