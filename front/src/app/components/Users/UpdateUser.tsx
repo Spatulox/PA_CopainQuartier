@@ -51,7 +51,6 @@ export function UpdateUser({
     const isSelf = user?._id === theuser._id;
 
     function handleUpdate() {
-        if (isAdmin && theuser) {
         if (isAdmin && theuser && !isSelf) {
             onUpdate(theuser._id, { role });
         } else if (isSelf && theuser) {
