@@ -16,7 +16,7 @@ export const zUpdateTrocSchema = z.object({
   description: z.string().optional(),
   type: TrocTypeSchema.optional(),
   visibility: TrocVisibilitySchema.optional(),
-  status: TrocStatusSchema.optional(),
+  //status: TrocStatusSchema.optional(),
   reserved_at: z.coerce.date().optional(),
 });
 
