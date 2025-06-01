@@ -15,7 +15,7 @@ type SwitchButton = {
     onClick: () => void;    // Action au clic
   };
 
-type FormProps<T extends Record<string, string>> = {
+type FormProps<T extends Record<string, string | number>> = {
     title: string;
     fields: Field[];
     formData: T;
@@ -29,7 +29,7 @@ type FormProps<T extends Record<string, string>> = {
   
 
 
-function Form<T extends Record<string, string>>({
+function Form<T extends Record<string, string | number>>({
     title,fields,formData,
     setFormData,errors,
     onSubmit,

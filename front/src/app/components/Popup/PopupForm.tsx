@@ -10,7 +10,7 @@ export type FieldForm = {
   required?: boolean;
 };
 
-type PopupFormProps<T extends Record<string, string>> = {
+type PopupFormProps<T extends Record<string, string | number>> = {
   title: string;
   fields: FieldForm[];
   APIerrors: any;
@@ -21,7 +21,7 @@ type PopupFormProps<T extends Record<string, string>> = {
   children?: React.ReactNode;
 };
 
-export function PopupForm<T extends Record<string, string>>({
+export function PopupForm<T extends Record<string, string | number>>({
   title,
   fields,
   APIerrors,
@@ -40,7 +40,7 @@ export function PopupForm<T extends Record<string, string>>({
     // Validation simple : vérifie les champs requis
     const errs: string[] = [];
     fields.forEach((field) => {
-      if ((field.required !== false) && !formData[field.name]?.trim()) {
+      if ((field.required !== false) && !formData[field.name].toString()?.trim()) {
         errs.push(`Le champ "${field.label}" est obligatoire.`);
       }
     });
