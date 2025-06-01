@@ -9,7 +9,8 @@ const ActivitySchema = new Schema<Activity>({
     author_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
     channel_chat_id: { type: Schema.Types.ObjectId , ref: "Channel", required: true },
     publication_id: { type: Schema.Types.ObjectId, ref: "Publication", required: true },
-    participants_id: [{ type: Schema.Types.ObjectId, ref: "User" }]
+    participants_id: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    location: {type: String, required: true},
 },{ timestamps: 
     { createdAt: 'created_at', updatedAt: 'updated_at' }
 });

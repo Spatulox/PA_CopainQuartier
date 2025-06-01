@@ -39,6 +39,7 @@ export function ShowActivity({
                 <span>{new Date(activity.created_at).toLocaleDateString()}</span>
                 <p>{activity.description}</p>
                 <span>{new Date(activity.date_reservation).toLocaleDateString()}</span>
+                <p>Lieu : {activity.location ? activity.location : ""}</p>
             </div>
             <div>
                 <strong>Publication :</strong> {activity.publication?.name}

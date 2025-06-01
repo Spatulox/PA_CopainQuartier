@@ -12,7 +12,8 @@ export type Activity = {
     author_id: ObjectId,
     channel_chat_id: ObjectId,
     publication_id: ObjectId,
-    participants_id: ObjectId[]
+    participants_id: ObjectId[],
+    location: string,
 }
 
 export type FilledActivity = Omit<Activity, "author_id" | "publication_id" | "participants_id" | "_id" | "channel_chat_id"> &{
@@ -24,6 +25,6 @@ export type FilledActivity = Omit<Activity, "author_id" | "publication_id" | "pa
 }
 
 
-export type PublicActivity = Omit<Activity, "channel_chat_id" | "participants_id">;
+export type PublicActivity = Omit<Activity, "channel_chat_id" | "participants_id" | "location" | "max_place" | "reserved_place">;
 
 export type PublicFilledActivity = Omit<FilledActivity, "channel_chat" | "participants"> & {author: FilledUser | null, publication: Publication | FilledPublication | null};

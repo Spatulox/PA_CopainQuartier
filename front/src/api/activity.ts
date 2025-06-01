@@ -11,7 +11,8 @@ export type Activity = {
     author: User,
     channel_chat: string,
     publication: Publication,
-    participants: User[]
+    participants: User[],
+    location: string,
 }
 
 export class ActivityClass extends ApiClient{

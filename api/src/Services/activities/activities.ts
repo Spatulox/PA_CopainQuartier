@@ -180,7 +180,8 @@ export async function createActivity(user: User, activity: CreateActivityParam):
         author_id: user._id,
         channel_chat_id: channel._id,
         publication_id: publication._id,
-        participants_id: [user._id]
+        participants_id: [user._id],
+        location: activity.location,
     };
     const activityDoc = await ActivityTable.create(activityToSave);
     if (!activityDoc || !activityDoc._id) throw new Error("Activity creation failed");
@@ -429,6 +430,7 @@ export function toActivityObject(activityDoc: any): FilledActivity {
         channel_chat: obj.channel_chat_id ? objectToChannel(obj.channel_chat_id) : null,
         publication: obj.publication_id ? objectToPublication(obj.publication_id): null,
         participants: obj.participants_id ? obj.participants_id.map((user: any) => toUserObject(user)) : null,
+        location: obj.location,
     };
 }
 
@@ -441,6 +443,7 @@ export function ActivityToPublicActivity(activity : FilledActivity | null): Publ
         created_at: activity.created_at,
         date_reservation: activity.date_reservation,
         author: activity.author,
-        publication: activity.publication
+        publication: activity.publication,
+        location: activity.location,
     }
 }
