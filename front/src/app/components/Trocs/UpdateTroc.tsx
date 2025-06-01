@@ -63,14 +63,6 @@ export function UpdateTroc({
 
     function handleUpdate() {
         if (onUpdate) {
-            console.log({
-                title,
-                description,
-                status,
-                type,
-                visibility,
-                reserved_at: fullDate?.toISOString(),
-            })
             onUpdate(troc._id, {
                 title,
                 description,
@@ -107,7 +99,7 @@ export function UpdateTroc({
             </h2>
             <div>
                 <span>
-                    <button onClick={ () => navigate(`${Route.user}/${troc.author?._id}`)}>{troc.author?.email || troc.author?._id == user?._id ? user?.email : "Unknown"}</button>
+                    <button onClick={ () => navigate(`${Route.user}/${troc.author?._id}`)}>{troc.author?.email || (troc.author?._id == user?._id ? user?.email : "Unknown")}</button>
                 </span>
                 <div>
                     <div>
