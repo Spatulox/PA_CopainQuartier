@@ -1,7 +1,7 @@
 import { ObjectID } from "../../DB_Schema/connexion";
 import { ActivityTable } from "../../DB_Schema/ActivitiesSchema";
 import { Activity, FilledActivity, PublicFilledActivity } from "../../Models/ActivityModel";
-import { User } from "../../Models/UserModel";
+import { FilledUser, User } from "../../Models/UserModel";
 import { ChannelAuth, ChannelTable } from "../../DB_Schema/ChannelSchema";
 import { PublicationTable } from "../../DB_Schema/PublicationSchema";
 import { CreateActivityParam, UpdateActivityParam } from "../../Validators/activities";
@@ -252,6 +252,10 @@ export async function updateActivity(user: User, body: UpdateActivityParam, act_
 }
 
 export async function joinActivityById(user: User, activity: FilledActivity): Promise<boolean> {
+    if (activity.participants && activity.participants.some((thuse: any) => thuse._id.toString() == user._id.toString() )) {
+        throw new ForbiddenError("L'utilisateur participe déjà à cette activité.");
+    }
+
     const activityResult = await ActivityTable.updateOne(
         { _id: activity._id },
         { $addToSet: { participants_id: user._id },

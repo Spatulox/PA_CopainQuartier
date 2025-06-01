@@ -10,7 +10,9 @@ export enum ShowActivityButton {
     Activity = 1 << 0,        // 1 (0b001)
     ViewPublication = 1 << 1, // 2 (0b010)
     Manage = 1 << 2,          // 4 (0b100)
-    All = Activity | ViewPublication | Manage, // 7
+    Join = 1 << 3,
+    Leave = 1 << 4,
+    All = Activity | ViewPublication | Manage | Join | Leave, // 7
     None = 0
 }
 
@@ -18,6 +20,8 @@ type ShowActivityProps = {
     activity: Activity;
     user: User | undefined;
     onViewPublication?: (id: string) => void;
+    onJoin?: (id: string) => void;
+    onLeave?: (id: string) => void;
     onManage?: (id: string) => void;
     buttonShow: ShowActivityButton
 };
@@ -26,6 +30,8 @@ export function ShowActivity({
     activity,
     user,
     onViewPublication,
+    onJoin,
+    onLeave,
     onManage,
     buttonShow
 }: ShowActivityProps) {
@@ -45,14 +51,24 @@ export function ShowActivity({
             <div>
                 <strong>Publication :</strong> {activity.publication?.name}
                 <div>
-                    {/* Bouton "Voir l'activité" */}
                     {(buttonShow & ShowActivityButton.Activity) !== 0 && activity._id && (
                         <button onClick={() => navigate(`${Route.activity}/${activity._id}`)}>
                             Voir l'activité
                         </button>
                     )}
 
-                    {/* Bouton "Voir la Publication associée" */}
+                    {(buttonShow & ShowActivityButton.Join) !== 0 && activity._id && onJoin && (
+                        <button onClick={() => onJoin(activity._id)}>
+                            Rejoindre l'activité
+                        </button>
+                    )}
+
+                    {(buttonShow & ShowActivityButton.Leave) !== 0 && activity._id && onLeave && (
+                        <button onClick={() => onLeave(activity._id)}>
+                            Quitter l'activité
+                        </button>
+                    )}
+
                     {(buttonShow & ShowActivityButton.ViewPublication) !== 0 &&
                         onViewPublication &&
                         activity.publication?._id && (
@@ -61,7 +77,6 @@ export function ShowActivity({
                             </button>
                     )}
 
-                    {/* Bouton "Gérer l'activité" */}
                     {(buttonShow & ShowActivityButton.Manage) !== 0 &&
                         onManage &&
                         user &&

@@ -46,6 +46,14 @@ export class ActivityClass extends ApiClient{
     async deleteActivity(id: string): Promise<void>{
         await this.Delete(`${this.url}/${id}`)
     }
+
+    async joinActivity(id: string): Promise<void>{
+        await this.Patch(`${this.url}/${id}/join`, {})
+    }
+
+    async leaveActivity(id: string): Promise<void>{
+        await this.Patch(`${this.url}/${id}/leave`, {})
+    }
 }
 
 export class AdminActivityClass extends ActivityClass{
