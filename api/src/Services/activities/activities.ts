@@ -182,6 +182,8 @@ export async function createActivity(user: User, activity: CreateActivityParam):
         publication_id: publication._id,
         participants_id: [user._id],
         location: activity.location,
+        max_place: activity.max_place,
+        reserved_place: 1,
     };
     const activityDoc = await ActivityTable.create(activityToSave);
     if (!activityDoc || !activityDoc._id) throw new Error("Activity creation failed");
@@ -249,114 +251,11 @@ export async function updateActivity(user: User, body: UpdateActivityParam, act_
     return toActivityObject(doc) as FilledActivity | null;
 }
 
-// Mongo DB + transaction are pain in the ass to setup
-/*
-export async function joinActivityById(user: User, activity: Activity): Promise<boolean> {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-    try {
-        const activityResult = await ActivityTable.updateOne(
-            { _id: activity._id },
-            { $addToSet: { participants_id: user._id } },
-            { session }
-        );
-
-        const channelResult = await ChannelTable.updateOne(
-            { _id: activity.channel_chat_id },
-            { $addToSet: { members: user._id } },
-            { session }
-        );
-
-        if (activityResult.modifiedCount > 0 && channelResult.modifiedCount > 0) {
-            await session.commitTransaction();
-            return true;
-        } else {
-            await session.abortTransaction();
-            return false;
-        }
-    } catch (err) {
-        await session.abortTransaction();
-        throw err;
-    } finally {
-        session.endSession();
-    }
-}
-
-
-export async function leaveActivityById(user: User, activity: Activity): Promise<boolean> {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-    try {
-        const activityResult = await ActivityTable.updateOne(
-            { _id: activity._id },
-            { $pull: { participants_id: user._id } },
-            { session }
-        );
-
-        const channelResult = await ChannelTable.updateOne(
-            { _id: activity.channel_chat_id },
-            { $pull: { members: user._id } },
-            { session }
-        );
-
-        if (activityResult.modifiedCount > 0 && channelResult.modifiedCount > 0) {
-            await session.commitTransaction();
-            return true;
-        } else {
-            await session.abortTransaction();
-            return false;
-        }
-    } catch (err) {
-        await session.abortTransaction();
-        throw err;
-    } finally {
-        session.endSession();
-    }
-}
-
-export async function deleteActivity(activity: Activity): Promise<boolean> {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-    try {
-        const activityResult = await ActivityTable.deleteOne(
-            { _id: activity._id },
-            { session }
-        );
-
-        const channelResult = await ChannelTable.deleteOne(
-            { _id: activity.channel_chat_id },
-            { session }
-        );
-
-        const publicationResult = await PublicationTable.deleteOne(
-            { _id: activity.publication_id },
-            { session }
-        );
-
-        if (
-            activityResult.deletedCount > 0 &&
-            channelResult.deletedCount > 0 &&
-            publicationResult.deletedCount > 0
-        ) {
-            await session.commitTransaction();
-            return true;
-        } else {
-            await session.abortTransaction();
-            return false;
-        }
-    } catch (err) {
-        await session.abortTransaction();
-        throw err;
-    } finally {
-        session.endSession();
-    }
-}
-*/
-
 export async function joinActivityById(user: User, activity: FilledActivity): Promise<boolean> {
     const activityResult = await ActivityTable.updateOne(
         { _id: activity._id },
-        { $addToSet: { participants_id: user._id } }
+        { $addToSet: { participants_id: user._id },
+          $inc: {reserved_place: 1}}
     );
 
     const channelResult = await ChannelTable.updateOne(
@@ -370,7 +269,8 @@ export async function joinActivityById(user: User, activity: FilledActivity): Pr
 export async function leaveActivityById(user: User, activity: Activity | FilledActivity): Promise<boolean> {
     const activityResult = await ActivityTable.updateOne(
         { _id: activity._id },
-        { $pull: { participants_id: user._id } }
+        { $pull: { participants_id: user._id },
+          $inc: {reserved_place: -1}}
     );
 
     // Narrow the type to get the channel ID
@@ -431,6 +331,8 @@ export function toActivityObject(activityDoc: any): FilledActivity {
         publication: obj.publication_id ? objectToPublication(obj.publication_id): null,
         participants: obj.participants_id ? obj.participants_id.map((user: any) => toUserObject(user)) : null,
         location: obj.location,
+        max_place: obj.max_place,
+        reserved_place: obj.reserved_place,
     };
 }
 
@@ -445,5 +347,7 @@ export function ActivityToPublicActivity(activity : FilledActivity | null): Publ
         author: activity.author,
         publication: activity.publication,
         location: activity.location,
+        max_place: activity.max_place,
+        reserved_place: activity.reserved_place,
     }
 }

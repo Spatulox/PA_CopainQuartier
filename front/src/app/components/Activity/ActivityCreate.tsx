@@ -14,6 +14,7 @@ function CreateActivity({onUpdate}: CreateActivityType){
         { name: "location", label: "Lieu", type: "text", required: true },
         { name: "date", label: "Date", type: "date", required: true },
         { name: "hour", label: "Heure", type: "time", required: true },
+        { name: "max_place", label: "Nombre de Places", type: "number", required: true },
       ];
       
       type ActivityForm = {
@@ -23,6 +24,7 @@ function CreateActivity({onUpdate}: CreateActivityType){
         date: string,
         hour: string,
         location: string,
+        max_place: number,
       };
     
       async function handleCreateActivity(formData: ActivityForm): Promise<void> {

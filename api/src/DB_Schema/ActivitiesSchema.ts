@@ -11,6 +11,18 @@ const ActivitySchema = new Schema<Activity>({
     publication_id: { type: Schema.Types.ObjectId, ref: "Publication", required: true },
     participants_id: [{ type: Schema.Types.ObjectId, ref: "User" }],
     location: {type: String, required: true},
+    max_place: {type: Number, required: true},
+    reserved_place: {
+        type: Number,
+        required: true,
+        min: 0,
+        validate: {
+        validator: function(value) {
+            return value <= this.max_place;
+        },
+        message: props => `Le nombre de place maximal est déjà atteind..`
+        }
+    }
 },{ timestamps: 
     { createdAt: 'created_at', updatedAt: 'updated_at' }
 });

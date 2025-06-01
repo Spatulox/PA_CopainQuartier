@@ -14,6 +14,8 @@ export type Activity = {
     publication_id: ObjectId,
     participants_id: ObjectId[],
     location: string,
+    max_place: {type: Number, required: true},
+    reserved_place: {type: Number, required: true},
 }
 
 export type FilledActivity = Omit<Activity, "author_id" | "publication_id" | "participants_id" | "_id" | "channel_chat_id"> &{

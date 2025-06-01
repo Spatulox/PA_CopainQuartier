@@ -13,6 +13,8 @@ export type Activity = {
     publication: Publication,
     participants: User[],
     location: string,
+    max_place: number,
+    reserved_place: number,
 }
 
 export class ActivityClass extends ApiClient{

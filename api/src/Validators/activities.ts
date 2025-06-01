@@ -5,6 +5,7 @@ export const zCreateActivity = z.object({
     description: z.string(),
     date_reservation: z.string().datetime(),
     location: z.string(),
+    max_place: z.coerce.number(),
 });
 
 export const zUpdateActivity = z.object({
