@@ -48,9 +48,9 @@ export class ActivityController{
     }
 
     @Get("/:id")
-    async getActivityById(@Param("id") act_id: string): Promise<PublicFilledActivity | null>{
+    async getActivityById(@Req() req: any, @Param("id") act_id: string): Promise<PublicFilledActivity | null>{
         const validId = zObjectId.parse(act_id)
-        return await getPublicActivityById(new ObjectID(validId))
+        return await getActivityById(validId)
     }
 
     @Post("/")
