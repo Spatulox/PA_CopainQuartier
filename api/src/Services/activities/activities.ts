@@ -191,7 +191,8 @@ export async function joinActivityById(user: User, activity: FilledActivity): Pr
     const activityResult = await ActivityTable.updateOne(
         { _id: activity._id },
         { $addToSet: { participants_id: user._id },
-          $inc: {reserved_place: 1}}
+          $inc: {reserved_place: 1}},
+        { runValidators: true }
     );
 
     const channelResult = await ChannelTable.updateOne(
@@ -206,7 +207,8 @@ export async function leaveActivityById(user: User, activity: Activity | FilledA
     const activityResult = await ActivityTable.updateOne(
         { _id: activity._id },
         { $pull: { participants_id: user._id },
-          $inc: {reserved_place: -1}}
+          $inc: {reserved_place: -1}},
+        { runValidators: true }
     );
 
     // Narrow the type to get the channel ID
