@@ -15,7 +15,7 @@ type SwitchButton = {
     onClick: () => void;    // Action au clic
   };
 
-type FormProps<T extends Record<string, string>> = {
+type FormProps<T extends Record<string, string | number | Date>> = {
     title: string;
     fields: Field[];
     formData: T;
@@ -27,9 +27,14 @@ type FormProps<T extends Record<string, string>> = {
     children?: React.ReactNode;
 };
   
+function valueToString(val: any): string {
+  if (val === undefined || val === null) return "";
+  if (val instanceof Date) return val.toISOString().slice(0, 10);
+  return val.toString();
+}
 
 
-function Form<T extends Record<string, string>>({
+function Form<T extends Record<string, string | number | Date>>({
     title,fields,formData,
     setFormData,errors,
     onSubmit,
@@ -42,7 +47,7 @@ function Form<T extends Record<string, string>>({
         case "select":
           return (
             <select
-              value={formData[field.name] || ""}
+              value={valueToString(formData[field.name]) || ""}
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
@@ -74,7 +79,7 @@ function Form<T extends Record<string, string>>({
         case "textarea":
           return (
             <textarea
-              value={formData[field.name] || ""}
+              value={valueToString(formData[field.name]) || ""}
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
@@ -155,7 +160,7 @@ function Form<T extends Record<string, string>>({
           return (
             <input
               type={field.type}
-              value={formData[field.name] || ""}
+              value={valueToString(formData[field.name]) || ""}
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,

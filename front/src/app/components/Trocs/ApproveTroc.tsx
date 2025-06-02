@@ -19,11 +19,11 @@ function ApproveTroc(){
             const option = {"approve": bool}
             await client.approveTroc(troc_id, option)
             const app = await client.getWaitingTroc()
+            setTroc(app)
             if(!app){
                 setNotFound(true)
-                return
             }
-            setTroc(app)
+            setNotFound(false)
             setRefresh(r => r + 1)
             setError(null)
         }catch(e){
@@ -36,6 +36,10 @@ function ApproveTroc(){
             const client = new AdminTrocClass()
             try{
                 const trok = await client.getWaitingTroc()
+                if(!trok){
+                    setNotFound(true)
+                }
+                setNotFound(false)
                 setTroc(trok)
                 setError(null)
             } catch(e){
@@ -50,6 +54,10 @@ function ApproveTroc(){
 
     if(notFound){
         return <NotFound />
+    }
+
+    if(troc && troc.length == 0){
+        return <p>Aucun troc à approver trouvé</p>
     }
 
     return <>

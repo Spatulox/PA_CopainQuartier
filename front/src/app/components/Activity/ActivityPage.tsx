@@ -1,6 +1,6 @@
 // app/pages/activity.tsx
 
-import { useEffect, useState } from "react";
+import { act, useEffect, useState } from "react";
 import ActivityList from "./ActivityList";
 import CreateActivity from "./ActivityCreate";
 import { useNavigate, useParams } from "react-router-dom";
@@ -33,6 +33,7 @@ function ShowActivityPage() {
                         setNotFound(true)
                         return
                     }
+                    setNotFound(false)
             
                     setActivity(activity);
                     setErrors(null)
@@ -44,7 +45,31 @@ function ShowActivityPage() {
         })();
     }, [id]);
 
-    if(err != null){
+    async function handleJoin(actId: string) {
+        const client = new ActivityClass();
+        try {
+            await client.joinActivity(actId);
+            setErrors(null);
+            const acti = await client.getActivityByID(actId);
+            setActivity(acti);
+        } catch (e) {
+            setErrors(client.errors);
+        }
+    }
+
+    async function handleLeave(actId: string) {
+        const client = new ActivityClass();
+        try {
+            await client.leaveActivity(actId);
+            setErrors(null);
+            const acti = await client.getActivityByID(actId);
+            setActivity(acti);
+        } catch (e) {
+            setErrors(client.errors);
+        }
+    }
+
+    if(err != null && activity == null){
         return <Errors errors={err} />
     }
     
@@ -56,6 +81,23 @@ function ShowActivityPage() {
         return <Loading title="Chargement de l'activité" />;
     }
 
+    
+    let buttonShow = ShowActivityButton.ViewPublication | ShowActivityButton.Manage;
+    if(activity.participants != null){
+        const isParticipant = activity.participants.some(
+            participant => participant && participant._id === me?._id
+        );
+
+        if (isParticipant) {
+            buttonShow |= ShowActivityButton.Leave;
+            buttonShow |= ShowActivityButton.Chat;
+        } else {
+            buttonShow |= ShowActivityButton.Join;
+        }
+    } else {
+        buttonShow |= ShowActivityButton.Join
+    }
+
     return (
         <>
         <ShowActivity
@@ -64,7 +106,9 @@ function ShowActivityPage() {
             user={me}
             onViewPublication={(pubId) => navigate(`${Route.publications}/${pubId}`)}
             onManage={(actId) => navigate(`${Route.manageActivity}/${actId}`)}
-            buttonShow={ShowActivityButton.ViewPublication | ShowActivityButton.Manage}
+            onJoin={(actId) => handleJoin(actId)}
+            onLeave={(actiId) => handleLeave(actiId)}
+            buttonShow={buttonShow}
         />
         <PublicationList message="" activity_id={activity._id} />
         </>

@@ -28,6 +28,7 @@ export function ManageMyPublications(){
                 setNotFound(true)
                 return
             }
+            setNotFound(false)
             setPublications(pub);
             setErrors
         } catch(e){
@@ -60,7 +61,7 @@ export function ManageMyPublications(){
                 pub={pub}
                 user={me}
                 onViewActivity={(id) => navigate(`${Route.activity}/${id}`)}
-                onManage={(id) => navigate(`${Route.manageActivity}/${id}`)}
+                onManage={(id) => navigate(`${Route.managePublications}/${id}`)}
                 buttonShow={ShowPublicationButton.ViewActivity | ShowPublicationButton.Manage}
             />
         ))}</section>
@@ -83,7 +84,7 @@ function ManagePublicationAdmin(){
                 setNotFound(true)
                 return
             }
-
+            setNotFound(false)
             setPublications(publications);
             setErrors(null)
         } catch(e){
@@ -109,7 +110,7 @@ function ManagePublicationAdmin(){
       return <Loading title="Chargement des publications" />
     }
   
-    if (publications.length === 0) {
+    if (publications && publications.length === 0) {
       return <div>Aucune publications trouvée.</div>;
     }
 
@@ -155,6 +156,7 @@ function ManageOnePublication(){
                             setNotFound(true)
                             return
                         }
+                        setNotFound(false)
                         setPublication(pub)
                         setErrors(null)
                     } catch(e){
@@ -168,6 +170,7 @@ function ManageOnePublication(){
                             setNotFound(true)
                             return
                         }
+                        setNotFound(false)
                         setPublication(pub)
                         setErrors(null)
                     } catch(e){
@@ -219,6 +222,7 @@ function ManageOnePublication(){
             setShowConfirm(false);
             setDeleteId(null);
             setDeleteErrors(null)
+            navigate(`${Route.managePublications}`)
         } catch(e){
             setDeleteErrors(client.errors)
         }
@@ -263,10 +267,6 @@ function ManagePublication(){
             navigate(`${Route.publications}`);
         }
     }, [isAdmin, id, navigate]);
-
-    if(!id){
-        return <Loading title="Chargement des Publications"/>
-    }
 
     if(id){
         return <><ManageOnePublication /></>

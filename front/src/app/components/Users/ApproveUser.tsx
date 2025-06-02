@@ -29,7 +29,8 @@ function ApproveUser({onUpdate}: ApproveUserType){
                 if(!app){
                     setNotFound(true)
                     return
-                }    
+                }
+                setNotFound(false)
                 setUser(app)
                 onUpdate("update")
                 setErrors(null)

@@ -38,13 +38,22 @@ export class ChannelsController {
     @Authorized()
     async getChannelById(@CurrentUser() user: User, @Param('id') channel_id: string): Promise<FilledChannel | PublicFilledChannel | null> {
         const validId = new ObjectID(zObjectId.parse(channel_id))
-        // If the user is inside the channel, can see all data
-        if (user.group_chat_list_ids.map(id => id.toString()).includes(validId.toString())) {
-            return await getChannelById(validId)
-        }
-        // If the user is outside the channel, can only see the Public data (name, type, description...)
-        else {
-            return await getPublicChannelById(validId)
+        
+        try{
+            const channel = await getChannelById(validId)
+            // If the user is inside the channel, can see all data
+            if (
+                channel?.members.some(id => id._id.toString() === user._id.toString()) ||
+                channel?.admin?._id.toString() === user._id.toString()
+            ){
+                return channel
+            }
+            // If the user is outside the channel, can only see the Public data (name, type, description...)
+            else {
+                return await getPublicChannelById(validId)
+            }
+        } catch(e){
+            throw new InternalServerError("Something went wrong")
         }
         
     }
@@ -104,32 +113,6 @@ export class ChannelsController {
         }
         return true
     }
-
-    /* Useless, messages are now websockets */
-    /*
-    @Patch("/:channel_id/message/create")
-    @Authorized()
-    async sendMessageToChannel(@CurrentUser() user: User, @Param("channel_id") channel_id: number, @Body() body: any): Promise<void>{
-        const validChannelId = zId.parse(channel_id)
-        const validMessageBody = zPostMessage.parse(body)
-        const channel = await getChannelById(validChannelId)
-        if(channel && !channel.members.includes(user._id)){
-            throw new ForbiddenError("You don't have acces to this channe")
-        }
-        return await saveMessageToChannel(user, channel_id, validMessageBody)
-    }
-
-    @Delete("/channel/:channel_id/message/:message_id")
-    @Authorized()
-    async deleteMessageToChannel(@CurrentUser() user: User, @Param("channel_id") channel_id: number, @Param("message_id") message_id: number): Promise<void>{
-        const validChannelId = zId.parse(channel_id)
-        const validMessageId = zId.parse(message_id)
-        const channel = await getChannelById(validChannelId)
-        if(channel && !channel.members.includes(user._id)){
-            throw new ForbiddenError("You don't have acces to this channe")
-        }
-        return await deleteMessageFromChannel(validChannelId, validMessageId)
-    }*/
 
     @Patch('/:id')
     @Authorized()

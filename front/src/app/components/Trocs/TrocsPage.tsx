@@ -31,6 +31,7 @@ function ShowTrocPage() {
                         setNotFound(true)
                         return
                     }
+                    setNotFound(false)
                     setTroc(trok);
                 }
                 setErrors(null)

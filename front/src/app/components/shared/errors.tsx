@@ -6,15 +6,17 @@ type ErrorProp = {
 
 function Errors({errors}: ErrorProp){
 
-    if(Array.isArray(errors)){
+    if(errors && Array.isArray(errors)){
         return <>
             <p>Multiples erreurs</p>
             {errors.map((err) => {
                 err.message
             })}
             </>
-    } else {
-        return <p>Une erreur</p>
+    } else if(errors && "message" in errors){
+        return <p>{errors?.message}</p>
+    }else {
+        <p>Erreur dans les erreurs (ou pas d'erreur, wth) (welp)</p>
     }
 }
 

@@ -4,6 +4,14 @@ import { useAuth } from "../shared/auth-context";
 import NotFound from "../shared/notfound";
 import { Channel, ChatClass, Message } from "../../../api/chat";
 import ChatRoom, { ChannelRight } from "./ChatRoom";
+import { ChannelList } from "./ChatList";
+
+enum MsgType {
+  INIT = "INIT",
+  HISTORY = "HISTORY",
+  MESSAGE = "MESSAGE",
+  ERROR = "ERROR",
+}
 
 function ChatPage() {
   const { me } = useAuth();
@@ -40,8 +48,8 @@ function ChatPage() {
 
     ws.onopen = () => {
       setStatus("Connecté");
-      reconnectDelay.current = 1000; // reset le délai au succès
-      ws.send(JSON.stringify({ type: "INIT", token: user.getAuthToken() }));
+      reconnectDelay.current = 1000;
+      ws.send(JSON.stringify({ type: MsgType.INIT, token: user.getAuthToken() }));
       setMessages([]);
     };
 
@@ -64,13 +72,13 @@ function ChatPage() {
       let msg;
       try { msg = JSON.parse(data); } catch { return; }
 
-      if (msg.type === "ERROR") {
+      if (msg.type === MsgType.ERROR) {
         alert(msg.error);
         ws.close();
         return;
       }
-      if (msg.type === "HISTORY") setMessages(msg.messages);
-      if (msg.type === "MESSAGE") setMessages(prev => [...prev, msg]);
+      if (msg.type === MsgType.HISTORY) setMessages(msg.messages);
+      if (msg.type === MsgType.MESSAGE) setMessages(prev => [...prev, msg]);
     };
   }, [id]);
 
@@ -92,14 +100,17 @@ function ChatPage() {
   const handleSubmit = (e: any) => {
     e.preventDefault();
     if (input && wsRef.current && wsRef.current.readyState === 1) {
-      wsRef.current.send(JSON.stringify({ type: "MESSAGE", content: input, user_id: me?._id }));
+      wsRef.current.send(JSON.stringify({ type: MsgType.MESSAGE, content: input, user_id: me?._id }));
       setInput("");
     }
   };
 
-  if (!id) return <div>Liste des channels ici</div>;
+  if (!id) return <div><ChannelList /></div>;
   if (!me) return <NotFound />;
-
+  if(!channel){
+    return <NotFound />
+  }
+  
   const statusColor = status === "Connecté" ? "#00FF00" : "#FF0000";
   const thechannelAuth =
     channel?.member_auth === ChannelRight.read_send
@@ -109,6 +120,7 @@ function ChatPage() {
   return (
     <ChatRoom
       id={id}
+      chat={channel}
       status={status}
       statusColor={statusColor}
       memberRight={thechannelAuth}

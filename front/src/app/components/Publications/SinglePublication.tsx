@@ -33,6 +33,7 @@ export function ShowPublication({
                 <h3>{pub.name}</h3>
                 <span>{new Date(pub.created_at).toLocaleDateString()}</span>
             </div>
+            <p>{pub.description}</p>
             <p>{pub.body}</p>
             <div>
                 {typeof pub.author === "object" && pub.author?._id !== null

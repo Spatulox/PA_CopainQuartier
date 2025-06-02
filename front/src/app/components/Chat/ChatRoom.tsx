@@ -1,5 +1,7 @@
 import React, { useRef, useEffect } from "react";
-import { Message } from "../../../api/chat";
+import { Channel, Message } from "../../../api/chat";
+import { useNavigate } from "react-router-dom";
+import { Route } from "../../constantes";
 
 export enum ChannelRight {
   read_send = "read_send",
@@ -8,6 +10,7 @@ export enum ChannelRight {
 
 type Props = {
   id: string;
+  chat: Channel;
   status: string;
   statusColor: string;
   memberRight: ChannelRight,
@@ -19,11 +22,23 @@ type Props = {
 };
 
 const ChatRoom: React.FC<Props> = ({
-  id, status, statusColor, memberRight, messages, input, setInput, handleSubmit, messagesDivRef
-}) => (
-  <div>
+  id, chat, status, statusColor, memberRight, messages, input, setInput, handleSubmit, messagesDivRef
+}) => {
+  const navigate = useNavigate()
+  return  <div>
     <div>
-      <b>Chat ID :</b> {id}
+      <h2>{chat.name}</h2>
+      <div id="chat-info">
+        <ul>
+          <li>Chat ID : {chat._id}</li>
+          <li>Admin : {chat.admin?.email}</li>
+          {chat.activity && (<li>Activité liée : {chat.activity?.title} <button onClick={() => navigate(`${Route.activity}/${chat.activity?._id}`)} >Voir l'activité</button></li>)}
+          <li>Type : {chat.type}</li>
+          <li>Crée le : {new Date(chat.created_at).toDateString()}</li>
+          <li>Droits : {chat.member_auth}</li>
+        </ul>
+        <p className="chat-description">{chat.description}</p>
+      </div>
     </div>
     <div id="status" style={{ color: statusColor, marginBottom: 8 }}>{status}</div>
     <div
@@ -38,7 +53,7 @@ const ChatRoom: React.FC<Props> = ({
     >
       {messages.map((msg, idx) => (
         <div key={idx}>
-          <span>{msg.username}</span>
+          <span className="message-user">{msg.username}</span> : <span className="message-date">{new Date(msg.date).toLocaleString()}</span>
           <p>{msg.content}</p>
         </div>
       ))}
@@ -59,6 +74,6 @@ const ChatRoom: React.FC<Props> = ({
       </form>
     )}
   </div>
-);
+};
 
 export default ChatRoom;

@@ -1,14 +1,14 @@
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Channel, ChatClass } from "../../../api/chat";
 import { User } from "../../../api/user";
-import { FieldForm, PopupForm } from "../Popup/PopupForm";
-import { ShowChat, ShowChatButton } from "./SingleChat";
 import { Route } from "../../constantes";
 import { useEffect, useState } from "react";
 import Loading from "../shared/loading";
 import { useAuth } from "../shared/auth-context";
 import Errors from "../shared/errors";
 import { ErrorMessage } from "../../../api/client";
+import { popup } from "../../scripts/popup-slide";
+import { CreateChannel } from "./ChatCreate";
 
 type ListProps = {
   channels: Channel[];
@@ -22,8 +22,11 @@ type ListSimpleProps = {
 
 export function ChannelList(/*{ channels }: ListSimpleProps*/) {
   const navigate = useNavigate()
-  const [channel, setChannel] = useState<Channel[]>([])
+  const [channel, setChannel] = useState<Channel[] | null>(null)
   const [err, setErrors] = useState<ErrorMessage | null>(null)
+  const {me, isAdmin} = useAuth()
+  const [onDelete, setOnDelete] = useState(0)
+  const [refresh, setRefresh]= useState(0)
 
   useEffect(() => {
     (async () => {
@@ -35,10 +38,11 @@ export function ChannelList(/*{ channels }: ListSimpleProps*/) {
       } catch(e){
         setErrors(client.errors)
       }
+      setOnDelete(r => r +1)
     })()
-  }, [])
+  }, [refresh])
 
-  if(channel && channel.length == 0){
+  if(channel == null){
     return <Loading title="Chargement des channels" />
   }
 
@@ -46,39 +50,55 @@ export function ChannelList(/*{ channels }: ListSimpleProps*/) {
       return <Errors errors={err} />
   }
 
+  async function handlAction(channel: Channel, user_id: string | undefined){
+    if(!me){
+      popup("Impossible de réaliser l'action")
+      return
+    }
+
+    const client = new ChatClass()
+    if(channel.admin?._id == me?._id){
+      try{
+        await client.deleteChat(channel._id)
+        const chan = await client.getChannel()
+        setChannel(chan)
+        setErrors(null)
+      } catch(e){
+        setErrors(client.errors)
+      }
+    } else {
+      try{  
+        await client.leaveChat(channel._id)
+        const chan = await client.getChannel()
+        setChannel(chan)
+        setErrors(null)
+      } catch(e){
+        setErrors(client.errors)
+      }
+    }
+    setOnDelete(r => r +1)
+  }
+
   return (
   <div>
     <h2>Mes channels</h2>
-    {channel.length === 0 ? (
-      <p>Aucun channel trouvé.</p>
-    ) : (
-      channel.map((chan) => (
-        <p key={chan._id}>
-          <Link to={`/chat/${chan._id}`}>{chan.name}</Link>
-        </p>
-      ))
-    )}
+    <div>
+      {channel.length === 0 ? (
+        <p>Aucun channel trouvé.</p>
+      ) : (
+        channel.map((channel) => (
+          <p key={channel._id}>
+            <button><Link to={`${Route.chat}/${channel._id}`}>{channel.name}</Link></button>
+            <button onClick={()=>handlAction(channel, me?._id)}>
+                {me?._id == channel.admin?._id ? "Supprimer le Chat" : "Quitter le Chat"}
+            </button>
+          </p>
+        ))
+      )}
+    </div>
+    <div>
+      <CreateChannel update={onDelete} action={() => setRefresh(r => r+1)} />
+    </div>
   </div>
   )
 }
-
-export function ManageChannelList({ channels, action, user }: ListProps) {
-  return (
-  <div>
-    <h2>Mes channels</h2>
-    {channels.length === 0 ? (
-      <p>Aucun channel trouvé.</p>
-    ) : (
-      channels.map((channel) => (
-        <p key={channel._id}>
-          <button><Link to={`${Route.chat}/${channel._id}`}>{channel.name}</Link></button>
-          <span>{channel.description}</span>
-          <button onClick={()=>action(channel._id, user?._id)}>
-              {user?._id == channel.admin?._id ? "Supprimer le Chat" : "Quitter le Chat"}
-          </button>
-        </p>
-      ))
-    )}
-  </div>
-  )
-};

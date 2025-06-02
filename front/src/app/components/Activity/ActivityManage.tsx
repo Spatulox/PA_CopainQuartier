@@ -29,6 +29,7 @@ export function ManageMyActivity() {
             setNotFound(true)
             return
           }
+          setNotFound(false)
           setActivities(activities);
           setErrors(null)
         } catch (e){
@@ -92,6 +93,7 @@ function ManageActivityAdmin(){
             setNotFound(true)
             return
           }
+          setNotFound(false)
           setActivities(activities);
         } catch(e){
           setErrors(client.errors)
@@ -132,7 +134,7 @@ function ManageActivityAdmin(){
                 user={me}
                 onViewPublication={(pubId) => navigate(`${Route.publications}/${pubId}`)}
                 onManage={() => navigate(`${Route.manageActivity}/${activity._id}`)}
-                buttonShow={ShowActivityButton.All}
+                buttonShow={ShowActivityButton.All | ShowActivityButton.Chat}
             />
           ))}
         </div>
@@ -164,6 +166,7 @@ function ManageOneActivity(){
                 setNotFound(true)
                 return
               }
+              setNotFound(false)
               setActivities(activitie)
               setErrors(null)
             } catch(e){
@@ -177,6 +180,7 @@ function ManageOneActivity(){
                 setNotFound(true)
                 return
               }
+              setNotFound(false)
               setErrors(null)
               setActivities(activitie)
             } catch(e){
@@ -227,6 +231,7 @@ function ManageOneActivity(){
           setShowConfirm(false);
           setDeleteId(null);
           setDelErrors(null)
+          navigate(Route.manageActivity)
         } catch(e){
           setDelErrors(client.errors)
         }

@@ -29,6 +29,7 @@ function Users(){
                             setNotFound(true)
                             return
                         }
+                        setNotFound(false)
                         setUser(use)
                         setErrors(null)
                     } catch(e){
@@ -42,6 +43,7 @@ function Users(){
                             setNotFound(true)
                             return
                         }
+                        setNotFound(false)
                         setUser(use)
                         setErrors(null)
                     } catch(e){

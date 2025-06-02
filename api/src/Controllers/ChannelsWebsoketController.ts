@@ -12,10 +12,16 @@ export const channelClients = new Map<string, Set<WebSocket>>();
 const INIT_TIMEOUT = 60 * 60 * 1000; // 1h
 
 // --- Types de messages ---
-type InitMsg = { type: "INIT"; token: string; };
-type ChatMsg = { type: "MESSAGE"; content: string; username: string };
-type ErrorMsg = { type: "ERROR"; error: string; };
-type HistoryMsg = { type: "HISTORY"; messages: any[]; };
+enum MsgType {
+  INIT = "INIT",
+  HISTORY = "HISTORY",
+  MESSAGE = "MESSAGE",
+  ERROR = "ERROR",
+}
+type InitMsg = { type: MsgType.INIT; token: string; };
+type ChatMsg = { type: MsgType.MESSAGE; content: string; username: string, date: Date };
+type ErrorMsg = { type: MsgType.ERROR; error: string; };
+type HistoryMsg = { type: MsgType.HISTORY; messages: any[]; };
 type ServerMsg = ErrorMsg | HistoryMsg | ChatMsg
 
 // --- Utilitaires ---
@@ -34,7 +40,7 @@ export async function handleMessage(
     const msg = JSON.parse(data.toString());
     const validChannelId = new ObjectID(channel_id);
     const channel = await getChannelById(validChannelId);
-    if (!channel) return send(ws, { type: "ERROR", error: "Channel inexistant" });
+    if (!channel) return send(ws, { type: MsgType.ERROR, error: "Channel inexistant" });
 
     // --- INIT ---
     if (msg.type === "INIT") {
@@ -43,7 +49,7 @@ export async function handleMessage(
         !user ||
         (!channel.members.map((m: any) => m._id.toString()).includes(user._id.toString()) && user.role !== UserRole.admin)
       ) {
-        return send(ws, { type: "ERROR", error: "Accès refusé à ce channel" });
+        return send(ws, { type: MsgType.ERROR, error: "Accès refusé à ce channel" });
       }
       // Abonnement
       accessMap.set(ws, Date.now());
@@ -60,16 +66,17 @@ export async function handleMessage(
       const messages = channel.messages.map((m: any) => ({
         type: "MESSAGE",
         content: m.content,
-        username: userMap.get(m.author?._id.toString()) || "Inconnu"
+        username: userMap.get(m.author?._id.toString()) || "Inconnu",
+        date: m.date
       }));
-      send(ws, { type: "HISTORY", messages });
+      send(ws, { type: MsgType.HISTORY, messages });
       return;
     }
 
     // --- Vérification d'accès ---
     const lastInit = accessMap.get(ws);
     if (!lastInit || Date.now() - lastInit > INIT_TIMEOUT) {
-      return send(ws, { type: "ERROR", error: "Session expirée, veuillez vous reconnecter." });
+      return send(ws, { type: MsgType.ERROR, error: "Session expirée, veuillez vous reconnecter." });
     }
 
     // --- MESSAGE ---
@@ -79,20 +86,20 @@ export async function handleMessage(
         !user ||
         (!channel.members.map((m: any) => m._id.toString()).includes(msg.user_id.toString()) && user.role !== UserRole.admin)
       ) {
-        return send(ws, { type: "ERROR", error: "Accès refusé" });
+        return send(ws, { type: MsgType.ERROR, error: "Accès refusé" });
       }
       // Diffusion
       const clients = channelClients.get(channel_id) || new Set();
-      const chatMsg: ServerMsg = { type: "MESSAGE", content: msg.content, username: user.name || "Inconnu" };
+      const chatMsg: ServerMsg = { type: MsgType.MESSAGE, content: msg.content, username: user.name, date: new Date() || "Inconnu" };
       clients.forEach(client => send(client, chatMsg));
       await saveMessageToChannel(user, validChannelId, msg);
       return;
     }
 
     // --- Type inconnu ---
-    send(ws, { type: "ERROR", error: "Type de message inconnu" });
+    send(ws, { type: MsgType.ERROR, error: "Type de message inconnu" });
   } catch (e) {
-    send(ws, { type: "ERROR", error: "Erreur serveur" });
+    send(ws, { type: MsgType.ERROR, error: "Erreur serveur" });
     console.error(e);
   }
 }
