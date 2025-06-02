@@ -222,6 +222,7 @@ function ManageOnePublication(){
             setShowConfirm(false);
             setDeleteId(null);
             setDeleteErrors(null)
+            navigate(`${Route.managePublications}`)
         } catch(e){
             setDeleteErrors(client.errors)
         }
