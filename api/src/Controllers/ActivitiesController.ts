@@ -1,11 +1,12 @@
-import { Authorized, BadRequestError, Body, CurrentUser, Delete, ForbiddenError, Get, HttpCode, InternalServerError, JsonController, NotFoundError, Param, Patch, Post, Req } from "routing-controllers";
-import { zId, zObjectId } from "../Validators/utils";
-import { Activity, FilledActivity, PublicActivity, PublicFilledActivity } from "../Models/ActivityModel";
-import { getAllPublicActivities, getPublicActivityById, deleteActivity, joinActivityById, leaveActivityById, getActivityById, getMyActivities, getMyActivitiesAdmin, createActivity, updateActivity, getAllActivities } from "../Services/activities/activities";
+import { Authorized, BadRequestError, Body, CurrentUser, Delete, ForbiddenError, Get, HttpCode, InternalServerError, JsonController, NotFoundError, Param, Patch, Post, QueryParam, QueryParams, Req } from "routing-controllers";
+import { zObjectId } from "../Validators/utils";
+import { FilledActivity, PublicFilledActivity } from "../Models/ActivityModel";
+import { getAllPublicActivities, deleteActivity, joinActivityById, leaveActivityById, getActivityById, getMyActivities, getMyActivitiesAdmin, createActivity, updateActivity, getAllActivities } from "../Services/activities/activities";
 import { UserRole } from "../DB_Schema/UserSchema";
 import { User } from "../Models/UserModel";
-import { CreateActivityParam, UpdateActivityParam, zCreateActivity, zUpdateActivity } from "../Validators/activities";
+import { CreateActivityParam, UpdateActivityParam, zActivityQuery, zCreateActivity, zUpdateActivity } from "../Validators/activities";
 import { ObjectID } from "../DB_Schema/connexion";
+import { ac } from "@faker-js/faker/dist/airline-CBNP41sR";
 
 
 
@@ -37,7 +38,12 @@ export class ActivityController{
 
     @Get("/@me")
     @Authorized()
-    async getMyActivities(@CurrentUser() user: User): Promise<FilledActivity[]>{
+    async getMyActivities(@CurrentUser() user: User, @QueryParams() activity?: any): Promise<FilledActivity[]>{
+        if(activity){
+            const validParam = zActivityQuery.parse(activity)
+            console.log(await getMyActivities(user, validParam))
+            return await getMyActivities(user, validParam)
+        }
         return await getMyActivities(user)
     }
 

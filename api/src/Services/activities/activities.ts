@@ -4,7 +4,7 @@ import { Activity, FilledActivity, PublicFilledActivity } from "../../Models/Act
 import { FilledUser, User } from "../../Models/UserModel";
 import { ChannelAuth, ChannelTable } from "../../DB_Schema/ChannelSchema";
 import { PublicationTable } from "../../DB_Schema/PublicationSchema";
-import { CreateActivityParam, UpdateActivityParam } from "../../Validators/activities";
+import { ActivityQueryParam, CreateActivityParam, UpdateActivityParam } from "../../Validators/activities";
 import { ForbiddenError, InternalServerError } from "routing-controllers";
 import { objectToPublication } from "../publications/publications";
 import { toUserObject } from "../users/usersPublic";
@@ -41,9 +41,15 @@ export async function getAllActivities(): Promise<FilledActivity[]> {
     return activities.map(toActivityObject);
 }
 
-export async function getMyActivities(user: User): Promise<FilledActivity[]> {
+export async function getMyActivities(user: User, activityFilter?: ActivityQueryParam): Promise<FilledActivity[]> {
+    const filter: any = { participants_id: user._id };
+
+    if (activityFilter) {
+        Object.assign(filter, activityFilter);
+    }
+
     const activities = await ActivityTable
-        .find({ participants_id: user._id })
+        .find(filter)
         .sort({ created_at: -1 })
         .populate("publication_id")
         .populate("participants_id")

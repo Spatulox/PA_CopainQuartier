@@ -14,6 +14,17 @@ export const zUpdateActivity = z.object({
     date_reservation: z.coerce.date().optional(),
 });
 
+export const zActivityQuery = z.object({
+  channel_chat_id: z
+    .string()
+    .nullable()
+    .optional()
+    .transform(val => (val === "null" ? null : val)),
+  title: z.string().optional()
+});
+
 export type CreateActivityParam = z.infer<typeof zCreateActivity>
 
 export type UpdateActivityParam = z.infer<typeof zUpdateActivity>
+
+export type ActivityQueryParam = z.infer<typeof zActivityQuery>
