@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Form from "../Forms/Forms";
 import "./Popup.css"
 
@@ -45,25 +45,32 @@ export function PopupForm<T extends Record<string, string | number>>({
       }
     });
 
-    const APIerrs: string[] = [];
-    if(APIerrors){
-      for (const key in APIerrors){
-        APIerrs.push(`${key} : ${APIerrors[key]}`)
-      }
-      if(APIerrs.length > 0){
-        setErrors(APIerrs)
-        return
-      }
-    }
-
     setErrors(errs);
     if (errs.length === 0) {
-      await onSubmit(formData);
-      setOpen(false);
-      setFormData(initialFormData);
-      setErrors([]);
+      try {
+        await onSubmit(formData);
+        setOpen(false);
+        setFormData(initialFormData);
+        setErrors([]);
+      } catch (apiErrors: any) {
+        if (Array.isArray(apiErrors)) {
+          setErrors(apiErrors);
+        } else if (typeof apiErrors === "string") {
+          setErrors([apiErrors]);
+        } else if (typeof apiErrors === "object" && apiErrors !== null) {
+          setErrors(Object.entries(apiErrors).map(([k, v]) => `${k} : ${v}`));
+        } else {
+          setErrors(["Erreur inconnue"]);
+        }
+      }
     }
   };
+
+  useEffect(() => {
+    if (APIerrors && Array.isArray(APIerrors) && APIerrors.length > 0) {
+      setErrors(APIerrors);
+    }
+  }, [APIerrors]);
 
   return (
     <div>
