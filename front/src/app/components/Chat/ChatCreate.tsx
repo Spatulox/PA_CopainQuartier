@@ -20,7 +20,7 @@ export function CreateChannel({action} : CreateProps){
     (async ()=> {
       const client = new ActivityClass
       try{
-        const act = await client.getMyActivities()
+        const act = await client.getMyActivitiesWithoutChannel({channel_chat_id: null})
         setActivity(act)
         setErrors([])
       } catch(e){

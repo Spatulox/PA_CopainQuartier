@@ -2,6 +2,10 @@ import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { User } from "./user"
 import { popup } from '../app/scripts/popup-slide';
 
+
+export type Query = Record<string, string | number | boolean | undefined | null>
+
+
 type AuthResponse = {
   accessToken: string,
   refreshToken: string
@@ -214,7 +218,10 @@ export class ApiClient {
 
   // ----------- INTERNET REQUESTS ----------- //
 
-  protected async Get(endpoint: string): Promise<any> {
+  protected async Get(endpoint: string, query?: object): Promise<any> {
+    if(query){
+      endpoint +=this.queryToString(query)
+    }
     try{
       return (await this.client.get(endpoint)).data
     } catch(e){
@@ -223,7 +230,10 @@ export class ApiClient {
     }
   }
 
-  protected async Post(endpoint: string, options: object): Promise<any> {
+  protected async Post(endpoint: string, options: object, query?: object): Promise<any> {
+    if(query){
+      endpoint +=this.queryToString(query)
+    }
     try{
       return (await this.client.post(endpoint, options)).data
     } catch(e){
@@ -232,7 +242,10 @@ export class ApiClient {
     }
   }
 
-  protected async Patch(endpoint: string, options: object): Promise<any> {
+  protected async Patch(endpoint: string, options: object, query?: object): Promise<any> {
+    if(query){
+      endpoint +=this.queryToString(query)
+    }
     try{
       return (await this.client.patch(endpoint, options)).data
     } catch(e){
@@ -241,7 +254,10 @@ export class ApiClient {
     }
   }
 
-  protected async Put(endpoint: string, options: object): Promise<any> {
+  protected async Put(endpoint: string, options: object, query?: object): Promise<any> {
+    if(query){
+      endpoint +=this.queryToString(query)
+    }
     try{
       return (await this.client.put(endpoint, options)).data
     } catch(e){
@@ -250,12 +266,24 @@ export class ApiClient {
     }
   }
 
-  protected async Delete(endpoint: string): Promise<any> {
+  protected async Delete(endpoint: string, query?: object): Promise<any> {
+    if(query){
+      endpoint +=this.queryToString(query)
+    }
     try{
       return (await this.client.delete(endpoint)).data
     } catch(e){
       //console.error(e)
       throw e
     }
+  }
+
+  private queryToString(query: any): string{
+    let url = ""
+    if (query) {
+        const params = new URLSearchParams(query); // Transform an object into a string for request
+        url += `?${params.toString()}`;
+    }
+    return url
   }
 }

@@ -1,5 +1,5 @@
 import { Channel } from "./chat";
-import { ApiClient } from "./client";
+import { ApiClient, Query } from "./client";
 import { Publication } from "./publications";
 import { User } from "./user";
 
@@ -34,6 +34,10 @@ export class ActivityClass extends ApiClient{
     async getMyActivities():Promise<Activity[]>{
         const activity = await this.Get(`${this.url}/@me`)
         return activity//.data
+    }
+
+    async getMyActivitiesWithoutChannel(query?: Query): Promise<Activity[]>{
+        return await this.Get(`${this.url}/@me`, query)
     }
 
     async createActivities(option: object): Promise<Activity | null>{
