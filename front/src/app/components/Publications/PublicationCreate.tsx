@@ -51,6 +51,7 @@ function CreatePublication({onUpdate}: CreatePublicationType){
             setErrors([])
         } catch(e){
             setErrors(client.errors)
+            throw client.errors
         }
     }
     

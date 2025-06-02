@@ -8,6 +8,7 @@ type CreateActivityType = {
 
 function CreateActivity({onUpdate}: CreateActivityType){
     const [err, setErrors] = useState<any>()
+
     const fields: FieldForm[] = [
         { name: "title", label: "Nom de l'activité", type: "text", required: true },
         { name: "description", label: "Description", type: "text", required: true },
@@ -36,6 +37,7 @@ function CreateActivity({onUpdate}: CreateActivityType){
           setErrors([])
         } catch(e){
           setErrors(client.errors)
+          throw client.errors
         }
       }
       

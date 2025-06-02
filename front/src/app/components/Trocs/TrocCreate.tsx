@@ -59,6 +59,7 @@ function CreateTroc({onUpdate} : CreateTrocType){
             setError(null)
         } catch(e){
             setError(client.errors)
+            throw client.errors
         }
     }
     
@@ -67,7 +68,7 @@ function CreateTroc({onUpdate} : CreateTrocType){
         title="Créer un Troc"
         fields={fields}
         APIerrors={err}
-        initialFormData={{ title: "", description: "", type: RadioType.object }}
+        initialFormData={{ title: "", description: "", type: RadioType.object, reserved_at: "", date: new Date, hour: new Date() }}
         onSubmit={handleCreateChannel}
         submitLabel="Créer"
         buttonLabel="Créer un Troc"

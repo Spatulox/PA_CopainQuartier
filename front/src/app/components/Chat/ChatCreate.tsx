@@ -51,6 +51,7 @@ export function CreateChannel({action, update} : CreateProps){
       setErrors([])
     } catch(e){
       setErrors(client.errors)
+      throw client.errors
     }
   }
 
