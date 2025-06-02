@@ -68,7 +68,7 @@ function ShowActivityPage() {
         }
     }
 
-    if(err != null){
+    if(err != null && activity == null){
         return <Errors errors={err} />
     }
     
@@ -89,6 +89,7 @@ function ShowActivityPage() {
 
         if (isParticipant) {
             buttonShow |= ShowActivityButton.Leave;
+            buttonShow |= ShowActivityButton.Chat;
         } else {
             buttonShow |= ShowActivityButton.Join;
         }

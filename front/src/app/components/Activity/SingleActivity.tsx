@@ -12,6 +12,7 @@ export enum ShowActivityButton {
     Manage = 1 << 2,          // 4 (0b100)
     Join = 1 << 3,
     Leave = 1 << 4,
+    Chat = 1 << 5,
     All = Activity | ViewPublication | Manage | Join | Leave, // 7
     None = 0
 }
@@ -36,7 +37,7 @@ export function ShowActivity({
     buttonShow
 }: ShowActivityProps) {
     const navigate = useNavigate();
-
+    console.log(activity)
     return (
         <div key={activity._id}>
             <h2>{activity.title}</h2>
@@ -45,7 +46,7 @@ export function ShowActivity({
                 <span>{new Date(activity.created_at).toLocaleDateString()}</span>
                 <p>{activity.description}</p>
                 <span>{new Date(activity.date_reservation).toLocaleDateString()}</span>
-                {activity.max_place && activity.reserved_place && (<p>Nombre de places restantes : {activity.max_place - activity.reserved_place}</p>)}
+                {!isNaN(activity.max_place - activity.reserved_place) && (<p>Nombre de places restantes : {activity.max_place - activity.reserved_place}</p>)}
                 <p>Lieu : {activity.location ? activity.location : ""}</p>
             </div>
             <div>
@@ -54,6 +55,12 @@ export function ShowActivity({
                     {(buttonShow & ShowActivityButton.Activity) !== 0 && activity._id && (
                         <button onClick={() => navigate(`${Route.activity}/${activity._id}`)}>
                             Voir l'activité
+                        </button>
+                    )}
+
+                    {(buttonShow & ShowActivityButton.Chat) !== 0 && activity._id && (
+                        <button onClick={() => navigate(`${Route.chat}/${activity.channel_chat._id}`)}>
+                            Voir le channel associé
                         </button>
                     )}
 

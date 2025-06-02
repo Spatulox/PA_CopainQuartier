@@ -132,7 +132,7 @@ function ManageActivityAdmin(){
                 user={me}
                 onViewPublication={(pubId) => navigate(`${Route.publications}/${pubId}`)}
                 onManage={() => navigate(`${Route.manageActivity}/${activity._id}`)}
-                buttonShow={ShowActivityButton.All}
+                buttonShow={ShowActivityButton.All | ShowActivityButton.Chat}
             />
           ))}
         </div>
