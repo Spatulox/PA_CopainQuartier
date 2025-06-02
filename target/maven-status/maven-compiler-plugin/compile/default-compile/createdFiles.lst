@@ -5,4 +5,5 @@ com\example\scraper\EvousScraper.class
 com\example\scraper\Main.class
 com\example\scraper\SiteScraper.class
 com\example\scraper\ui\Event.class
+com\example\scraper\Database$Event.class
 com\example\scraper\Database.class
