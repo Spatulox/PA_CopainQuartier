@@ -28,6 +28,7 @@ export function ManageMyPublications(){
                 setNotFound(true)
                 return
             }
+            setNotFound(false)
             setPublications(pub);
             setErrors
         } catch(e){
@@ -83,7 +84,7 @@ function ManagePublicationAdmin(){
                 setNotFound(true)
                 return
             }
-
+            setNotFound(false)
             setPublications(publications);
             setErrors(null)
         } catch(e){
@@ -109,7 +110,7 @@ function ManagePublicationAdmin(){
       return <Loading title="Chargement des publications" />
     }
   
-    if (publications.length === 0) {
+    if (publications && publications.length === 0) {
       return <div>Aucune publications trouvée.</div>;
     }
 
@@ -155,6 +156,7 @@ function ManageOnePublication(){
                             setNotFound(true)
                             return
                         }
+                        setNotFound(false)
                         setPublication(pub)
                         setErrors(null)
                     } catch(e){
@@ -168,6 +170,7 @@ function ManageOnePublication(){
                             setNotFound(true)
                             return
                         }
+                        setNotFound(false)
                         setPublication(pub)
                         setErrors(null)
                     } catch(e){

@@ -33,6 +33,7 @@ function ManageOneChat(){
                         setNotFound(true)
                         return
                     }
+                    setNotFound(false)    
                     setChannel(chan)
                 } catch(e){
                     setErrors(client.errors)
@@ -87,6 +88,7 @@ function ManageChat(){
                 setNotFound(true)
                 return
             }
+            setNotFound(false)
             setChannels(chan)
         })()
     }, [])

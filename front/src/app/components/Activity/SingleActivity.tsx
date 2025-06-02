@@ -37,7 +37,6 @@ export function ShowActivity({
     buttonShow
 }: ShowActivityProps) {
     const navigate = useNavigate();
-    console.log(activity)
     return (
         <div key={activity._id}>
             <h2>{activity.title}</h2>

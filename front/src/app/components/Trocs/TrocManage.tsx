@@ -29,6 +29,7 @@ export function ManageMyTroc(){
             setNotFound(true)
             return
           }
+          setNotFound(false)
           setTrocs(troc);
           setErrors(null)
         }catch(e){
@@ -91,6 +92,8 @@ function ManageTrocAdmin(){
             setNotFound(true)
             return
           }
+
+          setNotFound(false)
           setTrocs(troc);
           setErrors(null)
         } catch(e){
@@ -162,6 +165,7 @@ function ManageOneTroc(){
                 setNotFound(true)
                 return
               }
+              setNotFound(false)
               setTroc(rto);
               setError(null)
             } catch(e){
@@ -175,6 +179,7 @@ function ManageOneTroc(){
                 setNotFound(true)
                 return
               }
+              setNotFound(false)
               setTroc(rto);
               setError(null)
             } catch(e){

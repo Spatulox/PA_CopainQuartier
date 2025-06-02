@@ -33,6 +33,7 @@ function ShowActivityPage() {
                         setNotFound(true)
                         return
                     }
+                    setNotFound(false)
             
                     setActivity(activity);
                     setErrors(null)
