@@ -145,7 +145,7 @@ export async function deleteChannelLinkedTOActivity(channel_id: ObjectID, activi
 
     const res2 = await ActivityTable.updateOne(
         { _id: activity_id },
-        { channel_chat_id: null }
+        { $set: { channel_chat_id: null } }
     );
 
     return res.deletedCount > 0 && res2.modifiedCount > 0

@@ -41,7 +41,6 @@ export class ActivityController{
     async getMyActivities(@CurrentUser() user: User, @QueryParams() activity?: any): Promise<FilledActivity[]>{
         if(activity){
             const validParam = zActivityQuery.parse(activity)
-            console.log(await getMyActivities(user, validParam))
             return await getMyActivities(user, validParam)
         }
         return await getMyActivities(user)

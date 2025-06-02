@@ -7,7 +7,7 @@ const ActivitySchema = new Schema<Activity>({
     created_at: { type: Date, default: Date.now, required: true },
     date_reservation: { type: Date, default: Date.now },
     author_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    channel_chat_id: { type: Schema.Types.ObjectId , ref: "Channel" },
+    channel_chat_id: { type: Schema.Types.ObjectId , ref: "Channel", default: null },
     publication_id: { type: Schema.Types.ObjectId, ref: "Publication", required: true },
     participants_id: [{ type: Schema.Types.ObjectId, ref: "User" }],
     location: {type: String, required: true},

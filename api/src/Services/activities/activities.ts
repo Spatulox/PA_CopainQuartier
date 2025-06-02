@@ -143,6 +143,11 @@ export async function createActivity(user: User, activity: CreateActivityParam):
     .populate('publication_id')
     .populate('participants_id');
 
+    const channelUpdate2 = await ChannelTable.updateOne(
+        {_id: channel._id},
+        { $set: { activity_id: activityDoc._id } }
+    )
+
     return toActivityObject(populatedActivity) as FilledActivity | null;
 }
 
