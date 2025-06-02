@@ -38,13 +38,19 @@ export class ChannelsController {
     @Authorized()
     async getChannelById(@CurrentUser() user: User, @Param('id') channel_id: string): Promise<FilledChannel | PublicFilledChannel | null> {
         const validId = new ObjectID(zObjectId.parse(channel_id))
-        // If the user is inside the channel, can see all data
-        if (user.group_chat_list_ids.map(id => id.toString()).includes(validId.toString())) {
-            return await getChannelById(validId)
-        }
-        // If the user is outside the channel, can only see the Public data (name, type, description...)
-        else {
-            return await getPublicChannelById(validId)
+        
+        try{
+            const channel = await getChannelById(validId)
+            // If the user is inside the channel, can see all data
+            if(channel?.members.includes(user._id) || channel?.admin?._id == user._id){
+                return channel
+            }
+            // If the user is outside the channel, can only see the Public data (name, type, description...)
+            else {
+                return await getPublicChannelById(validId)
+            }
+        } catch(e){
+            throw new InternalServerError("Something went wrong")
         }
         
     }
