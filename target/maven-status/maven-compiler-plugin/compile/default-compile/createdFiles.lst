@@ -1,0 +1,8 @@
+com\example\scraper\ui\EventViewer.class
+com\example\scraper\ui\MainApp.class
+com\example\scraper\AgendaCulturelScraper.class
+com\example\scraper\EvousScraper.class
+com\example\scraper\Main.class
+com\example\scraper\SiteScraper.class
+com\example\scraper\ui\Event.class
+com\example\scraper\Database.class
