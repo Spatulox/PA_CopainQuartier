@@ -213,9 +213,10 @@ export async function joinActivityById(user: User, activity: FilledActivity): Pr
 
     const userResult = await UserTable.updateOne(
         { _id: user._id },
-        { $pull: { group_chat_list_ids: activity.channel_chat?._id } }
+        { $push: { group_chat_list_ids: activity.channel_chat?._id } }
     );
 
+    console.log(activityResult, channelResult, userResult)
     return activityResult.modifiedCount > 0 && channelResult.modifiedCount > 0 && userResult.modifiedCount > 0;
 }
 
