@@ -61,7 +61,7 @@ export function ManageMyPublications(){
                 pub={pub}
                 user={me}
                 onViewActivity={(id) => navigate(`${Route.activity}/${id}`)}
-                onManage={(id) => navigate(`${Route.manageActivity}/${id}`)}
+                onManage={(id) => navigate(`${Route.managePublications}/${id}`)}
                 buttonShow={ShowPublicationButton.ViewActivity | ShowPublicationButton.Manage}
             />
         ))}</section>

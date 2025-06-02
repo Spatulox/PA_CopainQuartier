@@ -88,6 +88,7 @@ export async function createPublication(user: User, content: CreatePublicationPa
 
     const dataToSave = {
         name: content.name,
+        description: content.description,
         author_id: user._id,
         activity_id: acti ? acti : undefined,
         body: content.body,
@@ -104,6 +105,7 @@ export async function updatePublicationcontent(user: User, pub_id: ObjectID, con
     if (content.name !== undefined) updateFields.name = content.name;
     if (content.activity_id !== undefined) updateFields.activity_id = new ObjectID(content.activity_id);
     if (content.body !== undefined) updateFields.body = content.body;
+    if (content.body !== undefined) updateFields.description = content.description;
     updateFields.updated_at = new Date();
 
     const result = await PublicationTable.updateOne(
@@ -129,6 +131,7 @@ export function objectToPublication(obj: any): FilledPublication { // Any becaus
     return {
         _id: obj._id?.toString(),
         name: obj.name,
+        description: obj.description,
         created_at: obj.created_at ? new Date(obj.created_at) : new Date(),
         updated_at: obj.updated_at ? new Date(obj.updated_at) : new Date(),
         author: obj.author_id ? toUserObject(obj.author_id) : null,

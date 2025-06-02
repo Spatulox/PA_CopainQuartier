@@ -5,6 +5,7 @@ import { User } from "./user"
 export type Publication = {
     _id: string,
     name: string,
+    description: string,
     created_at: Date,
     updated_at: Date,
     author: User | null,

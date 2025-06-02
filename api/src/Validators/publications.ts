@@ -2,12 +2,14 @@ import { z } from "zod"
 
 export const zCreatePublication = z.object({
     name: z.string().min(3),
+    description: z.string().min(3),
     activity_id: z.string().optional(),
     body: z.string().min(0)
 });
 
 export const zUpdatePublication = z.object({
-    name: z.string().min(1),
+    name: z.string().min(3).optional(),
+    description: z.string().min(3).optional(),
     activity_id: z.string().optional(),
     body: z.string().min(1).optional()
 });
