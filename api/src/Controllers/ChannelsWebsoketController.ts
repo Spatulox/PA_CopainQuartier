@@ -19,7 +19,7 @@ enum MsgType {
   ERROR = "ERROR",
 }
 type InitMsg = { type: MsgType.INIT; token: string; };
-type ChatMsg = { type: MsgType.MESSAGE; content: string; username: string };
+type ChatMsg = { type: MsgType.MESSAGE; content: string; username: string, date: Date };
 type ErrorMsg = { type: MsgType.ERROR; error: string; };
 type HistoryMsg = { type: MsgType.HISTORY; messages: any[]; };
 type ServerMsg = ErrorMsg | HistoryMsg | ChatMsg
@@ -66,7 +66,8 @@ export async function handleMessage(
       const messages = channel.messages.map((m: any) => ({
         type: "MESSAGE",
         content: m.content,
-        username: userMap.get(m.author?._id.toString()) || "Inconnu"
+        username: userMap.get(m.author?._id.toString()) || "Inconnu",
+        date: m.date
       }));
       send(ws, { type: MsgType.HISTORY, messages });
       return;
@@ -89,7 +90,7 @@ export async function handleMessage(
       }
       // Diffusion
       const clients = channelClients.get(channel_id) || new Set();
-      const chatMsg: ServerMsg = { type: MsgType.MESSAGE, content: msg.content, username: user.name || "Inconnu" };
+      const chatMsg: ServerMsg = { type: MsgType.MESSAGE, content: msg.content, username: user.name, date: new Date() || "Inconnu" };
       clients.forEach(client => send(client, chatMsg));
       await saveMessageToChannel(user, validChannelId, msg);
       return;
