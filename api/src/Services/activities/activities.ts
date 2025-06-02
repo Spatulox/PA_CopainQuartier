@@ -200,7 +200,12 @@ export async function joinActivityById(user: User, activity: FilledActivity): Pr
         { $addToSet: { members: user._id } }
     );
 
-    return activityResult.modifiedCount > 0 && channelResult.modifiedCount > 0;
+    const userResult = await UserTable.updateOne(
+        { _id: user._id },
+        { $pull: { group_chat_list_ids: activity.channel_chat?._id } }
+    );
+
+    return activityResult.modifiedCount > 0 && channelResult.modifiedCount > 0 && userResult.modifiedCount > 0;
 }
 
 export async function leaveActivityById(user: User, activity: Activity | FilledActivity): Promise<boolean> {
@@ -235,7 +240,12 @@ export async function leaveActivityById(user: User, activity: Activity | FilledA
         { $pull: { members: user._id } }
     );
 
-    return activityResult.modifiedCount > 0 && channelResult.modifiedCount > 0;
+    const userResult = await UserTable.updateOne(
+        { _id: user._id },
+        { $pull: { group_chat_list_ids: channelId } }
+    );
+
+    return activityResult.modifiedCount > 0 && channelResult.modifiedCount > 0 && userResult.modifiedCount > 0;
 }
 
 export async function deleteActivity(activity: FilledActivity): Promise<boolean> {

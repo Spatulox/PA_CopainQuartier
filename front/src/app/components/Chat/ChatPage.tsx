@@ -4,6 +4,7 @@ import { useAuth } from "../shared/auth-context";
 import NotFound from "../shared/notfound";
 import { Channel, ChatClass, Message } from "../../../api/chat";
 import ChatRoom, { ChannelRight } from "./ChatRoom";
+import { ChannelList } from "./ChatList";
 
 enum MsgType {
   INIT = "INIT",
@@ -104,9 +105,12 @@ function ChatPage() {
     }
   };
 
-  if (!id) return <div>Liste des channels ici</div>;
+  if (!id) return <div><ChannelList /></div>;
   if (!me) return <NotFound />;
-
+  if(!channel){
+    return <NotFound />
+  }
+  
   const statusColor = status === "Connecté" ? "#00FF00" : "#FF0000";
   const thechannelAuth =
     channel?.member_auth === ChannelRight.read_send
@@ -116,6 +120,7 @@ function ChatPage() {
   return (
     <ChatRoom
       id={id}
+      chat={channel}
       status={status}
       statusColor={statusColor}
       memberRight={thechannelAuth}

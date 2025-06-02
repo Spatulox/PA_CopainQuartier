@@ -28,7 +28,18 @@ export async function getPublicChannelById(channel_id: ObjectID): Promise<Public
 
 export async function getMyChannel(user: User): Promise<FilledChannel[] | null>{
     const res = await ChannelTable.find({
-        admin_id: user._id
+        $or: [
+            { admin_id: user._id },
+            { members: user._id }
+        ]
+    }).lean().exec();
+
+    return res.map(objectToChannel);
+}
+
+export async function getAllChannelImInside(user: User): Promise<FilledChannel[] | null>{
+    const res = await ChannelTable.find({
+        members: user._id
     }).lean().exec()
     return res.map(objectToChannel);
 }
