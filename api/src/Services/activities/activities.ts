@@ -204,6 +204,13 @@ export async function joinActivityById(user: User, activity: FilledActivity): Pr
 }
 
 export async function leaveActivityById(user: User, activity: Activity | FilledActivity): Promise<boolean> {
+
+    if("participants_id" in activity && !activity.participants_id.map(id => id.toString()).includes(user._id.toString())){
+        throw new ForbiddenError("Vous n'êtes pas inscrit à l'activité")
+    } else if("participants" in activity && activity.participants && !activity.participants.some((thuse: any) => thuse._id.toString() == user._id.toString())){
+        throw new ForbiddenError("Vous n'êtes pas inscrit à l'activité")
+    }
+
     const activityResult = await ActivityTable.updateOne(
         { _id: activity._id },
         { $pull: { participants_id: user._id },
