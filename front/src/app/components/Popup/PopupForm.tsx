@@ -10,7 +10,7 @@ export type FieldForm = {
   required?: boolean;
 };
 
-type PopupFormProps<T extends Record<string, string | number>> = {
+type PopupFormProps<T extends Record<string, string | number | Date>> = {
   title: string;
   fields: FieldForm[];
   APIerrors: any;
@@ -21,7 +21,7 @@ type PopupFormProps<T extends Record<string, string | number>> = {
   children?: React.ReactNode;
 };
 
-export function PopupForm<T extends Record<string, string | number>>({
+export function PopupForm<T extends Record<string, string | number | Date>>({
   title,
   fields,
   APIerrors,
