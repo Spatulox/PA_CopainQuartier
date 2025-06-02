@@ -52,7 +52,7 @@ const ChatRoom: React.FC<Props> = ({
     >
       {messages.map((msg, idx) => (
         <div key={idx}>
-          <span>{msg.username}</span>
+          <span className="message-user">{msg.username}</span> : <span className="message-date">{new Date(msg.date).toLocaleString()}</span>
           <p>{msg.content}</p>
         </div>
       ))}
