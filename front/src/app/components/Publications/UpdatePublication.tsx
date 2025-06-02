@@ -21,6 +21,7 @@ export function UpdatePublication({
 }: UpdatePublicationProps) {
     const [name, setName] = useState(publication.name || "");
     const [body, setBody] = useState(publication.body || "");
+    const [description, setDescription] = useState(publication.description || "");
     const [err, setError] = useState<string[]>([])
     const navigate = useNavigate()
 
@@ -74,6 +75,9 @@ export function UpdatePublication({
                     </span>
                     <span>Date de modification : {new Date(publication.updated_at).toLocaleDateString()}</span>
                 </div>
+                <input type="text"
+                value={description}
+                onChange={e =>setDescription(e.target.value)}/>
                 <p>
                     <textarea
                         value={body}

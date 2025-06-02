@@ -52,6 +52,7 @@ function ManageOneUser(){
                     }
                     setUser(use)
                 }
+                setNotFound(false)
                 setError(null)
             }catch(e){
                 setError(client.errors)

@@ -5,6 +5,7 @@ import { FilledUser, User } from "./UserModel";
 export type Publication = {
     _id: string,
     name: string,
+    description: string,
     created_at: Date,
     updated_at: Date,
     author_id: ObjectId | User,

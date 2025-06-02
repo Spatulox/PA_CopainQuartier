@@ -13,7 +13,7 @@ export type Channel = {
     description: string,
     admin_id: ObjectId,
     messages?: Message[],
-    members: string[],
+    members: ObjectId[],
     member_auth: string,
     created_at: Date,
 }

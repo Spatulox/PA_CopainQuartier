@@ -1,4 +1,5 @@
-import { ApiClient } from "./client";
+import { Channel } from "./chat";
+import { ApiClient, Query } from "./client";
 import { Publication } from "./publications";
 import { User } from "./user";
 
@@ -9,9 +10,12 @@ export type Activity = {
     created_at: Date,
     date_reservation: Date,
     author: User,
-    channel_chat: string,
+    channel_chat: Channel,
     publication: Publication,
-    participants: User[]
+    participants: User[],
+    location: string,
+    max_place: number,
+    reserved_place: number,
 }
 
 export class ActivityClass extends ApiClient{
@@ -32,6 +36,10 @@ export class ActivityClass extends ApiClient{
         return activity//.data
     }
 
+    async getMyActivitiesWithoutChannel(query?: Query): Promise<Activity[]>{
+        return await this.Get(`${this.url}/@me`, query)
+    }
+
     async createActivities(option: object): Promise<Activity | null>{
         return await this.Post(this.url, option)
     }
@@ -42,6 +50,14 @@ export class ActivityClass extends ApiClient{
 
     async deleteActivity(id: string): Promise<void>{
         await this.Delete(`${this.url}/${id}`)
+    }
+
+    async joinActivity(id: string): Promise<void>{
+        await this.Patch(`${this.url}/${id}/join`, {})
+    }
+
+    async leaveActivity(id: string): Promise<void>{
+        await this.Patch(`${this.url}/${id}/leave`, {})
     }
 }
 

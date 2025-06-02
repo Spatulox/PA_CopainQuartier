@@ -10,7 +10,10 @@ export enum ShowActivityButton {
     Activity = 1 << 0,        // 1 (0b001)
     ViewPublication = 1 << 1, // 2 (0b010)
     Manage = 1 << 2,          // 4 (0b100)
-    All = Activity | ViewPublication | Manage, // 7
+    Join = 1 << 3,
+    Leave = 1 << 4,
+    Chat = 1 << 5,
+    All = Activity | ViewPublication | Manage | Join | Leave, // 7
     None = 0
 }
 
@@ -18,6 +21,8 @@ type ShowActivityProps = {
     activity: Activity;
     user: User | undefined;
     onViewPublication?: (id: string) => void;
+    onJoin?: (id: string) => void;
+    onLeave?: (id: string) => void;
     onManage?: (id: string) => void;
     buttonShow: ShowActivityButton
 };
@@ -26,11 +31,12 @@ export function ShowActivity({
     activity,
     user,
     onViewPublication,
+    onJoin,
+    onLeave,
     onManage,
     buttonShow
 }: ShowActivityProps) {
     const navigate = useNavigate();
-
     return (
         <div key={activity._id}>
             <h2>{activity.title}</h2>
@@ -39,18 +45,36 @@ export function ShowActivity({
                 <span>{new Date(activity.created_at).toLocaleDateString()}</span>
                 <p>{activity.description}</p>
                 <span>{new Date(activity.date_reservation).toLocaleDateString()}</span>
+                {!isNaN(activity.max_place - activity.reserved_place) && (<p>Nombre de places restantes : {activity.max_place - activity.reserved_place}</p>)}
+                <p>Lieu : {activity.location ? activity.location : ""}</p>
             </div>
             <div>
                 <strong>Publication :</strong> {activity.publication?.name}
                 <div>
-                    {/* Bouton "Voir l'activité" */}
                     {(buttonShow & ShowActivityButton.Activity) !== 0 && activity._id && (
                         <button onClick={() => navigate(`${Route.activity}/${activity._id}`)}>
                             Voir l'activité
                         </button>
                     )}
 
-                    {/* Bouton "Voir la Publication associée" */}
+                    {(buttonShow & ShowActivityButton.Chat) !== 0 && activity._id && (
+                        <button onClick={() => navigate(`${Route.chat}/${activity.channel_chat._id}`)}>
+                            Voir le channel associé
+                        </button>
+                    )}
+
+                    {(buttonShow & ShowActivityButton.Join) !== 0 && activity._id && onJoin && (
+                        <button onClick={() => onJoin(activity._id)}>
+                            Rejoindre l'activité
+                        </button>
+                    )}
+
+                    {(buttonShow & ShowActivityButton.Leave) !== 0 && activity._id && onLeave && (
+                        <button onClick={() => onLeave(activity._id)}>
+                            Quitter l'activité
+                        </button>
+                    )}
+
                     {(buttonShow & ShowActivityButton.ViewPublication) !== 0 &&
                         onViewPublication &&
                         activity.publication?._id && (
@@ -59,7 +83,6 @@ export function ShowActivity({
                             </button>
                     )}
 
-                    {/* Bouton "Gérer l'activité" */}
                     {(buttonShow & ShowActivityButton.Manage) !== 0 &&
                         onManage &&
                         user &&

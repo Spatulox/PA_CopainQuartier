@@ -1,10 +1,10 @@
 import { ObjectID } from "../../DB_Schema/connexion";
 import { ActivityTable } from "../../DB_Schema/ActivitiesSchema";
 import { Activity, FilledActivity, PublicFilledActivity } from "../../Models/ActivityModel";
-import { User } from "../../Models/UserModel";
+import { FilledUser, User } from "../../Models/UserModel";
 import { ChannelAuth, ChannelTable } from "../../DB_Schema/ChannelSchema";
 import { PublicationTable } from "../../DB_Schema/PublicationSchema";
-import { CreateActivityParam, UpdateActivityParam } from "../../Validators/activities";
+import { ActivityQueryParam, CreateActivityParam, UpdateActivityParam } from "../../Validators/activities";
 import { ForbiddenError, InternalServerError } from "routing-controllers";
 import { objectToPublication } from "../publications/publications";
 import { toUserObject } from "../users/usersPublic";
@@ -41,9 +41,15 @@ export async function getAllActivities(): Promise<FilledActivity[]> {
     return activities.map(toActivityObject);
 }
 
-export async function getMyActivities(user: User): Promise<FilledActivity[]> {
+export async function getMyActivities(user: User, activityFilter?: ActivityQueryParam): Promise<FilledActivity[]> {
+    const filter: any = { participants_id: user._id };
+
+    if (activityFilter) {
+        Object.assign(filter, activityFilter);
+    }
+
     const activities = await ActivityTable
-        .find({ participants_id: user._id })
+        .find(filter)
         .sort({ created_at: -1 })
         .populate("publication_id")
         .populate("participants_id")
@@ -75,74 +81,6 @@ export async function getAllPublicActivities(): Promise<PublicFilledActivity[]> 
     });
 }
 
-// Mongo transaction are pain in the ass to sutup
-/*
-export async function createActivity(user: User, activity: CreateActivityParam): Promise<Activity | null> {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-    try {
-        // channel chat
-        const channelParam = {
-            name: activity.title + " - Chat",
-            type: "text",
-            description: "Chat : " + activity.title
-        };
-        const channel = await ChannelTable.create([{ 
-            ...channelParam, 
-            publication_id: null,
-            admin_id: user._id,
-            messages: [],
-            members: [user._id],
-            member_auth: ChannelAuth.read_send,
-            created_at: new Date()
-        }], { session });
-        if (!channel || !channel[0]) throw new Error("Channel creation failed");
-
-        // publication
-        const publicationParam = {
-            name: activity.title,
-            activity_id: null, // temporaire
-            body: activity.description
-        };
-        const publication = await PublicationTable.create([{
-            ...publicationParam,
-            author_id: user._id,
-            created_at: new Date(),
-            updated_at: new Date()
-        }], { session });
-        if (!publication || !publication[0]) throw new Error("Publication creation failed");
-
-        //Create Activity With IDs channel et publication
-        const activityToSave = {
-            title: activity.title,
-            description: activity.description,
-            date_reservation: activity.date_reservation,
-            created_at: new Date(),
-            author_id: user._id,
-            channel_chat_id: channel[0]._id,
-            publication_id: publication[0]._id,
-            participants_id: [user._id]
-        };
-        const activityDoc = await ActivityTable.create([activityToSave], { session });
-        if (!activityDoc || !activityDoc[0]) throw new Error("Activity creation failed");
-
-        //Update pub ID with activity ID
-        await PublicationTable.updateOne(
-            { _id: publication[0]._id },
-            { $set: { activity_id: activityDoc[0]._id } },
-            { session }
-        );
-
-        await session.commitTransaction();
-        return activityDoc[0];
-    } catch (err) {
-        await session.abortTransaction();
-        throw err;
-    } finally {
-        session.endSession();
-    }
-}
-*/
 export async function createActivity(user: User, activity: CreateActivityParam): Promise<FilledActivity | null> {
     // Créer le channel chat
     const channelParam = {
@@ -180,7 +118,10 @@ export async function createActivity(user: User, activity: CreateActivityParam):
         author_id: user._id,
         channel_chat_id: channel._id,
         publication_id: publication._id,
-        participants_id: [user._id]
+        participants_id: [user._id],
+        location: activity.location,
+        max_place: activity.max_place,
+        reserved_place: 1,
     };
     const activityDoc = await ActivityTable.create(activityToSave);
     if (!activityDoc || !activityDoc._id) throw new Error("Activity creation failed");
@@ -201,6 +142,11 @@ export async function createActivity(user: User, activity: CreateActivityParam):
     .populate('channel_chat_id')
     .populate('publication_id')
     .populate('participants_id');
+
+    const channelUpdate2 = await ChannelTable.updateOne(
+        {_id: channel._id},
+        { $set: { activity_id: activityDoc._id } }
+    )
 
     return toActivityObject(populatedActivity) as FilledActivity | null;
 }
@@ -248,114 +194,16 @@ export async function updateActivity(user: User, body: UpdateActivityParam, act_
     return toActivityObject(doc) as FilledActivity | null;
 }
 
-// Mongo DB + transaction are pain in the ass to setup
-/*
-export async function joinActivityById(user: User, activity: Activity): Promise<boolean> {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-    try {
-        const activityResult = await ActivityTable.updateOne(
-            { _id: activity._id },
-            { $addToSet: { participants_id: user._id } },
-            { session }
-        );
-
-        const channelResult = await ChannelTable.updateOne(
-            { _id: activity.channel_chat_id },
-            { $addToSet: { members: user._id } },
-            { session }
-        );
-
-        if (activityResult.modifiedCount > 0 && channelResult.modifiedCount > 0) {
-            await session.commitTransaction();
-            return true;
-        } else {
-            await session.abortTransaction();
-            return false;
-        }
-    } catch (err) {
-        await session.abortTransaction();
-        throw err;
-    } finally {
-        session.endSession();
-    }
-}
-
-
-export async function leaveActivityById(user: User, activity: Activity): Promise<boolean> {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-    try {
-        const activityResult = await ActivityTable.updateOne(
-            { _id: activity._id },
-            { $pull: { participants_id: user._id } },
-            { session }
-        );
-
-        const channelResult = await ChannelTable.updateOne(
-            { _id: activity.channel_chat_id },
-            { $pull: { members: user._id } },
-            { session }
-        );
-
-        if (activityResult.modifiedCount > 0 && channelResult.modifiedCount > 0) {
-            await session.commitTransaction();
-            return true;
-        } else {
-            await session.abortTransaction();
-            return false;
-        }
-    } catch (err) {
-        await session.abortTransaction();
-        throw err;
-    } finally {
-        session.endSession();
-    }
-}
-
-export async function deleteActivity(activity: Activity): Promise<boolean> {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-    try {
-        const activityResult = await ActivityTable.deleteOne(
-            { _id: activity._id },
-            { session }
-        );
-
-        const channelResult = await ChannelTable.deleteOne(
-            { _id: activity.channel_chat_id },
-            { session }
-        );
-
-        const publicationResult = await PublicationTable.deleteOne(
-            { _id: activity.publication_id },
-            { session }
-        );
-
-        if (
-            activityResult.deletedCount > 0 &&
-            channelResult.deletedCount > 0 &&
-            publicationResult.deletedCount > 0
-        ) {
-            await session.commitTransaction();
-            return true;
-        } else {
-            await session.abortTransaction();
-            return false;
-        }
-    } catch (err) {
-        await session.abortTransaction();
-        throw err;
-    } finally {
-        session.endSession();
-    }
-}
-*/
-
 export async function joinActivityById(user: User, activity: FilledActivity): Promise<boolean> {
+    if (activity.participants && activity.participants.some((thuse: any) => thuse._id.toString() == user._id.toString() )) {
+        throw new ForbiddenError("L'utilisateur participe déjà à cette activité.");
+    }
+
     const activityResult = await ActivityTable.updateOne(
         { _id: activity._id },
-        { $addToSet: { participants_id: user._id } }
+        { $addToSet: { participants_id: user._id },
+          $inc: {reserved_place: 1}},
+        { runValidators: true }
     );
 
     const channelResult = await ChannelTable.updateOne(
@@ -363,13 +211,27 @@ export async function joinActivityById(user: User, activity: FilledActivity): Pr
         { $addToSet: { members: user._id } }
     );
 
-    return activityResult.modifiedCount > 0 && channelResult.modifiedCount > 0;
+    const userResult = await UserTable.updateOne(
+        { _id: user._id },
+        { $push: { group_chat_list_ids: activity.channel_chat?._id } }
+    );
+
+    return activityResult.modifiedCount > 0 && channelResult.modifiedCount > 0 && userResult.modifiedCount > 0;
 }
 
 export async function leaveActivityById(user: User, activity: Activity | FilledActivity): Promise<boolean> {
+
+    if("participants_id" in activity && !activity.participants_id.map(id => id.toString()).includes(user._id.toString())){
+        throw new ForbiddenError("Vous n'êtes pas inscrit à l'activité")
+    } else if("participants" in activity && activity.participants && !activity.participants.some((thuse: any) => thuse._id.toString() == user._id.toString())){
+        throw new ForbiddenError("Vous n'êtes pas inscrit à l'activité")
+    }
+
     const activityResult = await ActivityTable.updateOne(
         { _id: activity._id },
-        { $pull: { participants_id: user._id } }
+        { $pull: { participants_id: user._id },
+          $inc: {reserved_place: -1}},
+        { runValidators: true }
     );
 
     // Narrow the type to get the channel ID
@@ -389,7 +251,12 @@ export async function leaveActivityById(user: User, activity: Activity | FilledA
         { $pull: { members: user._id } }
     );
 
-    return activityResult.modifiedCount > 0 && channelResult.modifiedCount > 0;
+    const userResult = await UserTable.updateOne(
+        { _id: user._id },
+        { $pull: { group_chat_list_ids: channelId } }
+    );
+
+    return activityResult.modifiedCount > 0 && channelResult.modifiedCount > 0 && userResult.modifiedCount > 0;
 }
 
 export async function deleteActivity(activity: FilledActivity): Promise<boolean> {
@@ -429,6 +296,9 @@ export function toActivityObject(activityDoc: any): FilledActivity {
         channel_chat: obj.channel_chat_id ? objectToChannel(obj.channel_chat_id) : null,
         publication: obj.publication_id ? objectToPublication(obj.publication_id): null,
         participants: obj.participants_id ? obj.participants_id.map((user: any) => toUserObject(user)) : null,
+        location: obj.location,
+        max_place: obj.max_place,
+        reserved_place: obj.reserved_place,
     };
 }
 
@@ -441,6 +311,9 @@ export function ActivityToPublicActivity(activity : FilledActivity | null): Publ
         created_at: activity.created_at,
         date_reservation: activity.date_reservation,
         author: activity.author,
-        publication: activity.publication
+        publication: activity.publication,
+        location: activity.location,
+        max_place: activity.max_place,
+        reserved_place: activity.reserved_place,
     }
 }

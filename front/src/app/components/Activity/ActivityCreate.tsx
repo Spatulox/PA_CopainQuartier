@@ -8,11 +8,14 @@ type CreateActivityType = {
 
 function CreateActivity({onUpdate}: CreateActivityType){
     const [err, setErrors] = useState<any>()
+
     const fields: FieldForm[] = [
         { name: "title", label: "Nom de l'activité", type: "text", required: true },
         { name: "description", label: "Description", type: "text", required: true },
+        { name: "location", label: "Lieu", type: "text", required: true },
         { name: "date", label: "Date", type: "date", required: true },
         { name: "hour", label: "Heure", type: "time", required: true },
+        { name: "max_place", label: "Nombre de Places", type: "number", required: true },
       ];
       
       type ActivityForm = {
@@ -21,9 +24,11 @@ function CreateActivity({onUpdate}: CreateActivityType){
         date_reservation: string,
         date: string,
         hour: string,
+        location: string,
+        max_place: number,
       };
     
-      async function handleCreateChannel(formData: ActivityForm): Promise<void> {
+      async function handleCreateActivity(formData: ActivityForm): Promise<void> {
         const client = new ActivityClass()
         try{
           formData.date_reservation = formData.date + "T" + formData.hour + ":00Z"
@@ -32,6 +37,7 @@ function CreateActivity({onUpdate}: CreateActivityType){
           setErrors([])
         } catch(e){
           setErrors(client.errors)
+          throw client.errors
         }
       }
       
@@ -40,8 +46,8 @@ function CreateActivity({onUpdate}: CreateActivityType){
           title="Créer une Activité"
           fields={fields}
           APIerrors={err}
-          initialFormData={{ title: "", description: "", date_reservation: "", date: "", hour: "" }}
-          onSubmit={handleCreateChannel}
+          initialFormData={{ title: "", description: "", date_reservation: "", date: "", hour: "", location: "", max_place: 0 }}
+          onSubmit={handleCreateActivity}
           submitLabel="Créer"
           buttonLabel="Créer une Activité"
         />

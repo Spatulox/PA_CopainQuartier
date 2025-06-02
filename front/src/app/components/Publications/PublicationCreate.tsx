@@ -47,11 +47,11 @@ function CreatePublication({onUpdate}: CreatePublicationType){
         if(!client){return}
         try{
             await client.createPublication(formData)
-            alert("Publication créé !\nNom: " + formData.name + "\nDescription: " + formData.description);
             onUpdate("update")
             setErrors([])
         } catch(e){
             setErrors(client.errors)
+            throw client.errors
         }
     }
     

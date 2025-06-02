@@ -30,9 +30,9 @@ function UserList({message}: UserListType){
                 const use = await client.getUsers()
                 if(use){
                     setUsers(use)
-                } else {
-                    setNotFound(false)
+                    setNotFound(true)
                 }
+                setNotFound(false)
                 setErrors(null)
             } catch(e){
                 setErrors(client.errors)

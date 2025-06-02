@@ -40,6 +40,7 @@ function Publications(){
                             setNotFound(true)
                             return
                         }
+                        setNotFound(false)
                         setPublications(pub)
                         setErrors(null)
                     } catch(e){
@@ -53,6 +54,8 @@ function Publications(){
                             setNotFound(true)
                             return
                         }
+
+                        setNotFound(false)
                         setPublications(pub)
                         setErrors(null)
                     } catch(e){

@@ -4,10 +4,12 @@ import { ChannelAuth, ChannelTable } from "../../DB_Schema/ChannelSchema";
 import { CreateChannelParam, PostMessageParam, TransferChannelParam, UpdateChannelParam } from "../../Validators/channels";
 import { FilledUser, User } from "../../Models/UserModel";
 import { UserRole, UserTable } from "../../DB_Schema/UserSchema";
-import { toUserObject } from "../users/usersPublic";
-import { toActivityObject } from "../activities/activities";
+import { getUserById, toUserObject } from "../users/usersPublic";
+import { getActivityById, toActivityObject } from "../activities/activities";
 import { ObjectID } from "../../DB_Schema/connexion";
 import { ActivityTable } from "../../DB_Schema/ActivitiesSchema";
+import { ac } from "@faker-js/faker/dist/airline-CBNP41sR";
+import { id_ID } from "@faker-js/faker/.";
 
 export async function getChannelById(channel_id: ObjectID): Promise<FilledChannel | null>{
     const res = await ChannelTable.findById(channel_id)
@@ -28,7 +30,18 @@ export async function getPublicChannelById(channel_id: ObjectID): Promise<Public
 
 export async function getMyChannel(user: User): Promise<FilledChannel[] | null>{
     const res = await ChannelTable.find({
-        admin_id: user._id
+        $or: [
+            { admin_id: user._id },
+            { members: user._id }
+        ]
+    }).lean().exec();
+
+    return res.map(objectToChannel);
+}
+
+export async function getAllChannelImInside(user: User): Promise<FilledChannel[] | null>{
+    const res = await ChannelTable.find({
+        members: user._id
     }).lean().exec()
     return res.map(objectToChannel);
 }
@@ -67,6 +80,37 @@ export async function createChannel(user: User, data: CreateChannelParam): Promi
             { _id: user._id },
             { $addToSet: { group_chat_list_ids: channeltmp._id } }
         );
+    }
+
+    if("activity_id_linked" in data){
+        const activityTmp = await ActivityTable.updateOne(
+            {_id: data.activity_id_linked},
+            {channel_chat_id: channeltmp.id}
+        )
+        
+        let acti = null;
+        if (data.activity_id_linked) {
+            acti = await getActivityById(data.activity_id_linked);
+        }
+
+
+        if (acti?.participants && acti.participants.length > 0) {
+            // Récupérer les IDs des participants de l'activité
+            const user_ids = acti?.participants
+                ? acti.participants.map((part) => new ObjectID(part._id)).filter(Boolean)
+                : [];
+
+            // Ajouter les participants comme membres du nouveau channel
+            channeltmp.members.push(...user_ids);
+
+            await channeltmp.save();
+
+            // Pour chaque utilisateur, ajouter le channel à leur liste de groupes
+            await UserTable.updateMany(
+                { _id: { $in: user_ids } },
+                { $addToSet: { group_chat_list_ids: channeltmp._id } }
+            );
+        }
     }
 
     return objectToChannel(channeltmp);
@@ -134,7 +178,7 @@ export async function deleteChannelLinkedTOActivity(channel_id: ObjectID, activi
 
     const res2 = await ActivityTable.updateOne(
         { _id: activity_id },
-        { $pull: { channel_chat_id: channel_id } }
+        { $set: { channel_chat_id: null } }
     );
 
     return res.deletedCount > 0 && res2.modifiedCount > 0
