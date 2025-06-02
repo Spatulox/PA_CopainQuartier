@@ -37,6 +37,7 @@ const ChatRoom: React.FC<Props> = ({
           <li>Crée le : {new Date(chat.created_at).toDateString()}</li>
           <li>Droits : {chat.member_auth}</li>
         </ul>
+        <p className="chat-description">{chat.description}</p>
       </div>
     </div>
     <div id="status" style={{ color: statusColor, marginBottom: 8 }}>{status}</div>

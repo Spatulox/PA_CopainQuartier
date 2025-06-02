@@ -9,6 +9,7 @@ import Loading from "../shared/loading";
 import { useAuth } from "../shared/auth-context";
 import Errors from "../shared/errors";
 import { ErrorMessage } from "../../../api/client";
+import { popup } from "../../scripts/popup-slide";
 
 type ListProps = {
   channels: Channel[];
@@ -24,6 +25,7 @@ export function ChannelList(/*{ channels }: ListSimpleProps*/) {
   const navigate = useNavigate()
   const [channel, setChannel] = useState<Channel[]>([])
   const [err, setErrors] = useState<ErrorMessage | null>(null)
+  const {me, isAdmin} = useAuth()
 
   useEffect(() => {
     (async () => {
@@ -46,39 +48,49 @@ export function ChannelList(/*{ channels }: ListSimpleProps*/) {
       return <Errors errors={err} />
   }
 
+  async function handlAction(channel: Channel, user_id: string | undefined){
+    if(!me){
+      popup("Impossible de réaliser l'action")
+      return
+    }
+
+    const client = new ChatClass()
+    if(channel.admin?._id == me?._id){
+      try{
+        await client.deleteChat(channel._id)
+        const chan = await client.getChannel()
+        setChannel(chan)
+        setErrors(null)
+      } catch(e){
+        setErrors(client.errors)
+      } 
+    } else {
+      try{  
+        await client.leaveChat(channel._id)
+        const chan = await client.getChannel()
+        setChannel(chan)
+        setErrors(null)
+      } catch(e){
+        setErrors(client.errors)
+      }
+    }
+  }
+
   return (
   <div>
     <h2>Mes channels</h2>
     {channel.length === 0 ? (
       <p>Aucun channel trouvé.</p>
     ) : (
-      channel.map((chan) => (
-        <p key={chan._id}>
-          <Link to={`/chat/${chan._id}`}>{chan.name}</Link>
-        </p>
-      ))
-    )}
-  </div>
-  )
-}
-
-export function ManageChannelList({ channels, action, user }: ListProps) {
-  return (
-  <div>
-    <h2>Mes channels</h2>
-    {channels.length === 0 ? (
-      <p>Aucun channel trouvé.</p>
-    ) : (
-      channels.map((channel) => (
+      channel.map((channel) => (
         <p key={channel._id}>
           <button><Link to={`${Route.chat}/${channel._id}`}>{channel.name}</Link></button>
-          <span>{channel.description}</span>
-          <button onClick={()=>action(channel._id, user?._id)}>
-              {user?._id == channel.admin?._id ? "Supprimer le Chat" : "Quitter le Chat"}
+          <button onClick={()=>handlAction(channel, me?._id)}>
+              {me?._id == channel.admin?._id ? "Supprimer le Chat" : "Quitter le Chat"}
           </button>
         </p>
       ))
     )}
   </div>
   )
-};
+}
