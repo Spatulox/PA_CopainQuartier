@@ -5,7 +5,7 @@ import { CreateChannelParam, PostMessageParam, TransferChannelParam, UpdateChann
 import { FilledUser, User } from "../../Models/UserModel";
 import { UserRole, UserTable } from "../../DB_Schema/UserSchema";
 import { toUserObject } from "../users/usersPublic";
-import { toActivityObject } from "../activities/activities";
+import { getActivityById, toActivityObject } from "../activities/activities";
 import { ObjectID } from "../../DB_Schema/connexion";
 import { ActivityTable } from "../../DB_Schema/ActivitiesSchema";
 
@@ -78,6 +78,13 @@ export async function createChannel(user: User, data: CreateChannelParam): Promi
             { _id: user._id },
             { $addToSet: { group_chat_list_ids: channeltmp._id } }
         );
+    }
+
+    if("activity_id_linked" in data){
+        const activityTmp = await ActivityTable.updateOne(
+            {_id: data.activity_id_linked},
+            {channel_chat_id: channeltmp.id}
+        )
     }
 
     return objectToChannel(channeltmp);
