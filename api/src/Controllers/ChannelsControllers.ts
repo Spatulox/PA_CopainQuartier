@@ -42,7 +42,10 @@ export class ChannelsController {
         try{
             const channel = await getChannelById(validId)
             // If the user is inside the channel, can see all data
-            if(channel?.members.includes(user._id) || channel?.admin?._id == user._id){
+            if (
+                channel?.members.some(id => id._id.toString() === user._id.toString()) ||
+                channel?.admin?._id.toString() === user._id.toString()
+            ){
                 return channel
             }
             // If the user is outside the channel, can only see the Public data (name, type, description...)
