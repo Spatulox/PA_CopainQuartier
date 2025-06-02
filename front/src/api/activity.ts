@@ -1,3 +1,4 @@
+import { Channel } from "./chat";
 import { ApiClient } from "./client";
 import { Publication } from "./publications";
 import { User } from "./user";
@@ -9,7 +10,7 @@ export type Activity = {
     created_at: Date,
     date_reservation: Date,
     author: User,
-    channel_chat: string,
+    channel_chat: Channel,
     publication: Publication,
     participants: User[],
     location: string,
