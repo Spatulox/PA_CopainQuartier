@@ -56,6 +56,10 @@ function ApproveTroc(){
         return <NotFound />
     }
 
+    if(troc && troc.length == 0){
+        return <p>Aucun troc à approver trouvé</p>
+    }
+
     return <>
         <div>
             <h1>Approuver Troc</h1>
