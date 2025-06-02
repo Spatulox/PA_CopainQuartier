@@ -267,10 +267,6 @@ function ManagePublication(){
         }
     }, [isAdmin, id, navigate]);
 
-    if(!id){
-        return <Loading title="Chargement des Publications"/>
-    }
-
     if(id){
         return <><ManageOnePublication /></>
     }
