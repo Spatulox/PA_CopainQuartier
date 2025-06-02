@@ -23,7 +23,7 @@ type ListSimpleProps = {
 
 export function ChannelList(/*{ channels }: ListSimpleProps*/) {
   const navigate = useNavigate()
-  const [channel, setChannel] = useState<Channel[]>([])
+  const [channel, setChannel] = useState<Channel[] | null>(null)
   const [err, setErrors] = useState<ErrorMessage | null>(null)
   const {me, isAdmin} = useAuth()
 
@@ -40,8 +40,11 @@ export function ChannelList(/*{ channels }: ListSimpleProps*/) {
     })()
   }, [])
 
-  if(channel && channel.length == 0){
+  if(channel == null){
     return <Loading title="Chargement des channels" />
+  }
+  if(channel && channel.length == 0){
+    return <><h2>Channels</h2><p>Pas de channels</p></>
   }
 
   if(err != null){
