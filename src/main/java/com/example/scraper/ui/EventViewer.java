@@ -3,62 +3,61 @@ package com.example.scraper.ui;
 import com.example.scraper.EvousScraper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import org.w3c.dom.*;
-
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 
 public class EventViewer {
     private final TableView<Event> table = new TableView<>();
+    private final ObservableList<Event> data = FXCollections.observableArrayList();
 
     public BorderPane getView() {
-
         TableColumn<Event, String> titleCol = new TableColumn<>("Titre");
-        titleCol.setCellValueFactory(data -> data.getValue().titleProperty());
+        titleCol.setCellValueFactory(param -> param.getValue().titleProperty());
 
         TableColumn<Event, String> dateCol = new TableColumn<>("Date");
-        dateCol.setCellValueFactory(data -> data.getValue().dateProperty());
+        dateCol.setCellValueFactory(param -> param.getValue().dateProperty());
 
         table.getColumns().addAll(titleCol, dateCol);
-        table.setItems(loadData());
-
+        table.setItems(data);
 
         Button scrapeButton = new Button("Lancer le scraping");
         scrapeButton.setOnAction(e -> {
             new EvousScraper().scrape();
-            table.setItems(loadData());
+            loadData(); // recharge les données après scraping
         });
 
+        VBox vbox = new VBox(10, scrapeButton, table);
+
+        loadData();
 
         BorderPane root = new BorderPane();
-        root.setCenter(table);
-        root.setBottom(scrapeButton);
-        BorderPane.setMargin(scrapeButton, new Insets(10));
-
+        root.setCenter(vbox);
         return root;
     }
 
-    private ObservableList<Event> loadData() {
-        ObservableList<Event> data = FXCollections.observableArrayList();
+    private void loadData() {
+        data.clear();
+
         try {
             File xmlFile = new File("events.xml");
-            if (!xmlFile.exists()) return data;
+            if (!xmlFile.exists()) return;
 
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xmlFile);
-            NodeList events = doc.getElementsByTagName("event");
+            NodeList nodes = doc.getElementsByTagName("event");
 
-            for (int i = 0; i < events.getLength(); i++) {
-                Element elem = (Element) events.item(i);
-                String title = elem.getElementsByTagName("title").item(0).getTextContent();
-                String date = elem.getElementsByTagName("date").item(0).getTextContent();
+            for (int i = 0; i < nodes.getLength(); i++) {
+                Element event = (Element) nodes.item(i);
+                String title = event.getElementsByTagName("title").item(0).getTextContent();
+                String date = event.getElementsByTagName("date").item(0).getTextContent();
                 data.add(new Event(title, date));
             }
+
         } catch (Exception e) {
-            System.err.println("Erreur chargement XML : " + e.getMessage());
+            System.err.println("Erreur lecture XML : " + e.getMessage());
         }
-        return data;
     }
 }
