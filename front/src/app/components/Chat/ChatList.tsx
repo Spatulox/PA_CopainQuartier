@@ -1,8 +1,6 @@
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Channel, ChatClass } from "../../../api/chat";
 import { User } from "../../../api/user";
-import { FieldForm, PopupForm } from "../Popup/PopupForm";
-import { ShowChat, ShowChatButton } from "./SingleChat";
 import { Route } from "../../constantes";
 import { useEffect, useState } from "react";
 import Loading from "../shared/loading";
@@ -10,6 +8,7 @@ import { useAuth } from "../shared/auth-context";
 import Errors from "../shared/errors";
 import { ErrorMessage } from "../../../api/client";
 import { popup } from "../../scripts/popup-slide";
+import { CreateChannel } from "./ChatCreate";
 
 type ListProps = {
   channels: Channel[];
@@ -82,18 +81,23 @@ export function ChannelList(/*{ channels }: ListSimpleProps*/) {
   return (
   <div>
     <h2>Mes channels</h2>
-    {channel.length === 0 ? (
-      <p>Aucun channel trouvé.</p>
-    ) : (
-      channel.map((channel) => (
-        <p key={channel._id}>
-          <button><Link to={`${Route.chat}/${channel._id}`}>{channel.name}</Link></button>
-          <button onClick={()=>handlAction(channel, me?._id)}>
-              {me?._id == channel.admin?._id ? "Supprimer le Chat" : "Quitter le Chat"}
-          </button>
-        </p>
-      ))
-    )}
+    <div>
+      {channel.length === 0 ? (
+        <p>Aucun channel trouvé.</p>
+      ) : (
+        channel.map((channel) => (
+          <p key={channel._id}>
+            <button><Link to={`${Route.chat}/${channel._id}`}>{channel.name}</Link></button>
+            <button onClick={()=>handlAction(channel, me?._id)}>
+                {me?._id == channel.admin?._id ? "Supprimer le Chat" : "Quitter le Chat"}
+            </button>
+          </p>
+        ))
+      )}
+    </div>
+    <div>
+      <CreateChannel action={() => {}} />
+    </div>
   </div>
   )
 }
