@@ -5,9 +5,10 @@ import { Activity, ActivityClass } from "../../../api/activity";
 
 type CreateProps = {
   action: () => void
+  update: number
 }
 
-export function CreateChannel({action} : CreateProps){
+export function CreateChannel({action, update} : CreateProps){
   const [err, setErrors] = useState<any>()
   const [activity, setActivity] = useState<Activity[] | null>(null)
   
@@ -27,7 +28,7 @@ export function CreateChannel({action} : CreateProps){
         setErrors(client.errors)
       }
     })()
-  }, [])
+  }, [update])
 
   function getActivityArrayToValueLabel(): { value: string; label: string }[]{
     return activity?.map((a:Activity) => ({value: a._id, label: a.title})) ?? []
@@ -37,7 +38,7 @@ export function CreateChannel({action} : CreateProps){
     { name: "name", label: "Nom du channel", type: "text", required: true },
     { name: "description", label: "Description", type: "text", required: true },
     { name: "type", label: "Type", type: "select", value: ["text", "vocal"], required: true },
-    { name: "activity_id_linked", label: "Activity (optionnal)", type: "select", value: getActivityArrayToValueLabel(), required: false },
+    { name: "activity_id_linked", label: "Lier une Activité (optionnal)", type: "select", value: getActivityArrayToValueLabel(), required: false },
   ];
 
   async function handleCreateChannel(formData: ChannelForm): Promise<void> {

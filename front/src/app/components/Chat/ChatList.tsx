@@ -25,6 +25,7 @@ export function ChannelList(/*{ channels }: ListSimpleProps*/) {
   const [channel, setChannel] = useState<Channel[] | null>(null)
   const [err, setErrors] = useState<ErrorMessage | null>(null)
   const {me, isAdmin} = useAuth()
+  const [onDelete, setOnDelete] = useState(0)
 
   useEffect(() => {
     (async () => {
@@ -41,9 +42,6 @@ export function ChannelList(/*{ channels }: ListSimpleProps*/) {
 
   if(channel == null){
     return <Loading title="Chargement des channels" />
-  }
-  if(channel && channel.length == 0){
-    return <><h2>Channels</h2><p>Pas de channels</p></>
   }
 
   if(err != null){
@@ -65,7 +63,7 @@ export function ChannelList(/*{ channels }: ListSimpleProps*/) {
         setErrors(null)
       } catch(e){
         setErrors(client.errors)
-      } 
+      }
     } else {
       try{  
         await client.leaveChat(channel._id)
@@ -76,6 +74,7 @@ export function ChannelList(/*{ channels }: ListSimpleProps*/) {
         setErrors(client.errors)
       }
     }
+    setOnDelete(r => r +1)
   }
 
   return (
@@ -96,7 +95,7 @@ export function ChannelList(/*{ channels }: ListSimpleProps*/) {
       )}
     </div>
     <div>
-      <CreateChannel action={() => {}} />
+      <CreateChannel update={onDelete} action={() => {}} />
     </div>
   </div>
   )
