@@ -83,7 +83,7 @@ export class ActivityController{
             throw new NotFoundError("Activity not found")
         }
         if(!await joinActivityById(user, activity)){
-            throw new BadRequestError()
+            throw new BadRequestError("Une erreur est survenue")
         }
         return true
     }
@@ -98,7 +98,7 @@ export class ActivityController{
             throw new NotFoundError("Activity not found")
         }
         if(!await leaveActivityById(user, activity)){
-            throw new BadRequestError()
+            throw new BadRequestError("une erreur est survenue")
         }
         return true
     }
