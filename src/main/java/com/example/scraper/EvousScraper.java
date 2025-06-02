@@ -11,7 +11,6 @@ public class EvousScraper implements SiteScraper {
     @Override
     public void scrape() {
         try {
-
             Document doc = Jsoup.connect(URL)
                     .userAgent("Mozilla/5.0")
                     .get();
@@ -32,7 +31,6 @@ public class EvousScraper implements SiteScraper {
                 System.out.println("📅 Date  : " + date);
                 System.out.println("--------------------------");
 
-                // Enregistrement
                 Database.saveEvent(title, href, date, "concert", "evous.fr");
             }
 
