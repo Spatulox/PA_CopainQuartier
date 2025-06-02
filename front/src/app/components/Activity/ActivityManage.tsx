@@ -231,6 +231,7 @@ function ManageOneActivity(){
           setShowConfirm(false);
           setDeleteId(null);
           setDelErrors(null)
+          navigate(Route.manageActivity)
         } catch(e){
           setDelErrors(client.errors)
         }
