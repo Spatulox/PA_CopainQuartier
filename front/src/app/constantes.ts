@@ -5,6 +5,7 @@ export const enum Route {
     login = "/login",
     register = "/register",
     resetPassword = "/reset",
+    invite = "/invites",
 
     account = "/account",
     manageMyAccount = "/account/manage/me",
