@@ -5,6 +5,7 @@ import { getCurrentUserByToken } from '../Middleware/auth';
 import { getUserById } from '../Services/users/usersPublic';
 import { ObjectID } from '../DB_Schema/connexion';
 import { UserRole, UserTable } from '../DB_Schema/UserSchema';
+import { Channel, FilledChannel } from '../Models/ChannelModel';
 
 // --- Stockage des connexions et abonnements ---
 export const accessMap = new Map<WebSocket, number>();
@@ -115,6 +116,37 @@ export async function handleMessage(
       clients.forEach(client => send(client, chatMsg));
       await saveMessageToChannel(user, validChannelId, msg);
       return;
+    }
+
+    // Vocal Controller
+    if (msg.type === MsgType.JOIN_VOCAL) {
+      if (!channelClients.has(channel_id + "vocal")) {
+        channelClients.set(channel_id + "vocal", new Set());
+      }
+      channelClients.get(channel_id + "vocal")!.add(ws);
+      return;
+    }
+
+    if (msg.type === MsgType.LEAVE_VOCAL) {
+      if (!channelClients.has(channel_id + "vocal")){
+        channelClients.set(channel_id + "vocal", new Set());
+      }
+      channelClients.get(channel_id + "vocal")!.delete(ws);
+      return;
+    }
+
+    if (msg.type === MsgType.OFFER || msg.type === MsgType.ANSWER || msg.type === MsgType.CANDIDATE) {
+      if (!channelClients.has(channel_id + "vocal")){
+        channelClients.set(channel_id + "vocal", new Set())
+      };
+      const clients = channelClients.get(channel_id + "vocal")
+      clients!.forEach(client => {
+        if (client !== ws){
+          client.send(JSON.stringify(msg));
+        }
+      });
+      console.log(msg)
+      return
     }
 
     // --- Type inconnu ---
