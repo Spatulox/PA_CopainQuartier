@@ -5,12 +5,33 @@ import NotFound from "../shared/notfound";
 import { Channel, ChatClass, Message } from "../../../api/chat";
 import ChatRoom, { ChannelRight } from "./ChatRoom";
 import { ChannelList } from "./ChatList";
+import { popup } from "../../scripts/popup-slide";
 
 enum MsgType {
   INIT = "INIT",
   HISTORY = "HISTORY",
   MESSAGE = "MESSAGE",
   ERROR = "ERROR",
+  OFFER = "OFFER",
+  ANSWER = "ANSWER",
+  CANDIDATE = "ICE-CANDIDATE",
+  JOIN_VOCAL = "JOIN_VOCAL",
+  LEAVE_VOCAL = "LEAVE_VOCAL",
+}
+
+type OfferMsg = {
+  type: string,
+  offer: any // (c'est un truc chelou)
+}
+
+type IceCandidateMsg = {
+  type: string,
+  candidate: {
+    candidate: string,
+    sdpMLineIndex: number,
+    sdpMid: string,
+    usernameFragment: string
+  }
 }
 
 function ChatPage() {
@@ -22,8 +43,13 @@ function ChatPage() {
   const [token, setToken] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [status, setStatus] = useState("Déconnecté");
+  const [vocalStatus, setVocalStatus] = useState("Déconnecté");
   const [channel, setChannel] = useState<Channel | null>(null);
+  
   const wsRef = useRef<WebSocket | null>(null);
+  const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
+  const localStreamRef = useRef<MediaStream | null>(null);
+  
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   // Pour le reconnexion automatique
@@ -65,14 +91,13 @@ function ChatPage() {
 
     ws.onerror = () => {
       setStatus("Erreur");
-      ws.close(); // Ferme pour déclencher onclose et donc la reconnexion
+      ws.close();
     };
 
     ws.onmessage = async (event) => {
       let data = typeof event.data === "string" ? event.data : await event.data.text();
       let msg;
       try { msg = JSON.parse(data); } catch { return; }
-
       if (msg.type === MsgType.ERROR) {
         alert(msg.error);
         ws.close();
@@ -80,8 +105,146 @@ function ChatPage() {
       }
       if (msg.type === MsgType.HISTORY) setMessages(msg.messages);
       if (msg.type === MsgType.MESSAGE) setMessages(prev => [...prev, msg]);
+      if (msg.type === MsgType.OFFER) onOffer(msg)
+      if (msg.type === MsgType.ANSWER) onAnswer(msg)
+      if (msg.type === MsgType.CANDIDATE) onCandidate(msg)
     };
   }, [id]);
+
+
+  async function onOffer(msg: OfferMsg){
+    let pc = peerConnectionRef.current;
+    if (!pc) {
+      pc = new RTCPeerConnection({
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+      });
+      peerConnectionRef.current = pc;
+
+      pc.ontrack = event => {
+        setVocalStatus("Connecté");
+        const audio = document.getElementById("remoteAudio") as HTMLAudioElement;
+        if (audio) {
+          audio.srcObject = event.streams[0];
+          audio.muted = false
+          audio.autoplay = true
+          audio.volume = 1
+          audio.play();
+        }
+      };
+
+      pc.onicecandidate = event => {
+        if (event.candidate && wsRef.current) {
+          wsRef.current.send(JSON.stringify({ type: MsgType.CANDIDATE, candidate: event.candidate }));
+        }
+      };
+    }
+
+    await pc.setRemoteDescription(new RTCSessionDescription(msg.offer));
+
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    localStreamRef.current = stream;
+    stream.getTracks().forEach(track => pc.addTrack(track, stream));
+
+    const answer = await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+    wsRef.current!.send(JSON.stringify({ type: MsgType.ANSWER, answer }));
+  }
+
+
+
+  async function onAnswer(msg: any){
+    const pc = peerConnectionRef.current;
+    if (pc) {
+      await pc.setRemoteDescription(new RTCSessionDescription(msg.answer));
+    }
+  }
+
+  async function onCandidate(msg: IceCandidateMsg){
+    const pc = peerConnectionRef.current;
+    if (pc && msg.candidate) {
+      try {
+        await pc.addIceCandidate(new RTCIceCandidate(msg.candidate));
+      } catch (e) {
+        console.error("Erreur ICE candidate", e);
+      }
+    }
+  }
+
+  const startVoiceChat = async () => {
+    if(!wsRef || !wsRef.current){
+      popup("Impossible de se connecter au vocal")
+      return;
+    }
+    wsRef.current!.send(JSON.stringify({ type: MsgType.JOIN_VOCAL, token: token }));
+
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    localStreamRef.current = stream;
+
+    const pc = new RTCPeerConnection({
+      iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+    });
+    peerConnectionRef.current = pc;
+
+    stream.getTracks().forEach(track => pc.addTrack(track, stream));
+    const ws = wsRef
+    if(!ws || !ws.current){
+      popup("Impossible se se connecter")
+      return
+    }
+
+    pc.onicecandidate = event => {
+      if (event.candidate && ws.current) {
+        ws.current.send(JSON.stringify({ type: MsgType.CANDIDATE, candidate: event.candidate }));
+      }
+    };
+
+    pc.ontrack = event => {
+      setVocalStatus("Connecté")
+      const audio = document.getElementById("remoteAudio") as HTMLAudioElement;
+      if(!audio){
+        popup("Problème d'audio")
+        return
+      }
+      audio.srcObject = event.streams[0];
+      audio.autoplay = true;
+      audio.muted = false;
+      audio.volume = 1
+      audio.play();
+    };
+
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    ws.current.send(JSON.stringify({ type: MsgType.OFFER, offer }));
+  };
+
+  function leaveVoiceChat() {
+
+    wsRef.current!.send(JSON.stringify({ type: MsgType.LEAVE_VOCAL, token: token }));
+
+    if (localStreamRef.current) {
+      localStreamRef.current.getTracks().forEach(track => track.stop());
+      localStreamRef.current = null;
+    }
+
+    if (peerConnectionRef.current) {
+      peerConnectionRef.current.close();
+      peerConnectionRef.current = null;
+    }
+
+    /*if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({ type: "LEAVE_CALL" }));
+    }*/
+
+    const audio = document.getElementById("remoteAudio") as HTMLAudioElement | null;
+    if (audio) {
+      audio.srcObject = null;
+      audio.volume = 0
+    }
+
+    setVocalStatus("Déconnecté");
+  }
+
+
 
   // useEffect principal
   useEffect(() => {
@@ -123,12 +286,15 @@ function ChatPage() {
       id={id}
       chat={channel}
       status={status}
+      vocalStatus={vocalStatus}
       statusColor={statusColor}
       memberRight={thechannelAuth}
       messages={messages}
       input={input}
       setInput={setInput}
       handleSubmit={handleSubmit}
+      onStartVoiceChat={startVoiceChat}
+      onLeaveVoiceChat={leaveVoiceChat}
       messagesDivRef={messagesEndRef}
     />
   );
