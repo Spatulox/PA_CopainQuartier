@@ -64,7 +64,7 @@ export async function createChannel(user: User, data: CreateChannelParam): Promi
     const dataToSave: Channel = {
         _id: channel_id,
         name: data.name,
-        type: data.type,
+        type: "text",
         description: data.description,
         admin_id: user._id,
         messages: [mes],
@@ -139,7 +139,12 @@ export async function addSomeoneFromChannel(channel_id: ObjectID, user_id: Objec
         { _id: channel_id },
         { $addToSet: { members: user_id } }
     ).exec();
-    return result.modifiedCount > 0;
+
+    const res = await UserTable.updateOne(
+        {_id: user_id},
+        {$addToSet: {group_chat_list_ids: channel_id}}
+    )
+    return result.modifiedCount > 0 && res.modifiedCount > 0;
 }
 
 
