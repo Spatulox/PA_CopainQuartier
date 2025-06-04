@@ -15,6 +15,7 @@ import { channelClients, handleMessage, accessMap } from './Controllers/Channels
 import { parse } from 'url';
 import { AuthController } from './Controllers/AuthController';
 import cors from 'cors'
+import { InviteController } from './Controllers/InviteController';
 
 
 async function main(){
@@ -42,6 +43,7 @@ async function main(){
       ActivityController,
       AuthController,
       ChannelsController,
+      InviteController,
       PublicationsController,
       TrocController,
       UserController],

@@ -65,21 +65,6 @@ export class ChannelsController {
         return await createChannel(user, validData)
     }
 
-    @Post("/invite/:id")
-    @Authorized()
-    @HttpCode(204)
-    async inviteChannel(@CurrentUser() user: User, @Param("id")id: string):Promise<boolean>{
-        const validID = new ObjectID(zObjectId.parse(id))
-        const channel = getChannelById(validID)
-        if(!channel){
-            throw new NotFoundError("This channel doesn't exist")
-        }
-        if(!await addSomeoneFromChannel(validID, user._id)){
-            throw new BadRequestError()
-        }
-        return true
-    }
-
     @Patch("/:channel_id/adduser/:user_id")
     @Authorized()
     @HttpCode(204)
