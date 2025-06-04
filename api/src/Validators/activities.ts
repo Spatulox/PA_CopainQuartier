@@ -4,6 +4,7 @@ export const zCreateActivity = z.object({
     title: z.string().min(3),
     description: z.string(),
     date_reservation: z.string().datetime(),
+    date_end: z.string().datetime(),
     location: z.string(),
     max_place: z.coerce.number(),
 });
@@ -12,6 +13,7 @@ export const zUpdateActivity = z.object({
     title: z.string().min(3).optional(),
     description: z.string().optional(),
     date_reservation: z.coerce.date().optional(),
+    date_end: z.string().datetime(),
 });
 
 export const zActivityQuery = z.object({

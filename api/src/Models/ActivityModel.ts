@@ -9,6 +9,7 @@ export type Activity = {
     description: string,
     created_at: Date,
     date_reservation: Date,
+    date_end: Date,
     author_id: ObjectId,
     channel_chat_id: ObjectId,
     publication_id: ObjectId,
