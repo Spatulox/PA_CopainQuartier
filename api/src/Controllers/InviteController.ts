@@ -67,7 +67,7 @@ export class InviteController {
     if(!invite){
         throw new BadRequestError("Invite does't not exist wtf")
     }
-    console.log(invite)
+
     if(!invite || !invite.channel_id){
         throw new BadRequestError("This invite doesn't exist")
     }

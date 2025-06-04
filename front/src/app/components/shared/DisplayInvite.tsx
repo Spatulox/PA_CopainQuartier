@@ -57,13 +57,13 @@ function DisplayInvite(){
     if(error != null && error.length > 0){
         return <Errors errors={error} />
     }
-    console.log(invite)
+    if(!invite){
+        return <NotFound />
+    }
     return <>
         <div className="invite">
-            <p>{invite?.channel.name}</p>
-            <ul>
-                <li>Nombre de personnes : {invite?.channel.members.length}</li>
-            </ul>
+            <h3>{invite?.channel.name}</h3>
+            <span>Nombre de personnes : {invite?.channel.members.length}</span>
             <p>{invite?.channel.description}</p>
             <button onClick={handleJoinChat}>Rejoindre</button>
         </div>
