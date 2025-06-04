@@ -141,11 +141,10 @@ export async function handleMessage(
       };
       const clients = channelClients.get(channel_id + "vocal")
       clients!.forEach(client => {
-        if (client !== ws){
-          client.send(JSON.stringify(msg));
+        if(client != ws){ // Avoid sending audio to the client which sent the audio
+          send(client, msg)
         }
       });
-      console.log(msg)
       return
     }
 
