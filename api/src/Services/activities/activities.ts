@@ -82,6 +82,11 @@ export async function getAllPublicActivities(): Promise<PublicFilledActivity[]> 
 }
 
 export async function createActivity(user: User, activity: CreateActivityParam): Promise<FilledActivity | null> {
+
+    if(await inActivity(user, activity) > 0){
+        throw new ForbiddenError("Vous participez déjà à une activité à cette date et heure.");
+    }
+
     // Créer le channel chat
     const channelParam = {
         name: activity.title + " - Chat",
@@ -114,6 +119,7 @@ export async function createActivity(user: User, activity: CreateActivityParam):
         title: activity.title,
         description: activity.description,
         date_reservation: activity.date_reservation,
+        date_end: activity.date_end,
         created_at: new Date(),
         author_id: user._id,
         channel_chat_id: channel._id,
@@ -156,6 +162,12 @@ export async function updateActivity(user: User, body: UpdateActivityParam, act_
     if (!act_id) {
         throw new ForbiddenError("Missing activity ID");
     }
+
+
+    if(await inActivity(user, body) > 1){
+        throw new ForbiddenError("Vous participez déjà à une autre activité à cette date et heure.");
+    }
+
     let doc 
     if(user.role == UserRole.admin){
         doc = await ActivityTable.findOneAndUpdate(
@@ -197,6 +209,10 @@ export async function updateActivity(user: User, body: UpdateActivityParam, act_
 export async function joinActivityById(user: User, activity: FilledActivity): Promise<boolean> {
     if (activity.participants && activity.participants.some((thuse: any) => thuse._id.toString() == user._id.toString() )) {
         throw new ForbiddenError("L'utilisateur participe déjà à cette activité.");
+    }
+
+    if(await inActivity(user, activity) > 0){
+        throw new ForbiddenError("Vous participez déjà à une activité à cette date et heure.");
     }
 
     const activityResult = await ActivityTable.updateOne(
@@ -292,6 +308,7 @@ export function toActivityObject(activityDoc: any): FilledActivity {
         description: obj.description,
         created_at: obj.created_at,
         date_reservation: obj.date_reservation,
+        date_end: obj.date_end,
         author: obj.author_id ? toUserObject(obj.author_id) : null,
         channel_chat: obj.channel_chat_id ? objectToChannel(obj.channel_chat_id) : null,
         publication: obj.publication_id ? objectToPublication(obj.publication_id): null,
@@ -310,10 +327,24 @@ export function ActivityToPublicActivity(activity : FilledActivity | null): Publ
         description: activity.description,
         created_at: activity.created_at,
         date_reservation: activity.date_reservation,
+        date_end: activity.date_end,
         author: activity.author,
         publication: activity.publication,
         location: activity.location,
         max_place: activity.max_place,
         reserved_place: activity.reserved_place,
     }
+}
+
+
+
+
+async function inActivity(user: User, activity: CreateActivityParam | UpdateActivityParam | FilledActivity): Promise<number>{
+    const conflictingActivities = await ActivityTable.find({
+        participants_id: user._id,
+        date_reservation: { $lt: activity.date_end },
+        date_end: { $gt: activity.date_reservation }
+    });
+
+    return conflictingActivities.length
 }
