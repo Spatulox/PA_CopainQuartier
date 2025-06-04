@@ -33,6 +33,7 @@ function ChatPage() {
   // Fonction pour ouvrir la connexion WebSocket
   const openWebSocket = React.useCallback(() => {
     if (!id) return;
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) return;
 
     const ws = new window.WebSocket(`ws://localhost:3000/channel/${id}`);
     wsRef.current = ws;
