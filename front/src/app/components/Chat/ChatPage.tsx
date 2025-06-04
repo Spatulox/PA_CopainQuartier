@@ -50,7 +50,7 @@ function ChatPage() {
     ws.onopen = () => {
       setStatus("Connecté");
       reconnectDelay.current = 1000;
-      ws.send(JSON.stringify({ type: MsgType.INIT, token: user.getAuthToken() }));
+      ws.send(JSON.stringify({ type: MsgType.INIT, token: user.getAuthToken() })); // if using token instead of user.getauthToken, the api will crash (and send 401)
       setMessages([]);
     };
 
