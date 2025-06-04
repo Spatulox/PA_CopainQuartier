@@ -23,7 +23,7 @@ export class InviteClass extends ApiClient {
         let res = await this.Post(`${this.url}`, {channel_id: id_to_link_to_an_invite})
         if("channel_id" in res){
             res = res as PublicInvite
-            return `${this.baseURL}${this.url}/${res._id}`
+            return `${window.location.origin}${this.url}/${res._id}`
         }
         return res
     }
