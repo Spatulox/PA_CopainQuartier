@@ -59,10 +59,11 @@ export async function getAllChannel(user: User): Promise<FilledChannel[] | null>
 
 export async function createChannel(user: User, data: CreateChannelParam): Promise<FilledChannel | null>{
     const mes: Message = createMessage("This is the start of the conversation", null)
+    const channel_id = new ObjectID()
 
-    const dataToSave: any = {
+    const dataToSave: Channel = {
+        _id: channel_id,
         name: data.name,
-        publication_id: null,
         type: data.type,
         description: data.description,
         admin_id: user._id,
@@ -70,7 +71,7 @@ export async function createChannel(user: User, data: CreateChannelParam): Promi
         members: [user._id],
         member_auth: ChannelAuth.read_send,
         created_at: new Date(),
-        activity_id: data.activity_id_linked ? data.activity_id_linked : undefined
+        activity_id: data.activity_id_linked ? new ObjectID(data.activity_id_linked) : null
 
     }
 
@@ -78,14 +79,14 @@ export async function createChannel(user: User, data: CreateChannelParam): Promi
     if (channeltmp && channeltmp._id) {
         await UserTable.updateOne(
             { _id: user._id },
-            { $addToSet: { group_chat_list_ids: channeltmp._id } }
+            { $addToSet: { group_chat_list_ids: channel_id } }
         );
     }
 
     if("activity_id_linked" in data){
         const activityTmp = await ActivityTable.updateOne(
             {_id: data.activity_id_linked},
-            {channel_chat_id: channeltmp.id}
+            {channel_chat_id: channel_id}
         )
         
         let acti = null;
@@ -108,7 +109,7 @@ export async function createChannel(user: User, data: CreateChannelParam): Promi
             // Pour chaque utilisateur, ajouter le channel à leur liste de groupes
             await UserTable.updateMany(
                 { _id: { $in: user_ids } },
-                { $addToSet: { group_chat_list_ids: channeltmp._id } }
+                { $addToSet: { group_chat_list_ids: channel_id } }
             );
         }
     }

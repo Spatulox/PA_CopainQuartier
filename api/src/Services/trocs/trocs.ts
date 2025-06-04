@@ -5,6 +5,7 @@ import { User } from "../../Models/UserModel";
 import { CreateTrocBody, UpdateTrocBody } from "../../Validators/trocs";
 import { toUserObject } from "../users/usersPublic";
 import { ObjectId } from "mongodb";
+import { ObjectID } from "../../DB_Schema/connexion";
 
 export function toTrocObject(doc: any): FilledTroc {
     return {
@@ -48,7 +49,9 @@ export async function getTrocById(id: ObjectId): Promise<FilledTroc | null> {
 
 // POST : Création (toujours waitingForApproval)
 export async function createTroc(trocBody: CreateTrocBody, user: User): Promise<FilledTroc> {
-    const data = {
+    const troc_id = new ObjectID()
+    const data: Troc = {
+        _id: troc_id,
         ...trocBody,
         author_id: user._id,
         description : trocBody.description,
