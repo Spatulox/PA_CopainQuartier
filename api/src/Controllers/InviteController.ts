@@ -54,7 +54,7 @@ export class InviteController {
   @HttpCode(204)
   async joinInvite(@CurrentUser() user: User, @Param("id") id: string): Promise<boolean> {
     const validID = new ObjectID(zObjectId.parse(id))
-    let invite: FilledInvite | null
+    let invite: Invite | null
     try{
         invite = await InviteTable.findById(validID)
         if(!invite){
@@ -64,13 +64,24 @@ export class InviteController {
         console.error(e)
         throw new InternalServerError("Something went wrong")
     }
-
-    const channel = getChannelById(invite?._id)
+    if(!invite){
+        throw new BadRequestError("Invite does't not exist wtf")
+    }
+    console.log(invite)
+    if(!invite || !invite.channel_id){
+        throw new BadRequestError("This invite doesn't exist")
+    }
+    const channel = await getChannelById(invite.channel_id)
     if(!channel){
         throw new NotFoundError("This channel doesn't exist")
     }
-    if(!await addSomeoneFromChannel(validID, user._id)){
+    
+    const res = await addSomeoneFromChannel(new ObjectID(channel._id), user._id)
+    if(!res && res != null){
         throw new BadRequestError()
+    }
+    if(res == null){
+        throw new BadRequestError("Vous êtes déjà dans ce channel...")
     }
     return true
   }
