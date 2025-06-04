@@ -1,5 +1,6 @@
 package com.example.scraper;
 
+import com.example.scraper.ui.Event;
 import org.w3c.dom.*;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
@@ -8,14 +9,15 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Database {
     private static final String FILE_PATH = "events.xml";
-    private static final List<Event> events = new ArrayList<>();
+    private static final List<RawEvent> events = new ArrayList<>();
 
     public static void saveEvent(String title, String url, String date, String type, String source) {
-        events.add(new Event(title, url, date, type, source));
+        events.add(new RawEvent(title, url, date, type, source));
     }
 
     public static void flushToXml() {
@@ -27,7 +29,7 @@ public class Database {
             Element root = doc.createElement("events");
             doc.appendChild(root);
 
-            for (Event e : events) {
+            for (RawEvent e : events) {
                 Element event = doc.createElement("event");
 
                 Element titleElem = doc.createElement("title");
@@ -57,17 +59,49 @@ public class Database {
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.transform(new DOMSource(doc), new StreamResult(new File(FILE_PATH)));
 
-            System.out.println("✅ Données XML écrites dans " + FILE_PATH);
+            System.out.println("Données XML écrites dans " + FILE_PATH);
         } catch (Exception e) {
             System.err.println("Erreur XML : " + e.getMessage());
         }
     }
 
-    // Classe interne pour stocker temporairement les données
-    private static class Event {
+    public static List<Event> loadFromXml(String typeFilter) {
+        List<Event> list = new ArrayList<>();
+        try {
+            File xmlFile = new File(FILE_PATH);
+            if (!xmlFile.exists()) return Collections.emptyList();
+
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(xmlFile);
+            doc.getDocumentElement().normalize();
+
+            NodeList nodeList = doc.getElementsByTagName("event");
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                Node node = nodeList.item(i);
+                if (node.getNodeType() == Node.ELEMENT_NODE) {
+                    Element el = (Element) node;
+
+                    String type = el.getElementsByTagName("type").item(0).getTextContent();
+                    if (!type.equalsIgnoreCase(typeFilter)) continue;
+
+                    String title = el.getElementsByTagName("title").item(0).getTextContent();
+                    String date = el.getElementsByTagName("date").item(0).getTextContent();
+                    String url = el.getElementsByTagName("url").item(0).getTextContent();
+
+                    list.add(new Event(title, date, url));
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la lecture XML : " + e.getMessage());
+        }
+        return list;
+    }
+
+    private static class RawEvent {
         String title, url, date, type, source;
 
-        Event(String title, String url, String date, String type, String source) {
+        RawEvent(String title, String url, String date, String type, String source) {
             this.title = title;
             this.url = url;
             this.date = date;
