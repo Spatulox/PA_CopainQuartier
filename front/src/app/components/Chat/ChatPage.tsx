@@ -299,11 +299,11 @@ function ChatPage() {
   }
   
   const statusColor = status === "Connecté" ? "#00FF00" : "#FF0000";
+  const vocalStatusColor = vocalStatus === "Connecté" ? "#00FF00" : "#FF0000";
   const thechannelAuth =
     channel?.member_auth === ChannelRight.read_send
       ? ChannelRight.read_send
       : ChannelRight.read_only;
-
   return (
     <ChatRoom
       id={id}
@@ -311,6 +311,7 @@ function ChatPage() {
       status={status}
       vocalStatus={vocalStatus}
       statusColor={statusColor}
+      vocalStatusColor={vocalStatusColor}
       memberRight={thechannelAuth}
       messages={messages}
       input={input}
