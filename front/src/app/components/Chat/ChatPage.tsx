@@ -212,6 +212,29 @@ function ChatPage() {
       audio.play();
     };
 
+    setVocalStatus("En attente d'une autre personne");
+
+    pc.oniceconnectionstatechange = () => {
+      console.log(pc.iceConnectionState)
+      if (
+        pc.iceConnectionState === "connected" ||
+        pc.iceConnectionState === "completed"
+      ) {
+        setVocalStatus("Connecté");
+      }
+      if (
+        pc.iceConnectionState === "disconnected"
+      ) {
+        setVocalStatus("En attente d'une autre personne");
+      }
+
+      if (
+        pc.iceConnectionState === "failed"
+      ) {
+        setVocalStatus("Déconnecté");
+      }
+    };
+
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
     ws.current.send(JSON.stringify({ type: MsgType.OFFER, offer }));
