@@ -1,115 +1,105 @@
 package com.example.scraper.ui;
 
+import com.example.scraper.Database;
 import com.example.scraper.EvousScraper;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.*;
 import javafx.scene.control.ScrollPane;
-import org.w3c.dom.*;
+import javafx.scene.layout.*;
 import javafx.scene.text.TextAlignment;
-
-
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
-import java.net.URI;
+import javafx.stage.Stage;
 import java.awt.Desktop;
+import java.net.URI;
+import java.util.*;
 
 public class EventViewer {
+    private final String category;
+    private VBox content;
+    private Stage stage;
 
-    private final GridPane grid = new GridPane();
+    public EventViewer(String category) {
+        this.category = category;
+    }
 
-    public BorderPane getView() {
+    public BorderPane getView(Stage stage) {
+        this.stage = stage;
+        content = buildEventList();
 
-        Button scrapeButton = new Button("scrappe");
-        scrapeButton.setOnAction(e -> {
-            new EvousScraper().scrape();
-            loadData();
+
+        Button backButton = new Button("⬅ Retour au menu");
+        backButton.setOnAction(e -> {
+            MainApp app = new MainApp();
+            try {
+                app.start(stage);
+            } catch (Exception ex) {
+                System.err.println("Erreur retour : " + ex.getMessage());
+            }
         });
 
-        HBox topBox = new HBox(scrapeButton);
-        topBox.setAlignment(Pos.CENTER);
-        topBox.setPadding(new Insets(10));
+        Button scrapeButton = new Button("Scraper la catégorie");
+        scrapeButton.setOnAction(e -> {
+            scrapeCurrentCategory();
+        });
 
-        grid.setPadding(new Insets(20));
-        grid.setHgap(20);
-        grid.setVgap(20);
-        grid.setAlignment(Pos.TOP_CENTER);
+        HBox header = new HBox(10, backButton, scrapeButton);
+        header.setPadding(new Insets(10, 20, 10, 20));
+        header.setAlignment(Pos.CENTER_LEFT);
 
-        ScrollPane scrollPane = new ScrollPane(grid);
+        ScrollPane scrollPane = new ScrollPane(content);
         scrollPane.setFitToWidth(true);
-        scrollPane.setPadding(new Insets(10));
-        scrollPane.setStyle("-fx-background: #444444;");
 
         BorderPane root = new BorderPane();
-        root.setTop(topBox);
+        root.setTop(header);
         root.setCenter(scrollPane);
-
-        loadData();
         return root;
     }
 
-    private void loadData() {
-        grid.getChildren().clear();
+    private VBox buildEventList() {
+        List<Event> events = Database.loadFromXml(category);
 
-        try {
-            File xmlFile = new File("events.xml");
-            if (!xmlFile.exists()) return;
-
-            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xmlFile);
-            NodeList nodes = doc.getElementsByTagName("event");
-
-            int row = 0;
-            int col = 0;
-
-            for (int i = 0; i < nodes.getLength(); i++) {
-                Element e = (Element) nodes.item(i);
-                String title = e.getElementsByTagName("title").item(0).getTextContent();
-                String date = e.getElementsByTagName("date").item(0).getTextContent();
-                String url = e.getElementsByTagName("url").item(0).getTextContent();
-
-                VBox card = createEventCard(title, date, url);
-                grid.add(card, col, row);
-
-                col++;
-                if (col == 3) {
-                    col = 0;
-                    row++;
-                }
-            }
-
-        } catch (Exception e) {
-            System.err.println("Erreur lecture XML : " + e.getMessage());
-        }
-    }
-
-    private VBox createEventCard(String title, String date, String url) {
-        Label titleLabel = new Label(title);
-        titleLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 12px; -fx-text-fill: black;");
-        titleLabel.setWrapText(true);
-        titleLabel.setMaxWidth(180);
-        titleLabel.setAlignment(Pos.CENTER);
-        titleLabel.setTextAlignment(TextAlignment.CENTER);
-
-        Label dateLabel = new Label(date);
-        dateLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: gray;");
-
-        Button actionButton = new Button("Voir");
-        actionButton.setOnAction(e -> {
-            try {
-                Desktop.getDesktop().browse(new URI(url));
-            } catch (Exception ex) {
-                System.err.println("Impossible d'ouvrir l'URL : " + ex.getMessage());
-            }
-        });
-
-        VBox box = new VBox(5, titleLabel, dateLabel, actionButton);
-        box.setPadding(new Insets(10));
-        box.setStyle("-fx-background-color: #eeeeee; -fx-border-color: lightgray;");
-        box.setPrefWidth(180);
+        VBox box = new VBox(20);
+        box.setPadding(new Insets(20));
         box.setAlignment(Pos.CENTER);
 
+        for (Event event : events) {
+            Label titleLabel = new Label(event.titleProperty().get());
+            titleLabel.setWrapText(true);
+            titleLabel.setMaxWidth(200);
+            titleLabel.setTextAlignment(TextAlignment.CENTER);
+            titleLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: black;");
+
+            Label dateLabel = new Label(event.dateProperty().get());
+            dateLabel.setStyle("-fx-text-fill: gray;");
+
+            Button linkButton = new Button("Voir l'événement");
+            linkButton.setOnAction(e -> {
+                try {
+                    Desktop.getDesktop().browse(new URI(event.getUrl()));
+                } catch (Exception ex) {
+                    System.err.println("Erreur ouverture du lien : " + ex.getMessage());
+                }
+            });
+
+            VBox card = new VBox(10, titleLabel, dateLabel, linkButton);
+            card.setPadding(new Insets(15));
+            card.setStyle("-fx-border-color: #ccc; -fx-border-width: 1; -fx-background-color: #f9f9f9;");
+            card.setAlignment(Pos.CENTER);
+
+            box.getChildren().add(card);
+        }
+
         return box;
+    }
+
+    private void scrapeCurrentCategory() {
+        new EvousScraper().scrape(category);
+        refresh();
+    }
+
+    private void refresh() {
+        VBox newContent = buildEventList();
+        content.getChildren().setAll(newContent.getChildren());
     }
 }
