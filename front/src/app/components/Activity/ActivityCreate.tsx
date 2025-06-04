@@ -15,6 +15,8 @@ function CreateActivity({onUpdate}: CreateActivityType){
         { name: "location", label: "Lieu", type: "text", required: true },
         { name: "date", label: "Date", type: "date", required: true },
         { name: "hour", label: "Heure", type: "time", required: true },
+        { name: "partial_date_end", label: "Date de fin", type: "date", required: true },
+        { name: "hour_end", label: "Heure de fin", type: "time", required: true },
         { name: "max_place", label: "Nombre de Places", type: "number", required: true },
       ];
       
@@ -24,6 +26,9 @@ function CreateActivity({onUpdate}: CreateActivityType){
         date_reservation: string,
         date: string,
         hour: string,
+        date_end: string,
+        partial_date_end: string,
+        hour_end: string,
         location: string,
         max_place: number,
       };
@@ -32,6 +37,7 @@ function CreateActivity({onUpdate}: CreateActivityType){
         const client = new ActivityClass()
         try{
           formData.date_reservation = formData.date + "T" + formData.hour + ":00Z"
+          formData.date_end = formData.partial_date_end + "T" + formData.hour_end + ":00Z"
           await client.createActivities(formData)
           onUpdate("update")
           setErrors([])
@@ -46,7 +52,7 @@ function CreateActivity({onUpdate}: CreateActivityType){
           title="Créer une Activité"
           fields={fields}
           APIerrors={err}
-          initialFormData={{ title: "", description: "", date_reservation: "", date: "", hour: "", location: "", max_place: 0 }}
+          initialFormData={{ title: "", description: "", date_reservation: "", date: "", hour: "", date_end: "", partial_date_end: "", hour_end: "",  location: "", max_place: 0 }}
           onSubmit={handleCreateActivity}
           submitLabel="Créer"
           buttonLabel="Créer une Activité"
