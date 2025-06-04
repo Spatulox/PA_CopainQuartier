@@ -1,6 +1,8 @@
 import mongoose, { ObjectId } from "mongoose";
 import { FilledUser, User } from "./UserModel";
 import { ObjectID } from "../DB_Schema/connexion";
+import { TrocStatusSchema, TrocTypeSchema, TrocVisibilitySchema } from "../Validators/trocs";
+import { z } from "zod";
 
 export type Troc = {
     _id: ObjectID,
@@ -11,9 +13,9 @@ export type Troc = {
     reserved_at?: Date,
     reserved_by?: ObjectID[],
     updated_at: Date,
-    status: TrocStatus,
-    type: TrocType,
-    visibility : TrocVisibility
+    status: TrocStatus | z.infer<typeof TrocStatusSchema>, // compatibilité avec Zod
+    type: TrocType | z.infer<typeof TrocTypeSchema>, // compatibilité avec Zod
+    visibility : TrocVisibility | z.infer<typeof TrocVisibilitySchema> // compatibilité avec Zod
 }
 
 export enum TrocType {

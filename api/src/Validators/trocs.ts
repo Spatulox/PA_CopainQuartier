@@ -1,9 +1,14 @@
 import { z } from "zod";
+import { TrocStatus, TrocType, TrocVisibility } from "../Models/TrocModel";
 
-// Enum Zod (si tes enums sont des string unions TypeScript, tu peux les redéclarer ici)
-const TrocTypeSchema = z.enum(["service", "item", "serviceMorethanOnePerson"]);
-const TrocStatusSchema = z.enum(["pending", "completed", "cancelled", "hide", "reserved", "waitingforapproval"]);
-const TrocVisibilitySchema = z.enum(["hide", "visible"]);
+
+function zodEnum<T extends { [key: string]: string }>(enumObj: T) {
+  return z.enum([...Object.values(enumObj)] as [string, ...string[]]);
+}
+
+export const TrocTypeSchema = zodEnum(TrocType)
+export const TrocStatusSchema = zodEnum(TrocStatus)
+export const TrocVisibilitySchema = zodEnum(TrocVisibility)
 
 export const zCreateTrocSchema = z.object({
   title: z.string(),
@@ -16,7 +21,6 @@ export const zUpdateTrocSchema = z.object({
   description: z.string().optional(),
   type: TrocTypeSchema.optional(),
   visibility: TrocVisibilitySchema.optional(),
-  //status: TrocStatusSchema.optional(),
   reserved_at: z.coerce.date().optional(),
 });
 
