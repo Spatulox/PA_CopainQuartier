@@ -22,11 +22,12 @@ type Props = {
   handleSubmit: (e: React.FormEvent) => void;
   onStartVoiceChat: () => void;
   onLeaveVoiceChat: () => void;
+  onGenerateInvite: (id: string) => void;
   messagesDivRef: React.RefObject<HTMLDivElement | null>;
 };
 
 const ChatRoom: React.FC<Props> = ({
-  id, chat, status, vocalStatus, statusColor, vocalStatusColor, memberRight, messages, input, setInput, handleSubmit, onStartVoiceChat, onLeaveVoiceChat, messagesDivRef
+  id, chat, status, vocalStatus, statusColor, vocalStatusColor, memberRight, messages, input, setInput, handleSubmit, onStartVoiceChat, onLeaveVoiceChat, onGenerateInvite, messagesDivRef
 }) => {
   const navigate = useNavigate()
   return  <div>
@@ -43,6 +44,7 @@ const ChatRoom: React.FC<Props> = ({
         </ul>
         <p className="chat-description">{chat.description}</p>
       </div>
+      <button onClick={() => onGenerateInvite(chat._id)}>Générer une invitation</button>
     </div>
     <div id="status" style={{ color: statusColor, marginBottom: 8 }}>Chat : {status}</div>
     <div className="call-info-div">

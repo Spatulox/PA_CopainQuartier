@@ -6,6 +6,7 @@ import { Channel, ChatClass, Message } from "../../../api/chat";
 import ChatRoom, { ChannelRight } from "./ChatRoom";
 import { ChannelList } from "./ChatList";
 import { popup } from "../../scripts/popup-slide";
+import { InviteClass } from "../../../api/invite";
 
 enum MsgType {
   INIT = "INIT",
@@ -292,6 +293,21 @@ function ChatPage() {
     }
   };
 
+  async function handleGenerateInvite(id: string){
+    console.log("coucou")
+    try {
+      const client = new InviteClass()
+      const invite = await client.generateInvite(id)
+      if (typeof invite === "string") {
+        await navigator.clipboard.writeText(invite);
+        popup("Invitation générée et copiée ! Vous pouvez la coller n'importe où");
+      }
+    } catch (e) {
+      popup("Une erreur est survenue")
+      console.error(e)
+    }
+  }
+
   if (!id) return <div><ChannelList /></div>;
   if (!me) return <NotFound />;
   if(!channel){
@@ -319,6 +335,7 @@ function ChatPage() {
       handleSubmit={handleSubmit}
       onStartVoiceChat={startVoiceChat}
       onLeaveVoiceChat={leaveVoiceChat}
+      onGenerateInvite={(id: string) => handleGenerateInvite(id)}
       messagesDivRef={messagesEndRef}
     />
   );
