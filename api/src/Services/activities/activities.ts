@@ -5,7 +5,7 @@ import { FilledUser, User } from "../../Models/UserModel";
 import { ChannelAuth, ChannelTable } from "../../DB_Schema/ChannelSchema";
 import { PublicationTable } from "../../DB_Schema/PublicationSchema";
 import { ActivityQueryParam, CreateActivityParam, UpdateActivityParam } from "../../Validators/activities";
-import { ForbiddenError, InternalServerError } from "routing-controllers";
+import { BadRequestError, ForbiddenError, InternalServerError } from "routing-controllers";
 import { objectToPublication } from "../publications/publications";
 import { toUserObject } from "../users/usersPublic";
 import { objectToChannel } from "../channels/channels";
@@ -86,6 +86,14 @@ export async function getAllPublicActivities(): Promise<PublicFilledActivity[]> 
 export async function createActivity(user: User, activity: CreateActivityParam): Promise<FilledActivity | null> {
     if(await inActivity(user, activity) > 0){
         throw new ForbiddenError("Vous participez déjà à une activité à cette date et heure.");
+    }
+
+    if(new Date(activity.date_end) < new Date(activity.date_reservation)){
+        throw new BadRequestError("La date de fin doit se situer après la date de début")
+    }
+
+    if(new Date(activity.date_reservation) <= new Date()){
+        throw new BadRequestError("La date de début ne doit pas se situer dans le passé")
     }
 
     // Créer le channel chat

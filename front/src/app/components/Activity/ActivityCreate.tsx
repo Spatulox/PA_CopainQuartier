@@ -38,6 +38,14 @@ function CreateActivity({onUpdate}: CreateActivityType){
         try{
           formData.date_reservation = formData.date + "T" + formData.hour + ":00Z"
           formData.date_end = formData.partial_date_end + "T" + formData.hour_end + ":00Z"
+          if(new Date(formData.date_end) < new Date(formData.date_reservation)){
+            client.errors = "La date de fin doit se situer après la date de début"
+            throw []
+          }
+          if(new Date(formData.date_reservation) <= new Date()){
+            client.errors = "La date de début ne doit pas se situer dans le passé"
+            throw []
+          }
           await client.createActivities(formData)
           onUpdate("update")
           setErrors([])
