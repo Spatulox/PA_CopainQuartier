@@ -49,7 +49,7 @@ const ChatRoom: React.FC<Props> = ({
         <li>status: {vocalStatus}</li>
       </ul>
       <button id="" onClick={onStartVoiceChat}>Démarrer un appel vocal</button>
-      <button onClick={onLeaveVoiceChat}>Quitter l'apel vocal</button>
+      <button onClick={onLeaveVoiceChat}>Quitter l'appel vocal</button>
       <audio id="remoteAudio" src=""></audio>
     </div>
     <div
