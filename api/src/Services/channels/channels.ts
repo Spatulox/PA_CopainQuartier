@@ -134,7 +134,7 @@ export async function updateChannelAdmin(param: TransferChannelParam, channel_id
     return result.modifiedCount > 0;
 }
 
-export async function addSomeoneFromChannel(channel_id: ObjectID, user_id: ObjectID): Promise<boolean> {
+export async function addSomeoneFromChannel(channel_id: ObjectID, user_id: ObjectID): Promise<boolean | null> {
     const result = await ChannelTable.updateOne(
         { _id: channel_id },
         { $addToSet: { members: user_id } }
@@ -144,7 +144,7 @@ export async function addSomeoneFromChannel(channel_id: ObjectID, user_id: Objec
         {_id: user_id},
         {$addToSet: {group_chat_list_ids: channel_id}}
     )
-    return result.modifiedCount > 0 && res.modifiedCount > 0;
+    return (result.modifiedCount > 0 && res.modifiedCount > 0) || result.matchedCount > 0 ? null : false;
 }
 
 

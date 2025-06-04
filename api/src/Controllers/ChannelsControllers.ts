@@ -76,8 +76,12 @@ export class ChannelsController {
         if(channel && (channel.admin?._id.toString() != user._id.toString() && user.role != UserRole.admin)){
             throw new ForbiddenError("You can't add someone to the chat unless you are the admin")
         }
-        if(!await addSomeoneFromChannel(validChannelId, validUserId)){
+        const res = await addSomeoneFromChannel(validChannelId, validUserId)
+        if(!res && res != null){
             throw new BadRequestError()
+        }
+        if(res == null){
+            throw new BadRequestError("Vous êtes déjà dans ce channel...")
         }
         return true
     }
