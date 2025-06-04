@@ -21,12 +21,11 @@ type Props = {
   handleSubmit: (e: React.FormEvent) => void;
   onStartVoiceChat: () => void;
   onLeaveVoiceChat: () => void;
-  playTestSound: () => void;
   messagesDivRef: React.RefObject<HTMLDivElement | null>;
 };
 
 const ChatRoom: React.FC<Props> = ({
-  id, chat, status, vocalStatus, statusColor, memberRight, messages, input, setInput, handleSubmit, onStartVoiceChat, onLeaveVoiceChat, playTestSound, messagesDivRef
+  id, chat, status, vocalStatus, statusColor, memberRight, messages, input, setInput, handleSubmit, onStartVoiceChat, onLeaveVoiceChat, messagesDivRef
 }) => {
   const navigate = useNavigate()
   return  <div>
@@ -50,7 +49,6 @@ const ChatRoom: React.FC<Props> = ({
         <li>status: {vocalStatus}</li>
       </ul>
       <button id="" onClick={onStartVoiceChat}>Démarrer un appel vocal</button>
-      <button onClick={playTestSound}>Envoyer un son</button>
       <button onClick={onLeaveVoiceChat}>Quitter l'apel vocal</button>
       <audio id="remoteAudio" src=""></audio>
     </div>
