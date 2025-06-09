@@ -12,7 +12,8 @@ export enum ShowTrocButton {
     Reserve = 1 << 2,        // 4 (0b00100) : Réserver le troc
     Cancel = 1 << 3,         // 8 (0b01000) : Annuler le troc
     Approve = 1 << 4,        //16 (0b10000) : Approve le troc
-    All = Troc | Manage | Reserve | Cancel | Approve,
+    Complete = 1 << 5,        //16 (0b10000) : Approve le troc
+    All = Troc | Manage | Reserve | Cancel | Approve | Complete,
     None = 0
 }
 
@@ -21,6 +22,7 @@ type ShowTrocProps = {
     user: User | undefined;
     onViewTroc?: (id: string) => void;
     onManage?: (id: string) => void;
+    onComplete?: (id: string) => void;
     onReserve?: (id: string) => void;
     onCancel?: (id: string) => void;
     onApprove?: (id: string, bool: boolean) => void;
@@ -32,6 +34,7 @@ export function ShowTroc({
     user,
     onViewTroc,
     onManage,
+    onComplete,
     onReserve,
     onCancel,
     onApprove,
@@ -111,6 +114,16 @@ export function ShowTroc({
                     (troc.author?._id === user._id || user.role === UserRole.admin) && (
                         <button onClick={() => onManage(troc._id)}>
                             Gérer le troc
+                        </button>
+                )}
+
+                {(buttonShow & ShowTrocButton.Complete) !== 0 &&
+                    onComplete &&
+                    user &&
+                    troc.status !== TrocStatus.completed &&
+                    (troc.author?._id === user._id || user.role === UserRole.admin) && (
+                        <button onClick={() => onComplete(troc._id)}>
+                            Fermer/Completer le troc
                         </button>
                 )}
 

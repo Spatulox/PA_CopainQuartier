@@ -59,7 +59,7 @@ export class TrocClass extends ApiClient{
         await this.Patch(`${this.url}/${id}`, option)
     }
 
-    async acceptTroc(id: string): Promise<void>{
+    async completeTroc(id: string): Promise<void>{
         await this.Patch(`${this.url}/${id}/complete`, {})
     }
 

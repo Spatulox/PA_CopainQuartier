@@ -63,6 +63,16 @@ function ShowTrocPage() {
         }
     }
 
+    async function onCompleteTroc(id: string){
+        const client = new TrocClass()
+        try {
+            await client.completeTroc(id)
+            setErrors(null)
+        } catch (e) {
+            setErrors(client.errors)
+        }
+    }
+
     if(notFound){
         return <NotFound />
     }
@@ -80,9 +90,10 @@ function ShowTrocPage() {
             troc={troc}
             user={me}
             onManage={(actId) => navigate(`${Route.manageTrocs}/${actId}`)}
+            onComplete={(id: string) => onCompleteTroc(id)}
             onReserve={(id: string) => onReserveTroc(id)}
             onCancel={(id: string) => onCancelTroc(id)}
-            buttonShow={ShowTrocButton.Manage | ShowTrocButton.Reserve | ShowTrocButton.Cancel}
+            buttonShow={ShowTrocButton.Manage | ShowTrocButton.Reserve | ShowTrocButton.Cancel | ShowTrocButton.Complete}
         />
     );
 }
