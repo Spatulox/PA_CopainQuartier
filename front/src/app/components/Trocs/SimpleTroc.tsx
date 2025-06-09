@@ -117,10 +117,10 @@ export function ShowTroc({
                 {/* Bouton "Réserver le troc" */}
                 {(buttonShow & ShowTrocButton.Reserve) !== 0 &&
                     onReserve &&
-                    user &&
+                    user && troc.author?._id !== user._id &&
                     troc.status !== TrocStatus.reserved && (
                         <button onClick={() => onReserve(troc._id)}>
-                            Réserver le troc
+                            Réserver
                         </button>
                 )}
 
@@ -128,9 +128,9 @@ export function ShowTroc({
                 {(buttonShow & ShowTrocButton.Cancel) !== 0 &&
                     onCancel &&
                     user &&
-                    troc.status !== TrocStatus.reserved && (
+                    troc.status === TrocStatus.reserved && (
                         <button onClick={() => onCancel(troc._id)}>
-                            Réserver le troc
+                            Annuler la réservation
                         </button>
                 )}
             </div>
