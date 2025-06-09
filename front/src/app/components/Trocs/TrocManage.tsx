@@ -262,7 +262,26 @@ function ManageOneTroc(){
         setDeleteId(null);
         setDeleteError(null)
     };
-    
+
+    const approveTroc = async (id: string) => {
+      const client = new AdminTrocClass()
+      try{
+          const option = {"approve": true}
+          await client.approveTroc(id, option)
+          const app = await client.getWaitingTroc()
+          setTroc(troc)
+          if(!app){
+              setNotFound(true)
+              return
+          }
+          setNotFound(false)
+          setRefresh(r => r + 1)
+          setError(null)
+      }catch(e){
+          setError(client.errors)
+      }
+    }
+
     return <>
         <UpdateTroc
             key={troc!._id}
@@ -272,6 +291,7 @@ function ManageOneTroc(){
             onUpdate={(id: string, option: object) => handlUpdate(id, option)}
             onDelete={handlDelete}
             onCancelReservation={confirmCancelReservation}
+            approveTroc={(id: string) => approveTroc(id)}
         />
         {showConfirm && (
             <PopupConfirm

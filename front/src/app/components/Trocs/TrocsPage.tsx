@@ -11,16 +11,17 @@ import { Troc, TrocClass } from "../../../api/troc";
 import { User } from "../../../api/user";
 import NotFound from "../shared/notfound";
 import { ErrorMessage } from "../../../api/client";
+import { useAuth } from "../shared/auth-context";
 
 
 function ShowTrocPage() {
     const { id } = useParams<{ id: string }>();
     const [troc, setTroc] = useState<Troc>();
-    const [user, setUser] = useState<User>();
     const [notFound, setNotFound] = useState<boolean>(false)
     const [err, setErrors] = useState<ErrorMessage | null>(null)
     const navigate = useNavigate();
-    
+    const {me} = useAuth()
+
     useEffect(() => {
         (async () => {
             const client = new TrocClass();
@@ -41,6 +42,27 @@ function ShowTrocPage() {
         })();
     }, [id]);
 
+    async function onReserveTroc(id: string){
+        const client = new TrocClass()
+        try {
+            await client.reservedTroc(id)
+            setErrors(null)
+        } catch (e) {
+            console.log(e)
+            setErrors(client.errors)
+        }
+    }
+
+    async function onCancelTroc(id: string){
+        const client = new TrocClass()
+        try {
+            await client.cancelTroc(id)
+            setErrors(null)
+        } catch (e) {
+            setErrors(client.errors)
+        }
+    }
+
     if(notFound){
         return <NotFound />
     }
@@ -51,14 +73,16 @@ function ShowTrocPage() {
     if (!troc) {
         return <Loading title="Chargement de l'activité" />;
     }
-
+    console.log(troc)
     return (
         <ShowTroc
             key={troc._id}
             troc={troc}
-            user={user}
+            user={me}
             onManage={(actId) => navigate(`${Route.manageTrocs}/${actId}`)}
-            buttonShow={ShowTrocButton.Manage}
+            onReserve={(id: string) => onReserveTroc(id)}
+            onCancel={(id: string) => onCancelTroc(id)}
+            buttonShow={ShowTrocButton.Manage | ShowTrocButton.Reserve | ShowTrocButton.Cancel}
         />
     );
 }
