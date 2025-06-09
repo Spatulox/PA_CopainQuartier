@@ -34,8 +34,8 @@ function CreateTroc({onUpdate} : CreateTrocType){
         description: string,
         type: RadioType | RadioTypeToTrocType,
         reserved_at: string
-        date: Date,
-        hour: Date,
+        date: string,
+        hour: string,
     };
 
     async function handleCreateChannel(formData: TrocForm): Promise<void> {
@@ -68,7 +68,7 @@ function CreateTroc({onUpdate} : CreateTrocType){
         title="Créer un Troc"
         fields={fields}
         APIerrors={err}
-        initialFormData={{ title: "", description: "", type: RadioType.object, reserved_at: "", date: new Date, hour: new Date() }}
+        initialFormData={{ title: "", description: "", type: RadioType.object, reserved_at: "", date: "", hour: "" }}
         onSubmit={handleCreateChannel}
         submitLabel="Créer"
         buttonLabel="Créer un Troc"
