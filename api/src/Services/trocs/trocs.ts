@@ -15,7 +15,7 @@ export function toTrocObject(doc: any): FilledTroc {
         author: doc.author_id ? toUserObject(doc.author_id) : null,
         description : doc.description,
         reserved_at: doc.reserved_at || null,
-        reserved_by: doc.reserved_by ? doc.reserved_by.map((user: User) => {toUserObject(user)}) : [],
+        reserved_by: doc.reserved_by ? doc.reserved_by.map((user: User) => (toUserObject(user))) : [],
         updated_at: doc.updated_at,
         status: doc.status,
         type: doc.type,
@@ -43,7 +43,7 @@ export async function getAllMyTrocs(user: User): Promise<FilledTroc[]> {
 
 // GET : Un troc par son ID
 export async function getTrocById(id: ObjectId): Promise<FilledTroc | null> {
-    const doc = await TrocTable.findById(id).exec();
+    const doc = await TrocTable.findById(id).populate("reserved_by").exec();
     return doc ? toTrocObject(doc) : null;
 }
 
@@ -92,15 +92,11 @@ export async function deleteTroc(id: ObjectId, userId: ObjectId, isAdmin: boolea
 export async function reserveTroc(id: ObjectId, userId: ObjectId): Promise<FilledTroc | null> {
     const troc = await TrocTable.findById(id).exec();
     if (!troc) return null;
-    if (
-        troc.status === TrocStatus.waitingForApproval ||
-        troc.visibility === TrocVisibility.hide
-    ) {
+    if (troc.status === TrocStatus.waitingForApproval || troc.visibility === TrocVisibility.hide || troc.status === TrocStatus.hide) {
         throw new ForbiddenError("Cannot reserve a troc that is waiting for approval or hidden");
     }
 
     if (troc.type === TrocType.serviceMorethanOnePerson) {
-        // Ajoute l'utilisateur au tableau reserved_by
         const doc = await TrocTable.findOneAndUpdate(
             { _id: id },
             {
@@ -112,10 +108,7 @@ export async function reserveTroc(id: ObjectId, userId: ObjectId): Promise<Fille
         return doc ? toTrocObject(doc) : null;
     } else {
         // Pour item/service : vérifier qu'il n'est pas déjà réservé
-        if (
-            troc.status !== TrocStatus.pending ||
-            (Array.isArray(troc.reserved_by) && troc.reserved_by.length > 0)
-        ) {
+        if (troc.status !== TrocStatus.pending || (Array.isArray(troc.reserved_by) && troc.reserved_by.length > 0)) {
             throw new ForbiddenError("This troc is already reserved");
         }
         const doc = await TrocTable.findOneAndUpdate(
@@ -163,7 +156,10 @@ export async function cancelTroc(id: ObjectId, userId: ObjectId): Promise<Filled
             _id: id,
             $or: [{ author_id: userId }, { reserved_by: userId }]
         },
-        { status: TrocStatus.pending },
+        { status: TrocStatus.pending,
+          reserved_by: [],
+          reserved_at: null
+        },
         { new: true }
     ).exec();
     return doc ? toTrocObject(doc) : null;
