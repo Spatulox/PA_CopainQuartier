@@ -47,6 +47,10 @@ export class TrocClass extends ApiClient{
         return await this.Get(`${this.url}/@me`)
     }
 
+    async getAllTrocsApplied(): Promise<Troc[]>{
+        return await this.Get(`${this.url}/@me?applied=true`)
+    }
+
     async getTrocByID(id: string): Promise<Troc>{
         return await this.Get(`${this.url}/${id}`)
     }
@@ -61,6 +65,10 @@ export class TrocClass extends ApiClient{
 
     async completeTroc(id: string): Promise<void>{
         await this.Patch(`${this.url}/${id}/complete`, {})
+    }
+
+    async leaveTroc(id: string): Promise<void>{
+        await this.Patch(`${this.url}/${id}/leave`, {})
     }
 
     async reservedTroc(id: string): Promise<void>{
