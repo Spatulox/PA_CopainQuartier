@@ -24,7 +24,14 @@ export const zUpdateTrocSchema = z.object({
   reserved_at: z.coerce.date().optional(),
 });
 
-export const zTrocAction = z.enum(["reserve", "complete", "cancel"]);
+export const zTrocQuery = z.object({
+  applied: 
+  z.string()
+  .optional()
+  .transform(val => (val === "true" ? true : false)),
+});
+
+export const zTrocAction = z.enum(["reserve", "complete", "cancel", "leave"]);
 
 export type CreateTrocBody = z.infer<typeof zCreateTrocSchema>
 export type UpdateTrocBody = z.infer<typeof zUpdateTrocSchema>

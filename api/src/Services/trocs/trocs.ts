@@ -37,13 +37,27 @@ export async function getAllTrocs(): Promise<FilledTroc[]> {
 export async function getAllMyTrocs(user: User): Promise<FilledTroc[]> {
     const docs = await TrocTable.find({author_id: user._id}).sort({ created_at: -1 })
     .populate("author_id")
+    .populate("reserved_by")
     .exec();
+    return docs.map(toTrocObject);
+}
+
+export async function getAllMyTrocsApplied(user: User): Promise<FilledTroc[]> {
+    const docs = await TrocTable.find({
+        reserved_by: { $in: [user._id] }
+    })
+    .populate("author_id")
+    .populate("reserved_by")
+    .exec()
     return docs.map(toTrocObject);
 }
 
 // GET : Un troc par son ID
 export async function getTrocById(id: ObjectId): Promise<FilledTroc | null> {
-    const doc = await TrocTable.findById(id).populate("reserved_by").exec();
+    const doc = await TrocTable.findById(id)
+    .populate("reserved_by")
+    .populate("author_id")
+    .exec();
     return doc ? toTrocObject(doc) : null;
 }
 
@@ -159,6 +173,28 @@ export async function cancelTroc(id: ObjectId, userId: ObjectId): Promise<Filled
         { status: TrocStatus.pending,
           reserved_by: [],
           reserved_at: null
+        },
+        { new: true }
+    ).exec();
+    return doc ? toTrocObject(doc) : null;
+}
+
+// PATCH
+export async function leaveTroc(id: ObjectId, userId: ObjectId): Promise<FilledTroc | null> {
+    const troc = await TrocTable.findById(id).exec();
+    if (!troc || troc.type !== TrocType.serviceMorethanOnePerson) {
+        throw new ForbiddenError("Cannot leave this troc");
+    }
+    if(troc.status === TrocStatus.waitingForApproval || troc.visibility === TrocVisibility.hide){
+        throw new ForbiddenError("Cannot leave this troc");
+    }
+
+    const doc = await TrocTable.findOneAndUpdate(
+        {
+            _id: id,
+        },
+        {
+            $pull: { reserved_by: userId }
         },
         { new: true }
     ).exec();
