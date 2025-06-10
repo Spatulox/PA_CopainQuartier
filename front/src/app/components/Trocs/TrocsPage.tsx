@@ -19,6 +19,7 @@ function ShowTrocPage() {
     const [troc, setTroc] = useState<Troc>();
     const [notFound, setNotFound] = useState<boolean>(false)
     const [err, setErrors] = useState<ErrorMessage | null>(null)
+    const [refresh, setRefresh] = useState(0);
     const navigate = useNavigate();
     const {me} = useAuth()
 
@@ -40,15 +41,15 @@ function ShowTrocPage() {
                 setErrors(client.errors)
             }
         })();
-    }, [id]);
+    }, [id, refresh]);
 
     async function onReserveTroc(id: string){
         const client = new TrocClass()
         try {
             await client.reservedTroc(id)
             setErrors(null)
+            setRefresh(r => r+1)
         } catch (e) {
-            console.log(e)
             setErrors(client.errors)
         }
     }
@@ -58,6 +59,7 @@ function ShowTrocPage() {
         try {
             await client.cancelTroc(id)
             setErrors(null)
+            setRefresh(r => r+1)
         } catch (e) {
             setErrors(client.errors)
         }
@@ -68,6 +70,18 @@ function ShowTrocPage() {
         try {
             await client.completeTroc(id)
             setErrors(null)
+            setRefresh(r => r+1)
+        } catch (e) {
+            setErrors(client.errors)
+        }
+    }
+
+    async function onLeaveTroc(id: string){
+        const client = new TrocClass()
+        try {
+            await client.leaveTroc(id)
+            setErrors(null)
+            setRefresh(r => r+1)
         } catch (e) {
             setErrors(client.errors)
         }
@@ -93,7 +107,8 @@ function ShowTrocPage() {
             onComplete={(id: string) => onCompleteTroc(id)}
             onReserve={(id: string) => onReserveTroc(id)}
             onCancel={(id: string) => onCancelTroc(id)}
-            buttonShow={ShowTrocButton.Manage | ShowTrocButton.Reserve | ShowTrocButton.Cancel | ShowTrocButton.Complete}
+            onLeave={(id: string) => onLeaveTroc(id)}
+            buttonShow={ShowTrocButton.Manage | ShowTrocButton.Reserve | ShowTrocButton.Cancel | ShowTrocButton.Complete | ShowTrocButton.Leave}
         />
     );
 }
@@ -117,7 +132,7 @@ function Trocs(){
         <div>
             <CreateTroc onUpdate={handleUpdate} />
             <button onClick={() => navigate(Route.manageMyTrocs)}>
-                Gérer mes Trocs
+                Mes Trocs
             </button>
         </div>
     </>
