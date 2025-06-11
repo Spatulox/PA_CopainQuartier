@@ -13,67 +13,85 @@ import { PopupConfirm } from "../Popup/PopupConfirm";
 import { ErrorMessage } from "../../../api/client";
 import Errors from "../shared/errors";
 
-export function ManageMyTroc(){
-  const { me, isAdmin } = useAuth();
-    const [trocs, setTrocs] = useState<Troc[] | null>(null);
-    const [notFound, setNotFound] = useState<boolean>(false)
-    const [err, setErrors] = useState<ErrorMessage | null>(null)
-    const navigate = useNavigate()
-  
-    useEffect(() => {
-      (async () => {
-        const client = new TrocClass();
-        try{
-          const troc = await client.getAllMyTrocs();
-          if(!troc){
-            setNotFound(true)
-            return
-          }
-          setNotFound(false)
-          setTrocs(troc);
-          setErrors(null)
-        }catch(e){
-          setErrors(client.errors)
-        }
-      })();
-    }, []);
-    
-    if(err != null){
-        return <Errors errors={err} />
-    }
-    
-    if(notFound){
-      return <NotFound />
-    }
+type ManageTrocType = "applied" | "uploaded";
 
-    if (trocs === null) {
-      return <Loading title="Chargement des trocs" />
-    }
-  
-    if (trocs.length === 0) {
-      return <div>Aucun trocs trouvés.</div>;
-    }
-  
-    return (
+export function ManageMyTroc(){
+  return <>
+    <ManageMyTrocsType type="applied" />
+    <ManageMyTrocsType type="uploaded" />
+  </>
+}
+
+function ManageMyTrocsType({ type }: { type: ManageTrocType }) {
+  const { me, isAdmin } = useAuth();
+  const [trocs, setTrocs] = useState<Troc[] | null>(null);
+  const [notFound, setNotFound] = useState<boolean>(false);
+  const [err, setErrors] = useState<ErrorMessage | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    (async () => {
+      const client = new TrocClass();
+      try {
+        const troc = type === "applied"
+          ? await client.getAllTrocsApplied()
+          : await client.getAllMyTrocs();
+        if (!troc) {
+          setNotFound(true);
+          return;
+        }
+        setNotFound(false);
+        setTrocs(troc);
+        setErrors(null);
+      } catch (e) {
+        setErrors(client.errors);
+      }
+    })();
+  }, [type]);
+
+  if (err != null) {
+    return <Errors errors={err} />;
+  }
+
+  if (notFound) {
+    return <NotFound />;
+  }
+
+  if (trocs === null) {
+    return <Loading title="Chargement des trocs" />;
+  }
+
+  if (trocs.length === 0) {
+    return <div>Aucun trocs trouvés.</div>;
+  }
+
+  return (
+    <div>
+      <h1>{type === "uploaded" ? "Gérer mes Trocs" : "Gérer mes demandes"}</h1>
       <div>
-        <h1>Mes Trocs</h1>
-        <div>
-          {trocs.map((trok) => (
-            <section>
-              <ShowTroc
-                key={trok._id}
-                troc={trok}
-                user={me}
-                onManage={(id) => navigate(`${Route.manageTrocs}/${id}`)}
-                onViewTroc={(id) => navigate(`${Route.troc}/${id}`)}
-                buttonShow={ShowTrocButton.Troc | ShowTrocButton.Manage}
-              />
-            </section>
-            
-          ))}
-        </div>
+        {trocs.map((trok) => (
+          <section key={trok._id}>
+            <ShowTroc
+              key={trok._id}
+              troc={trok}
+              user={me}
+              onViewTroc={(id) => navigate(`${Route.troc}/${id}`)}
+              onManage={
+                type === "uploaded"
+                  ? (id) => navigate(`${Route.manageTrocs}/${id}`)
+                  : undefined
+              }
+              buttonShow={
+                type === "uploaded"
+                  ? ShowTrocButton.Troc | ShowTrocButton.Manage
+                  : ShowTrocButton.Troc
+              }
+            />
+          </section>
+        ))}
       </div>
-    );
+    </div>
+  );
 }
 
 function ManageTrocAdmin(){
@@ -262,7 +280,26 @@ function ManageOneTroc(){
         setDeleteId(null);
         setDeleteError(null)
     };
-    
+
+    const approveTroc = async (id: string) => {
+      const client = new AdminTrocClass()
+      try{
+          const option = {"approve": true}
+          await client.approveTroc(id, option)
+          const app = await client.getWaitingTroc()
+          setTroc(troc)
+          if(!app){
+              setNotFound(true)
+              return
+          }
+          setNotFound(false)
+          setRefresh(r => r + 1)
+          setError(null)
+      }catch(e){
+          setError(client.errors)
+      }
+    }
+
     return <>
         <UpdateTroc
             key={troc!._id}
@@ -272,6 +309,7 @@ function ManageOneTroc(){
             onUpdate={(id: string, option: object) => handlUpdate(id, option)}
             onDelete={handlDelete}
             onCancelReservation={confirmCancelReservation}
+            approveTroc={(id: string) => approveTroc(id)}
         />
         {showConfirm && (
             <PopupConfirm

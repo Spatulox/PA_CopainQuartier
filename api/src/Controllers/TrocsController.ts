@@ -12,13 +12,14 @@ import {
     ForbiddenError,
     HttpCode,
     InternalServerError,
-    BadRequestError
+    BadRequestError,
+    QueryParams
   } from "routing-controllers";
 import { FilledTroc, Troc, TrocStatus } from "../Models/TrocModel";
 import { User } from "../Models/UserModel";
-import { CreateTrocBody, UpdateTrocBody, zCreateTrocSchema, zUpdateTrocSchema } from "../Validators/trocs";
+import { CreateTrocBody, UpdateTrocBody, zCreateTrocSchema, zTrocAction, zTrocQuery, zUpdateTrocSchema } from "../Validators/trocs";
 import { zApprove, zObjectId } from "../Validators/utils";
-import { cancelTroc, completeTroc, createTroc, deleteTroc, getAllMyTrocs, getAllTrocs, getTrocById, reserveTroc, updateTroc } from "../Services/trocs/trocs";
+import { cancelTroc, completeTroc, createTroc, deleteTroc, getAllMyTrocs, getAllMyTrocsApplied, getAllTrocs, getTrocById, leaveTroc, reserveTroc, updateTroc } from "../Services/trocs/trocs";
 import { UserRole } from "../DB_Schema/UserSchema";
 import { getAllAdminTrocs, getWaitingTrocs, updateWaitingTrocStatus, getAdminTrocById } from "../Services/trocs/trocsAdmin";
 import { ObjectID } from "../DB_Schema/connexion";
@@ -74,7 +75,15 @@ export class TrocController {
 
     @Get("/@me")
     @Authorized()
-    async getAllMyTrocs(@CurrentUser() user: User): Promise<FilledTroc[]> {
+    async getAllMyTrocs(@CurrentUser() user: User, @QueryParams() trocs?: any): Promise<FilledTroc[]> {
+        if(trocs){
+            const validParam = zTrocQuery.parse(trocs)
+            if(validParam.applied){
+                return await getAllMyTrocsApplied(user)
+            } else {
+                return await getAllMyTrocs(user)
+            }
+        }
         return await getAllMyTrocs(user)
     }
 
@@ -114,37 +123,29 @@ export class TrocController {
         };
         return true
     }
-  
-    @Patch("/:id/reserve")
+
+    @Patch("/:id/:action")
     @Authorized()
     @HttpCode(204)
-    async reserveTroc(@Param("id") id: string, @CurrentUser() user: User): Promise<boolean> {
+    async handleTrocAction(@Param("id") id: string, @Param("action") action: string, @CurrentUser() user: User ): Promise<boolean> {
         const validId = zObjectId.parse(id);
-        if(!await reserveTroc(new ObjectID(validId), user._id)){
-            throw new BadRequestError()
+        const validAction = zTrocAction.parse(action);
+
+        const actionMap = {
+            reserve: reserveTroc,
+            complete: completeTroc,
+            cancel: cancelTroc,
+            leave: leaveTroc,
         };
-        return true
-    }
-  
-    @Patch("/:id/complete")
-    @Authorized()
-    @HttpCode(204)
-    async completeTroc(@Param("id") id: string, @CurrentUser() user: User): Promise<boolean> {
-        const validId = zObjectId.parse(id);
-        if(!await completeTroc(new ObjectID(validId), user._id)){
-            throw new BadRequestError()
-        };
-        return true
-    }
-  
-    @Patch("/:id/cancel")
-    @Authorized()
-    @HttpCode(204)
-    async cancelTroc(@Param("id") id: string, @CurrentUser() user: User): Promise<boolean> {
-        const validId = zObjectId.parse(id);
-        if(!await cancelTroc(new ObjectID(validId), user._id)){
-            throw new BadRequestError()
-        };
-        return true
+
+        const actionFn = actionMap[validAction];
+        if (!actionFn) {
+            throw new BadRequestError("Action inconnue");
+        }
+
+        if (!(await actionFn(new ObjectID(validId), user._id))) {
+            throw new BadRequestError();
+        }
+        return true;
     }
 }

@@ -1,15 +1,16 @@
 import mongoose, { ObjectId } from "mongoose";
 import { Activity, FilledActivity } from "./ActivityModel";
 import { FilledUser, User } from "./UserModel";
+import { ObjectID } from "../DB_Schema/connexion";
 
 export type Publication = {
-    _id: string,
+    _id: ObjectID,
     name: string,
     description: string,
     created_at: Date,
     updated_at: Date,
-    author_id: ObjectId | User,
-    activity_id?: ObjectId | Activity,
+    author_id: ObjectID | User,
+    activity_id?: ObjectID | Activity | null,
     body: string
 }
 

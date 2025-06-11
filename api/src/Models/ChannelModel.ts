@@ -4,11 +4,12 @@ import { FilledUser, User } from "./UserModel";
 import { toActivityObject } from "../Services/activities/activities";
 import { toUserObject } from "../Services/users/usersPublic";
 import { Activity, FilledActivity } from "./ActivityModel";
+import { ObjectID } from "../DB_Schema/connexion";
 
 export type Channel = {
     _id: ObjectId,
     name: string,
-    activity_id : ObjectId | null,
+    activity_id : ObjectID | null,
     type: string,
     description: string,
     admin_id: ObjectId,

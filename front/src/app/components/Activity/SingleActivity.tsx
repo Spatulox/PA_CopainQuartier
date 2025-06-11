@@ -44,7 +44,8 @@ export function ShowActivity({
                 <span>{activity.author?.name}</span>
                 <span>{new Date(activity.created_at).toLocaleDateString()}</span>
                 <p>{activity.description}</p>
-                <span>{new Date(activity.date_reservation).toLocaleDateString()}</span>
+                <span>{new Date(activity.date_reservation).toLocaleString()}</span>
+                <span>{new Date(activity.date_end).toLocaleString()}</span>
                 {!isNaN(activity.max_place - activity.reserved_place) && (<p>Nombre de places restantes : {activity.max_place - activity.reserved_place}</p>)}
                 <p>Lieu : {activity.location ? activity.location : ""}</p>
             </div>

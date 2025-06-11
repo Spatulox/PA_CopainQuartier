@@ -2,20 +2,22 @@ import mongoose, { ObjectId } from "mongoose";
 import { FilledPublication, Publication } from "./PublicationModel";
 import { FilledUser, User } from "./UserModel";
 import { Channel, FilledChannel } from "./ChannelModel";
+import { ObjectID } from "../DB_Schema/connexion";
 
 export type Activity = {
-    _id: ObjectId,
+    _id: ObjectID,
     title: string,
     description: string,
     created_at: Date,
     date_reservation: Date,
-    author_id: ObjectId,
-    channel_chat_id: ObjectId,
-    publication_id: ObjectId,
-    participants_id: ObjectId[],
+    date_end: Date,
+    author_id: ObjectID,
+    channel_chat_id: ObjectID,
+    publication_id: ObjectID,
+    participants_id: ObjectID[],
     location: string,
-    max_place: {type: Number, required: true},
-    reserved_place: {type: Number, required: true},
+    max_place: number,
+    reserved_place: number,
 }
 
 export type FilledActivity = Omit<Activity, "author_id" | "publication_id" | "participants_id" | "_id" | "channel_chat_id"> &{

@@ -23,6 +23,7 @@ import ManageChat from './components/Chat/ChatManage';
 import ManageUser from './components/Users/UserManage';
 import NotFound from './components/shared/notfound';
 import Users from './components/Users/UserPage';
+import DisplayInvite from './components/shared/DisplayInvite';
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
           <Route path={CRoute.login} element={<Login />} />
           <Route path={CRoute.register} element={<Register />} />
           <Route path={CRoute.resetPassword} element={<ResetPassword />} />
+          <Route path={`${CRoute.invite}/:id`} element={<DisplayInvite />}></Route>
 
 
           <Route path={CRoute.account} element={<Account />} />

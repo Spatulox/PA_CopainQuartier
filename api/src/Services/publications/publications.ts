@@ -86,11 +86,12 @@ export async function createPublication(user: User, content: CreatePublicationPa
         acti = activity?._id.toString()
     }
 
-    const dataToSave = {
+    const dataToSave: Publication = {
+        _id: new ObjectID(),
         name: content.name,
         description: content.description,
         author_id: user._id,
-        activity_id: acti ? acti : undefined,
+        activity_id: acti ? new ObjectID(acti) : null,
         body: content.body,
         created_at: new Date(),
         updated_at: new Date(),

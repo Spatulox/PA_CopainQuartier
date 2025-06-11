@@ -5,11 +5,13 @@ import { FilledUser, User } from "../../Models/UserModel";
 import { ChannelAuth, ChannelTable } from "../../DB_Schema/ChannelSchema";
 import { PublicationTable } from "../../DB_Schema/PublicationSchema";
 import { ActivityQueryParam, CreateActivityParam, UpdateActivityParam } from "../../Validators/activities";
-import { ForbiddenError, InternalServerError } from "routing-controllers";
+import { BadRequestError, ForbiddenError, InternalServerError } from "routing-controllers";
 import { objectToPublication } from "../publications/publications";
 import { toUserObject } from "../users/usersPublic";
 import { objectToChannel } from "../channels/channels";
 import { UserRole, UserTable } from "../../DB_Schema/UserSchema";
+import { Channel } from "../../Models/ChannelModel";
+import { Publication } from "../../Models/PublicationModel";
 
 export async function getActivityById(id: string): Promise<FilledActivity | null> {
     const activity = await ActivityTable.findById(id)
@@ -82,12 +84,26 @@ export async function getAllPublicActivities(): Promise<PublicFilledActivity[]> 
 }
 
 export async function createActivity(user: User, activity: CreateActivityParam): Promise<FilledActivity | null> {
+    if(await inActivity(user, activity) > 0){
+        throw new ForbiddenError("Vous participez déjà à une activité à cette date et heure.");
+    }
+
+    if(new Date(activity.date_end) < new Date(activity.date_reservation)){
+        throw new BadRequestError("La date de fin doit se situer après la date de début")
+    }
+
+    if(new Date(activity.date_reservation) <= new Date()){
+        throw new BadRequestError("La date de début ne doit pas se situer dans le passé")
+    }
+
     // Créer le channel chat
-    const channelParam = {
+    const channel_id = new ObjectID()
+    const channelParam: Channel = {
+        _id: channel_id,
+        activity_id: null,
         name: activity.title + " - Chat",
         type: "text",
         description: "Chat : " + activity.title,
-        publication_id: null,
         admin_id: user._id,
         messages: [],
         members: [user._id],
@@ -97,11 +113,14 @@ export async function createActivity(user: User, activity: CreateActivityParam):
     const channel = await ChannelTable.create(channelParam);
     if (!channel || !channel._id) throw new Error("Channel creation failed");
 
+    const activity_id = new ObjectID()
     // Créer la publication
-    const publicationParam = {
+    const publicationParam: Publication = {
+        _id: new ObjectID(),
         name: activity.title,
-        activity_id: null, // temporaire
+        activity_id: activity_id,
         body: activity.description,
+        description: activity.description,
         author_id: user._id,
         created_at: new Date(),
         updated_at: new Date()
@@ -110,13 +129,15 @@ export async function createActivity(user: User, activity: CreateActivityParam):
     if (!publication || !publication._id) throw new Error("Publication creation failed");
 
     // Créer l'activité avec les IDs du channel et de la publication
-    const activityToSave = {
+    const activityToSave: Activity = {
+        _id: activity_id,
         title: activity.title,
         description: activity.description,
-        date_reservation: activity.date_reservation,
+        date_reservation: new Date(activity.date_reservation),
+        date_end: new Date(activity.date_end),
         created_at: new Date(),
         author_id: user._id,
-        channel_chat_id: channel._id,
+        channel_chat_id: channel_id,
         publication_id: publication._id,
         participants_id: [user._id],
         location: activity.location,
@@ -128,24 +149,24 @@ export async function createActivity(user: User, activity: CreateActivityParam):
 
     await UserTable.updateOne(
         {_id: user._id},
-        {$addToSet: {group_chat_list_ids: channel._id}}
+        {$addToSet: {group_chat_list_ids: channel_id}}
     )
 
     // Mettre à jour la publication avec l'ID de l'activité
     await PublicationTable.updateOne(
         { _id: publication._id },
-        { $set: { activity_id: activityDoc._id } }
+        { $set: { activity_id: activity_id } }
     );
 
-    const populatedActivity = await ActivityTable.findById(activityDoc._id)
+    const populatedActivity = await ActivityTable.findById(activity_id)
     .populate('author_id')
     .populate('channel_chat_id')
     .populate('publication_id')
     .populate('participants_id');
 
     const channelUpdate2 = await ChannelTable.updateOne(
-        {_id: channel._id},
-        { $set: { activity_id: activityDoc._id } }
+        {_id: channel_id},
+        { $set: { activity_id: activity_id } }
     )
 
     return toActivityObject(populatedActivity) as FilledActivity | null;
@@ -156,6 +177,12 @@ export async function updateActivity(user: User, body: UpdateActivityParam, act_
     if (!act_id) {
         throw new ForbiddenError("Missing activity ID");
     }
+
+
+    if(await inActivity(user, body) > 1){
+        throw new ForbiddenError("Vous participez déjà à une autre activité à cette date et heure.");
+    }
+
     let doc 
     if(user.role == UserRole.admin){
         doc = await ActivityTable.findOneAndUpdate(
@@ -197,6 +224,10 @@ export async function updateActivity(user: User, body: UpdateActivityParam, act_
 export async function joinActivityById(user: User, activity: FilledActivity): Promise<boolean> {
     if (activity.participants && activity.participants.some((thuse: any) => thuse._id.toString() == user._id.toString() )) {
         throw new ForbiddenError("L'utilisateur participe déjà à cette activité.");
+    }
+
+    if(await inActivity(user, activity) > 0){
+        throw new ForbiddenError("Vous participez déjà à une activité à cette date et heure.");
     }
 
     const activityResult = await ActivityTable.updateOne(
@@ -292,6 +323,7 @@ export function toActivityObject(activityDoc: any): FilledActivity {
         description: obj.description,
         created_at: obj.created_at,
         date_reservation: obj.date_reservation,
+        date_end: obj.date_end,
         author: obj.author_id ? toUserObject(obj.author_id) : null,
         channel_chat: obj.channel_chat_id ? objectToChannel(obj.channel_chat_id) : null,
         publication: obj.publication_id ? objectToPublication(obj.publication_id): null,
@@ -310,10 +342,24 @@ export function ActivityToPublicActivity(activity : FilledActivity | null): Publ
         description: activity.description,
         created_at: activity.created_at,
         date_reservation: activity.date_reservation,
+        date_end: activity.date_end,
         author: activity.author,
         publication: activity.publication,
         location: activity.location,
         max_place: activity.max_place,
         reserved_place: activity.reserved_place,
     }
+}
+
+
+
+
+async function inActivity(user: User, activity: CreateActivityParam | UpdateActivityParam | FilledActivity): Promise<number>{
+    const conflictingActivities = await ActivityTable.find({
+        participants_id: user._id,
+        date_reservation: { $lt: activity.date_end },
+        date_end: { $gt: activity.date_reservation }
+    });
+
+    return conflictingActivities.length
 }

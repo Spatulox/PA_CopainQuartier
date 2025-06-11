@@ -37,7 +37,7 @@ export function CreateChannel({action, update} : CreateProps){
   const fields: FieldForm[] = [
     { name: "name", label: "Nom du channel", type: "text", required: true },
     { name: "description", label: "Description", type: "text", required: true },
-    { name: "type", label: "Type", type: "select", value: ["text", "vocal"], required: true },
+    /*{ name: "type", label: "Type", type: "select", value: ["text", "vocal"], required: true },*/
     { name: "activity_id_linked", label: "Lier une Activité (optionnal)", type: "select", value: getActivityArrayToValueLabel(), required: false },
   ];
 
