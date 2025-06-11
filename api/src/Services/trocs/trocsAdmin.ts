@@ -21,7 +21,8 @@ export function toTrocObjectAdmin(doc: any): Troc {
         updated_at: doc.updated_at,
         status: doc.status,
         type: doc.type,
-        visibility: doc.visibility
+        visibility: doc.visibility,
+        channel_id: doc.channel_id ? doc.channel_id : null,
     };
 }
 
@@ -56,7 +57,7 @@ export async function updateWaitingTrocStatus(id: string, status: TrocStatus.pen
     if (admin.role !== UserRole.admin) {
         throw new UnauthorizedError("Only admins can validate trocs");
     }
-    if (![TrocStatus.pending, TrocStatus.cancelled].includes(status)) {
+    if (![TrocStatus.pending, TrocStatus.cancelled, TrocStatus.hide].includes(status)) {
         throw new ForbiddenError("Invalid status for approval");
     }
     const doc = await TrocTable.findOneAndUpdate(

@@ -12,6 +12,7 @@ type UpdateTrocProps = {
     onUpdate: (id: string, option: object) => void;
     onDelete: (id: string) => void;
     onCancelReservation: (id: string) => void;
+    approveTroc: (id: string) => void;
 };
 
 export function UpdateTroc({
@@ -20,6 +21,7 @@ export function UpdateTroc({
     APIerror,
     onUpdate,
     onDelete,
+    approveTroc,
     onCancelReservation
 }: UpdateTrocProps) {
     const navigate = useNavigate();
@@ -115,7 +117,7 @@ export function UpdateTroc({
                         {(isAdmin || user?._id == troc.author?._id) && (
                             <>
                                 <span>
-                                    {isAdmin && (
+                                    {isAdmin && status != TrocStatus.waitingForApproval && (
                                         <>
                                         Status :
                                         <select value={status} onChange={e => setStatus(e.target.value)}>
@@ -123,6 +125,11 @@ export function UpdateTroc({
                                             <option key={option} value={option}>{option}</option>
                                         ))}
                                         </select> 
+                                        </>
+                                    )}
+                                    {isAdmin && status == TrocStatus.waitingForApproval && (
+                                        <>
+                                        Status : {status}
                                         </>
                                     )}
                                     {!isAdmin && (
@@ -182,7 +189,7 @@ export function UpdateTroc({
                     />
                 </p>
                 <span>
-                    {troc.type != TrocType.item ? (
+                    {troc.type != TrocType.item && dateReservation ? (
                         <>
                         <div>
                             Réservé le : 
@@ -199,7 +206,7 @@ export function UpdateTroc({
                         </div>
                         </>
                     ) : (
-                        <span>{new Date(dateReservation).toLocaleString()}</span>
+                        <span>Réservé le : Pas de réservation(s)</span>
                     )}
                 </span>
             </div>
@@ -212,6 +219,12 @@ export function UpdateTroc({
                         <button onClick={() => window.location.reload()}>Recharger la page</button>
                         <button onClick={handleUpdate}>Update Activity</button>
                         <button onClick={() => onDelete(troc._id)}>Supprimer le troc</button>
+                        </>
+                    )}
+
+                    {(isAdmin && status == TrocStatus.waitingForApproval) && (
+                        <>
+                        <button onClick={() => approveTroc(troc._id)}>Approver le troc</button>
                         </>
                     )}
 

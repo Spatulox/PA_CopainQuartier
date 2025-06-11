@@ -13,16 +13,21 @@ type Props = {
   chat: Channel;
   status: string;
   statusColor: string;
+  vocalStatusColor: string;
+  vocalStatus: string;
   memberRight: ChannelRight,
   messages: Message[];
   input: string;
   setInput: (value: string) => void;
   handleSubmit: (e: React.FormEvent) => void;
+  onStartVoiceChat: () => void;
+  onLeaveVoiceChat: () => void;
+  onGenerateInvite: (id: string) => void;
   messagesDivRef: React.RefObject<HTMLDivElement | null>;
 };
 
 const ChatRoom: React.FC<Props> = ({
-  id, chat, status, statusColor, memberRight, messages, input, setInput, handleSubmit, messagesDivRef
+  id, chat, status, vocalStatus, statusColor, vocalStatusColor, memberRight, messages, input, setInput, handleSubmit, onStartVoiceChat, onLeaveVoiceChat, onGenerateInvite, messagesDivRef
 }) => {
   const navigate = useNavigate()
   return  <div>
@@ -39,8 +44,17 @@ const ChatRoom: React.FC<Props> = ({
         </ul>
         <p className="chat-description">{chat.description}</p>
       </div>
+      <button onClick={() => onGenerateInvite(chat._id)}>Générer une invitation</button>
     </div>
-    <div id="status" style={{ color: statusColor, marginBottom: 8 }}>{status}</div>
+    <div id="status" style={{ color: statusColor, marginBottom: 8 }}>Chat : {status}</div>
+    <div className="call-info-div">
+      <ul>
+        <li style={{ color: vocalStatusColor, marginBottom: 8 }}>Vocal : {vocalStatus}</li>
+      </ul>
+      <button id="" onClick={onStartVoiceChat}>Démarrer un appel vocal</button>
+      <button onClick={onLeaveVoiceChat}>Quitter l'appel vocal</button>
+      <audio id="remoteAudio" src=""></audio>
+    </div>
     <div
       id="messages"
       style={{

@@ -14,7 +14,7 @@ export const zTransferChannel = z.object({
 
 export const zCreateChannel = z.object({
     name: z.string(),
-    type: z.enum(["text", "vocal"]),
+    //type: z.enum(["text", "vocal"]),
     description: z.string(),
     activity_id_linked: zObjectId.optional()
 })

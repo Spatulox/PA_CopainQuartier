@@ -1,18 +1,23 @@
 import mongoose, { ObjectId } from "mongoose";
 import { FilledUser, User } from "./UserModel";
+import { ObjectID } from "../DB_Schema/connexion";
+import { TrocStatusSchema, TrocTypeSchema, TrocVisibilitySchema } from "../Validators/trocs";
+import { z } from "zod";
+import { FilledChannel } from "./ChannelModel";
 
 export type Troc = {
-    _id: ObjectId,
+    _id: ObjectID,
     title: string,
     created_at: Date,
     description: string,
-    author_id: ObjectId,
-    reserved_at: Date,
-    reserved_by: ObjectId[],
+    author_id: ObjectID,
+    reserved_at?: Date,
+    reserved_by?: ObjectID[],
     updated_at: Date,
-    status: TrocStatus,
-    type: TrocType,
-    visibility : TrocVisibility
+    status: TrocStatus | z.infer<typeof TrocStatusSchema>, // compatibilité avec Zod
+    type: TrocType | z.infer<typeof TrocTypeSchema>, // compatibilité avec Zod
+    visibility : TrocVisibility | z.infer<typeof TrocVisibilitySchema>, // compatibilité avec Zod
+    channel_id: ObjectID | null,
 }
 
 export enum TrocType {
@@ -36,4 +41,4 @@ export enum TrocStatus {
     waitingForApproval = "waitingforapproval",
 }
 
-export type FilledTroc = Omit<Troc, "author_id" | "reserved_by"> & {author: User | FilledUser | null, reserved_by: User | FilledUser | string}
+export type FilledTroc = Omit<Troc, "author_id" | "reserved_by" | "channel_id"> & {author: User | FilledUser | null, reserved_by: User | FilledUser | string, channel: FilledChannel | null}

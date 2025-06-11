@@ -2,8 +2,9 @@ import React from "react";
 import { User, UserRole } from "../../../api/user";
 import { Route } from "../../constantes";
 import { useNavigate } from "react-router-dom";
-import { Troc, TrocStatus } from "../../../api/troc";
+import { Troc, TrocStatus, TrocType } from "../../../api/troc";
 import { useAuth } from "../shared/auth-context";
+import ChatPage from "../Chat/ChatPage";
 
 // Enum pour les boutons
 export enum ShowTrocButton {
@@ -12,7 +13,10 @@ export enum ShowTrocButton {
     Reserve = 1 << 2,        // 4 (0b00100) : Réserver le troc
     Cancel = 1 << 3,         // 8 (0b01000) : Annuler le troc
     Approve = 1 << 4,        //16 (0b10000) : Approve le troc
-    All = Troc | Manage | Reserve | Cancel | Approve,
+    Complete = 1 << 5,        //16 (0b10000) : Approve le troc
+    Leave = 1 << 6,
+    ShowChannel = 1 << 7,
+    All = Troc | Manage | Reserve | Cancel | Approve | Complete | Leave,
     None = 0
 }
 
@@ -21,9 +25,11 @@ type ShowTrocProps = {
     user: User | undefined;
     onViewTroc?: (id: string) => void;
     onManage?: (id: string) => void;
+    onComplete?: (id: string) => void;
     onReserve?: (id: string) => void;
     onCancel?: (id: string) => void;
     onApprove?: (id: string, bool: boolean) => void;
+    onLeave?: (id: string) => void;
     buttonShow: ShowTrocButton;
 };
 
@@ -32,14 +38,15 @@ export function ShowTroc({
     user,
     onViewTroc,
     onManage,
+    onComplete,
     onReserve,
     onCancel,
     onApprove,
+    onLeave,
     buttonShow
 }: ShowTrocProps) {
     const navigate = useNavigate();
     const {isAdmin} = useAuth()
-
     return (
         <div key={troc._id}>
             <h2>{troc.title}</h2>
@@ -114,25 +121,78 @@ export function ShowTroc({
                         </button>
                 )}
 
-                {/* Bouton "Réserver le troc" */}
-                {(buttonShow & ShowTrocButton.Reserve) !== 0 &&
-                    onReserve &&
+                {(buttonShow & ShowTrocButton.Complete) !== 0 &&
+                    onComplete &&
                     user &&
-                    troc.status !== TrocStatus.reserved && (
-                        <button onClick={() => onReserve(troc._id)}>
-                            Réserver le troc
+                    troc.status !== TrocStatus.completed &&
+                    (troc.author?._id === user._id || user.role === UserRole.admin) && (
+                        <button onClick={() => onComplete(troc._id)}>
+                            Fermer/Completer le troc
                         </button>
                 )}
 
-                {/* Bouton "Annuler le troc" */}
+                {/* Bouton "Réserver le troc" */}
+                {(buttonShow & ShowTrocButton.Reserve) !== 0 &&
+                    onReserve &&
+                    user && troc.author?._id !== user._id &&
+                    troc.status !== TrocStatus.reserved &&
+                    !troc.reserved_by.some(reservedUser => reservedUser && reservedUser._id === user._id)
+                    &&
+                    (
+                        <button onClick={() => onReserve(troc._id)}>
+                            Réserver
+                        </button>
+                )}
+
+                {/* Bouton "Annuler le troc" si je suis owner */}
                 {(buttonShow & ShowTrocButton.Cancel) !== 0 &&
                     onCancel &&
                     user &&
-                    troc.status !== TrocStatus.reserved && (
+                    troc.author?._id === user._id &&
+                    troc.reserved_by.length > 0 &&
+                    (
                         <button onClick={() => onCancel(troc._id)}>
-                            Réserver le troc
+                            Annuler la réservation
                         </button>
-                )}
+                    )
+                }
+
+                {/* Bouton "Annuler le troc" si je l'ai réservé */}
+                {(buttonShow & ShowTrocButton.Cancel) !== 0 &&
+                    onCancel &&
+                    user &&
+                    troc.reserved_by.some(reservedUser => reservedUser && reservedUser._id === user._id) &&
+                    troc.type !== TrocType.serviceMorethanOnePerson &&
+                    (
+                        <button onClick={() => onCancel(troc._id)}>
+                            Annuler la réservation
+                        </button>
+                    )
+                }
+
+                {/* Bouton "Annuler le troc" si je l'ai réservé ET que c'est un serviceMoreThanOnePerson */}
+                {(buttonShow & ShowTrocButton.Cancel) !== 0 &&
+                    onLeave &&
+                    user &&
+                    troc.reserved_by.some(reservedUser => reservedUser && reservedUser._id === user._id) &&
+                    troc.type === TrocType.serviceMorethanOnePerson &&
+                    (
+                        <button onClick={() => onLeave(troc._id)}>
+                            Quitter la réservation
+                        </button>
+                    )
+                }
+            </div>
+            <div>
+                {/* Show Channel if it's the admin of the person which "join" the troc */}
+                {   (buttonShow & ShowTrocButton.ShowChannel) !== 0 &&   
+                    troc.channel != null && user &&
+                    (
+                        troc.author?._id == user?._id || // admin
+                        troc.reserved_by.some(reservedUser => reservedUser && reservedUser._id === user._id)
+                    ) &&
+                    <ChatPage id_channel={troc.channel._id} />
+                }
             </div>
         </div>
     );

@@ -1,3 +1,4 @@
+import { Channel } from "./chat";
 import { ApiClient } from "./client";
 import { User } from "./user";
 
@@ -12,7 +13,8 @@ export type Troc = {
     updated_at: Date,
     status: TrocStatus,
     type: TrocType,
-    visibility : TrocVisibility
+    visibility : TrocVisibility,
+    channel: Channel | null,
 }
 
 export enum TrocVisibility {
@@ -47,6 +49,10 @@ export class TrocClass extends ApiClient{
         return await this.Get(`${this.url}/@me`)
     }
 
+    async getAllTrocsApplied(): Promise<Troc[]>{
+        return await this.Get(`${this.url}/@me?applied=true`)
+    }
+
     async getTrocByID(id: string): Promise<Troc>{
         return await this.Get(`${this.url}/${id}`)
     }
@@ -59,8 +65,20 @@ export class TrocClass extends ApiClient{
         await this.Patch(`${this.url}/${id}`, option)
     }
 
+    async completeTroc(id: string): Promise<void>{
+        await this.Patch(`${this.url}/${id}/complete`, {})
+    }
+
+    async leaveTroc(id: string): Promise<void>{
+        await this.Patch(`${this.url}/${id}/leave`, {})
+    }
+
+    async reservedTroc(id: string): Promise<void>{
+        await this.Patch(`${this.url}/${id}/reserve`, {})
+    }
+
     async cancelTroc(id: string): Promise<void>{
-        await this.Patch(`${this.url}/${id}`, {})
+        await this.Patch(`${this.url}/${id}/cancel`, {})
     }
 
     async deleteTroc(id: string): Promise<void>{

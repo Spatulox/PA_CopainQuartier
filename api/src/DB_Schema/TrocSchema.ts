@@ -11,7 +11,8 @@ const TrocSchema = new Schema<Troc>({
     updated_at: { type: Date },
     status : { type: String, _type: ['pending', 'completed', 'cancelled'] },
     type: { type: String, _type: ['service', 'item'] },
-    visibility : {type: String, _type: ['visible', 'hide']}
+    visibility : {type: String, _type: ['visible', 'hide']},
+    channel_id: {type: Schema.Types.ObjectId, ref: "Channel"},
 }, {
     timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }
 });

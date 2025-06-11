@@ -65,21 +65,6 @@ export class ChannelsController {
         return await createChannel(user, validData)
     }
 
-    @Post("/invite/:id")
-    @Authorized()
-    @HttpCode(204)
-    async inviteChannel(@CurrentUser() user: User, @Param("id")id: string):Promise<boolean>{
-        const validID = new ObjectID(zObjectId.parse(id))
-        const channel = getChannelById(validID)
-        if(!channel){
-            throw new NotFoundError("This channel doesn't exist")
-        }
-        if(!await addSomeoneFromChannel(validID, user._id)){
-            throw new BadRequestError()
-        }
-        return true
-    }
-
     @Patch("/:channel_id/adduser/:user_id")
     @Authorized()
     @HttpCode(204)
@@ -91,8 +76,12 @@ export class ChannelsController {
         if(channel && (channel.admin?._id.toString() != user._id.toString() && user.role != UserRole.admin)){
             throw new ForbiddenError("You can't add someone to the chat unless you are the admin")
         }
-        if(!await addSomeoneFromChannel(validChannelId, validUserId)){
+        const res = await addSomeoneFromChannel(validChannelId, validUserId)
+        if(!res && res != null){
             throw new BadRequestError()
+        }
+        if(res == null){
+            throw new BadRequestError("Vous êtes déjà dans ce channel...")
         }
         return true
     }
