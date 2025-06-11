@@ -9,6 +9,7 @@ import { ObjectID } from "../../DB_Schema/connexion";
 import { Channel } from "../../Models/ChannelModel";
 import { createChannel, objectToChannel } from "../channels/channels";
 import { UserTable } from "../../DB_Schema/UserSchema";
+import { ChannelAuth, ChannelTable } from "../../DB_Schema/ChannelSchema";
 
 export function toTrocObject(doc: any): FilledTroc {
     return {
@@ -70,7 +71,9 @@ export async function getTrocById(id: ObjectId): Promise<FilledTroc | null> {
 export async function createTroc(trocBody: CreateTrocBody, user: User): Promise<FilledTroc> {
     const troc_id = new ObjectID()
 
-    const channel = await createChannel(user, {name: trocBody.title, description: trocBody.description})
+    const channel = await createChannel(user, { name: trocBody.title,
+                                                description: trocBody.description,
+                                                troc_id_linked: troc_id.toString()})
     if(!channel){
         throw new InternalServerError("Impossible to create a channel linked to a Troc")
     }
@@ -89,14 +92,6 @@ export async function createTroc(trocBody: CreateTrocBody, user: User): Promise<
     const troc = new TrocTable(data);
     await troc.save();
 
-    const userDoc = await UserTable.updateOne(
-        {_id: user._id},
-        {$addToSet: {group_chat_list_ids: channel?._id}},
-        {new: true}
-    )
-    if(userDoc.modifiedCount <= 0 && userDoc.matchedCount <= 0){
-        throw new InternalServerError("Impossible to link the chat (linked to the troc) to a user")
-    }
     return toTrocObject(troc);
 }
 
@@ -118,8 +113,10 @@ export async function deleteTroc(id: ObjectId, userId: ObjectId, isAdmin: boolea
     }
     if (isAdmin || troc.author_id.toString() === userId.toString()) {
         const res = await TrocTable.deleteOne({ _id: id }).exec();
-        return res.deletedCount === 1;
+        const res2 = await ChannelTable.deleteOne({_id: troc.channel_id}).exec()
+        return res.deletedCount === 1 && res2.deletedCount === 1;
     }
+
     throw new ForbiddenError("Not authorized to delete this troc");
 }
 
@@ -174,6 +171,12 @@ export async function completeTroc(id: ObjectId, authorId: ObjectId): Promise<Fi
         { status: TrocStatus.completed },
         { new: true }
     ).exec();
+
+    await ChannelTable.findOneAndUpdate(
+        { _id: troc.channel_id },
+        { member_auth: ChannelAuth.read_only }
+    )
+
     return doc ? toTrocObject(doc) : null;
 }
 
