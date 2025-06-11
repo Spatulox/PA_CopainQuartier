@@ -97,7 +97,6 @@ function ShowTrocPage() {
     if (!troc) {
         return <Loading title="Chargement de l'activité" />;
     }
-    console.log(troc)
     return (
         <ShowTroc
             key={troc._id}
@@ -108,7 +107,7 @@ function ShowTrocPage() {
             onReserve={(id: string) => onReserveTroc(id)}
             onCancel={(id: string) => onCancelTroc(id)}
             onLeave={(id: string) => onLeaveTroc(id)}
-            buttonShow={ShowTrocButton.Manage | ShowTrocButton.Reserve | ShowTrocButton.Cancel | ShowTrocButton.Complete | ShowTrocButton.Leave}
+            buttonShow={ShowTrocButton.Manage | ShowTrocButton.Reserve | ShowTrocButton.Cancel | ShowTrocButton.Complete | ShowTrocButton.Leave | ShowTrocButton.ShowChannel}
         />
     );
 }

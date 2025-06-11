@@ -4,6 +4,7 @@ import { Route } from "../../constantes";
 import { useNavigate } from "react-router-dom";
 import { Troc, TrocStatus, TrocType } from "../../../api/troc";
 import { useAuth } from "../shared/auth-context";
+import ChatPage from "../Chat/ChatPage";
 
 // Enum pour les boutons
 export enum ShowTrocButton {
@@ -14,6 +15,7 @@ export enum ShowTrocButton {
     Approve = 1 << 4,        //16 (0b10000) : Approve le troc
     Complete = 1 << 5,        //16 (0b10000) : Approve le troc
     Leave = 1 << 6,
+    ShowChannel = 1 << 7,
     All = Troc | Manage | Reserve | Cancel | Approve | Complete | Leave,
     None = 0
 }
@@ -45,7 +47,7 @@ export function ShowTroc({
 }: ShowTrocProps) {
     const navigate = useNavigate();
     const {isAdmin} = useAuth()
-    console.log(troc.author)
+    console.log(troc.channel)
     return (
         <div key={troc._id}>
             <h2>{troc.title}</h2>
@@ -180,6 +182,17 @@ export function ShowTroc({
                             Quitter la réservation
                         </button>
                     )
+                }
+            </div>
+            <div>
+                {/* Show Channel if it's the admin of the person which "join" the troc */}
+                {   (buttonShow & ShowTrocButton.ShowChannel) !== 0 &&   
+                    troc.channel != null && user &&
+                    (
+                        troc.author?._id == user?._id || // admin
+                        troc.reserved_by.some(reservedUser => reservedUser && reservedUser._id === user._id)
+                    ) &&
+                    <ChatPage id_channel={troc.channel._id} />
                 }
             </div>
         </div>
