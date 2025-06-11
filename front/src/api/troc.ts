@@ -1,3 +1,4 @@
+import { Channel } from "./chat";
 import { ApiClient } from "./client";
 import { User } from "./user";
 
@@ -12,7 +13,8 @@ export type Troc = {
     updated_at: Date,
     status: TrocStatus,
     type: TrocType,
-    visibility : TrocVisibility
+    visibility : TrocVisibility,
+    channel: Channel | null,
 }
 
 export enum TrocVisibility {
