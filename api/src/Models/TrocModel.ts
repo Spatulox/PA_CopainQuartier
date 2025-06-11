@@ -3,6 +3,7 @@ import { FilledUser, User } from "./UserModel";
 import { ObjectID } from "../DB_Schema/connexion";
 import { TrocStatusSchema, TrocTypeSchema, TrocVisibilitySchema } from "../Validators/trocs";
 import { z } from "zod";
+import { FilledChannel } from "./ChannelModel";
 
 export type Troc = {
     _id: ObjectID,
@@ -15,7 +16,8 @@ export type Troc = {
     updated_at: Date,
     status: TrocStatus | z.infer<typeof TrocStatusSchema>, // compatibilité avec Zod
     type: TrocType | z.infer<typeof TrocTypeSchema>, // compatibilité avec Zod
-    visibility : TrocVisibility | z.infer<typeof TrocVisibilitySchema> // compatibilité avec Zod
+    visibility : TrocVisibility | z.infer<typeof TrocVisibilitySchema>, // compatibilité avec Zod
+    channel_id: ObjectID | null,
 }
 
 export enum TrocType {
@@ -39,4 +41,4 @@ export enum TrocStatus {
     waitingForApproval = "waitingforapproval",
 }
 
-export type FilledTroc = Omit<Troc, "author_id" | "reserved_by"> & {author: User | FilledUser | null, reserved_by: User | FilledUser | string}
+export type FilledTroc = Omit<Troc, "author_id" | "reserved_by" | "channel_id"> & {author: User | FilledUser | null, reserved_by: User | FilledUser | string, channel: FilledChannel | null}
