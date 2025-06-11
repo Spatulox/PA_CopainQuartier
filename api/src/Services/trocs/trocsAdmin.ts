@@ -21,7 +21,8 @@ export function toTrocObjectAdmin(doc: any): Troc {
         updated_at: doc.updated_at,
         status: doc.status,
         type: doc.type,
-        visibility: doc.visibility
+        visibility: doc.visibility,
+        channel_id: doc.channel_id ? doc.channel_id : null,
     };
 }
 

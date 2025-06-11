@@ -1,4 +1,4 @@
-import { ForbiddenError } from "routing-controllers";
+import { ForbiddenError, InternalServerError } from "routing-controllers";
 import { TrocTable } from "../../DB_Schema/TrocSchema";
 import { FilledTroc, Troc, TrocStatus, TrocType, TrocVisibility } from "../../Models/TrocModel";
 import { User } from "../../Models/UserModel";
@@ -6,6 +6,9 @@ import { CreateTrocBody, UpdateTrocBody } from "../../Validators/trocs";
 import { toUserObject } from "../users/usersPublic";
 import { ObjectId } from "mongodb";
 import { ObjectID } from "../../DB_Schema/connexion";
+import { Channel } from "../../Models/ChannelModel";
+import { createChannel, objectToChannel } from "../channels/channels";
+import { UserTable } from "../../DB_Schema/UserSchema";
 
 export function toTrocObject(doc: any): FilledTroc {
     return {
@@ -19,7 +22,8 @@ export function toTrocObject(doc: any): FilledTroc {
         updated_at: doc.updated_at,
         status: doc.status,
         type: doc.type,
-        visibility: doc.visibility
+        visibility: doc.visibility,
+        channel: doc.channel_id ? objectToChannel(doc.channel_id) : null,
     };
 }
 
@@ -57,6 +61,7 @@ export async function getTrocById(id: ObjectId): Promise<FilledTroc | null> {
     const doc = await TrocTable.findById(id)
     .populate("reserved_by")
     .populate("author_id")
+    .populate("channel_id")
     .exec();
     return doc ? toTrocObject(doc) : null;
 }
@@ -64,6 +69,12 @@ export async function getTrocById(id: ObjectId): Promise<FilledTroc | null> {
 // POST : Création (toujours waitingForApproval)
 export async function createTroc(trocBody: CreateTrocBody, user: User): Promise<FilledTroc> {
     const troc_id = new ObjectID()
+
+    const channel = await createChannel(user, {name: trocBody.title, description: trocBody.description})
+    if(!channel){
+        throw new InternalServerError("Impossible to create a channel linked to a Troc")
+    }
+
     const data: Troc = {
         _id: troc_id,
         ...trocBody,
@@ -72,10 +83,20 @@ export async function createTroc(trocBody: CreateTrocBody, user: User): Promise<
         status: TrocStatus.waitingForApproval,
         created_at: new Date(),
         updated_at: new Date(),
-        visibility: TrocVisibility.visible
+        visibility: TrocVisibility.visible,
+        channel_id: new ObjectID(channel?._id),
     }
     const troc = new TrocTable(data);
     await troc.save();
+
+    const userDoc = await UserTable.updateOne(
+        {_id: user._id},
+        {$addToSet: {group_chat_list_ids: channel?._id}},
+        {new: true}
+    )
+    if(userDoc.modifiedCount <= 0 && userDoc.matchedCount <= 0){
+        throw new InternalServerError("Impossible to link the chat (linked to the troc) to a user")
+    }
     return toTrocObject(troc);
 }
 
