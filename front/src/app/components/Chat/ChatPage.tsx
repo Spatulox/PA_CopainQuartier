@@ -35,7 +35,11 @@ type IceCandidateMsg = {
   }
 }
 
-function ChatPage() {
+type ChatProps = {
+    id_channel: string
+};
+
+function ChatPage({id_channel}: ChatProps) {
   const { me } = useAuth();
   const { id } = useParams();
   const navigate = useNavigate();
@@ -57,19 +61,21 @@ function ChatPage() {
   const reconnectTimeout = useRef<number | null>(null);
   const reconnectDelay = useRef<number>(1000); // 1s de base
 
+  const chatID = id_channel || id 
+
   // Fonction pour ouvrir la connexion WebSocket
   const openWebSocket = React.useCallback(() => {
-    if (!id) return;
+    if (!chatID) return;
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) return;
 
-    const ws = new window.WebSocket(`ws://localhost:3000/channel/${id}`);
+    const ws = new window.WebSocket(`ws://localhost:3000/channel/${chatID}`);
     wsRef.current = ws;
 
     const user = new ChatClass();
     setToken(user.getAuthToken());
 
     const fetchChannel = async () => {
-      const chan = await user.getChannelById(id);
+      const chan = await user.getChannelById(chatID);
       setChannel(chan);
     };
     fetchChannel();
@@ -110,7 +116,7 @@ function ChatPage() {
       if (msg.type === MsgType.ANSWER) onAnswer(msg)
       if (msg.type === MsgType.CANDIDATE) onCandidate(msg)
     };
-  }, [id]);
+  }, [chatID]);
 
 
   async function onOffer(msg: OfferMsg){
@@ -277,7 +283,7 @@ function ChatPage() {
       if (wsRef.current) wsRef.current.close();
       if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);
     };
-  }, [id, openWebSocket]);
+  }, [chatID, openWebSocket]);
 
   // Scroll auto
   useEffect(() => {
@@ -308,7 +314,7 @@ function ChatPage() {
     }
   }
 
-  if (!id) return <div><ChannelList /></div>;
+  if (!chatID) return <div><ChannelList /></div>;
   if (!me) return <NotFound />;
   if(!channel){
     return <NotFound />
@@ -322,7 +328,7 @@ function ChatPage() {
       : ChannelRight.read_only;
   return (
     <ChatRoom
-      id={id}
+      id={chatID}
       chat={channel}
       status={status}
       vocalStatus={vocalStatus}
