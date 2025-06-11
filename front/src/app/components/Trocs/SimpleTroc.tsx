@@ -47,7 +47,6 @@ export function ShowTroc({
 }: ShowTrocProps) {
     const navigate = useNavigate();
     const {isAdmin} = useAuth()
-    console.log(troc.channel)
     return (
         <div key={troc._id}>
             <h2>{troc.title}</h2>
