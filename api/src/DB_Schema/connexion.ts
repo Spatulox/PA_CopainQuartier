@@ -1,13 +1,13 @@
 import mongoose from 'mongoose';
+import { config } from '../Utils/config';
 
-const mongoURI = 'mongodb://admin:admin@localhost:27017';
 
 let isConnected = false;
 
 export async function connectDB() {
   if (!isConnected) {
     try {
-      await mongoose.connect(mongoURI);
+      await mongoose.connect(config.mongoUrl);
       console.log('Connexion à MongoDB réussie');
       isConnected = true;
     } catch (err) {
