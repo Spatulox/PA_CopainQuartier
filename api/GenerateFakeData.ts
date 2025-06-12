@@ -199,6 +199,9 @@ async function UpdateUserTrocs(trocs: TrocModel[]) {
         }
         userTrocs.get(troc.author_id.toString()).created.push(troc._id);
 
+        if(!troc.reserved_by) {
+            continue; 
+        }
         if (!userTrocs.has(troc.reserved_by.toString())) {
             userTrocs.set(troc.reserved_by.toString(), { created: [], reserved: [] });
         }

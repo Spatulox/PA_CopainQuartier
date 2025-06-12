@@ -1,0 +1,24 @@
+services:
+  nodejs:
+    build: ./api
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongodb
+    environment:
+      - MONGO_URL=mongodb://admin:admin@mongodb:27017/
+      - JWT_SALT=${JWT_SALT}
+      - PASSWORD_SALT=${PASSWORD_SALT}
+
+  mongodb:
+    image: mongo:4.4
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin
+    volumes:
+      - mongodb-data:/data/db
+
+volumes:
+  mongodb-data:
