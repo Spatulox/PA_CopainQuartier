@@ -25,6 +25,7 @@ export function toTrocObject(doc: any): FilledTroc {
         type: doc.type,
         visibility: doc.visibility,
         channel: doc.channel_id ? objectToChannel(doc.channel_id) : null,
+        max_user: doc.max_user ? doc.max_user : null,
     };
 }
 
@@ -80,14 +81,16 @@ export async function createTroc(trocBody: CreateTrocBody, user: User): Promise<
 
     const data: Troc = {
         _id: troc_id,
-        ...trocBody,
+        title: trocBody.title,
+        description: trocBody.description,
+        type: trocBody.type,
+        max_user: trocBody.max_user ? trocBody.max_user : null,
         author_id: user._id,
-        description : trocBody.description,
         status: TrocStatus.waitingForApproval,
         created_at: new Date(),
         updated_at: new Date(),
         visibility: TrocVisibility.visible,
-        channel_id: new ObjectID(channel?._id),
+        channel_id: new ObjectID(channel?._id)
     }
     const troc = new TrocTable(data);
     await troc.save();
