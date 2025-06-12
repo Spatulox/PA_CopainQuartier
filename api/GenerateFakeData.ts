@@ -53,6 +53,7 @@ async function FakeUser(){
         name: faker.person.firstName(),
         lastname: faker.person.lastName(),
         email: faker.internet.email(),
+        phone: faker.phone.number(),
         address: faker.location.streetAddress(),
         verified: faker.datatype.boolean(),
         role: 'admin',
@@ -74,6 +75,7 @@ async function FakeUser(){
             role: 'member',
             group_chat_list_ids: [], // Nous le laisserons vide pour l'instant
             troc_score: faker.helpers.maybe(() => faker.number.int({ min: 0, max: 100 }).toString(), { probability: 0.7 }),
+            password: await hashPassword(faker.internet.password()),
             phone: faker.phone.number(),
         });
 
@@ -109,6 +111,7 @@ async function FakePublication(users: UserModel[]) {
     for (let i = 0; i < 30; i++) {
         const publication = new PublicationTable({
             name: faker.lorem.sentence(),
+            description: faker.lorem.sentence(),
             body: faker.lorem.paragraphs(),
             author_id: faker.helpers.arrayElement(users)._id,
             created_at: faker.date.past(),
@@ -162,7 +165,10 @@ async function FakeActivity(users: UserModel[], channels: ChannelModel[], public
             author_id: author,
             channel_chat_id: chatId,
             publication_id: publicationId,
-            participants_id: members
+            participants_id: members,
+            max_place: faker.number.int({ min: members.length, max: 20 }),
+            reserved_place: members.length,
+            location: faker.location.city(),
         });
         await activity.save();
         activities.push(activity)
