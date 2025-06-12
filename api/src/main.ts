@@ -29,7 +29,7 @@ async function main(){
     currentUserChecker: getCurrentUser,
     middlewares: [ErrorHandler],
     cors: {
-      origin: ['http://localhost:5173', 'http://copain-quartier.fr'], // Add more origins as needed
+      origin: process.env.FRONTEND_URL || 'http://localhost:5173',
       credentials: true
     },
     controllers: [
@@ -46,8 +46,7 @@ async function main(){
       InviteController,
       PublicationsController,
       TrocController,
-      UserController
-    ],
+      UserController],
     defaultErrorHandler: false
   }
 

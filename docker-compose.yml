@@ -9,6 +9,7 @@ services:
       - MONGO_URL=mongodb://admin:admin@mongodb:27017/
       - JWT_SALT=${JWT_SALT}
       - PASSWORD_SALT=${PASSWORD_SALT}
+      - FRONTEND_URL=${FRONTEND_URL}
 
   frontend:
     build: ./front
