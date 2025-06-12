@@ -11,6 +11,7 @@ import { Publication as PublicationModel} from './src/Models/PublicationModel'
 import { Activity as ActivityModel } from './src/Models/ActivityModel'
 
 import { closeDB, connectDB } from "./src/DB_Schema/connexion";
+import { hashPassword } from "./src/Services/auth/password";
 
 export async function GenerateFakeData(){
     await connectDB()
@@ -57,7 +58,7 @@ async function FakeUser(){
         role: 'admin',
         group_chat_list_ids: [], // Nous le laisserons vide pour l'instant
         troc_score: faker.helpers.maybe(() => faker.number.int({ min: 0, max: 100 }).toString(), { probability: 0.7 }),
-        phone: faker.phone.number(),
+        password: await hashPassword(faker.internet.password()),
     });
 
     const savedUser = await user.save();
