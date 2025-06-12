@@ -20,7 +20,7 @@ export class ApiClient {
   protected readonly accessTokenKey = 'accessToken';
   protected readonly refreshTokenKey = 'refreshToken';
   protected readonly userKey = 'user';
-  baseURL = "http://localhost:3000"
+  baseURL = import.meta.env.VITE_API_URL || "http://localhost:3000"
   private username = ""
   private password = ""
   user: User = null
