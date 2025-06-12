@@ -17,6 +17,7 @@ services:
       - "5173:5173"
     environment:
       - VITE_API_URL=nodejs:3000
+      - VITE_ALLOWED_HOST=${FRONTEND_URL}
 
   mongodb:
     image: mongo:4.4
