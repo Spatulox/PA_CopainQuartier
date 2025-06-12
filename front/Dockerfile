@@ -20,7 +20,7 @@ ENV NODE_ENV=production
 WORKDIR /usr/src/app
 
 # Install app dependencies
-COPY package.json package-lock.json vite-config.js ./
+COPY package.json package-lock.json vite.config.js ./
 
 RUN npm install --only=production --no-audit 
 
