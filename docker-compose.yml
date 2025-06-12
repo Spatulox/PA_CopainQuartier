@@ -10,6 +10,13 @@ services:
       - JWT_SALT=${JWT_SALT}
       - PASSWORD_SALT=${PASSWORD_SALT}
 
+  frontend:
+    build: ./front
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:3000}
+
   mongodb:
     image: mongo:4.4
     ports:
