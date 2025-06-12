@@ -2,11 +2,13 @@
 import React from "react";
 
 type Field = {
+  id?:string;
   name: string;
   label: string;
   type: string;
   value?: {value: string, label: string}[] | string[]
   required?: boolean;
+  hide?:boolean
 };
 
 type SwitchButton = {
@@ -22,6 +24,7 @@ type FormProps<T extends Record<string, string | number | Date>> = {
     setFormData: React.Dispatch<React.SetStateAction<T>>;
     errors: string[];
     onSubmit: (e: React.FormEvent) => void;
+    onClick: (e: React.MouseEvent<HTMLElement>) => void
     switchButtons?: SwitchButton[];
     submitLabel: string;
     children?: React.ReactNode;
@@ -38,6 +41,7 @@ function Form<T extends Record<string, string | number | Date>>({
     title,fields,formData,
     setFormData,errors,
     onSubmit,
+    onClick,
     switchButtons = [],
     submitLabel, children
 }: FormProps<T>) {
@@ -55,20 +59,28 @@ function Form<T extends Record<string, string | number | Date>>({
                 }))
               }
               required={field.required !== false}
+              style={field.hide ? { display: "none" } : {}}
+              id={field.id}
             >
               <option value="">-- Sélectionner --</option>
                 {(field.value || []).map((option) => {
                   if (typeof option === "string") {
                     // string[]
                     return (
-                      <option key={option} value={option}>
+                      <option
+                        key={option}
+                        value={option}
+                        onClick={onClick}>
                         {option}
                       </option>
                     );
                   } else {
                     // { value, label }[]
                     return (
-                      <option key={option.value} value={option.value}>
+                      <option
+                        key={option.value}
+                        value={option.value}
+                        onClick={onClick}>
                         {option.label}
                       </option>
                     );
@@ -87,6 +99,9 @@ function Form<T extends Record<string, string | number | Date>>({
                 }))
               }
               required={field.required !== false}
+              style={field.hide ? { display: "none" } : {}}
+              id={field.id}
+              onClick={onClick}
             />
           );
         case "checkbox":
@@ -101,17 +116,28 @@ function Form<T extends Record<string, string | number | Date>>({
                 }))
               }
               required={field.required !== false}
+              style={field.hide ? { display: "none" } : {}}
+              id={field.id}
+              onClick={onClick}
             />
           );
         case "radio":
           return (
-            <fieldset>
+            <fieldset
+              style={field.hide ? { display: "none" } : {}}
+              id={field.id}
+            >
               <legend>{field.label}</legend>
               {(field.value || []).map((option) => {
                 if (typeof option === "string") {
                   // string[]
                   return (
-                    <label key={option} style={{ marginRight: 10 }}>
+                    <label
+                      key={option}
+                      style={{ marginRight: 10 }}
+                      id={option.split(" ").join("")}
+                      onClick={onClick}
+                    >
                       <input
                         type="radio"
                         name={field.name}
@@ -124,6 +150,7 @@ function Form<T extends Record<string, string | number | Date>>({
                           }))
                         }
                         required={field.required !== false}
+                        onClick={onClick}
                       />
                       {option}
                     </label>
@@ -131,7 +158,10 @@ function Form<T extends Record<string, string | number | Date>>({
                 } else {
                   // { value, label }[]
                   return (
-                    <label key={option.value} style={{ marginRight: 10 }}>
+                    <label
+                      key={option.value}
+                      style={{marginRight: 10}}
+                      onClick={onClick}>
                       <input
                         type="radio"
                         name={field.name}
@@ -144,6 +174,7 @@ function Form<T extends Record<string, string | number | Date>>({
                           }))
                         }
                         required={field.required !== false}
+                        onClick={onClick}
                       />
                       {option.label}
                     </label>
@@ -153,8 +184,6 @@ function Form<T extends Record<string, string | number | Date>>({
             </fieldset>
           );
         
-
-
 
         default:
           return (
@@ -168,6 +197,9 @@ function Form<T extends Record<string, string | number | Date>>({
                 }))
               }
               required={field.required !== false}
+              style={field.hide ? { display: "none" } : {}}
+              id={field.id}
+              onClick={onClick}
             />
           );
       }
@@ -188,7 +220,10 @@ function Form<T extends Record<string, string | number | Date>>({
             <form onSubmit={onSubmit}>
               {fields.map((field) => (
                 <div className="form-group" key={field.name}>
-                  <label>{field.label}</label>
+                  <label
+                    id={field.id + "_label"}
+                    style={field.hide ? { display: "none" } : {}} >{field.label}
+                  </label>
                   {renderField(field)}
                 </div>
               ))}
