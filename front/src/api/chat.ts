@@ -22,7 +22,7 @@ export type Channel = {
     description: string,
     created_at: string
     member_auth: string,
-    members: string[]
+    members: User[] | string[]
     messages: string[]
 };
 
