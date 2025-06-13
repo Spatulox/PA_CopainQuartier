@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Route } from "../../constantes";
 import { Channel } from "../../../api/chat";
 import { useEffect, useState } from "react";
+import NotFound from "../shared/notfound";
 
 type ShowUserProps = {
     theuser: string | null,
@@ -20,21 +21,29 @@ export function MiniUser({
     onRequest,
     onManage
 }: ShowUserProps) {
-    const navigate = useNavigate()
     const [theUserObject, setTheUser] = useState<User | null>(null)
+    const [notFound, setNotFound] = useState(false)
 
     useEffect(() => {
         (async () => {
             const client = new UserClass
             try {
-                if(!theuser) return
+                if(!theuser){
+                    setNotFound(true)
+                    return
+                }
                 const res = await client.getUserByID(theuser)
                 setTheUser(res)
+                setNotFound(false)
             } catch (e) {
                 console.error(e)
             }
         })()
     }, [theuser])
+
+    if(notFound){
+        return <NotFound />
+    }
 
 
     if(theUserObject)
