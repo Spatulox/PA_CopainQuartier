@@ -19,7 +19,7 @@ export type User ={
 
 export type FilledUser = Omit<User, "_id" | "group_chat_list_ids" | "friends_id" | "password" | "friends_request_id"> & {_id: string, group_chat_list_ids: FilledChannel[], friends: ObjectID[], friends_request: ObjectID[] };
 
-export type PublicUser = Omit<User, "password" | "email" | "address" | "phone"> & {
+export type PublicUser = Omit<User, "password" | "email" | "address" | "phone" | "friends_id" | "friends_request_id"> & {
     common_channels: string[];
 };
 

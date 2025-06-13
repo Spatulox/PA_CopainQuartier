@@ -33,9 +33,7 @@ export async function getPublicUserById(currentUser: User, targetUserId: ObjectI
         role: targetUser.role,
         group_chat_list_ids: [],
         troc_score: targetUser.troc_score ? targetUser.troc_score.toString() : null,
-        common_channels: commonChannels,
-        friends_id: [],
-        friends_request_id: []
+        common_channels: commonChannels
     };
 
     return publicUser;
