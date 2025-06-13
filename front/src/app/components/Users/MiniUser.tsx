@@ -45,7 +45,6 @@ export function MiniUser({
         return <NotFound />
     }
 
-
     if(theUserObject)
     return (
         <div key={theUserObject._id}>
@@ -66,7 +65,7 @@ export function MiniUser({
                         Gérer l'utilisateur
                     </button>
                 )}
-                {onRequest && (<button onClick={() => onRequest(theUserObject._id)}>Demander en ami</button>)}
+                {onRequest && user?._id !== theUserObject._id && (<button onClick={() => onRequest(theUserObject._id)}>Demander en ami</button>)}
             </div>
         </div>
     );
