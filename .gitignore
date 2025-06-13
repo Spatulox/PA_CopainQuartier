@@ -11,3 +11,5 @@ front/.vite
 .idea/
 
 target/
+
+.env
