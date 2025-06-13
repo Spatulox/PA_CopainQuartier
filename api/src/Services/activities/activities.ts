@@ -101,6 +101,7 @@ export async function createActivity(user: User, activity: CreateActivityParam):
     const channelParam: Channel = {
         _id: channel_id,
         activity_id: null,
+        troc_id: null,
         name: activity.title + " - Chat",
         type: "text",
         description: "Chat : " + activity.title,

@@ -16,6 +16,7 @@ import { parse } from 'url';
 import { AuthController } from './Controllers/AuthController';
 import cors from 'cors'
 import { InviteController } from './Controllers/InviteController';
+import { FriendsController } from './Controllers/FriendsController';
 
 
 async function main(){
@@ -43,6 +44,7 @@ async function main(){
       ActivityController,
       AuthController,
       ChannelsController,
+      FriendsController,
       InviteController,
       PublicationsController,
       TrocController,

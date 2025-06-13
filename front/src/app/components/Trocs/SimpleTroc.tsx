@@ -189,7 +189,7 @@ export function ShowTroc({
                     troc.channel != null && user &&
                     (
                         troc.author?._id == user?._id || // admin
-                        troc.reserved_by.some(reservedUser => reservedUser && reservedUser._id === user._id)
+                        troc.channel.members.some(reservedUser => reservedUser && reservedUser === user._id)
                     ) &&
                     <ChatPage id_channel={troc.channel._id} />
                 }

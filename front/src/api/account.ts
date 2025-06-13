@@ -1,7 +1,7 @@
 import { ActivityClass } from "./activity";
-import { User } from "./user";
+import { User, UserClass } from "./user";
 
-export class AccountClass extends ActivityClass{
+export class AccountClass extends UserClass{
 
     protected url = "/account"
 
