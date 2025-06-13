@@ -1,11 +1,12 @@
-import { User, UserRole } from "../../../api/user";
+import { User, UserClass, UserRole } from "../../../api/user";
 import { ShowChat, ShowChatButton } from "../Chat/SingleChat";
 import { useNavigate } from "react-router-dom";
 import { Route } from "../../constantes";
 import { Channel } from "../../../api/chat";
+import { useEffect, useState } from "react";
 
 type ShowUserProps = {
-    theuser: User,
+    theuser: string | null,
     user: User | null,
     onViewUser?: (id: string) => void,
     onRequest?: (id: string) => void,
@@ -20,27 +21,43 @@ export function MiniUser({
     onManage
 }: ShowUserProps) {
     const navigate = useNavigate()
-    if(theuser)
+    const [theUserObject, setTheUser] = useState<User | null>(null)
+
+    useEffect(() => {
+        (async () => {
+            const client = new UserClass
+            try {
+                if(!theuser) return
+                const res = await client.getUserByID(theuser)
+                setTheUser(res)
+            } catch (e) {
+                console.error(e)
+            }
+        })()
+    }, [theuser])
+
+
+    if(theUserObject)
     return (
-        <div key={theuser._id}>
+        <div key={theUserObject._id}>
             <div>
-                <h3>{theuser.name} {theuser.lastname}</h3>
+                <h3>{theUserObject.name} {theUserObject.lastname}</h3>
                 <section>
                     <h3>Coordonnées</h3>
                     <ul>
-                        <li>Rôle : {theuser.role}</li>
-                        <li>Score au Troc : {theuser.troc_score}</li>
+                        <li>Rôle : {theUserObject.role}</li>
+                        <li>Score au Troc : {theUserObject.troc_score}</li>
                     </ul>
                 </section>
             </div>
             <div>
-                {onViewUser && (<button id={theuser._id} onClick={() => onViewUser((theuser._id))}>Voir l'utilisateur</button>)}
+                {onViewUser && (<button id={theUserObject._id} onClick={() => onViewUser((theUserObject._id))}>Voir l'utilisateur</button>)}
                 {user?.role == UserRole.admin && onManage && (
-                    <button id={theuser._id} onClick={() => onManage(theuser._id)}>
+                    <button id={theUserObject._id} onClick={() => onManage(theUserObject._id)}>
                         Gérer l'utilisateur
                     </button>
                 )}
-                {onRequest && (<button onClick={() => onRequest(theuser._id)}>Demander en ami</button>)}
+                {onRequest && (<button onClick={() => onRequest(theUserObject._id)}>Demander en ami</button>)}
             </div>
         </div>
     );
