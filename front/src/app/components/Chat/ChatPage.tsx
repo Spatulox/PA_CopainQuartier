@@ -7,6 +7,10 @@ import ChatRoom, { ChannelRight } from "./ChatRoom";
 import { ChannelList } from "./ChatList";
 import { popup } from "../../scripts/popup-slide";
 import { InviteClass } from "../../../api/invite";
+import { MiniUser } from "../Users/MiniUser";
+import { User, UserClass } from "../../../api/user";
+import { Route } from "../../constantes";
+import { FriendsClass } from "../../../api/friend";
 
 enum MsgType {
   INIT = "INIT",
@@ -50,7 +54,9 @@ function ChatPage({id_channel}: ChatProps) {
   const [status, setStatus] = useState("Déconnecté");
   const [vocalStatus, setVocalStatus] = useState("Déconnecté");
   const [channel, setChannel] = useState<Channel | null>(null);
-  
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
+  const miniUserRef = useRef<HTMLDivElement>(null);
+ 
   const wsRef = useRef<WebSocket | null>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
@@ -276,7 +282,7 @@ function ChatPage({id_channel}: ChatProps) {
 
 
 
-  // useEffect principal
+  // useEffect principal, automatic reconnect
   useEffect(() => {
     openWebSocket();
     return () => {
@@ -290,7 +296,24 @@ function ChatPage({id_channel}: ChatProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Envoi d'un message
+  // For the users display
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (miniUserRef.current && !miniUserRef.current.contains(event.target as Node)) {
+        setSelectedUserId(null);
+      }
+    }
+    // Ajoute le listener si selectedUserId est non null
+    if (selectedUserId) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    // Nettoie le listener
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [selectedUserId]);
+
+  // Send a message
   const handleSubmit = (e: any) => {
     e.preventDefault();
     if (input && wsRef.current && wsRef.current.readyState === 1) {
@@ -314,12 +337,23 @@ function ChatPage({id_channel}: ChatProps) {
     }
   }
 
+  async function handleSendRequest(id: string | null){
+    if(!id) return
+    const client = new FriendsClass()
+    try {
+      await client.sendAFriendsRequest(id)
+      popup("Demande envoyée")
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
   if (!chatID) return <div><ChannelList /></div>;
   if (!me) return <NotFound />;
   if(!channel){
     return <NotFound />
   }
-  
+
   const statusColor = status === "Connecté" ? "#00FF00" : "#FF0000";
   const vocalStatusColor = vocalStatus === "Connecté" ? "#00FF00" : "#FF0000";
   const thechannelAuth =
@@ -327,24 +361,61 @@ function ChatPage({id_channel}: ChatProps) {
       ? ChannelRight.read_send
       : ChannelRight.read_only;
   return (
-    <ChatRoom
-      id={chatID}
-      chat={channel}
-      status={status}
-      vocalStatus={vocalStatus}
-      statusColor={statusColor}
-      vocalStatusColor={vocalStatusColor}
-      memberRight={thechannelAuth}
-      messages={messages}
-      input={input}
-      setInput={setInput}
-      handleSubmit={handleSubmit}
-      onStartVoiceChat={startVoiceChat}
-      onLeaveVoiceChat={leaveVoiceChat}
-      onGenerateInvite={(id: string) => handleGenerateInvite(id)}
-      messagesDivRef={messagesEndRef}
-    />
+    <>
+      <ChatRoom
+        id={chatID}
+        chat={channel}
+        status={status}
+        vocalStatus={vocalStatus}
+        statusColor={statusColor}
+        vocalStatusColor={vocalStatusColor}
+        memberRight={thechannelAuth}
+        messages={messages}
+        input={input}
+        setInput={setInput}
+        handleSubmit={handleSubmit}
+        onStartVoiceChat={startVoiceChat}
+        onLeaveVoiceChat={leaveVoiceChat}
+        onGenerateInvite={(id: string) => handleGenerateInvite(id)}
+        messagesDivRef={messagesEndRef}
+      />
+      <div className="members">
+        <ul>
+          {channel && channel.members.map((mem: User | string) => {
+            if (typeof mem === 'string') {
+              return <li key={mem}>{mem}</li>;
+            } else if(mem) {
+              return (
+                <li key={mem._id}>
+                  <button
+                    onClick={() => setSelectedUserId(mem._id)}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                  >
+                    {mem.name}
+                  </button>
+                </li>
+              );
+            } else {
+              return (<li>Unknown</li>)
+            }
+          })}
+        </ul>
+
+        {/* Affiche l'iframe en dehors de la liste, pour éviter les bugs de layout */}
+        {selectedUserId && (
+          <div ref={miniUserRef}>
+            <MiniUser
+              key={selectedUserId}
+              theuser={selectedUserId}
+              user={me}
+              onViewUser={() => navigate(`${Route.user}/${selectedUserId}`)}
+              onManage={() => navigate(`${Route.manageUser}/${selectedUserId}`)}
+              onRequest={() => handleSendRequest(selectedUserId)}
+            />
+          </div>
+        )}
+      </div>
+    </>
   );
 }
-
 export default ChatPage;
