@@ -10,6 +10,8 @@ import Loading from "../shared/loading";
 import { PopupConfirm } from "../Popup/PopupConfirm";
 import { AccountClass } from "../../../api/account";
 import Errors from "../shared/errors";
+import MyFriendRequest from "../Friends/MyFriendsRequest";
+import MyFriends from "../Friends/MyFriends";
 
 function Account(){
     const { me } = useAuth();
@@ -38,6 +40,10 @@ function Account(){
                 </div>
                 <div>
                     <ChannelList/>
+                </div>
+                <div>
+                    <MyFriends />
+                    <MyFriendRequest />
                 </div>
             </div>
         )
