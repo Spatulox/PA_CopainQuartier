@@ -1,6 +1,6 @@
 ## Syntax
 
-FROM {collection} WHERE {condition} (PROJECT {projection})? (ORDER BY {fieldName})? (LIMIT {int})
+FROM {collection} (WHERE {condition})? (ORDER BY {fieldName})? (LIMIT {int}) (PROJECT {projection})? 
 
 ### Example:
 
@@ -9,6 +9,6 @@ FROM {collection} WHERE {condition} (PROJECT {projection})? (ORDER BY {fieldName
 
 ## Operators:
 
-For conditions: >, <, >=, <=, MATCHES, =
+For conditions: >, <, >=, <=, MATCHES, =, !=
 For arithmetic expressions: +, -, *, /, %
 Builtin functions: len, max, min, random_int 
