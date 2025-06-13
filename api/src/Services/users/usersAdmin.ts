@@ -7,6 +7,7 @@ import { toUserObject } from "./usersPublic";
 export async function getAllUsers(): Promise<FilledUser[]> {
     const users = await UserTable.find()
         .populate("group_chat_list_ids")
+        .populate("friends_id")
         .exec();
     return users.map(user => toUserObject(user)).filter(u => u !== null);
 }
