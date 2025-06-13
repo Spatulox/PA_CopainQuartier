@@ -1,4 +1,3 @@
-ARG VITE_API_URL="http://localhost:3000"
 FROM node:alpine AS builder
 
 # Create app directory
@@ -15,6 +14,7 @@ RUN npm run build
 
 FROM node:slim
 
+ARG VITE_API_URL
 ENV NODE_ENV=production
 ENV VITE_API_URL=${VITE_API_URL}
 
