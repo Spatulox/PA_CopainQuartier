@@ -16,7 +16,8 @@ export const zCreateChannel = z.object({
     name: z.string(),
     //type: z.enum(["text", "vocal"]),
     description: z.string(),
-    activity_id_linked: zObjectId.optional()
+    activity_id_linked: zObjectId.optional(),
+    troc_id_linked: zObjectId.optional()
 })
 
 export const zPostMessage = z.object({

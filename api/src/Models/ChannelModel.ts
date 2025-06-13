@@ -5,11 +5,13 @@ import { toActivityObject } from "../Services/activities/activities";
 import { toUserObject } from "../Services/users/usersPublic";
 import { Activity, FilledActivity } from "./ActivityModel";
 import { ObjectID } from "../DB_Schema/connexion";
+import { FilledTroc, Troc } from "./TrocModel";
 
 export type Channel = {
     _id: ObjectId,
     name: string,
     activity_id : ObjectID | null,
+    troc_id : ObjectID | null,
     type: string,
     description: string,
     admin_id: ObjectId,
@@ -24,13 +26,26 @@ export type PublicChannel = {
     _id: ObjectId;
     name: string;
     activity_id: ObjectId | null;
+    troc_id: ObjectId | null;
     type: string;
     description: string;
     created_at: Date;
 }
 
-export type FilledChannel = Omit<Channel, "activity_id" | "admin_id" | "_id"> & {_id: string, activity: FilledActivity | Activity | null, admin: User | FilledUser | null}
-export type PublicFilledChannel = Omit<PublicChannel, "activity_id" | "_id"> & {_id: string, activity: FilledActivity | Activity | null}
+export type FilledChannel = Omit<Channel, "activity_id" | "admin_id" | "_id" | "troc_id"> &
+{
+    _id: string,
+    activity: FilledActivity | Activity | null,
+    admin: User | FilledUser | null,
+    troc: Troc | FilledTroc | null
+}
+
+export type PublicFilledChannel = Omit<PublicChannel, "activity_id" | "_id" | "troc_id"> &
+{
+    _id: string,
+    activity: FilledActivity | Activity | null,
+    troc: Troc | FilledTroc | null
+}
 
 
 export type Message = {

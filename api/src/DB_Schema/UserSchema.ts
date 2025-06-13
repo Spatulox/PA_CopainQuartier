@@ -9,9 +9,11 @@ const UserSchema = new Schema<User>({
     address: {type: String, required: true},
     verified: {type: Boolean, default: false, required: true},
     role: {type: String, required: true, value: ['admin', 'member']},
-    group_chat_list_ids: [{ type: Schema.Types.ObjectId, ref: "Channel"}],
+    group_chat_list_ids: { type: [Schema.Types.ObjectId], ref: "Channel"},
     troc_score: {type: String, default: null, required: false},
     phone: {type: String, required: true},
+    friends_id: { type: [Schema.Types.ObjectId], ref: "User", default: null },
+    friends_request_id: { type: [Schema.Types.ObjectId], ref: "User", default: null },
 });
 
 
