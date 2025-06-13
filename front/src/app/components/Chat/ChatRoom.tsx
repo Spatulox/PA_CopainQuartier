@@ -30,7 +30,7 @@ const ChatRoom: React.FC<Props> = ({
   id, chat, status, vocalStatus, statusColor, vocalStatusColor, memberRight, messages, input, setInput, handleSubmit, onStartVoiceChat, onLeaveVoiceChat, onGenerateInvite, messagesDivRef
 }) => {
   const navigate = useNavigate()
-  return  <div>
+  return  <div className="one-channel">
     <div>
       <h2>{chat.name}</h2>
       <div id="chat-info">

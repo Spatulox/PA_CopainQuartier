@@ -19,7 +19,8 @@ export type User = {
   common_channels?: Channel[],
   troc_score?: string | number | null,
   phone: string,
-  friends: User[] | [] | null
+  friends: string[]
+  friends_request: string[]
 } | null
 
 export class UserClass extends ApiClient{

@@ -17,6 +17,7 @@ export async function getChannelById(channel_id: ObjectID): Promise<FilledChanne
     const res = await ChannelTable.findById(channel_id)
     .populate("admin_id")
     .populate("activity_id")
+    .populate("members")
     .exec()
     
     return objectToChannel(res)
