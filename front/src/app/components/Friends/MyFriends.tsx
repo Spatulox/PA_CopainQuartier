@@ -14,9 +14,6 @@ function MyFriends(){
     const wsRef = useRef<WebSocket | null>(null);
     const {me} = useAuth()
 
-    const reconnectTimeout = useRef<number | null>(null);
-    const reconnectDelay = useRef<number>(1000); // 1s de base
-
     useEffect(() => {
         if (!me?.friends) return;
 
@@ -51,16 +48,6 @@ function MyFriends(){
                 onOpen: () => {},
                 onClose: () => {},
                 onError: () => {},
-                /*onMessage: async (data: any) => {
-                    let msg;
-                    try { msg = JSON.parse(data); } catch { return; }
-                    if (msg.type === "ERROR") {
-                    alert(msg.error);
-                    wsRef.current?.close();
-                    return;
-                    }
-                    if (msg.type === MsgType.CONNECTED_CHANNEL) onConnected(msg)
-                }*/
                 onMessage: {
                     ERROR(msg) {
                         alert(msg.error);

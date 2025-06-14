@@ -73,10 +73,6 @@ function ChatPage({id_channel}: ChatProps) {
   
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  // Pour le reconnexion automatique
-  const reconnectTimeout = useRef<number | null>(null);
-  const reconnectDelay = useRef<number>(1000); // 1s de base
-
   const chatID = id_channel || id 
 
   const onReconnect = () => {
@@ -129,21 +125,6 @@ function ChatPage({id_channel}: ChatProps) {
               onConnected(msg)
           },
         }
-        /*onMessage: async (data: any) => {
-          let msg;
-          try { msg = JSON.parse(data); } catch { return; }
-          if (msg.type === "ERROR") {
-            alert(msg.error);
-            wsRef.current?.close();
-            return;
-          }
-          if (msg.type === MsgType.HISTORY) setMessages(msg.messages);
-          if (msg.type === MsgType.MESSAGE) setMessages(prev => [...prev, msg]);
-          if (msg.type === MsgType.OFFER) onOffer(msg)
-          if (msg.type === MsgType.ANSWER) onAnswer(msg)
-          if (msg.type === MsgType.CANDIDATE) onCandidate(msg)
-          if (msg.type === MsgType.CONNECTED_CHANNEL) onConnected(msg)
-        }*/
       },
       onReconnect,
     });
@@ -310,10 +291,6 @@ function ChatPage({id_channel}: ChatProps) {
   // useEffect principal, automatic reconnect
   useEffect(() => {
     openWebSocket();
-    return () => {
-      if (wsRef.current) wsRef.current.close();
-      if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);
-    };
   }, [chatID, openWebSocket]);
 
   // Scroll auto
