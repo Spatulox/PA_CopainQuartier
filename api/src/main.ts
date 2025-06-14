@@ -11,7 +11,7 @@ import { AdminPublicationsController, PublicationsController } from './Controlle
 import { AdminTrocController, TrocController } from './Controllers/TrocsController';
 import { WebSocketServer } from 'ws';
 import http from 'http';
-import { channelClients, handleMessage, accessMap } from './Controllers/ChannelsWebsoketController';
+import { channelClients, handleMessage, accessMap, handleUserConnection, connectedClients, userToWebSockets } from './Controllers/ChannelsWebsoketController';
 import { parse } from 'url';
 import { AuthController } from './Controllers/AuthController';
 import cors from 'cors'
@@ -58,7 +58,6 @@ async function main(){
 
   server.listen(port);
   wss.on('connection', async (ws, req) => {
-    console.log('Client connecté');
   
     const pathname = parse(req.url || '').pathname;
     if(!pathname){
@@ -74,18 +73,33 @@ async function main(){
     // Check si l'utilisateur à le droit d'accéder au channel
     // Récupère les messages du channel
     // Envoie les messages au client
-  
     ws.on('message', (data) => {
-      handleMessage(wss, ws, data, channelId);
+      if(channelId == "online"){
+        handleUserConnection(wss, ws, data)
+      } else {
+        handleMessage(wss, ws, data, channelId);
+      }
     });
   
     ws.on('close', () => {
-      console.log('Client déconnecté');
+      let deco = false
       // Nettoyage des abonnements
       for (const clients of channelClients.values()) {
         clients.delete(ws);
+        deco = true
+      }
+      if(deco){
+        console.log('Client déconnecté');
       }
       accessMap.delete(ws);
+
+      for (const [user_id, sockets] of userToWebSockets.entries()) {
+        if (sockets.has(ws)) sockets.delete(ws);
+        if (sockets.size === 0){
+          userToWebSockets.delete(user_id)
+        };
+        console.log('offline');
+      }
     });
   });
 }
