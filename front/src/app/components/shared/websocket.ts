@@ -86,6 +86,11 @@ export function setupWebSocket({
   if (!wsUrl || !wsRef) return;
 
   if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) return;
+  
+  if (!wsUrl.startsWith("/")) {
+    wsUrl = `/${wsUrl}`;
+  }
+  wsUrl = `ws://localhost:3000${wsUrl}`;
 
   const ws = new window.WebSocket(wsUrl);
   wsRef.current = ws;

@@ -93,7 +93,7 @@ function ChatPage({id_channel}: ChatProps) {
     fetchChannel();
 
     setupWebSocket({
-      wsUrl: `ws://localhost:3000/channel/${chatID}`,
+      wsUrl: `/channel/${chatID}`,
       wsRef,
       authToken: user.getAuthToken(),
       handlers: {

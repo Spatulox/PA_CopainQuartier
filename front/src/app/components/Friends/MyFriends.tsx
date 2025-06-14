@@ -41,7 +41,7 @@ function MyFriends(){
         const user = new ApiClient();
     
         setupWebSocket({
-            wsUrl: `ws://localhost:3000/online`,
+            wsUrl: `/online`,
             wsRef,
             authToken: user.getAuthToken(),
             handlers: {

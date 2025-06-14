@@ -5,21 +5,6 @@ import { popup } from "../../scripts/popup-slide";
 import { setupWebSocket } from "./websocket";
 import { MsgType } from "../../../api/chat";
 
-
-/*enum MsgType {
-  INIT = "INIT",
-  HISTORY = "HISTORY",
-  MESSAGE = "MESSAGE",
-  ERROR = "ERROR",
-  OFFER = "OFFER",
-  ANSWER = "ANSWER",
-  CANDIDATE = "ICE-CANDIDATE",
-  JOIN_VOCAL = "JOIN_VOCAL",
-  LEAVE_VOCAL = "LEAVE_VOCAL",
-  INIT_CONNECTION = "INIT_CONNECTION", // For the "connected" state (online/offline)
-  CONNECTED = "CONNECTED" // For the "connected" state (online/offline)
-}*/
-
 type AuthContextType = {
   isConnected: boolean;
   isAdmin: boolean;
@@ -35,10 +20,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAdmin, setIsAdmin] = useState(false);
   const [me, setMe] = useState<User | null>(null);
   const [connected, setConnected] = useState(false)
-  
   const wsRef = useRef<WebSocket | null>(null);
-  const reconnectTimeout = useRef<number | null>(null);
-  const reconnectDelay = useRef<number>(1000); // 1s de base
 
   const refreshMe = useCallback(async () => {
     const client = new ApiClient();
@@ -54,15 +36,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsAdmin(client.isAdmin());
     await refreshMe();
   }, [refreshMe]);
-
-  const onReconnect = () => {
-      openWebSocket();
-  };
       
   const openWebSocket = React.useCallback(() => {
       const user = new ApiClient();
       setupWebSocket({
-          wsUrl: `ws://localhost:3000/online`,
+          wsUrl: `/online`,
           wsRef,
           authToken: user.getAuthToken(),
           handlers: {
@@ -84,21 +62,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               }
             }
           },
-          onReconnect,
       });
   }, []);
 
   useEffect(() => {
     updateConnection();
   }, [updateConnection]);
-
-  useEffect(() => {
-    openWebSocket();
-    return () => {
-      if (wsRef.current) wsRef.current.close();
-      if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);
-    };
-  }, [])
 
   useEffect(() => {
     const handler = async () => {
