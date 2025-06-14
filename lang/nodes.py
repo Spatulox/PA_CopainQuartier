@@ -19,6 +19,20 @@ class Query:
         self.limit = limit
         self.projection = projection
 
+    def mongo_exec(self, database):
+        if self.collection not in ['publications']:
+            raise Exception(f"Collection '{self.collection}' is not supported")
+        collection = database[self.collection]
+        query = []
+        if self.where:
+            query.append(self.where.to_aggregation_stage())
+        if self.order_by:
+            query.append(self.order_by.to_aggregation_stage())
+        if self.limit:
+            query.append(self.limit.to_aggregation_stage())
+        if self.projection:
+            query.append(self.projection.to_aggregation_stage())
+        return collection.aggregate(query)
 
 class Condition:
 
@@ -36,7 +50,7 @@ class ExpressionBinaryOp:
         self.right = right
 
 
-class WhereClause:
+class IfClause:
 
     def __init__(self, conditions):
         self.conditions = conditions

@@ -1,12 +1,12 @@
 import ply.lex as lex
 import ply.yacc as yacc
 import nodes
+import json
 
 reserved = {
-    'FROM': 'FROM',
-    'WHERE': 'WHERE',
+    'IF': 'IF',
     'PROJECT': 'PROJECT',
-    'ORDER BY': 'ORDER_BY',
+    'SORT': 'ORDER_BY',
     'ASC': 'ASC',
     'DESC': 'DESC',
     'LIMIT': 'LIMIT',
@@ -45,7 +45,7 @@ tokens = tuple(
 precedence = (
     ('left', 'OR'),
     ('left', 'AND'),
-    ('nonassoc', 'GREATER', 'GREATEREQUAL', 'LESS', 'LESSEQUAL', 'EQUAL', 'NOTEQUALS'),
+    ('nonassoc', 'GREATER', 'GREATEREQUAL', 'LESS', 'LESSEQUAL', 'EQUALS', 'NOTEQUALS'),
     ('left', 'PLUS', 'MINUS'),
     ('left', 'TIMES', 'DIVIDE', 'MOD'),
     ('right', 'NOT'),
@@ -104,36 +104,36 @@ t_ignore = "\t\r\n "
 lex.lex()
 
 
+def p_query(p):
+    '''query : NAME if_clause order_by_clause limit_clause projection_clause'''
+    p[0] = nodes.Query(
+        collection=p[1],
+        where=p[2],
+        order_by=p[3],
+        limit=p[4],
+        projection=p[5]
+    )
+
+
 def p_empty(p):
     '''empty :'''
     pass
 
 
-def p_query(p):
-    '''query : FROM NAME where_clause order_by_clause limit_clause projection_clause'''
-    p[0] = nodes.Query(
-        collection=p[2],
-        where=p[3],
-        order_by=p[4],
-        limit=p[5],
-        projection=p[6]
-    )
-
-
-def p_where_clause(p):
-    '''where_clause : WHERE condition
+def p_if_clause(p):
+    '''if_clause : IF condition
                     | empty'''
     if len(p) == 3:
-        p[0] = nodes.WhereClause(conditions=[p[2]])
+        p[0] = nodes.IfClause(conditions=[p[2]])
     else:
         p[0] = None
 
 
 def p_order_by_clause(p):
-    '''order_by_clause : ORDER BY NAME order_direction
+    '''order_by_clause : ORDER_BY NAME order_direction
                        | empty'''
     if len(p) != 2:
-        p[0] = nodes.OrderByClause(field=p[3], direction=p[4])
+        p[0] = nodes.OrderByClause(field=p[2], direction=p[3])
     else:
         p[0] = None
 
@@ -143,6 +143,15 @@ def p_order_direction(p):
                     | DESC
                     | empty'''
     p[0] = p[1] if len(p) == 2 else None
+
+
+def p_limit_clause(p):
+    '''limit_clause : LIMIT NUMBER
+                    | empty'''
+    if len(p) == 3:
+        p[0] = nodes.LimitClause(limit=p[2])
+    else:
+        p[0] = None
 
 
 def p_expression_fieldname(p):
@@ -218,9 +227,53 @@ def p_condition_binary_op(p):
 
 
 def p_projection_clause(p):
-    '''projection_clause : PROJECT projection
+    '''projection_clause : PROJECT LBRACE projection RBRACE
                          | empty'''
-    if len(p) == 3:
-        p[0] = nodes.Projection(fields=p[2])
+    if len(p) == 5:
+        p[0] = nodes.Projection(fields=p[3])
     else:
         p[0] = None
+
+
+def p_projection(p):
+    '''projection : projection_item
+                  | projection COMMA projection_item'''
+    if len(p) == 2:
+        p[0] = [p[1]]
+    else:
+        p[0] = p[1] + [p[3]]
+
+
+def p_projection_item(p):
+    '''projection_item : NAME
+                        | NAME COLON expression'''
+    if len(p) == 2:
+        p[0] = nodes.ProjectionField(field_name=p[1])
+    else:
+        p[0] = nodes.ProjectionField(field_name=p[1], expression=p[3])
+
+        
+def p_error(p):
+    if p:
+        raise Exception(f"Syntax error at '{p.value}'")
+    else:
+        raise Exception("Syntax error at EOF")
+
+
+yacc.yacc()
+
+
+def parse_query(query):
+    """
+    Parse a query string into an AST.
+    
+    :param query: The query string to parse.
+    :return: An instance of nodes.Query representing the parsed query.
+    """
+    result = yacc.parse(query, lexer=lex)
+    return result
+
+
+res = parse_query('publications IF field = "value" SORT field ASC LIMIT 10 PROJECT { field1, field2: field2 + 2 }')
+
+print(json.dumps(res, indent=2, default=lambda o: o.__dict__))
