@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../shared/auth-context";
 import NotFound from "../shared/notfound";
-import { Channel, ChatClass, Message } from "../../../api/chat";
+import { Channel, ChatClass, Message, MsgType } from "../../../api/chat";
 import ChatRoom, { ChannelRight } from "./ChatRoom";
 import { ChannelList } from "./ChatList";
 import { popup } from "../../scripts/popup-slide";
@@ -11,8 +11,9 @@ import { MiniUser } from "../Users/MiniUser";
 import { User, UserClass } from "../../../api/user";
 import { Route } from "../../constantes";
 import { FriendsClass } from "../../../api/friend";
+import { setupWebSocket } from "../shared/websocket";
 
-enum MsgType {
+/*enum MsgType {
   INIT = "INIT",
   HISTORY = "HISTORY",
   MESSAGE = "MESSAGE",
@@ -25,7 +26,7 @@ enum MsgType {
   LEAVE_VOCAL = "LEAVE_VOCAL",
   INIT_CONNECTION = "INIT_CONNECTION", // For the "connected" state (online/offline)
   CONNECTED = "CONNECTED" // For the "connected" state (online/offline)
-}
+}*/
 
 type OfferMsg = {
   type: string,
@@ -78,61 +79,74 @@ function ChatPage({id_channel}: ChatProps) {
 
   const chatID = id_channel || id 
 
+  const onReconnect = () => {
+    openWebSocket();
+  };
+
   // Fonction pour ouvrir la connexion WebSocket
   const openWebSocket = React.useCallback(() => {
     if (!chatID) return;
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) return;
-
-    const ws = new window.WebSocket(`ws://localhost:3000/channel/${chatID}`);
-    wsRef.current = ws;
 
     const user = new ChatClass();
-    setToken(user.getAuthToken());
 
+    setToken(user.getAuthToken());
     const fetchChannel = async () => {
       const chan = await user.getChannelById(chatID);
       setChannel(chan);
     };
     fetchChannel();
 
-    ws.onopen = () => {
-      setStatus("Connecté");
-      reconnectDelay.current = 1000;
-      ws.send(JSON.stringify({ type: MsgType.INIT, token: user.getAuthToken() })); // if using token instead of user.getauthToken, the api will crash (and send 401)
-      setMessages([]);
-    };
-
-    ws.onclose = () => {
-      setStatus("Déconnecté");
-      if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);
-      reconnectTimeout.current = setTimeout(() => {
-        reconnectDelay.current = Math.min(reconnectDelay.current * 1.2, 30000); // max 30s
-        openWebSocket();
-      }, reconnectDelay.current);
-    };
-
-    ws.onerror = () => {
-      setStatus("Erreur");
-      setConnected([])
-      ws.close();
-    };
-
-    ws.onmessage = async (event) => {
-      let data = typeof event.data === "string" ? event.data : await event.data.text();
-      let msg;
-      try { msg = JSON.parse(data); } catch { return; }
-      if (msg.type === MsgType.ERROR) {
-        alert(msg.error);
-        ws.close();
-        return;
-      }
-      if (msg.type === MsgType.HISTORY) setMessages(msg.messages);
-      if (msg.type === MsgType.MESSAGE) setMessages(prev => [...prev, msg]);
-      if (msg.type === MsgType.OFFER) onOffer(msg)
-      if (msg.type === MsgType.ANSWER) onAnswer(msg)
-      if (msg.type === MsgType.CANDIDATE) onCandidate(msg)
-      if (msg.type === MsgType.CONNECTED_CHANNEL) onConnected(msg)
-    };
+    setupWebSocket({
+      wsUrl: `ws://localhost:3000/channel/${chatID}`,
+      wsRef,
+      authToken: user.getAuthToken(),
+      handlers: {
+        onOpen: () => setStatus("Connecté"),
+        onClose: () => setStatus("Déconnecté"),
+        onError: () => setStatus("Erreur"),
+        onMessage: {
+          ERROR(msg) {
+              alert(msg.error);
+              wsRef.current?.close();
+              return;
+          },
+          HISTORY(msg) {
+              setMessages(msg.messages)
+          },
+          MESSAGE(msg) {
+              setMessages(prev => [...prev, msg])
+          },
+          OFFER(msg) {
+              onOffer(msg)
+          },
+          ANSWER(msg) {
+              onAnswer(msg)
+          },
+          CANDIDATE(msg) {
+              onCandidate(msg)
+          },
+          CONNECTED_CHANNEL(msg) {
+              onConnected(msg)
+          },
+        }
+        /*onMessage: async (data: any) => {
+          let msg;
+          try { msg = JSON.parse(data); } catch { return; }
+          if (msg.type === "ERROR") {
+            alert(msg.error);
+            wsRef.current?.close();
+            return;
+          }
+          if (msg.type === MsgType.HISTORY) setMessages(msg.messages);
+          if (msg.type === MsgType.MESSAGE) setMessages(prev => [...prev, msg]);
+          if (msg.type === MsgType.OFFER) onOffer(msg)
+          if (msg.type === MsgType.ANSWER) onAnswer(msg)
+          if (msg.type === MsgType.CANDIDATE) onCandidate(msg)
+          if (msg.type === MsgType.CONNECTED_CHANNEL) onConnected(msg)
+        }*/
+      },
+      onReconnect,
+    });
   }, [chatID]);
 
 
@@ -281,10 +295,6 @@ function ChatPage({id_channel}: ChatProps) {
       peerConnectionRef.current.close();
       peerConnectionRef.current = null;
     }
-
-    /*if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({ type: "LEAVE_CALL" }));
-    }*/
 
     const audio = document.getElementById("remoteAudio") as HTMLAudioElement | null;
     if (audio) {
