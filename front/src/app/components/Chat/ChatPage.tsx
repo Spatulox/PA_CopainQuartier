@@ -16,17 +16,25 @@ enum MsgType {
   INIT = "INIT",
   HISTORY = "HISTORY",
   MESSAGE = "MESSAGE",
+  CONNECTED_CHANNEL = "CONNECTED_CHANNEL",
   ERROR = "ERROR",
   OFFER = "OFFER",
   ANSWER = "ANSWER",
   CANDIDATE = "ICE-CANDIDATE",
   JOIN_VOCAL = "JOIN_VOCAL",
   LEAVE_VOCAL = "LEAVE_VOCAL",
+  INIT_CONNECTION = "INIT_CONNECTION", // For the "connected" state (online/offline)
+  CONNECTED = "CONNECTED" // For the "connected" state (online/offline)
 }
 
 type OfferMsg = {
   type: string,
   offer: any // (c'est un truc chelou)
+}
+
+type ConnectedChannelMsg = {
+  type: string,
+  token_connected_client: any // (c'est un truc chelou)
 }
 
 type IceCandidateMsg = {
@@ -56,6 +64,7 @@ function ChatPage({id_channel}: ChatProps) {
   const [channel, setChannel] = useState<Channel | null>(null);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
   const miniUserRef = useRef<HTMLDivElement>(null);
+  const [connected, setConnected] = useState<string[]>()
  
   const wsRef = useRef<WebSocket | null>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
@@ -104,6 +113,7 @@ function ChatPage({id_channel}: ChatProps) {
 
     ws.onerror = () => {
       setStatus("Erreur");
+      setConnected([])
       ws.close();
     };
 
@@ -121,6 +131,7 @@ function ChatPage({id_channel}: ChatProps) {
       if (msg.type === MsgType.OFFER) onOffer(msg)
       if (msg.type === MsgType.ANSWER) onAnswer(msg)
       if (msg.type === MsgType.CANDIDATE) onCandidate(msg)
+      if (msg.type === MsgType.CONNECTED_CHANNEL) onConnected(msg)
     };
   }, [chatID]);
 
@@ -181,6 +192,10 @@ function ChatPage({id_channel}: ChatProps) {
         console.error("Erreur ICE candidate", e);
       }
     }
+  }
+
+  async function onConnected(msg: ConnectedChannelMsg){
+    setConnected(msg.token_connected_client)
   }
 
   const startVoiceChat = async () => {
@@ -353,7 +368,6 @@ function ChatPage({id_channel}: ChatProps) {
   if(!channel){
     return <NotFound />
   }
-
   const statusColor = status === "Connecté" ? "#00FF00" : "#FF0000";
   const vocalStatusColor = vocalStatus === "Connecté" ? "#00FF00" : "#FF0000";
   const thechannelAuth =
@@ -389,7 +403,7 @@ function ChatPage({id_channel}: ChatProps) {
                 <li key={mem._id}>
                   <button
                     onClick={() => setSelectedUserId(mem._id)}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: connected?.includes(mem._id) ? "greenyellow" : "red" }}
                   >
                     {mem.name}
                   </button>
