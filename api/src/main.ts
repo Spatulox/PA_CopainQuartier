@@ -16,6 +16,7 @@ import { parse } from 'url';
 import { AuthController } from './Controllers/AuthController';
 import cors from 'cors'
 import { InviteController } from './Controllers/InviteController';
+import { FriendsController } from './Controllers/FriendsController';
 
 
 async function main(){
@@ -29,7 +30,7 @@ async function main(){
     currentUserChecker: getCurrentUser,
     middlewares: [ErrorHandler],
     cors: {
-      origin: 'http://localhost:5173',
+      origin: process.env.FRONTEND_URL || 'http://localhost:5173',
       credentials: true
     },
     controllers: [
@@ -43,6 +44,7 @@ async function main(){
       ActivityController,
       AuthController,
       ChannelsController,
+      FriendsController,
       InviteController,
       PublicationsController,
       TrocController,

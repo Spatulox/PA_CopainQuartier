@@ -1,8 +1,8 @@
 
 import jwt from "jsonwebtoken";
 import { TokenTable } from "../../DB_Schema/TokensSchema";
-import config from '../../../config.json'
 import { User } from "../../Models/UserModel"
+import { config } from "../../Utils/config";
 
 export enum JwtType {
   AccessToken = 'access',

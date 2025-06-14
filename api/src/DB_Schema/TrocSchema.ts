@@ -13,6 +13,7 @@ const TrocSchema = new Schema<Troc>({
     type: { type: String, _type: ['service', 'item'] },
     visibility : {type: String, _type: ['visible', 'hide']},
     channel_id: {type: Schema.Types.ObjectId, ref: "Channel"},
+    max_user: {type: Number, default: null, required: false},
 }, {
     timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }
 });

@@ -3,9 +3,12 @@ import { User, PublicUser, FilledUser } from "../../Models/UserModel";
 import { objectToChannel } from "../channels/channels";
 import { UpdateAccountType, UpdateAdminAccountType } from "../../Validators/users";
 import { ObjectID } from "../../DB_Schema/connexion";
+import { Channel } from "../../Models/ChannelModel";
 
 export async function getUserById(userId: ObjectID): Promise<FilledUser | null> {
-    const obj = await UserTable.findById(userId).populate("group_chat_list_ids").exec();
+    const obj = await UserTable.findById(userId)
+        .populate("group_chat_list_ids")
+        .exec();
     return toUserObject(obj)
 }
 export async function getPublicUserById(currentUser: User, targetUserId: ObjectID): Promise<PublicUser | null> {
@@ -14,7 +17,7 @@ export async function getPublicUserById(currentUser: User, targetUserId: ObjectI
 
     const currentChannels = (currentUser.group_chat_list_ids || []).map(id => id.toString());
 
-    const targetChannels = (targetUser.group_chat_list_ids || []).map((channel: any) => {
+    const targetChannels = (targetUser.group_chat_list_ids || []).map((channel: Channel | ObjectID) => {
         if (channel && channel._id) return channel._id.toString();
         return channel.toString();
     });
@@ -22,14 +25,14 @@ export async function getPublicUserById(currentUser: User, targetUserId: ObjectI
     const commonChannels = targetChannels.filter(id => currentChannels.includes(id));
 
     const publicUser: PublicUser = {
-        _id: targetUser._id,
+        _id: targetUser._id.toString(),
         name: targetUser.name,
         lastname: targetUser.lastname,
         verified: targetUser.verified,
         role: targetUser.role,
         group_chat_list_ids: [],
         troc_score: targetUser.troc_score ? targetUser.troc_score.toString() : null,
-        common_channels: commonChannels,
+        common_channels: commonChannels
     };
 
     return publicUser;
@@ -55,19 +58,20 @@ export async function deleteMyAccount(user: User): Promise<boolean>{
 
 
 
-export function toUserObject(doc: User | null): FilledUser | null {
+export function toUserObject(doc: User | null, depth: number = 0): FilledUser | null {
     if(doc == null){return null}
     return {
         _id: doc._id.toString(),
         name: doc.name,
         lastname: doc.lastname,
         email: doc.email,
-        password: doc.password,
         address: doc.address,
         verified: doc.verified,
         role: doc.role,
         group_chat_list_ids: (doc.group_chat_list_ids || []).map((item: any) => objectToChannel(item)),
         troc_score: doc.troc_score ? doc.troc_score.toString() : null,
         phone: doc.phone,
+        friends: doc.friends_id ? doc.friends_id.map(invite => invite.toString()) : [],
+        friends_request: doc.friends_request_id ? doc.friends_request_id.map(invite => invite.toString()) : []
     };
 }

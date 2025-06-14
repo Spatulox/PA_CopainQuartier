@@ -18,6 +18,7 @@ export type Troc = {
     type: TrocType | z.infer<typeof TrocTypeSchema>, // compatibilité avec Zod
     visibility : TrocVisibility | z.infer<typeof TrocVisibilitySchema>, // compatibilité avec Zod
     channel_id: ObjectID | null,
+    max_user: number | null;
 }
 
 export enum TrocType {

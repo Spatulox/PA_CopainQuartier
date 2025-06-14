@@ -11,6 +11,7 @@ import { Publication as PublicationModel} from './src/Models/PublicationModel'
 import { Activity as ActivityModel } from './src/Models/ActivityModel'
 
 import { closeDB, connectDB } from "./src/DB_Schema/connexion";
+import { hashPassword } from "./src/Services/auth/password";
 
 export async function GenerateFakeData(){
     await connectDB()
@@ -52,12 +53,13 @@ async function FakeUser(){
         name: faker.person.firstName(),
         lastname: faker.person.lastName(),
         email: faker.internet.email(),
+        phone: faker.phone.number(),
         address: faker.location.streetAddress(),
         verified: faker.datatype.boolean(),
         role: 'admin',
         group_chat_list_ids: [], // Nous le laisserons vide pour l'instant
         troc_score: faker.helpers.maybe(() => faker.number.int({ min: 0, max: 100 }).toString(), { probability: 0.7 }),
-        phone: faker.phone.number(),
+        password: await hashPassword(faker.internet.password()),
     });
 
     const savedUser = await user.save();
@@ -73,6 +75,7 @@ async function FakeUser(){
             role: 'member',
             group_chat_list_ids: [], // Nous le laisserons vide pour l'instant
             troc_score: faker.helpers.maybe(() => faker.number.int({ min: 0, max: 100 }).toString(), { probability: 0.7 }),
+            password: await hashPassword(faker.internet.password()),
             phone: faker.phone.number(),
         });
 
@@ -108,6 +111,7 @@ async function FakePublication(users: UserModel[]) {
     for (let i = 0; i < 30; i++) {
         const publication = new PublicationTable({
             name: faker.lorem.sentence(),
+            description: faker.lorem.sentence(),
             body: faker.lorem.paragraphs(),
             author_id: faker.helpers.arrayElement(users)._id,
             created_at: faker.date.past(),
@@ -161,7 +165,10 @@ async function FakeActivity(users: UserModel[], channels: ChannelModel[], public
             author_id: author,
             channel_chat_id: chatId,
             publication_id: publicationId,
-            participants_id: members
+            participants_id: members,
+            max_place: faker.number.int({ min: members.length, max: 20 }),
+            reserved_place: members.length,
+            location: faker.location.city(),
         });
         await activity.save();
         activities.push(activity)
@@ -199,6 +206,9 @@ async function UpdateUserTrocs(trocs: TrocModel[]) {
         }
         userTrocs.get(troc.author_id.toString()).created.push(troc._id);
 
+        if(!troc.reserved_by) {
+            continue; 
+        }
         if (!userTrocs.has(troc.reserved_by.toString())) {
             userTrocs.set(troc.reserved_by.toString(), { created: [], reserved: [] });
         }

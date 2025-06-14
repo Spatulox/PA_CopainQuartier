@@ -12,14 +12,15 @@ export type User = {
   name: string,
   lastname: string,
   email: string,
-  password: string,
   address: string,
   verified: boolean,
   role: string,
   group_chat_list_ids: Channel[],
   common_channels?: Channel[],
   troc_score?: string | number | null,
-  phone: string
+  phone: string,
+  friends: string[]
+  friends_request: string[]
 } | null
 
 export class UserClass extends ApiClient{

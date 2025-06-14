@@ -3,11 +3,13 @@ import Form from "../Forms/Forms";
 import "./Popup.css"
 
 export type FieldForm = {
+  id?: string;
   name: string;
   label: string;
   type: string;
   value?: {value: string, label: string}[] | string[]; 
   required?: boolean;
+  hide?:boolean;
 };
 
 type PopupFormProps<T extends Record<string, string | number | Date>> = {
@@ -16,6 +18,7 @@ type PopupFormProps<T extends Record<string, string | number | Date>> = {
   APIerrors: any;
   initialFormData: T;
   onSubmit: (formData: T) => Promise<void> | void;
+  onClick: (e: React.MouseEvent<HTMLElement>) => void
   submitLabel: string;
   buttonLabel?: string;
   children?: React.ReactNode;
@@ -27,6 +30,7 @@ export function PopupForm<T extends Record<string, string | number | Date>>({
   APIerrors,
   initialFormData,
   onSubmit,
+  onClick,
   submitLabel,
   buttonLabel = "Ouvrir le formulaire",
   children,
@@ -40,7 +44,7 @@ export function PopupForm<T extends Record<string, string | number | Date>>({
     // Validation simple : vérifie les champs requis
     const errs: string[] = [];
     fields.forEach((field) => {
-      if ((field.required !== false) && !formData[field.name].toString()?.trim()) {
+      if ((field.required !== false) && formData && !formData[field.name].toString()?.trim()) {
         errs.push(`Le champ "${field.label}" est obligatoire.`);
       }
     });
@@ -85,6 +89,7 @@ export function PopupForm<T extends Record<string, string | number | Date>>({
               setFormData={setFormData}
               errors={errors}
               onSubmit={handleSubmit}
+              onClick={onClick}
               submitLabel={submitLabel}
             >
               <button

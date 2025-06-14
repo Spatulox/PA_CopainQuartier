@@ -154,6 +154,10 @@ export class ChannelsController {
             throw new ForbiddenError("Impossible to delete a channel linked to an activity")
         }
 
+        if(channel && channel.troc?._id){
+            throw new BadRequestError("You can't delete a channel linked to a troc")
+        }
+
         if(!await deleteChannel(validId)){
             throw new BadRequestError()
         }

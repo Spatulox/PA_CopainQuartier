@@ -10,11 +10,14 @@ import { ObjectID } from "../../DB_Schema/connexion";
 import { ActivityTable } from "../../DB_Schema/ActivitiesSchema";
 import { ac } from "@faker-js/faker/dist/airline-CBNP41sR";
 import { id_ID } from "@faker-js/faker/.";
+import { toTrocObject } from "../trocs/trocs";
+import { TrocTable } from "../../DB_Schema/TrocSchema";
 
 export async function getChannelById(channel_id: ObjectID): Promise<FilledChannel | null>{
     const res = await ChannelTable.findById(channel_id)
     .populate("admin_id")
     .populate("activity_id")
+    .populate("members")
     .exec()
     
     return objectToChannel(res)
@@ -71,19 +74,16 @@ export async function createChannel(user: User, data: CreateChannelParam): Promi
         members: [user._id],
         member_auth: ChannelAuth.read_send,
         created_at: new Date(),
-        activity_id: data.activity_id_linked ? new ObjectID(data.activity_id_linked) : null
+        activity_id: data.activity_id_linked ? new ObjectID(data.activity_id_linked) : null,
+        troc_id: data.troc_id_linked ? new ObjectID(data.troc_id_linked) : null
 
     }
 
     const channeltmp = await ChannelTable.create(dataToSave)
-    if (channeltmp && channeltmp._id) {
-        await UserTable.updateOne(
-            { _id: user._id },
-            { $addToSet: { group_chat_list_ids: channel_id } }
-        );
-    }
 
+    let saveInUser = false
     if("activity_id_linked" in data){
+        saveInUser = true
         const activityTmp = await ActivityTable.updateOne(
             {_id: data.activity_id_linked},
             {channel_chat_id: channel_id}
@@ -112,6 +112,20 @@ export async function createChannel(user: User, data: CreateChannelParam): Promi
                 { $addToSet: { group_chat_list_ids: channel_id } }
             );
         }
+    }
+
+    if("troc_id_linked" in data){
+        const trocTmp = await TrocTable.updateOne(
+            {_id: data.troc_id_linked},
+            {channel_id: channel_id}
+        ).exec()
+    }
+
+    if (saveInUser && channeltmp && channeltmp._id) {
+        await UserTable.updateOne(
+            { _id: user._id },
+            { $addToSet: { group_chat_list_ids: channel_id } }
+        );
     }
 
     return objectToChannel(channeltmp);
@@ -217,6 +231,7 @@ export function objectToChannel(obj: any): FilledChannel {
         _id: obj._id?.toString(),
         name: obj.name,
         activity: obj.activity_id ? toActivityObject(obj.activity_id) : null,
+        troc: obj.troc_id ? toTrocObject(obj.troc_id) : null,
         type: obj.type,
         description: obj.description,
         admin: obj.admin_id ? toUserObject(obj.admin_id) : null,
@@ -249,6 +264,7 @@ export function ChannelToPublicChannel(channel: Channel): PublicFilledChannel {
         _id: channel._id.toString(),
         name: channel.name,
         activity: channel.activity_id ? toActivityObject(channel.activity_id) : null,
+        troc: channel.troc_id ? toTrocObject(channel.troc_id) : null,
         type: channel.type,
         description: channel.description,
         created_at: channel.created_at,

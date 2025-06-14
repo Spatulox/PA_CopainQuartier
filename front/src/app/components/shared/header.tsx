@@ -70,35 +70,37 @@ function Header() {
                 <Link to={Route.activity}>Activity</Link>
                 <Link to={Route.publications}>Publications</Link>
                 <Link to={Route.troc}>Troc</Link>
-                <div
-                  id="manageListHeader"
-                  onMouseEnter={openAdminMenu}
-                  onMouseLeave={closeAdminMenu}
-                >
-                  <a
-                    id="manageListHeaderTitle"
-                    tabIndex={0}
-                    onClick={toggleAdminMenu}
-                    onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && toggleAdminMenu(e)}
-                    aria-haspopup="true"
-                    aria-expanded={isAdminMenuOpen}
-                    style={{ cursor: 'pointer' }}
+                {isAdmin  && (
+                  <div
+                    id="manageListHeader"
+                    onMouseEnter={openAdminMenu}
+                    onMouseLeave={closeAdminMenu}
                   >
-                    Gérer
-                  </a>
-                  <nav
-                    id="manageListHeaderContent"
-                    className={isAdminMenuOpen ? "active" : ""}
-                  >
-                    <ul>
-                      <li><Link to={Route.manageActivity}>Gérer les activités</Link></li>
-                      <li><Link to={Route.managePublications}>Gérer les publications</Link></li>
-                      <li><Link to={Route.manageTrocs}>Gérer les trocs</Link></li>
-                      <li><Link to={Route.manageChannels}>Gérer les channels</Link></li>
-                      <li><Link to={Route.manageUser}>Gérer les utilisateurs</Link></li>
-                    </ul>
-                  </nav>
-                </div>
+                    <a
+                      id="manageListHeaderTitle"
+                      tabIndex={0}
+                      onClick={toggleAdminMenu}
+                      onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && toggleAdminMenu(e)}
+                      aria-haspopup="true"
+                      aria-expanded={isAdminMenuOpen}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      Gérer
+                    </a>
+                    <nav
+                      id="manageListHeaderContent"
+                      className={isAdminMenuOpen ? "active" : ""}
+                    >
+                      <ul>
+                        <li><Link to={Route.manageActivity}>Gérer les activités</Link></li>
+                        <li><Link to={Route.managePublications}>Gérer les publications</Link></li>
+                        <li><Link to={Route.manageTrocs}>Gérer les trocs</Link></li>
+                        <li><Link to={Route.manageChannels}>Gérer les channels</Link></li>
+                        <li><Link to={Route.manageUser}>Gérer les utilisateurs</Link></li>
+                      </ul>
+                    </nav>
+                  </div>
+                  )}
 
                 <Link to={Route.account}>Compte</Link>
                 <a href={Route.base} onClick={handleLogout}>Se déconnecter</a>

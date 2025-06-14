@@ -1,6 +1,7 @@
 import { Activity } from "./activity";
 import { ApiClient } from "./client";
 import { Publication } from "./publications";
+import { Troc } from "./troc";
 import { User } from "./user";
 
 export type Message = {
@@ -14,13 +15,14 @@ export type Message = {
 export type Channel = {
     _id: string;
     activity: Activity | null
+    troc: Troc | null,
     admin: User
     name: string;
     type: string,
     description: string,
     created_at: string
     member_auth: string,
-    members: string[]
+    members: User[] | string[]
     messages: string[]
 };
 
