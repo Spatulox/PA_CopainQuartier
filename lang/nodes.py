@@ -1,4 +1,3 @@
-from mypyc.irbuild import expression
 import datetime
 
 legal_fields = {

@@ -1,7 +1,5 @@
 from ply import lex, yacc
 import nodes
-import json
-import re
 from datetime import datetime
 
 reserved = {
