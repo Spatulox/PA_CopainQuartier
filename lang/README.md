@@ -1,10 +1,10 @@
 ## Syntax
 
-FROM {collection} (WHERE {condition})? (ORDER BY {fieldName})? (LIMIT {int}) (PROJECT {projection})? 
+{collection} (IF {condition})? (SORT {fieldName})? (LIMIT {int}) (PROJECT {projection})? 
 
 ### Example:
 
-`FROM publications WHERE (Date > lala) AND (author MATCHES '.\*') AND (title = "lalala") PROJECT {title, author, nbchar: len(content)}`
+`publications IF Date > lala AND author MATCHES '.*' AND title = "lalala" PROJECT {title, author, nbchar: len(content)}`
 
 
 ## Operators:
