@@ -2,7 +2,7 @@ from mypyc.irbuild import expression
 import datetime
 
 legal_fields = {
-    'publications': ['name', 'created_at', 'description', 'body', 'updated_at', 'author.name', 'author.lastname'],
+    'publications': ['name', 'created_at', 'description', 'body', 'updated_at', 'author.name', 'author.lastname', 'author'],
 }
 
 

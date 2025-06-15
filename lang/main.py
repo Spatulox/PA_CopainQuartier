@@ -1,25 +1,34 @@
-import json
-from dotenv import load_dotenv
-from pymongo import MongoClient
-import os
+from db import db
 from parser import parse_query
-
-def main():
-    load_dotenv()
-    client = MongoClient(os.getenv("MONGO_URI"))
-    db = client[os.getenv("MONGO_DB_NAME", 'test')]
+from flask import Flask, request, jsonify
 
 
-    query = parse_query('publications IF NOT ( author.name = "Aubrey" AND author.lastname = "Koch" OR name MATCHES "Tutis .* harum non arbitro." ) SORT -updated_at LIMIT 10 PROJECT { name, body: body + "lala" }')
+def process_query(query_string):
 
-    print(json.dumps(query, indent=2, default=lambda o: o.__dict__))
-
-    print(json.dumps(query.mongo_query(), indent=2, default=lambda o: o.__dict__))
-
+    query = parse_query(query_string)
 
     res = query.mongo_exec(db)
-    for doc in res:
-        print(json.dumps(doc, indent=2, default=lambda o: o.__str__()))
+    return list(res)
 
-if __name__ == "__main__":
-    main()
+
+app = Flask(__name__)
+
+
+@app.route('/query', methods=['POST'])
+def handle_query():
+    data = request.get_json() or {}
+    print(data)
+    query = data.get('query', '')
+    
+    if not query:
+        return jsonify({'error': 'No query provided'}), 400
+    
+    try:
+        result = process_query(query)
+        return jsonify({'result': result})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5000)
