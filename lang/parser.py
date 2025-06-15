@@ -149,6 +149,8 @@ def p_limit_clause(p):
     '''limit_clause : LIMIT NUMBER
                     | empty'''
     if len(p) == 3:
+        if not isinstance(p[2], int) or p[2] < 0 or p[2] > 100:
+            raise Exception("Limit must be a non-negative integer between 0 and 100")
         p[0] = nodes.LimitClause(limit=p[2])
     else:
         p[0] = None
@@ -159,14 +161,13 @@ def p_expression_fieldname(p):
     p[0] = nodes.FieldReference(field_name=p[1])
 
 
-def p_expression_string(p):
-    '''expression : STRING'''
-    p[0] = p[1]  # String is already a simple value
 
 
 def p_expression_other_stuff(p):
     '''expression : NUMBER
                   | DATE
+                  | STRING
+                  | function_call
                   | LPAREN expression RPAREN'''
     if len(p) == 2:
         p[0] = p[1]
@@ -251,6 +252,18 @@ def p_projection_item(p):
         p[0] = nodes.ProjectionField(field_name=p[1])
     else:
         p[0] = nodes.ProjectionField(field_name=p[1], expression=p[3])
+
+def p_function_arguments(p):
+    '''function_arguments : expression
+                          | function_arguments COMMA expression'''
+    if len(p) == 2:
+        p[0] = [p[1]]
+    else:
+        p[0] = p[1] + [p[3]]
+
+def p_function_call(p):
+    '''function_call : NAME LPAREN function_arguments RPAREN'''
+    p[0] = nodes.FunctionCall(function_name=p[1], arguments=p[3])
 
         
 def p_error(p):

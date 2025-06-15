@@ -22,6 +22,8 @@ class Query:
         self.projection = projection
 
     def mongo_query(self):
+        if self.collection not in ['publications']:
+            raise Exception(f"Collection '{self.collection}' is not supported")
         query = [
             {
                 '$lookup': {
@@ -51,22 +53,17 @@ class Query:
             }
         ]
         if self.if_clause:
-            query.append(self.if_clause.to_aggregation_stage('publications'))
+            query.append(self.if_clause.to_aggregation_stage(self.collection))
         if self.sort:
-                query.append(self.sort.to_aggregation_stage('publications'))
+            query.append(self.sort.to_aggregation_stage(self.collection))
         if self.limit:
-            query.append(self.limit.to_aggregation_stage('publications'))
+            query.append(self.limit.to_aggregation_stage(self.collection))
+        else:
+            query.append({'$limit': 100})
         if self.projection:
-            query.append(self.projection.to_aggregation_stage('publications'))
+            query.append(self.projection.to_aggregation_stage(self.collection))
 
-        return query
-
-    def mongo_exec(self, database):
-        if self.collection not in ['publications']:
-            raise Exception(f"Collection '{self.collection}' is not supported")
-        collection = database[self.collection]
-        query = self.mongo_query()
-        return collection.aggregate(query)
+        return query, self.collection
 
 
 class Condition:
@@ -116,6 +113,8 @@ def expression_to_mongo(expression, collection_name):
     elif isinstance(expression, datetime.datetime) or isinstance(expression, str) or isinstance(expression, int) or isinstance(expression, float):
         return expression
     elif isinstance(expression, ExpressionBinaryOp):
+        return expression.to_mongo_query(collection_name)
+    elif isinstance(expression, FunctionCall):
         return expression.to_mongo_query(collection_name)
     else:
         raise ValueError(f"Unsupported expression type: {type(expression)}")
@@ -236,4 +235,37 @@ class  ExpressionBinaryOp:
                 expression_to_mongo(self.right, collection_name)
             ]
         }
+
         
+class FunctionCall:
+
+    def __init__(self, function_name, arguments):
+        self.function_name = function_name
+        self.arguments = arguments
+
+    def to_mongo_query(self, collection_name):
+        function_map = {
+            'len': {
+                '$strLenCP': {
+                    '$toString': expression_to_mongo(self.arguments[0], collection_name)
+                }
+            },
+            'min': {
+                '$min': [expression_to_mongo(arg, collection_name) for arg in self.arguments]
+            },
+            'max': {
+                '$max': [expression_to_mongo(arg, collection_name) for arg in self.arguments]
+            },
+            'random_int': {
+                '$floor': {
+                    '$multiply': [
+                        {'$rand': {}},
+                        expression_to_mongo(self.arguments[0], collection_name)
+                    ]
+                }
+            },
+        }
+
+        if self.function_name not in function_map:
+            raise ValueError(f"Unsupported function: {self.function_name}")
+        return function_map[self.function_name]

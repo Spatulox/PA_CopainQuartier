@@ -1,14 +1,19 @@
 from db import db
 from parser import parse_query
 from flask import Flask, request, jsonify
+import json
 
 
 def process_query(query_string):
 
     query = parse_query(query_string)
 
-    res = query.mongo_exec(db)
-    return list(res)
+    mongo_query, collection_name = query.mongo_query()
+    print(f"Executing MongoDB query: {json.dumps(mongo_query, indent=2)} on collection: {collection_name}")
+    collection = db[collection_name]
+    result = collection.aggregate(mongo_query)
+    return list(result)
+    
 
 
 app = Flask(__name__)
@@ -17,7 +22,6 @@ app = Flask(__name__)
 @app.route('/query', methods=['POST'])
 def handle_query():
     data = request.get_json() or {}
-    print(data)
     query = data.get('query', '')
     
     if not query:
