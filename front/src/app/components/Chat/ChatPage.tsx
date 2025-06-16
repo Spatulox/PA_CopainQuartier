@@ -49,7 +49,7 @@ type IceCandidateMsg = {
 }
 
 type ChatProps = {
-    id_channel: string
+    id_channel?: string
 };
 
 function ChatPage({id_channel}: ChatProps) {
