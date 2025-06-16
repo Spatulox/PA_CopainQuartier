@@ -37,6 +37,14 @@ export class FriendsController {
                 },
                 { new: true }
             )
+            use = await UserTable.updateOne(
+                { _id: validId },
+                {
+                    $addToSet: { friends_id: user._id},
+                    $pull: { friends_request_id: user._id}
+                },
+                { new: true }
+            )
         } else if(validAction == "reject") {
             use = await UserTable.updateOne(
                 { _id: user._id },
@@ -45,8 +53,8 @@ export class FriendsController {
             )
         } else if(validAction == "request"){
             use = await UserTable.updateOne(
-                { _id: user._id },
-                { $addToSet: { friends_request_id: validId}},
+                { _id: validId },
+                { $addToSet: { friends_request_id: user._id}},
                 { new: true }
             )
         }
