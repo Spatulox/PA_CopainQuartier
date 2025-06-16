@@ -28,7 +28,7 @@ function Login() {
       const client = new ApiClient(formData.email, formData.password);
       res = await client.connect();
     } catch (e: any) {
-      console.log(e)
+      console.error(e)
       if(e.hasOwnProperty("response")){
         for (const err in e.response.data) {
           newErrors.push(`${err !== "message" ? err + " : " : ""}${e.response.data[err]}`);

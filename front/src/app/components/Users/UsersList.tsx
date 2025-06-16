@@ -24,7 +24,6 @@ function UserList({message}: UserListType){
 
     useEffect(() => {
         (async () => {
-            console.log('useEffect')
             const client = new AdminUserClass()
             try{
                 const use = await client.getUsers()

@@ -238,7 +238,6 @@ function ChatPage({id_channel}: ChatProps) {
     setVocalStatus("En attente d'une autre personne");
 
     pc.oniceconnectionstatechange = () => {
-      console.log(pc.iceConnectionState)
       if (
         pc.iceConnectionState === "connected" ||
         pc.iceConnectionState === "completed"
@@ -325,7 +324,6 @@ function ChatPage({id_channel}: ChatProps) {
   };
 
   async function handleGenerateInvite(id: string){
-    console.log("coucou")
     try {
       const client = new InviteClass()
       const invite = await client.generateInvite(id)

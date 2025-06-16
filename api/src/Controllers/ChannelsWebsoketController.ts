@@ -139,7 +139,6 @@ export async function handleMessage(
     // --- Vérification d'accès ---
     const lastInit = accessMap.get(ws);
     if (!lastInit || Date.now() - lastInit > INIT_TIMEOUT) {
-      console.log("ee2")
       return send(ws, { type: MsgType.ERROR, error: "Session expirée, veuillez vous reconnecter." });
     }
 
@@ -218,11 +217,10 @@ export async function handleUserConnection(
       userToWebSockets.set(token, new Set());
     }
     userToWebSockets.get(token)!.add(ws);
-    console.log("online");
     send(ws, {type: MsgType.CONNECTED, token: token});
     return;
   }
-  console.log("err")
+  console.error("err")
   send(ws, {type: MsgType.ERROR, error: "Impossible to appear connected"});
 }
 

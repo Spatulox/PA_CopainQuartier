@@ -61,7 +61,6 @@ async function main(){
   
     const pathname = parse(req.url || '').pathname;
     if(!pathname){
-      console.log("wtf")
       return
     }
     const parts = pathname.split('/');
