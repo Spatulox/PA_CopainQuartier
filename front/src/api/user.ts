@@ -1,3 +1,4 @@
+import { Activity } from "./activity";
 import { Channel } from "./chat";
 import { ApiClient } from "./client";
 
@@ -17,6 +18,7 @@ export type User = {
   role: string,
   group_chat_list_ids: Channel[],
   common_channels?: Channel[],
+  common_activity?: Activity[],
   troc_score?: string | number | null,
   phone: string,
   friends: string[]
