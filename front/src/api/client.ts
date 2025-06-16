@@ -71,7 +71,7 @@ export class ApiClient {
           }
         } else if(error.hasOwnProperty("response") && error.response.status !== 401) {
             alert(error.code + " " + error.response.statusText)
-            console.log(error.response.data)
+            console.error(error.response.data)
             this.errors = error.response.data
             if(this.errors && this.errors.hasOwnProperty("message")){
               popup(this.errors.message)
