@@ -27,4 +27,7 @@ export const enum Route {
 
     user = "/users",
     manageUser = "/users/manage",
+
+    friends = "/friends",
+    friendsRequest = "/friends/request",
 }
