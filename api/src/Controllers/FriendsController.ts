@@ -5,6 +5,10 @@ import { UserTable } from '../DB_Schema/UserSchema';
 import { ObjectID } from '../DB_Schema/connexion';
 import { zObjectId } from '../Validators/utils';
 import { zFriendsAction } from '../Validators/friends';
+import { Channel } from 'diagnostics_channel';
+import { ChannelTable } from '../DB_Schema/ChannelSchema';
+import { ActivityTable } from '../DB_Schema/ActivitiesSchema';
+import { getAFriend } from '../Services/friends/friends';
 
 @JsonController("/friends")
 export class FriendsController {
@@ -12,12 +16,19 @@ export class FriendsController {
     @Get('/')
     @Authorized()
     async getAllMyFriends(@CurrentUser() user: User): Promise<FilledUser[]> {
-    const friends = await Promise.all(
-        user.friends_id.map(async (friendId: ObjectID) => {
-        return await getUserById(friendId);
-        })
-    );
-    return friends.filter(Boolean) as FilledUser[];
+        const friends = await Promise.all(
+            user.friends_id.map(async (friendId: ObjectID) => {
+            return await getUserById(friendId);
+            })
+        );
+        return friends.filter(Boolean) as FilledUser[];
+    }
+
+    @Get('/:id')
+    @Authorized()
+    async getMyFriendByID( @CurrentUser() user: User, @Param("id") id: string): Promise<any> {
+        const validId = zObjectId.parse(id);
+        return getAFriend(user, new ObjectID(validId))
     }
 
     @Patch('/:id/:validation')
