@@ -20,3 +20,12 @@
 .read-the-docs {
   color: #888;
 }
+
+
+.clickable{
+  text-decoration: underline;
+}
+
+.clickable:hover {
+  cursor: pointer;
+}
