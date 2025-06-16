@@ -6,6 +6,8 @@ import { ApiClient, ErrorMessage } from "../../../api/client"
 import Errors from "../shared/errors"
 import NotFound from "../shared/notfound"
 import { setupWebSocket } from "../shared/websocket"
+import { useNavigate } from "react-router-dom"
+import { Route } from "../../constantes"
 
 function MyFriends(){
     const [error, setErrors] = useState<ErrorMessage | null>(null)
@@ -13,6 +15,7 @@ function MyFriends(){
     const [connected, setConnected] = useState<string[]>()
     const wsRef = useRef<WebSocket | null>(null);
     const {me} = useAuth()
+    const navigate = useNavigate()
 
     useEffect(() => {
         if (!me?.friends) return;
@@ -85,7 +88,7 @@ function MyFriends(){
             <h3>Mes contacts</h3>
             <ul>
             {users.map(user  => (
-                <li key={user?._id}>
+                <li className="clickable" key={user?._id} onClick={() => navigate(`${Route.friends}/${user?._id}`)}>
                     {user?.name} {user?.lastname}
                 </li>
             ))}
