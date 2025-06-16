@@ -1,5 +1,6 @@
-import { FilledChannel } from "./ChannelModel";
+import { Channel, FilledChannel } from "./ChannelModel";
 import { ObjectID } from "../DB_Schema/connexion";
+import { Activity, FilledActivity } from "./ActivityModel";
 
 export type User ={
     _id: ObjectID,
@@ -17,10 +18,7 @@ export type User ={
     friends_request_id: ObjectID[],
 }
 
-export type FilledUser = Omit<User, "_id" | "group_chat_list_ids" | "friends_id" | "password" | "friends_request_id"> & {_id: string, group_chat_list_ids: FilledChannel[], friends: string[], friends_request: string[] };
+export type FilledUser = Omit<User, "_id" | "group_chat_list_ids" | "friends_id" | "password" | "friends_request_id"> & {_id: string, group_chat_list_ids: FilledChannel[], friends: string[], friends_request: string[], common_channels?: Channel[] | FilledChannel[], common_activity?: Activity[] | FilledActivity[] };
 
-export type PublicUser = Omit<User, "_id" | "password" | "email" | "address" | "phone" | "friends_id" | "friends_request_id"> & {
-    _id: string,
-    common_channels: string[];
-};
+export type PublicUser = Omit<FilledUser, "password" | "email" | "address" | "phone" | "group_chat_list_ids" | "friends" | "friends_request">
 
