@@ -68,7 +68,7 @@ export function MiniUser({
                 {
                     onRequest &&
                     user?._id !== theUserObject._id &&
-                    !user?.friends.includes(theUserObject._id) &&
+                    user?.friends && !(theUserObject._id in user?.friends) &&
                     (<button onClick={() => onRequest(theUserObject._id)}>Demander en ami</button>)}
             </div>
         </div>

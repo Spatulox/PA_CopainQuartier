@@ -31,7 +31,9 @@ function MyFriends(){
             }
         };
 
-        Promise.all(me.friends.map(fetchUser))
+        const friendIds = Object.keys(me.friends);
+
+        Promise.all(friendIds.map(fetchUser))
             .then(results => setUsers(results.filter(Boolean)))
             .catch(err => setErrors(err.message));
     }, [me?.friends_request]);
