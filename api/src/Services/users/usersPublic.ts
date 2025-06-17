@@ -59,9 +59,10 @@ export function toUserObject(doc: User | null, depth: number = 0): FilledUser | 
     if(doc == null){return null}
 
     const friends = doc.friends_id instanceof Map
-        ? Object.fromEntries(doc.friends_id)
-        : doc.friends_id || {};
-
+    ? Object.fromEntries(
+        Array.from(doc.friends_id, ([key, value]) => [key.toString(), value.toString()])
+        )
+    : doc.friends_id || {};
 
     return {
         _id: doc._id.toString(),
