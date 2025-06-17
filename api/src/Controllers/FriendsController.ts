@@ -45,7 +45,7 @@ export class FriendsController {
         
         let use
         if(validAction == "validate"){
-            const channel = await  createChannel(user,{name: "Canal Privé", description: `Canal privé`})
+            const channel = await  createChannel(user,{name: "Canal Privé", description: `Canal privé`}, true)
             if(!channel || !channel._id){
                 throw new InternalServerError("Something went wrong...")
             }

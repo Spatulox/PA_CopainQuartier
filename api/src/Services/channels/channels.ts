@@ -32,7 +32,8 @@ export async function getMyChannel(user: User): Promise<FilledChannel[] | null>{
     const res = await ChannelTable.find({
         $or: [
             { admin_id: user._id },
-            { members: user._id }
+            { members: user._id },
+            { private : false}
         ]
     }).lean().exec();
 
@@ -41,7 +42,8 @@ export async function getMyChannel(user: User): Promise<FilledChannel[] | null>{
 
 export async function getAllChannelImInside(user: User): Promise<FilledChannel[] | null>{
     const res = await ChannelTable.find({
-        members: user._id
+        members: user._id,
+        private: false,
     }).lean().exec()
     return res.map(objectToChannel);
 }
@@ -49,15 +51,17 @@ export async function getAllChannelImInside(user: User): Promise<FilledChannel[]
 export async function getAllChannel(user: User): Promise<FilledChannel[] | null>{
     if (user.role != UserRole.admin){return null}
 
-    const res = await ChannelTable.find({
-    }).lean()
+    const res = await ChannelTable.find(
+    {
+        private: false}
+    ).lean()
     .populate("admin_id")
     .populate("members")
     .exec()
     return res.map(objectToChannel);
 }
 
-export async function createChannel(user: User, data: CreateChannelParam): Promise<FilledChannel | null>{
+export async function createChannel(user: User, data: CreateChannelParam, private_chan: boolean = false): Promise<FilledChannel | null>{
     const mes: Message = createMessage("This is the start of the conversation", null)
     const channel_id = new ObjectID()
 
@@ -72,7 +76,8 @@ export async function createChannel(user: User, data: CreateChannelParam): Promi
         member_auth: ChannelAuth.read_send,
         created_at: new Date(),
         activity_id: data.activity_id_linked ? new ObjectID(data.activity_id_linked) : null,
-        troc_id: data.troc_id_linked ? new ObjectID(data.troc_id_linked) : null
+        troc_id: data.troc_id_linked ? new ObjectID(data.troc_id_linked) : null,
+        private: private_chan
 
     }
 
