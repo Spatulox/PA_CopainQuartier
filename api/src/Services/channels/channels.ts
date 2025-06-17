@@ -4,12 +4,10 @@ import { ChannelAuth, ChannelTable } from "../../DB_Schema/ChannelSchema";
 import { CreateChannelParam, PostMessageParam, TransferChannelParam, UpdateChannelParam } from "../../Validators/channels";
 import { FilledUser, User } from "../../Models/UserModel";
 import { UserRole, UserTable } from "../../DB_Schema/UserSchema";
-import { getUserById, toUserObject } from "../users/usersPublic";
+import { toUserObject } from "../users/usersPublic";
 import { getActivityById, toActivityObject } from "../activities/activities";
 import { ObjectID } from "../../DB_Schema/connexion";
 import { ActivityTable } from "../../DB_Schema/ActivitiesSchema";
-import { ac } from "@faker-js/faker/dist/airline-CBNP41sR";
-import { id_ID } from "@faker-js/faker/.";
 import { toTrocObject } from "../trocs/trocs";
 import { TrocTable } from "../../DB_Schema/TrocSchema";
 
@@ -19,7 +17,6 @@ export async function getChannelById(channel_id: ObjectID): Promise<FilledChanne
     .populate("activity_id")
     .populate("members")
     .exec()
-    
     return objectToChannel(res)
 }
 
@@ -158,7 +155,7 @@ export async function addSomeoneFromChannel(channel_id: ObjectID, user_id: Objec
         {_id: user_id},
         {$addToSet: {group_chat_list_ids: channel_id}}
     )
-    return (result.modifiedCount > 0 && res.modifiedCount > 0) || result.matchedCount > 0 ? null : false;
+    return (result.modifiedCount > 0 && res.modifiedCount > 0) || (result.matchedCount > 0 ? null : false);
 }
 
 
@@ -167,7 +164,13 @@ export async function removeSomeoneFromChannel(channel_id: ObjectID, user_id: Ob
         { _id: channel_id },
         { $pull: { members: user_id } }
     ).exec();
-    return result.modifiedCount > 0;
+
+    const res = await UserTable.updateOne(
+        {_id: user_id},
+        {$pull: {group_chat_list_ids: channel_id}}
+    ).exec()
+
+    return result.modifiedCount > 0 && res.modifiedCount > 0;
 }
 
 export async function saveMessageToChannel(user: FilledUser , channel_id: ObjectID, content: PostMessageParam): Promise<boolean>{
