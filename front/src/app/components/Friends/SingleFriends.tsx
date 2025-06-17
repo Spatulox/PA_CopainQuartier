@@ -62,11 +62,12 @@ function SingleFriends(){
             theuser={friends}
             user={me}
             buttonShow={ShowUserButton.None}
-            showAdditionnalInfo={ShowAdditionnalInfo.CommonActivity | ShowAdditionnalInfo.CommonChannel}
+            showAdditionnalInfo={ShowAdditionnalInfo.CommonActivity}
         />
+        {me?.friends[friends._id] ? (<ChatPage id_channel={me?.friends[friends._id]} />) : "<p>Une erreur est survenue</p>"}
         
     </>
     return <h1>t</h1>
 }
-/**<ChatPage id_channel="" /> */
+
 export default SingleFriends
