@@ -23,6 +23,7 @@ export function MiniUser({
 }: ShowUserProps) {
     const [theUserObject, setTheUser] = useState<User | null>(null)
     const [notFound, setNotFound] = useState(false)
+    const [asked, setAsked] = useState(false)
 
     useEffect(() => {
         (async () => {
@@ -40,6 +41,11 @@ export function MiniUser({
             }
         })()
     }, [theuser])
+
+    function handleAsked(){
+        onRequest && theUserObject && onRequest(theUserObject._id)
+        setAsked(true)
+    }
 
     if(notFound){
         return <NotFound />
@@ -66,10 +72,10 @@ export function MiniUser({
                     </button>
                 )}
                 {
-                    onRequest &&
+                    onRequest && !asked &&
                     user?._id !== theUserObject._id &&
                     user?.friends && !(theUserObject._id in user?.friends) &&
-                    (<button onClick={() => onRequest(theUserObject._id)}>Demander en ami</button>)}
+                    (<button onClick={handleAsked}>Demander en ami</button>)}
             </div>
         </div>
     );
