@@ -25,7 +25,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const refreshMe = useCallback(async () => {
     const client = new ApiClient();
     const user = await client.getMe();
-    setMe(user);
+    setMe(prev => {
+      if (JSON.stringify(prev) !== JSON.stringify(user)) {
+        return user;
+      }
+      return prev;
+    });
   }, []);
 
   
