@@ -45,8 +45,7 @@ export class FriendsController {
         
         let use
         if(validAction == "validate"){
-            const theFriend = await getUserById(new ObjectID(validId))
-            const channel = await  createChannel(user,{name: "Canal Privé", description: `Canal privé entre vous et ${theFriend?.name}`})
+            const channel = await  createChannel(user,{name: "Canal Privé", description: `Canal privé`})
             if(!channel || !channel._id){
                 throw new InternalServerError("Something went wrong...")
             }
@@ -68,6 +67,12 @@ export class FriendsController {
                     $pull: { friends_request_id: user._id}
                 },
                 { new: true }
+            )
+
+            use = await ChannelTable.updateOne(
+                {_id: channel._id},
+                {$addToSet: { members: validId}},
+                { new: true}
             )
         } else if(validAction == "reject") {
             use = await UserTable.updateOne(
