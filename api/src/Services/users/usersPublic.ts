@@ -57,6 +57,12 @@ export async function deleteMyAccount(user: User): Promise<boolean>{
 
 export function toUserObject(doc: User | null, depth: number = 0): FilledUser | null {
     if(doc == null){return null}
+
+    const friends = doc.friends_id instanceof Map
+        ? Object.fromEntries(doc.friends_id)
+        : doc.friends_id || {};
+
+
     return {
         _id: doc._id.toString(),
         name: doc.name,
@@ -68,7 +74,8 @@ export function toUserObject(doc: User | null, depth: number = 0): FilledUser | 
         group_chat_list_ids: (doc.group_chat_list_ids || []).map((item: any) => objectToChannel(item)),
         troc_score: doc.troc_score ? doc.troc_score.toString() : null,
         phone: doc.phone,
-        friends: doc.friends_id ? doc.friends_id.map(invite => invite.toString()) : [],
+        //friends: doc.friends_id ? doc.friends_id.map(invite => invite.toString()) : [],
+        friends: friends,
         friends_request: doc.friends_request_id ? doc.friends_request_id.map(invite => invite.toString()) : [],
     };
 }
