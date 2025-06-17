@@ -1,3 +1,4 @@
+import { popup } from "../app/scripts/popup-slide";
 import { Activity } from "./activity";
 import { ApiClient } from "./client";
 import { Publication } from "./publications";
@@ -74,6 +75,10 @@ export class ChatClass extends ApiClient {
   }
 
   async leaveChat(id: string): Promise<void>{
+    if(!this.user?._id){
+      popup("Erreur, veuiller vous déconnecter puis vous reconnecter pour faire cette action...")
+      return
+    }
     await this.Patch(`${this.url}/${id}/removeuser/${this.user?._id}`, {})
   }
 
