@@ -11,6 +11,7 @@ type AuthContextType = {
   me: User;
   updateConnection: () => Promise<void>;
   refreshMe: () => Promise<void>,
+  connectedFriends: string[] | undefined,
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -19,8 +20,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isConnected, setIsConnected] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [me, setMe] = useState<User | null>(null);
-  const [connected, setConnected] = useState(false)
+  const connectedRef = useRef(false);
   const wsRef = useRef<WebSocket | null>(null);
+  const [connectedFriends, setWhoIsConnected] = useState<string[]>()
 
   const refreshMe = useCallback(async () => {
     const client = new ApiClient();
@@ -44,6 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
   const openWebSocket = React.useCallback(() => {
       const user = new ApiClient();
+      console.log("ouverture websocket")
       setupWebSocket({
           wsUrl: `/online`,
           wsRef,
@@ -51,24 +54,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           handlers: {
             onOpen: () => {},
             onClose: () => {
-              setConnected(false)
+              connectedRef.current = false
+              setWhoIsConnected([])
               popup("Déconnecté")
             },
             onError: () => (""),
             onMessage: {
-              CONNECTED: () => {
-                if(!connected){
+              CONNECTED: (msg) => {
+                if(!connectedRef.current){
                     popup("Connecté")
-                    setConnected(true)
+                    connectedRef.current = true
                   }
+                setWhoIsConnected(msg.token)
               },
               ERROR: () => {
-                  setConnected(false)
+                  connectedRef.current = false
+                  setWhoIsConnected([])
               }
             }
           },
       });
   }, []);
+
+  useEffect(() => {
+    console.log("ouverture")
+    openWebSocket()
+    
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+      }
+    };
+  }, [])
 
   useEffect(() => {
     updateConnection();
@@ -91,7 +109,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [updateConnection]);  
 
   return (
-    <AuthContext.Provider value={{ isConnected, isAdmin, me, updateConnection, refreshMe }}>
+    <AuthContext.Provider value={{ isConnected, isAdmin, me, updateConnection, refreshMe, connectedFriends }}>
       {children}
     </AuthContext.Provider>
   );
