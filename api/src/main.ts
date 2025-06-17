@@ -100,7 +100,6 @@ async function main(){
       if (foundUserId) {
         console.log(`Client déconnecté: ${foundUserId}`);
       }
-      console.log(connectedClients)
     });
 
   });
