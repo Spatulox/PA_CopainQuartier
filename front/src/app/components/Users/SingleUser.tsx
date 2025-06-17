@@ -98,7 +98,7 @@ export function ShowUser({
                     )}
                     {showAdditionnalInfo && (showAdditionnalInfo & ShowAdditionnalInfo.CommonActivity) !== 0 && (
                         <div>
-                            <span>Common Channels</span>
+                            <span>Common Activities</span>
                             <ul>
                                 {theuser.hasOwnProperty("common_activity") && theuser.common_activity!.length > 0 && theuser.common_activity!.map((act: Activity) => (
                                     <ShowActivity
