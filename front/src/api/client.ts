@@ -39,6 +39,7 @@ export class ApiClient {
       this.username = username;
       this.password = password;
     }
+    this.connect()
   }
 
 
