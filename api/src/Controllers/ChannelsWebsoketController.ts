@@ -9,9 +9,9 @@ import { Channel, FilledChannel } from '../Models/ChannelModel';
 
 // --- Stockage des connexions et abonnements ---
 export const accessMap = new Map<WebSocket, number>();
-export const channelClients = new Map<string, Set<WebSocket>>();
-export const connectedClients = new Map<WebSocket, number>();
-export const userToWebSockets = new Map<string, Set<WebSocket>>();
+export const channelClients = new Map<string, Set<WebSocket>>(); // We use a set of Websocket, in case of the user open more than one tab
+//export const connectedClients = new Map<WebSocket, number>();
+export const connectedClients = new Map<string, Set<WebSocket>>(); // We use a set of Websocket, in case of the user open more than one tab
 const INIT_TIMEOUT = 60 * 60 * 1000; // 1h
 
 // --- Types de messages ---
@@ -67,7 +67,7 @@ async function userCanAccessThisChannel(channel: FilledChannel, msg: InitMsg | V
   
 }
 
-function sendWhoIsConnected(){
+function sendWhoIsConnectedBychannel(){
   for (const [channelId, clients] of channelClients.entries()) {
     const connectedUserIds = new Set<string>();
     for (const ws of clients) {
@@ -80,6 +80,33 @@ function sendWhoIsConnected(){
         token_connected_client: Array.from(connectedUserIds)
       });
     });
+  }
+}
+
+
+async function sendWhoIsConnectedByUsersFriends(){
+  for (const [userId, wsClient] of connectedClients.entries()) {
+    const friends = await getUserById(new ObjectID(userId))
+    if(!friends){
+      return
+    }
+
+    const res = []
+    // Key is the friend, value is something, we don't care
+    for (const [key, _] of Object.entries(friends.friends)) {
+      if(connectedClients.get(key)){
+        res.push(key)
+      }
+    }
+
+    const resToSend: ConnectedMsg = {
+      type: MsgType.CONNECTED,
+      token: res,
+    }
+    
+    for (const ws of wsClient) { // We use a set of Websocket, in case of the user open more than one tab
+      send(ws, resToSend);
+    }
   }
 }
 
@@ -113,11 +140,11 @@ export async function handleMessage(
       if (!channelClients.has(channel_id)) channelClients.set(channel_id, new Set());
       channelClients.get(channel_id)!.add(ws);
       
-      console.log('Client connecté');
+      console.log('Client connecté to channel');
       // Send to other, which perso is connected to the channel
-      sendWhoIsConnected()
+      sendWhoIsConnectedBychannel()
       setInterval(async () => {
-        sendWhoIsConnected()
+        sendWhoIsConnectedBychannel()
       }, 10 * 1000);
 
       // Envoi de l'historique
@@ -209,15 +236,28 @@ export async function handleUserConnection(
     // Exemple: {type: "INIT_CONNECTION", user_id: "123"}
     const token = msg.token;
     if (!token) {
-      send(ws, {type: MsgType.ERROR, error: "toekn manquant"});
+      send(ws, {type: MsgType.ERROR, error: "token manquant"});
       return;
     }
-    // Ajoute le WebSocket à la Map
-    if (!userToWebSockets.has(token)) {
-      userToWebSockets.set(token, new Set());
+    const user = await getCurrentUserByToken(token)
+    // Stock the user_id, to send it to the client, to know who is connected or not
+    if (user) {
+      //console.log(user);
+      (ws as any).userId = user._id.toString();
     }
-    userToWebSockets.get(token)!.add(ws);
-    send(ws, {type: MsgType.CONNECTED, token: token});
+    const user_id = user._id.toString()
+    console.log("Client Connecté")
+    // Ajoute le WebSocket à la Map
+    if (!connectedClients.has(user_id)) {
+      connectedClients.set(user_id, new Set());
+    }
+    connectedClients.get(user_id)!.add(ws);
+
+    // Send to other, which perso is connected to the channel
+    sendWhoIsConnectedByUsersFriends()
+    setInterval(async () => {
+      sendWhoIsConnectedByUsersFriends()
+    }, 10 * 1000);
     return;
   }
   console.error("err")
