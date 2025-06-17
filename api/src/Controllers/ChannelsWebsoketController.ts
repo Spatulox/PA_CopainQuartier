@@ -92,7 +92,7 @@ async function sendWhoIsConnectedByUsersFriends(){
     }
 
     const res = []
-    // Key is the friend, value is something, we don't care
+    // Key is the friend, value is the channel_id (to discuss), we don't care
     for (const [key, _] of Object.entries(friends.friends)) {
       if(connectedClients.get(key)){
         res.push(key)
