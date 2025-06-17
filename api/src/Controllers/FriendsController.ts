@@ -1,4 +1,4 @@
-import { JsonController, Param, Get, Delete, CurrentUser, Authorized, Patch, HttpCode } from 'routing-controllers';
+import { JsonController, Param, Get, Delete, CurrentUser, Authorized, Patch, HttpCode, InternalServerError } from 'routing-controllers';
 import { FilledUser, User } from "../Models/UserModel"
 import { getUserById } from '../Services/users/usersPublic';
 import { UserTable } from '../DB_Schema/UserSchema';
@@ -9,6 +9,7 @@ import { Channel } from 'diagnostics_channel';
 import { ChannelTable } from '../DB_Schema/ChannelSchema';
 import { ActivityTable } from '../DB_Schema/ActivitiesSchema';
 import { getAFriend } from '../Services/friends/friends';
+import { createChannel } from '../Services/channels/channels';
 
 @JsonController("/friends")
 export class FriendsController {
@@ -16,11 +17,15 @@ export class FriendsController {
     @Get('/')
     @Authorized()
     async getAllMyFriends(@CurrentUser() user: User): Promise<FilledUser[]> {
+        const friendsMap = new Map(Object.entries(user.friends_id || {}));
+        const friendIds = Array.from(friendsMap.keys());
+
         const friends = await Promise.all(
-            user.friends_id.map(async (friendId: ObjectID) => {
-            return await getUserById(friendId);
+            friendIds.map(async (friendId) => {
+                return await getUserById(new ObjectID(friendId));
             })
         );
+
         return friends.filter(Boolean) as FilledUser[];
     }
 
@@ -40,10 +45,17 @@ export class FriendsController {
         
         let use
         if(validAction == "validate"){
+            const theFriend = await getUserById(new ObjectID(validId))
+            const channel = await  createChannel(user,{name: "Canal Privé", description: `Canal privé entre vous et ${theFriend?.name}`})
+            if(!channel || !channel._id){
+                throw new InternalServerError("Something went wrong...")
+            }
+
             use = await UserTable.updateOne(
                 { _id: user._id },
                 {
-                    $addToSet: { friends_id: validId},
+                    //$addToSet: { friends_id: validId},
+                    $set: { [`friends_id.${validId}`]: channel?._id },
                     $pull: { friends_request_id: validId}
                 },
                 { new: true }
@@ -51,7 +63,8 @@ export class FriendsController {
             use = await UserTable.updateOne(
                 { _id: validId },
                 {
-                    $addToSet: { friends_id: user._id},
+                    //$addToSet: { friends_id: user._id},
+                    $set: { [`friends_id.${user._id}`]: channel?._id },
                     $pull: { friends_request_id: user._id}
                 },
                 { new: true }
