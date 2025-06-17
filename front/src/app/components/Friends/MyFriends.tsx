@@ -12,9 +12,8 @@ import { Route } from "../../constantes"
 function MyFriends(){
     const [error, setErrors] = useState<ErrorMessage | null>(null)
     const [users, setUsers] = useState<User[]>([]);
-    const [connected, setConnected] = useState<string[]>()
     const wsRef = useRef<WebSocket | null>(null);
-    const {me} = useAuth()
+    const {me, connectedFriends} = useAuth()
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -38,42 +37,6 @@ function MyFriends(){
             .catch(err => setErrors(err.message));
     }, [me?.friends_request]);
 
-    const onReconnect = () => {
-        openWebSocket();
-    };
-    
-    const openWebSocket = React.useCallback(() => {
-        const user = new ApiClient();
-    
-        setupWebSocket({
-            wsUrl: `/online`,
-            wsRef,
-            authToken: user.getAuthToken(),
-            handlers: {
-                onOpen: () => {},
-                onClose: () => {},
-                onError: () => {},
-                onMessage: {
-                    ERROR(msg) {
-                        alert(msg.error);
-                        wsRef.current?.close();
-                        return;
-                    },
-                    CONNECTED_CHANNEL(msg) {
-                        onConnected(msg)
-                    },
-                }
-            },
-            onReconnect,
-        });
-    }, []);
-
-    
-    async function onConnected(msg: {type: string, token_connected_client: string[]}){
-        setConnected(msg.token_connected_client)
-    }
-    
-
     if(error){
         return <Errors errors={error} />
     }
@@ -90,7 +53,12 @@ function MyFriends(){
             <h3>Mes contacts</h3>
             <ul>
             {users.map(user  => (
-                <li className="clickable" key={user?._id} onClick={() => navigate(`${Route.friends}/${user?._id}`)}>
+                <li
+                    className="clickable"
+                    style={user?._id && connectedFriends?.includes(user?._id) ? {color: "greenyellow"} : {color: "red"}}
+                    key={user?._id}
+                    onClick={() => navigate(`${Route.friends}/${user?._id}`)}
+                >
                     {user?.name} {user?.lastname}
                 </li>
             ))}
