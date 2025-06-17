@@ -21,7 +21,7 @@ export type User = {
   common_activity?: Activity[],
   troc_score?: string | number | null,
   phone: string,
-  friends: string[]
+  friends: Record<string, string>
   friends_request: string[]
 } | null
 
