@@ -31,7 +31,7 @@ function ChatPage({id_channel}: ChatProps) {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
   const miniUserRef = useRef<HTMLDivElement>(null);
   const [connectedUser, setConnectedUser] = useState<string[]>()
-  const [inVoc, setInVoc] = useState(false)
+  const [videoStatus, setVideoStatus] = useState(false)
  
   const wsRef = useRef<WebSocket | null>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
@@ -265,6 +265,7 @@ function ChatPage({id_channel}: ChatProps) {
       popup("Something went wrong when starting video sharing")
       return
     }
+    setVideoStatus(true)
     videoSenderRef.current = peerConnectionRef.current.addTrack(videoTrack, localStreamRef.current);
     localStreamRef.current.addTrack(videoTrack);
 
@@ -285,6 +286,7 @@ function ChatPage({id_channel}: ChatProps) {
       popup("Something went wrong when stopping video")
       return
     }
+    setVideoStatus(false)
     peerConnectionRef.current.removeTrack(videoSenderRef.current);
     videoSenderRef.current = null;
 
@@ -535,6 +537,7 @@ function ChatPage({id_channel}: ChatProps) {
         vocalStatus={vocalStatus}
         statusColor={statusColor}
         vocalStatusColor={vocalStatusColor}
+        videoStatus={videoStatus}
         memberRight={thechannelAuth}
         messages={messages}
         input={input}

@@ -15,6 +15,7 @@ type Props = {
   statusColor: string;
   vocalStatusColor: string;
   vocalStatus: string;
+  videoStatus: boolean,
   memberRight: ChannelRight,
   messages: Message[];
   input: string;
@@ -35,6 +36,7 @@ const ChatRoom: React.FC<Props> = ({
   vocalStatus,
   statusColor,
   vocalStatusColor,
+  videoStatus,
   memberRight,
   messages,
   input,
@@ -72,8 +74,7 @@ const ChatRoom: React.FC<Props> = ({
       {vocalStatus !== "Déconnecté" ? <button onClick={onLeaveVoiceChat}>Quitter l'appel vocal</button> : <button id="" onClick={onStartVoiceChat}>Démarrer un appel vocal</button>}
       {vocalStatus !== "Déconnecté" && (
         <>
-          <button onClick={onStopVideoShare}>Arrêter le partage vidéo</button>
-          <button id="" onClick={onStartVideoShare}>Démarrer un partage vidéo</button>
+        {videoStatus ? <button onClick={onStopVideoShare}>Arrêter le partage vidéo</button> : <button id="" onClick={onStartVideoShare}>Démarrer un partage vidéo</button>}
         </>
       )}
     </div>
