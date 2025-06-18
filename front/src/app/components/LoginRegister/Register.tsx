@@ -32,7 +32,6 @@ function Register() {
     if (formData.password !== formData.confirmPassword) newErrors.push('Les mots de passe ne correspondent pas');
     if (newErrors.length > 0) { setErrors(newErrors); return; }
     const client = new ApiClient(formData.email, formData.password);
-    console.log(client)
     let res;
     try {
       res = await client.register(formData);

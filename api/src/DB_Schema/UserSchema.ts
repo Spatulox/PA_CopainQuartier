@@ -12,8 +12,13 @@ const UserSchema = new Schema<User>({
     group_chat_list_ids: { type: [Schema.Types.ObjectId], ref: "Channel"},
     troc_score: {type: String, default: null, required: false},
     phone: {type: String, required: true},
-    friends_id: { type: [Schema.Types.ObjectId], ref: "User", default: null },
-    friends_request_id: { type: [Schema.Types.ObjectId], ref: "User", default: null },
+    //friends_id: { type: [Schema.Types.ObjectId], ref: "User", default: [] },
+    friends_id: {
+        type: Map,
+        of: Schema.Types.ObjectId,
+        default: new Map(),
+    },
+    friends_request_id: { type: [Schema.Types.ObjectId], ref: "User", default: [] },
 });
 
 

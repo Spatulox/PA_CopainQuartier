@@ -1,15 +1,20 @@
-import { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { FriendsClass } from "../../../api/friend"
 import { useAuth } from "../shared/auth-context"
 import { User, UserClass } from "../../../api/user"
-import { ErrorMessage } from "../../../api/client"
+import { ApiClient, ErrorMessage } from "../../../api/client"
 import Errors from "../shared/errors"
 import NotFound from "../shared/notfound"
+import { setupWebSocket } from "../shared/websocket"
+import { useNavigate } from "react-router-dom"
+import { Route } from "../../constantes"
 
 function MyFriends(){
     const [error, setErrors] = useState<ErrorMessage | null>(null)
     const [users, setUsers] = useState<User[]>([]);
-    const {me} = useAuth()
+    const wsRef = useRef<WebSocket | null>(null);
+    const {me, connectedFriends} = useAuth()
+    const navigate = useNavigate()
 
     useEffect(() => {
         if (!me?.friends) return;
@@ -25,11 +30,12 @@ function MyFriends(){
             }
         };
 
-        Promise.all(me.friends.map(fetchUser))
+        const friendIds = Object.keys(me.friends);
+
+        Promise.all(friendIds.map(fetchUser))
             .then(results => setUsers(results.filter(Boolean)))
             .catch(err => setErrors(err.message));
     }, [me?.friends_request]);
-
 
     if(error){
         return <Errors errors={error} />
@@ -47,7 +53,12 @@ function MyFriends(){
             <h3>Mes contacts</h3>
             <ul>
             {users.map(user  => (
-                <li key={user?._id}>
+                <li
+                    className="clickable"
+                    style={user?._id && connectedFriends?.includes(user?._id) ? {color: "greenyellow"} : {color: "red"}}
+                    key={user?._id}
+                    onClick={() => navigate(`${Route.friends}/${user?._id}`)}
+                >
                     {user?.name} {user?.lastname}
                 </li>
             ))}

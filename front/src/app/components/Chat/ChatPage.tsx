@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../shared/auth-context";
 import NotFound from "../shared/notfound";
-import { Channel, ChatClass, Message } from "../../../api/chat";
+import { Channel, ChatClass, Message, MsgType } from "../../../api/chat";
 import ChatRoom, { ChannelRight } from "./ChatRoom";
 import { ChannelList } from "./ChatList";
 import { popup } from "../../scripts/popup-slide";
@@ -11,22 +11,31 @@ import { MiniUser } from "../Users/MiniUser";
 import { User, UserClass } from "../../../api/user";
 import { Route } from "../../constantes";
 import { FriendsClass } from "../../../api/friend";
+import { setupWebSocket } from "../shared/websocket";
 
-enum MsgType {
+/*enum MsgType {
   INIT = "INIT",
   HISTORY = "HISTORY",
   MESSAGE = "MESSAGE",
+  CONNECTED_CHANNEL = "CONNECTED_CHANNEL",
   ERROR = "ERROR",
   OFFER = "OFFER",
   ANSWER = "ANSWER",
   CANDIDATE = "ICE-CANDIDATE",
   JOIN_VOCAL = "JOIN_VOCAL",
   LEAVE_VOCAL = "LEAVE_VOCAL",
-}
+  INIT_CONNECTION = "INIT_CONNECTION", // For the "connected" state (online/offline)
+  CONNECTED = "CONNECTED" // For the "connected" state (online/offline)
+}*/
 
 type OfferMsg = {
   type: string,
   offer: any // (c'est un truc chelou)
+}
+
+type ConnectedChannelMsg = {
+  type: string,
+  token_connected_client: any // (c'est un truc chelou)
 }
 
 type IceCandidateMsg = {
@@ -40,7 +49,7 @@ type IceCandidateMsg = {
 }
 
 type ChatProps = {
-    id_channel: string
+    id_channel?: string
 };
 
 function ChatPage({id_channel}: ChatProps) {
@@ -56,6 +65,7 @@ function ChatPage({id_channel}: ChatProps) {
   const [channel, setChannel] = useState<Channel | null>(null);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
   const miniUserRef = useRef<HTMLDivElement>(null);
+  const [connected, setConnected] = useState<string[]>()
  
   const wsRef = useRef<WebSocket | null>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
@@ -63,65 +73,61 @@ function ChatPage({id_channel}: ChatProps) {
   
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  // Pour le reconnexion automatique
-  const reconnectTimeout = useRef<number | null>(null);
-  const reconnectDelay = useRef<number>(1000); // 1s de base
-
   const chatID = id_channel || id 
+
+  const onReconnect = () => {
+    openWebSocket();
+  };
 
   // Fonction pour ouvrir la connexion WebSocket
   const openWebSocket = React.useCallback(() => {
     if (!chatID) return;
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) return;
-
-    const ws = new window.WebSocket(`ws://localhost:3000/channel/${chatID}`);
-    wsRef.current = ws;
 
     const user = new ChatClass();
-    setToken(user.getAuthToken());
 
+    setToken(user.getAuthToken());
     const fetchChannel = async () => {
       const chan = await user.getChannelById(chatID);
       setChannel(chan);
     };
     fetchChannel();
 
-    ws.onopen = () => {
-      setStatus("Connecté");
-      reconnectDelay.current = 1000;
-      ws.send(JSON.stringify({ type: MsgType.INIT, token: user.getAuthToken() })); // if using token instead of user.getauthToken, the api will crash (and send 401)
-      setMessages([]);
-    };
-
-    ws.onclose = () => {
-      setStatus("Déconnecté");
-      if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);
-      reconnectTimeout.current = setTimeout(() => {
-        reconnectDelay.current = Math.min(reconnectDelay.current * 1.2, 30000); // max 30s
-        openWebSocket();
-      }, reconnectDelay.current);
-    };
-
-    ws.onerror = () => {
-      setStatus("Erreur");
-      ws.close();
-    };
-
-    ws.onmessage = async (event) => {
-      let data = typeof event.data === "string" ? event.data : await event.data.text();
-      let msg;
-      try { msg = JSON.parse(data); } catch { return; }
-      if (msg.type === MsgType.ERROR) {
-        alert(msg.error);
-        ws.close();
-        return;
-      }
-      if (msg.type === MsgType.HISTORY) setMessages(msg.messages);
-      if (msg.type === MsgType.MESSAGE) setMessages(prev => [...prev, msg]);
-      if (msg.type === MsgType.OFFER) onOffer(msg)
-      if (msg.type === MsgType.ANSWER) onAnswer(msg)
-      if (msg.type === MsgType.CANDIDATE) onCandidate(msg)
-    };
+    setupWebSocket({
+      wsUrl: `/channel/${chatID}`,
+      wsRef,
+      authToken: user.getAuthToken(),
+      handlers: {
+        onOpen: () => setStatus("Connecté"),
+        onClose: () => setStatus("Déconnecté"),
+        onError: () => setStatus("Erreur"),
+        onMessage: {
+          ERROR(msg) {
+              alert(msg.error);
+              wsRef.current?.close();
+              return;
+          },
+          HISTORY(msg) {
+              setMessages(msg.messages)
+          },
+          MESSAGE(msg) {
+              setMessages(prev => [...prev, msg])
+          },
+          OFFER(msg) {
+              onOffer(msg)
+          },
+          ANSWER(msg) {
+              onAnswer(msg)
+          },
+          CANDIDATE(msg) {
+              onCandidate(msg)
+          },
+          CONNECTED_CHANNEL(msg) {
+              onConnected(msg)
+          },
+        }
+      },
+      onReconnect,
+    });
   }, [chatID]);
 
 
@@ -183,6 +189,10 @@ function ChatPage({id_channel}: ChatProps) {
     }
   }
 
+  async function onConnected(msg: ConnectedChannelMsg){
+    setConnected(msg.token_connected_client)
+  }
+
   const startVoiceChat = async () => {
     if(!wsRef || !wsRef.current){
       popup("Impossible de se connecter au vocal")
@@ -228,7 +238,6 @@ function ChatPage({id_channel}: ChatProps) {
     setVocalStatus("En attente d'une autre personne");
 
     pc.oniceconnectionstatechange = () => {
-      console.log(pc.iceConnectionState)
       if (
         pc.iceConnectionState === "connected" ||
         pc.iceConnectionState === "completed"
@@ -267,10 +276,6 @@ function ChatPage({id_channel}: ChatProps) {
       peerConnectionRef.current = null;
     }
 
-    /*if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({ type: "LEAVE_CALL" }));
-    }*/
-
     const audio = document.getElementById("remoteAudio") as HTMLAudioElement | null;
     if (audio) {
       audio.srcObject = null;
@@ -285,10 +290,6 @@ function ChatPage({id_channel}: ChatProps) {
   // useEffect principal, automatic reconnect
   useEffect(() => {
     openWebSocket();
-    return () => {
-      if (wsRef.current) wsRef.current.close();
-      if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);
-    };
   }, [chatID, openWebSocket]);
 
   // Scroll auto
@@ -323,7 +324,6 @@ function ChatPage({id_channel}: ChatProps) {
   };
 
   async function handleGenerateInvite(id: string){
-    console.log("coucou")
     try {
       const client = new InviteClass()
       const invite = await client.generateInvite(id)
@@ -353,7 +353,6 @@ function ChatPage({id_channel}: ChatProps) {
   if(!channel){
     return <NotFound />
   }
-
   const statusColor = status === "Connecté" ? "#00FF00" : "#FF0000";
   const vocalStatusColor = vocalStatus === "Connecté" ? "#00FF00" : "#FF0000";
   const thechannelAuth =
@@ -389,7 +388,7 @@ function ChatPage({id_channel}: ChatProps) {
                 <li key={mem._id}>
                   <button
                     onClick={() => setSelectedUserId(mem._id)}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: connected?.includes(mem._id) ? "greenyellow" : "red" }}
                   >
                     {mem.name}
                   </button>

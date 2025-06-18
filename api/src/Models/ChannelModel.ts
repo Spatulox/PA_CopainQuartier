@@ -19,6 +19,7 @@ export type Channel = {
     members: ObjectId[],
     member_auth: string,
     created_at: Date,
+    private: boolean
 }
 
 //export type PublicChannel = Omit<Channel, "admin_id" | "messages" | "members" | "member_auth">
@@ -32,7 +33,7 @@ export type PublicChannel = {
     created_at: Date;
 }
 
-export type FilledChannel = Omit<Channel, "activity_id" | "admin_id" | "_id" | "troc_id"> &
+export type FilledChannel = Omit<Channel, "activity_id" | "admin_id" | "_id" | "troc_id" | "private"> &
 {
     _id: string,
     activity: FilledActivity | Activity | null,

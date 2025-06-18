@@ -5,12 +5,17 @@ import Loading from "./loading";
 import NotFound from "./notfound";
 import Errors from "./errors";
 import { popup } from "../../scripts/popup-slide";
+import { useAuth } from "./auth-context";
+import { User } from "../../../api/user";
+import { ChatClass } from "../../../api/chat";
 
 function DisplayInvite(){
     const { id } = useParams<{ id: string }>();
     const [error, setErrors] = useState<Array<any> | null>(null)
     const [notFound, setNotFound] = useState<boolean>(false)
     const [invite, setInvites] = useState<Invite | null>()
+    const [refresh, setRefresh] = useState(0)
+    const {me} = useAuth()
     
 
     useEffect(() => {
@@ -31,7 +36,7 @@ function DisplayInvite(){
                 setErrors(client.errors)
             }
         })()
-    }, [id])
+    }, [id, refresh])
     
     async function handleJoinChat(){
         const client = new InviteClass()
@@ -40,6 +45,26 @@ function DisplayInvite(){
                 await client.joinByInvite(id)
             }
             setErrors([])
+            setRefresh (r => r + 1)
+        } catch (e) {
+            console.error(e)
+            setErrors(client.errors)
+        }
+    }
+
+    async function handleLeaveChat(){
+        const client = new ChatClass()
+        try {
+            if(id){
+                if(invite?.channel._id){
+                    await client.leaveChat(invite?.channel._id)
+                } else {
+                    popup("Ce channel n'existe pas...")
+                    return
+                }
+            }
+            setErrors([])
+            setRefresh (r => r + 1)
         } catch (e) {
             console.error(e)
             setErrors(client.errors)
@@ -60,14 +85,43 @@ function DisplayInvite(){
     if(!invite){
         return <NotFound />
     }
-    return <>
+
+    return (
+    <>
         <div className="invite">
-            <h3>{invite?.channel.name}</h3>
-            <span>Nombre de personnes : {invite?.channel.members.length}</span>
-            <p>{invite?.channel.description}</p>
-            <button onClick={handleJoinChat}>Rejoindre</button>
+        <h3>{invite?.channel.name}</h3>
+        <span>Nombre de personnes : {invite?.channel.members.length}</span>
+        <p>{invite?.channel.description}</p>
+        {/* Affichage conditionnel du bouton */}
+        {(() => {
+            if (!invite) return null;
+            const adminId = invite?.channel.admin?._id;
+            const isAuthor = me?._id === adminId;
+            const isMember = invite.channel.members
+            .filter((m): m is User => typeof m === "object" && m !== null && "_id" in m)
+            .some((m) => m && m._id === me?._id);
+
+
+            if (isAuthor) {
+            return null;
+            } else if (isMember) {
+            return (
+                <button onClick={handleLeaveChat} >
+                Quitter
+                </button>
+            );
+            } else {
+            return (
+                <button onClick={handleJoinChat}>
+                Rejoindre
+                </button>
+            );
+            }
+        })()}
         </div>
     </>
+    );
+
 }
 
 
