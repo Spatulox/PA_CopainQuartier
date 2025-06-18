@@ -11,33 +11,11 @@ import { MiniUser } from "../Users/MiniUser";
 import { User, UserClass } from "../../../api/user";
 import { Route } from "../../constantes";
 import { FriendsClass } from "../../../api/friend";
-import { setupWebSocket } from "../shared/websocket";
-
-type OfferMsg = {
-  type: string,
-  offer: any // (c'est un truc chelou)
-}
-
-type ConnectedChannelMsg = {
-  type: string,
-  token_connected_client: any // (c'est un truc chelou)
-}
-
-type IceCandidateMsg = {
-  type: string,
-  candidate: {
-    candidate: string,
-    sdpMLineIndex: number,
-    sdpMid: string,
-    usernameFragment: string
-  }
-}
+import { AnswerMsg, ChatMsgSend, ConnectedChannelMsg, IceCandidateMsg, OfferMsg, setupWebSocket, VocalMsg } from "../shared/websocket";
 
 type ChatProps = {
     id_channel?: string
 };
-type JoinVocal = {type: MsgType.JOIN_VOCAL; user_id: string};
-type LeaveVocal = {type: MsgType.LEAVE_VOCAL; user_id: string};
 
 function ChatPage({id_channel}: ChatProps) {
   const { me } = useAuth();
