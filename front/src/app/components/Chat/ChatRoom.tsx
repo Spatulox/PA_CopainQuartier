@@ -51,8 +51,7 @@ const ChatRoom: React.FC<Props> = ({
       <ul>
         <li style={{ color: vocalStatusColor, marginBottom: 8 }}>Vocal : {vocalStatus}</li>
       </ul>
-      <button id="" onClick={onStartVoiceChat}>Démarrer un appel vocal</button>
-      <button onClick={onLeaveVoiceChat}>Quitter l'appel vocal</button>
+      {vocalStatus !== "Déconnecté" ? <button onClick={onLeaveVoiceChat}>Quitter l'appel vocal</button> : <button id="" onClick={onStartVoiceChat}>Démarrer un appel vocal</button>}
       <audio id="remoteAudio" src=""></audio>
     </div>
     <div
