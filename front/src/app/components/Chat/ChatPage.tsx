@@ -65,7 +65,7 @@ function ChatPage({id_channel}: ChatProps) {
   const [channel, setChannel] = useState<Channel | null>(null);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
   const miniUserRef = useRef<HTMLDivElement>(null);
-  const [connected, setConnected] = useState<string[]>()
+  const [connectedUser, setConnectedUser] = useState<string[]>()
  
   const wsRef = useRef<WebSocket | null>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
@@ -190,7 +190,7 @@ function ChatPage({id_channel}: ChatProps) {
   }
 
   async function onConnected(msg: ConnectedChannelMsg){
-    setConnected(msg.token_connected_client)
+    setConnectedUser(msg.token_connected_client)
   }
 
   const startVoiceChat = async () => {
@@ -388,7 +388,7 @@ function ChatPage({id_channel}: ChatProps) {
                 <li key={mem._id}>
                   <button
                     onClick={() => setSelectedUserId(mem._id)}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: connected?.includes(mem._id) ? "greenyellow" : "red" }}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: connectedUser?.includes(mem._id) ? "greenyellow" : "red" }}
                   >
                     {mem.name}
                   </button>
