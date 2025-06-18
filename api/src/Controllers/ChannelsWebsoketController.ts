@@ -36,7 +36,7 @@ type HistoryMsg = { type: MsgType.HISTORY; messages: any[]; };
 type ConnectedMsg = {type: MsgType.CONNECTED; token: string[]};
 type ConnectedChannelMsg = {type: MsgType.CONNECTED_CHANNEL; token_connected_client: string[]};
 type InitConnectedMsg = {type: MsgType.INIT_CONNECTION; token: string};
-type VocalMsg = { type: MsgType.JOIN_VOCAL | MsgType.LEAVE_VOCAL; user_id: string; };
+type VocalMsg = { type: MsgType.JOIN_VOCAL | MsgType.LEAVE_VOCAL; };
 type ServerMsg = ErrorMsg | HistoryMsg | ChatMsg | ConnectedMsg | ConnectedChannelMsg
 
 // --- Utilitaires ---

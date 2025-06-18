@@ -1,28 +1,11 @@
 import { Message, MsgType } from "../../../api/chat";
 import { ApiClient } from "../../../api/client";
 
-/*enum MsgType {
-  INIT = "INIT",
-  HISTORY = "HISTORY",
-  MESSAGE = "MESSAGE",
-  ERROR = "ERROR",
-  OFFER = "OFFER",
-  ANSWER = "ANSWER",
-  CANDIDATE = "ICE-CANDIDATE",
-  JOIN_VOCAL = "JOIN_VOCAL",
-  LEAVE_VOCAL = "LEAVE_VOCAL",
-  INIT_CONNECTION = "INIT_CONNECTION", // For the "connected" state (online/offline)
-  CONNECTED_CHANNEL = "CONNECTED_CHANNEL",
-  CONNECTED = "CONNECTED" // For the "connected" state (online/offline)
-}*/
-
-export type OfferMsg = {type: MsgType.OFFER, offer: any, user_id: string}
-export type AnswerMsg = {type: MsgType.ANSWER, answer: any, targetUserId: string, fromUserId: string}
+export type OfferMsg = {type: MsgType.OFFER, offer: any}
+export type AnswerMsg = {type: MsgType.ANSWER, answer: any}
 export type IceCandidateMsg = {
   type: MsgType.CANDIDATE,
   candidate: any
-  targetUserId: string,
-  fromUserId: string,
 }
 export type InitMsg = { type: MsgType.INIT; token: string; };
 export type ChatMsgRecieve = { type: MsgType.MESSAGE; content: string; user_id: string, username: string, date: Date };

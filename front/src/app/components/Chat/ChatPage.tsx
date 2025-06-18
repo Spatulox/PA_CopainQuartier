@@ -109,7 +109,11 @@ function ChatPage({id_channel}: ChatProps) {
         try {
           const offer = await pc.createOffer();
           await pc.setLocalDescription(offer);
-          ws.send(JSON.stringify({ type: MsgType.OFFER, offer }));
+          const data: OfferMsg= {
+            type: MsgType.OFFER,
+            offer,
+          };
+          ws.send(JSON.stringify(data));
         } catch (e) {
           console.error("Erreur lors de la négociation :", e);
         }
@@ -152,7 +156,11 @@ function ChatPage({id_channel}: ChatProps) {
 
       pc.onicecandidate = event => {
         if (event.candidate && wsRef.current) {
-          wsRef.current.send(JSON.stringify({ type: MsgType.CANDIDATE, candidate: event.candidate }));
+          const data: IceCandidateMsg = {
+            type: MsgType.CANDIDATE,
+            candidate: event.candidate
+          }
+          wsRef.current.send(JSON.stringify(data));
         }
       };
     }
@@ -176,7 +184,11 @@ function ChatPage({id_channel}: ChatProps) {
     }
     const answer = await pc.createAnswer();
     await pc.setLocalDescription(answer);
-    ws.send(JSON.stringify({ type: MsgType.ANSWER, answer }));
+    const data: AnswerMsg = {
+      type: MsgType.ANSWER,
+      answer,
+    }
+    ws.send(JSON.stringify(data));
   }
 
   async function onLeave(msg: any){
@@ -289,7 +301,15 @@ function ChatPage({id_channel}: ChatProps) {
       popup("Impossible de se connecter au vocal")
       return;
     }
-    wsRef.current!.send(JSON.stringify({ type: MsgType.JOIN_VOCAL, user_id: me?._id } as JoinVocal));
+    if(!me || !me._id){
+      popup("Veuillez réessayer dans 5 secondes")
+      return
+    }
+    const data: VocalMsg = {
+      type: MsgType.JOIN_VOCAL,
+      user_id: me?._id,
+    };
+    wsRef.current!.send(JSON.stringify(data));
 
     let stream = localStreamRef.current;
     if (!stream) {
@@ -312,7 +332,12 @@ function ChatPage({id_channel}: ChatProps) {
 
     pc.onicecandidate = event => {
       if (event.candidate && ws.current) {
-        ws.current.send(JSON.stringify({ type: MsgType.CANDIDATE, candidate: event.candidate }));
+
+      const data: IceCandidateMsg = {
+          type: MsgType.CANDIDATE,
+          candidate: event.candidate
+        };
+        ws.current.send(JSON.stringify(data));
       }
     };
 
@@ -387,7 +412,15 @@ function ChatPage({id_channel}: ChatProps) {
       popup("Impossible de terminer le chat vocal correctement")
       return
     }
-    ws.send(JSON.stringify({ type: MsgType.LEAVE_VOCAL, user_id: me?._id } as LeaveVocal));
+    if(!me || !me._id){
+      popup("Erreur, veuillez réessayer dans 5 secondes")
+      return
+    }
+    const data: VocalMsg = {
+      type: MsgType.LEAVE_VOCAL,
+      user_id: me?._id,
+    };
+    ws.send(JSON.stringify(data));
     stopVideoChat()
     if (localStreamRef.current) {
       localStreamRef.current.getTracks().forEach(track => track.stop());
@@ -442,8 +475,13 @@ function ChatPage({id_channel}: ChatProps) {
   // Send a message
   const handleSubmit = (e: any) => {
     e.preventDefault();
-    if (input && wsRef.current && wsRef.current.readyState === 1) {
-      wsRef.current.send(JSON.stringify({ type: MsgType.MESSAGE, content: input, user_id: me?._id }));
+    if (input && wsRef.current && wsRef.current.readyState === 1 && me && me._id) {
+      const data: ChatMsgSend = {
+        type: MsgType.MESSAGE,
+        content: input,
+        user_id: me._id
+      }
+      wsRef.current.send(JSON.stringify(data));
       setInput("");
     }
   };
