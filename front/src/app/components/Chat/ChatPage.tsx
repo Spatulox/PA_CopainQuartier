@@ -191,8 +191,9 @@ function ChatPage({id_channel}: ChatProps) {
     ws.send(JSON.stringify(data));
   }
 
+  // For futur (?) multi voc support
   async function onLeave(msg: any){
-    if (peerConnectionRef.current) {
+    /*if (peerConnectionRef.current) {
       peerConnectionRef.current.close();
       peerConnectionRef.current = null;
     }
@@ -205,7 +206,7 @@ function ChatPage({id_channel}: ChatProps) {
     const audio = document.getElementById("remoteAudio") as HTMLAudioElement;
     if (audio) audio.srcObject = null;
     const video = document.getElementById("remoteVideo") as HTMLVideoElement;
-    if (video) video.srcObject = null;
+    if (video) video.srcObject = null;*/
   }
 
   async function onAnswer(msg: any){
@@ -277,6 +278,9 @@ function ChatPage({id_channel}: ChatProps) {
   }
 
   async function stopVideoChat(){
+    if(!videoSenderRef.current){
+      return
+    }
     if(!peerConnectionRef.current || !videoSenderRef.current || !localStreamRef.current){
       popup("Something went wrong when stopping video")
       return
