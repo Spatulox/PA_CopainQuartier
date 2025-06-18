@@ -22,12 +22,30 @@ type Props = {
   handleSubmit: (e: React.FormEvent) => void;
   onStartVoiceChat: () => void;
   onLeaveVoiceChat: () => void;
+  onStartVideoShare: () => void;
+  onStopVideoShare: () => void;
   onGenerateInvite: (id: string) => void;
   messagesDivRef: React.RefObject<HTMLDivElement | null>;
 };
 
 const ChatRoom: React.FC<Props> = ({
-  id, chat, status, vocalStatus, statusColor, vocalStatusColor, memberRight, messages, input, setInput, handleSubmit, onStartVoiceChat, onLeaveVoiceChat, onGenerateInvite, messagesDivRef
+  id,
+  chat,
+  status,
+  vocalStatus,
+  statusColor,
+  vocalStatusColor,
+  memberRight,
+  messages,
+  input,
+  setInput,
+  handleSubmit,
+  onStartVoiceChat,
+  onLeaveVoiceChat,
+  onStartVideoShare,
+  onStopVideoShare,
+  onGenerateInvite,
+  messagesDivRef
 }) => {
   const navigate = useNavigate()
   return  <div className="one-channel">
@@ -52,7 +70,17 @@ const ChatRoom: React.FC<Props> = ({
         <li style={{ color: vocalStatusColor, marginBottom: 8 }}>Vocal : {vocalStatus}</li>
       </ul>
       {vocalStatus !== "Déconnecté" ? <button onClick={onLeaveVoiceChat}>Quitter l'appel vocal</button> : <button id="" onClick={onStartVoiceChat}>Démarrer un appel vocal</button>}
+      {vocalStatus !== "Déconnecté" && (
+        <>
+          <button onClick={onStopVideoShare}>Arrêter le partage vidéo</button>
+          <button id="" onClick={onStartVideoShare}>Démarrer un partage vidéo</button>
+        </>
+      )}
+    </div>
+    <div className="media">
       <audio id="remoteAudio" src=""></audio>
+      <video id="localVideo" src=""></video>
+      <video id="remoteVideo" src=""></video>
     </div>
     <div
       id="messages"
