@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { AdminUserClass, User, UserClass } from "../../../api/user"
 import { Navigate, useNavigate, useParams } from "react-router-dom";
-import { ShowUser, ShowUserButton } from "./SingleUser";
+import { ShowAdditionnalInfo, ShowUser, ShowUserButton } from "./SingleUser";
 import { Route } from "../../constantes";
 import Loading from "../shared/loading";
 import { useAuth } from "../shared/auth-context";
@@ -98,6 +98,7 @@ function Users(){
         onApprove={handleApprove}
         onManage={(id) => navigate(`${Route.manageUser}/${id}`)}
         buttonShow={ShowUserButton.Approve | ShowUserButton.Manage}
+        showAdditionnalInfo={ShowAdditionnalInfo.All}
         />
     </>
 }
