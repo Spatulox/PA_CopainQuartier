@@ -311,7 +311,7 @@ function ChatPage({id_channel}: ChatProps) {
       popup("Impossible de se connecter au vocal")
       return;
     }
-    wsRef.current!.send(JSON.stringify({ type: MsgType.JOIN_VOCAL, token: token }));
+    wsRef.current!.send(JSON.stringify({ type: MsgType.JOIN_VOCAL, user_id: me?._id } as JoinVocal));
 
     let stream = localStreamRef.current;
     if (!stream) {
@@ -405,7 +405,7 @@ function ChatPage({id_channel}: ChatProps) {
 
   function leaveVoiceChat() {
     const ws = wsRef.current
-    wsRef.current!.send(JSON.stringify({ type: MsgType.LEAVE_VOCAL, token: token }));
+    if(!ws){
       popup("Impossible de terminer le chat vocal correctement")
       return
     }

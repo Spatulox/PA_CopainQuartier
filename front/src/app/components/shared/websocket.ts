@@ -33,7 +33,7 @@ type HistoryMsg = { type: MsgType.HISTORY; messages: Message[]; };
 type ConnectedMsg = {type: MsgType.CONNECTED; token: string[]};
 type ConnectedChannelMsg = {type: MsgType.CONNECTED_CHANNEL; token_connected_client: string[]};
 type InitConnectedMsg = {type: MsgType.INIT_CONNECTION; token: string};
-type VocalMsg = { type: MsgType.JOIN_VOCAL | MsgType.LEAVE_VOCAL; token: string; };
+type VocalMsg = { type: MsgType.JOIN_VOCAL | MsgType.LEAVE_VOCAL; user_id: string; };
 
 
 type Props = {
