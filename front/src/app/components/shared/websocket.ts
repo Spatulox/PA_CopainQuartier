@@ -16,24 +16,23 @@ import { ApiClient } from "../../../api/client";
   CONNECTED = "CONNECTED" // For the "connected" state (online/offline)
 }*/
 
-type OfferMsg = {type: MsgType.OFFER, offer: any}
-type IceCandidateMsg = {
+export type OfferMsg = {type: MsgType.OFFER, offer: any, user_id: string}
+export type AnswerMsg = {type: MsgType.ANSWER, answer: any, targetUserId: string, fromUserId: string}
+export type IceCandidateMsg = {
   type: MsgType.CANDIDATE,
-  candidate: {
-    candidate: string,
-    sdpMLineIndex: number,
-    sdpMid: string,
-    usernameFragment: string
-  }
+  candidate: any
+  targetUserId: string,
+  fromUserId: string,
 }
-type InitMsg = { type: MsgType.INIT; token: string; };
-type ChatMsg = { type: MsgType.MESSAGE; content: string; user_id: string, username: string, date: Date };
-type ErrorMsg = { type: MsgType.ERROR; error: string; };
-type HistoryMsg = { type: MsgType.HISTORY; messages: Message[]; };
-type ConnectedMsg = {type: MsgType.CONNECTED; token: string[]};
-type ConnectedChannelMsg = {type: MsgType.CONNECTED_CHANNEL; token_connected_client: string[]};
-type InitConnectedMsg = {type: MsgType.INIT_CONNECTION; token: string};
-type VocalMsg = { type: MsgType.JOIN_VOCAL | MsgType.LEAVE_VOCAL; user_id: string; };
+export type InitMsg = { type: MsgType.INIT; token: string; };
+export type ChatMsgRecieve = { type: MsgType.MESSAGE; content: string; user_id: string, username: string, date: Date };
+export type ChatMsgSend = { type: MsgType.MESSAGE; content: string; user_id: string };
+export type ErrorMsg = { type: MsgType.ERROR; error: string; };
+export type HistoryMsg = { type: MsgType.HISTORY; messages: Message[]; };
+export type ConnectedMsg = {type: MsgType.CONNECTED; token: string[]};
+export type ConnectedChannelMsg = {type: MsgType.CONNECTED_CHANNEL; token_connected_client: string[]};
+export type InitConnectedMsg = {type: MsgType.INIT_CONNECTION; token: string};
+export type VocalMsg = { type: MsgType.JOIN_VOCAL | MsgType.LEAVE_VOCAL; user_id: string; };
 
 
 type Props = {
@@ -47,10 +46,10 @@ type Props = {
         onMessage: {
             INIT?: (msg: InitMsg) => void,
             HISTORY?: (msg: HistoryMsg) => void,
-            MESSAGE?: (msg: ChatMsg) => void,
+            MESSAGE?: (msg: ChatMsgRecieve) => void,
             ERROR?: (msg: ErrorMsg) => void,
             OFFER?: (msg: OfferMsg) => void,
-            ANSWER?: (msg: any) => void,
+            ANSWER?: (msg: AnswerMsg) => void,
             CANDIDATE?: (msg: IceCandidateMsg) => void,
             JOIN_VOCAL?: (msg: VocalMsg) => void,
             LEAVE_VOCAL?: (msg: VocalMsg) => void,
