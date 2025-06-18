@@ -1,13 +1,29 @@
+import { popup } from "../app/scripts/popup-slide";
 import { Activity } from "./activity";
 import { ApiClient } from "./client";
 import { Publication } from "./publications";
 import { Troc } from "./troc";
 import { User } from "./user";
 
+export enum MsgType {
+  INIT = "INIT",
+  HISTORY = "HISTORY",
+  MESSAGE = "MESSAGE",
+  ERROR = "ERROR",
+  OFFER = "OFFER",
+  ANSWER = "ANSWER",
+  CANDIDATE = "ICE-CANDIDATE",
+  JOIN_VOCAL = "JOIN_VOCAL",
+  LEAVE_VOCAL = "LEAVE_VOCAL",
+  INIT_CONNECTION = "INIT_CONNECTION", // For the "connected" state (online/offline)
+  CONNECTED_CHANNEL = "CONNECTED_CHANNEL",
+  CONNECTED = "CONNECTED" // For the "connected" state (online/offline)
+}
+
 export type Message = {
   content: string;
   username: string;
-  type: ["INIT", "MESSAGE", "HISTORY", "ERROR"]
+  type: MsgType
   date: Date;
   // autres champs si besoin
 };
@@ -59,6 +75,10 @@ export class ChatClass extends ApiClient {
   }
 
   async leaveChat(id: string): Promise<void>{
+    if(!this.user?._id){
+      popup("Erreur, veuiller vous déconnecter puis vous reconnecter pour faire cette action...")
+      return
+    }
     await this.Patch(`${this.url}/${id}/removeuser/${this.user?._id}`, {})
   }
 

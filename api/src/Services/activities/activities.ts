@@ -109,7 +109,8 @@ export async function createActivity(user: User, activity: CreateActivityParam):
         messages: [],
         members: [user._id],
         member_auth: ChannelAuth.read_send,
-        created_at: new Date()
+        created_at: new Date(),
+        private: false
     };
     const channel = await ChannelTable.create(channelParam);
     if (!channel || !channel._id) throw new Error("Channel creation failed");
