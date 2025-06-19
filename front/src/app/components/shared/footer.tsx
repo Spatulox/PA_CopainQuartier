@@ -62,7 +62,7 @@ function Footer() {
 
       {/* Copyright */}
       <div className="copyright">
-        <p>&copy; 2023 Votre Entreprise. Tous droits réservés.</p>
+        <p>&copy; {new Date().getFullYear()} Votre Entreprise. Tous droits réservés.</p>
       </div>
     </footer>
   );
