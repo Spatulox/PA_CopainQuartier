@@ -5,6 +5,7 @@ import {Activity} from "../../../api/activity";
 import {User, UserRole} from "../../../api/user";
 import {Route} from "../../constantes";
 import {useNavigate} from "react-router-dom";
+import "./Activity.css"
 
 export enum ShowActivityButton {
     Activity = 1 << 0,        // 1 (0b001)

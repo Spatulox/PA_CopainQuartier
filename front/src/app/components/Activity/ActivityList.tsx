@@ -7,6 +7,7 @@ import Loading from "../shared/loading";
 import { useAuth } from "../shared/auth-context";
 import { ErrorMessage } from "../../../api/client";
 import Errors from "../shared/errors";
+import "./Activity.css"
 
 type ActivityListMessage = {
     message: string
