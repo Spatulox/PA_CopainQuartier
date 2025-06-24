@@ -1,5 +1,6 @@
 import { Message, MsgType } from "../../../api/chat";
 import { ApiClient } from "../../../api/client";
+import { config } from "../../../api/utils/config";
 
 export type OfferMsg = {type: MsgType.OFFER, offer: any}
 export type AnswerMsg = {type: MsgType.ANSWER, answer: any}
@@ -72,13 +73,14 @@ export function setupWebSocket({
   if (!wsUrl.startsWith("/")) {
     wsUrl = `/${wsUrl}`;
   }
-  wsUrl = `ws://localhost:3000${wsUrl}`;
+  //config.websocketUrl && wsUrl.startsWith("ws") && (wsUrl = config.websocketUrl + wsUrl);
+  wsUrl = `${config.websocketUrl}${wsUrl}` || `ws://localhost:3000${wsUrl}`;
 
   const ws = new window.WebSocket(wsUrl);
   wsRef.current = ws;
 
   let reconnectDelay = initialReconnectDelay;
-  let reconnectTimeout: number;
+  let reconnectTimeout: NodeJS.Timeout | null = null;
 
   const openConnection = () => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) return;
