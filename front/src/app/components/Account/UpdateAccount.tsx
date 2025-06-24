@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { User } from "../../../api/user";
 
+
+
 type UpdateAccountProps = {
     account: User;
     APIerror: any
@@ -54,7 +56,7 @@ export function UpdateAccount({ account, APIerror, onUpdate, onDelete }: UpdateA
             </div>
             </>}
             <h2>Modifier mon compte</h2>
-            <form onSubmit={handleSubmit}>
+            <form className="update-account-form" onSubmit={handleSubmit}>
                 <div>
                     <label>
                         Prénom :
@@ -100,7 +102,7 @@ export function UpdateAccount({ account, APIerror, onUpdate, onDelete }: UpdateA
                         Email : <span>{account.email}</span>
                     </label>
                 </div>
-                <div>
+                <div className="update-account-buttons">
                     <button type="submit">Mettre à jour</button>
                     <button type="button" onClick={() => onDelete()}>Supprimer le compte</button>
                 </div>
