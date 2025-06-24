@@ -12,6 +12,7 @@ import { User, UserClass } from "../../../api/user";
 import { Route } from "../../constantes";
 import { FriendsClass } from "../../../api/friend";
 import { setupWebSocket } from "../shared/websocket";
+import './Chat.css';
 
 /*enum MsgType {
   INIT = "INIT",

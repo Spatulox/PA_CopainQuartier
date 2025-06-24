@@ -2,6 +2,8 @@ import React, { useRef, useEffect } from "react";
 import { Channel, Message } from "../../../api/chat";
 import { useNavigate } from "react-router-dom";
 import { Route } from "../../constantes";
+import './Chat.css';
+
 
 export enum ChannelRight {
   read_send = "read_send",
@@ -74,7 +76,7 @@ const ChatRoom: React.FC<Props> = ({
       <div ref={messagesDivRef}/>
     </div>
     {memberRight === ChannelRight.read_send && (
-      <form id="formulaire" onSubmit={handleSubmit} style={{ display: "flex", gap: 8 }}>
+      <form id="formulaire" className="formulaire" onSubmit={handleSubmit} style={{ display: "flex", gap: 8 }}>
         <input
           type="text"
           id="input"
