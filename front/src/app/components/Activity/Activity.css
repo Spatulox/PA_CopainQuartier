@@ -1,0 +1,48 @@
+.activity-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1rem;
+    margin: 1rem 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.activity-title {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.activity-content span {
+    display: block;
+    margin: 0.2rem 0;
+}
+
+.activity-buttons {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.activity-buttons button {
+    background-color: #0077cc;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.4rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.activity-buttons button:hover {
+    background-color: #005fa3;
+}
+.activity-section {
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.activity-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
