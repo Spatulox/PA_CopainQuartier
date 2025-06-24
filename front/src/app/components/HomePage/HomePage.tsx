@@ -1,22 +1,23 @@
-import { Link } from "react-router-dom"
-import { Route } from "../../constantes";
+import {Link} from "react-router-dom"
+import {Route} from "../../constantes";
 import PublicationList from "../Publications/PublicationsList";
 import ActivityList from "../Activity/ActivityList";
 import TrocList from "../Trocs/TrocsList";
-import { useAuth } from "../shared/auth-context";
+import {useAuth} from "../shared/auth-context";
+import "./Home.css"
 
 function HomePage() {
-  const { me, isAdmin } = useAuth();
+    const {me, isAdmin} = useAuth();
     return (
-      <>
-        <h1>Home Page</h1>
-        <span>Parcourez les dernières actualités {me?.name} !</span>
-        <div>
-          <PublicationList message="" limit={3} />
-          <ActivityList message="" limit={3} />
-          <TrocList message="" limit={3} />
+        <div className="homepage-container">
+            <h1>Home Page</h1>
+            <span>Parcourez les dernières actualités {me?.name} !</span>
+            <div className="section-wrapper">
+                <PublicationList message="" limit={3}/>
+                <ActivityList message="" limit={3}/>
+                <TrocList message="" limit={3}/>
+            </div>
         </div>
-      </>
     );
 }
 

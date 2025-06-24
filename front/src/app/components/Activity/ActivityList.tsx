@@ -48,6 +48,7 @@ function ActivityList({message, limit}: ActivityListMessage){
 
     return <>
         <h2>Activités</h2>
+    <div className="activity-section">
         <section>
             {activity
             .slice(0, limit ?? activity.length)
@@ -62,6 +63,7 @@ function ActivityList({message, limit}: ActivityListMessage){
                 />
             ))}
         </section>
+    </div>
     </>
 }
 
