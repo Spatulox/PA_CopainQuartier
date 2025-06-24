@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { User, UserRole } from "../../../api/user";
 import { Route } from "../../constantes";
 import { Channel } from "../../../api/chat";
+import './Chat.css';
 
 // Enum pour les boutons
 export enum ShowChatButton {
