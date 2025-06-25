@@ -15,6 +15,5 @@ export function CreateFormData(formData: Record<string, any>): FormData {
       fd.append(key, value.toString());
     }
   });
-  console.log("FormData created:", fd);
   return fd;
 }
