@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Troc, TrocStatus, TrocType } from "../../../api/troc";
 import { useAuth } from "../shared/auth-context";
 import ChatPage from "../Chat/ChatPage";
+import "./Trocs.css"
 
 // Enum pour les boutons
 export enum ShowTrocButton {
@@ -48,7 +49,7 @@ export function ShowTroc({
     const navigate = useNavigate();
     const {isAdmin} = useAuth()
     return (
-        <div key={troc._id}>
+        <div className="troc-card" key={troc._id}>
             <h2>{troc.title}</h2>
             <div>
                 <span>Auteur : {troc.author ? troc.author.email : ""}</span>
@@ -81,6 +82,7 @@ export function ShowTroc({
             </div>
             <div>
                 {/* Bouton "Voir le troc" */}
+                <div className="button-group">
                 {(buttonShow & ShowTrocButton.Troc) !== 0 && (
                     <button onClick={() =>
                         onViewTroc
@@ -90,6 +92,7 @@ export function ShowTroc({
                         Voir le troc
                     </button>
                 )}
+                </div>
 
                 {(buttonShow & ShowTrocButton.Approve) !== 0 && (
                     <button onClick={() =>
@@ -183,7 +186,7 @@ export function ShowTroc({
                     )
                 }
             </div>
-            <div>
+            <div className="channel-wrapper">
                 {/* Show Channel if it's the admin of the person which "join" the troc */}
                 {   (buttonShow & ShowTrocButton.ShowChannel) !== 0 &&   
                     troc.channel != null && user &&

@@ -12,7 +12,7 @@ import { User } from "../../../api/user";
 import NotFound from "../shared/notfound";
 import { ErrorMessage } from "../../../api/client";
 import { useAuth } from "../shared/auth-context";
-
+import "./Trocs.css"
 
 function ShowTrocPage() {
     const { id } = useParams<{ id: string }>();

@@ -5,6 +5,7 @@ import { useAuth } from "../shared/auth-context"
 import NotFound from "../shared/notfound";
 import { ErrorMessage } from "../../../api/client";
 import Errors from "../shared/errors";
+import "./Trocs.css"
 
 function ApproveTroc(){
     const { me, isAdmin } = useAuth();

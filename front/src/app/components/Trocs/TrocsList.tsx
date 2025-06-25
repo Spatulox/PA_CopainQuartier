@@ -8,6 +8,7 @@ import Loading from "../shared/loading"
 import { useAuth } from "../shared/auth-context"
 import { ErrorMessage } from "../../../api/client"
 import Errors from "../shared/errors"
+import "./Trocs.css"
 
 type TrocListMessage = {
     message: string
@@ -47,7 +48,7 @@ function TrocList({message, limit}: TrocListMessage){
 
     return <>
         <h2>Trocs</h2>
-        <section>
+        <section className="troc-container">
             {me && troc
             .slice(0, limit ?? troc.length)
             .map((theTroc) => (

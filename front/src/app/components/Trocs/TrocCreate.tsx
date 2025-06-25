@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { TrocClass, TrocType } from "../../../api/troc";
 import { FieldForm, PopupForm } from "../Popup/PopupForm";
+import "./Trocs.css"
 
 type CreateTrocType = {
   onUpdate: (message:string) => void
