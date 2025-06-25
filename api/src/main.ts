@@ -1,5 +1,6 @@
 import 'reflect-metadata';
-import { createExpressServer, RoutingControllersOptions } from 'routing-controllers';
+import express from 'express';
+import { createExpressServer, RoutingControllersOptions, useExpressServer } from 'routing-controllers';
 import { AdminUserController, UserController } from './Controllers/UserController';
 import { connectDB } from './DB_Schema/connexion';
 import { ErrorHandler } from './Middleware/error-handling';
@@ -14,17 +15,15 @@ import http from 'http';
 import { channelClients, handleMessage, accessMap, handleUserConnection, connectedClients } from './Controllers/ChannelsWebsoketController';
 import { parse } from 'url';
 import { AuthController } from './Controllers/AuthController';
-import cors from 'cors'
 import { InviteController } from './Controllers/InviteController';
 import { FriendsController } from './Controllers/FriendsController';
 import { LangajeController } from './Controllers/LangajeController';
-
 
 async function main(){
   await connectDB()
 
   const port = 3000
-
+  const app = express()
 
   const routingControllerOptions: RoutingControllersOptions = {
     authorizationChecker: authMiddleware,
@@ -54,7 +53,8 @@ async function main(){
     defaultErrorHandler: false
   }
 
-  const app = createExpressServer(routingControllerOptions);
+  useExpressServer(app, routingControllerOptions);
+  //const app = createExpressServer(routingControllerOptions);
   const server = http.createServer(app)
   const wss = new WebSocketServer({ server });
 
