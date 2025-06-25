@@ -3,6 +3,11 @@ import { Get, Param, Res, JsonController } from "routing-controllers";
 import { join } from "path";
 import { ImgFilepath } from "../Utils/multer";
 
+/**
+ * Controller to handle file serving for different types of file.
+ * Right now, this controllers are unused
+ * But in the future, we may want to restrict access to some file
+ */
 @JsonController()
 export class FileController {
   @Get(`${ImgFilepath.activity}/:filename`)
