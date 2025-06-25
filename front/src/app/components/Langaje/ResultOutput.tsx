@@ -1,11 +1,5 @@
 import React from 'react';
-
-export type Result = {
-  message: string;
-  query: string;
-  rows: Array<{ id: number; name: string }>;
-};
-
+import { Result } from '../../../api/langaje';
 type Props = {
   result: Result[] | null;
 };
