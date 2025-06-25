@@ -1,30 +1,30 @@
 import React, { useEffect, useState } from "react";
-import Form from "../Forms/Forms";
+import Form, { FormDataType } from "../Forms/Forms";
 import "./Popup.css"
 
 export type FieldForm = {
   id?: string;
   name: string;
   label: string;
-  type: string;
+  type: "select" | "textarea" | "checkbox" | "radio" | "text" | "email" | "password" | "number" | "date" | "time" | "file";
   value?: {value: string, label: string}[] | string[]; 
   required?: boolean;
   hide?:boolean;
 };
 
-type PopupFormProps<T extends Record<string, string | number | Date>> = {
+type PopupFormProps<T extends FormDataType> = {
   title: string;
   fields: FieldForm[];
   APIerrors: any;
   initialFormData: T;
   onSubmit: (formData: T) => Promise<void> | void;
-  onClick: (e: React.MouseEvent<HTMLElement>) => void
+  onClick?: (e: React.MouseEvent<HTMLElement>) => void
   submitLabel: string;
   buttonLabel?: string;
   children?: React.ReactNode;
 };
 
-export function PopupForm<T extends Record<string, string | number | Date>>({
+export function PopupForm<T extends FormDataType>({
   title,
   fields,
   APIerrors,
@@ -44,17 +44,34 @@ export function PopupForm<T extends Record<string, string | number | Date>>({
     // Validation simple : vérifie les champs requis
     const errs: string[] = [];
     fields.forEach((field) => {
-      if ((field.required !== false) && formData && !formData[field.name].toString()?.trim()) {
+      const value = formData[field.name];
+      if (field.hide) return;
+      
+      if (field.type === "file") {
+        if (field.required !== false && (!value || !(value instanceof File))) {
+          errs.push(`Le champ "${field.label}" est obligatoire.`);
+        }
+        return;
+      }
+
+      if (
+        field.required !== false &&
+        (value === undefined ||
+          value === null ||
+          (typeof value === "string" && value.trim() === "") ||
+          (typeof value === "number" && isNaN(value)))
+      ) {
         errs.push(`Le champ "${field.label}" est obligatoire.`);
       }
     });
+
 
     setErrors(errs);
     if (errs.length === 0) {
       try {
         await onSubmit(formData);
-        setOpen(false);
-        setFormData(initialFormData);
+        //setOpen(false);
+        //setFormData(initialFormData);
         setErrors([]);
       } catch (apiErrors: any) {
         if (Array.isArray(apiErrors)) {

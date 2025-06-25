@@ -1,11 +1,13 @@
 // components/LoginRegister/AuthForm.tsx
 import React from "react";
 
+export type FormDataType = Record<string, string | number | Date | File | null>;
+
 type Field = {
   id?:string;
   name: string;
   label: string;
-  type: string;
+  type: "select" | "textarea" | "checkbox" | "radio" | "text" | "email" | "password" | "number" | "date" | "time" | "file";
   value?: {value: string, label: string}[] | string[]
   required?: boolean;
   hide?:boolean
@@ -17,7 +19,7 @@ type SwitchButton = {
     onClick: () => void;    // Action au clic
   };
 
-type FormProps<T extends Record<string, string | number | Date>> = {
+type FormProps<T extends FormDataType> = {
     title: string;
     fields: Field[];
     formData: T;
@@ -37,7 +39,7 @@ function valueToString(val: any): string {
 }
 
 
-function Form<T extends Record<string, string | number | Date>>({
+function Form<T extends FormDataType>({
     title,fields,formData,
     setFormData,errors,
     onSubmit,
@@ -182,6 +184,24 @@ function Form<T extends Record<string, string | number | Date>>({
                 }
               })}
             </fieldset>
+         );
+
+        case "file":
+          return (
+            <input
+              type="file"
+              onChange={(e) => {
+                const file = e.target.files?.[0] || null;
+                setFormData((prev) => ({
+                  ...prev,
+                  [field.name]: file,
+                }));
+              }}
+              required={field.required !== false}
+              style={field.hide ? { display: "none" } : {}}
+              id={field.id}
+              onClick={onClick}
+            />
           );
         
 
