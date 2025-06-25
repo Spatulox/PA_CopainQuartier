@@ -29,7 +29,8 @@ export async function getPublicUserById(currentUser: User, targetUserId: ObjectI
         role: targetUser.role,
         troc_score: targetUser.troc_score ? targetUser.troc_score.toString() : null,
         common_channels: commonChannels ? commonChannels.map(objectToChannel) : undefined,
-        common_activity: commonActivities ? commonActivities.map(toActivityObject) : undefined
+        common_activity: commonActivities ? commonActivities.map(toActivityObject) : undefined,
+        image_link: targetUser.image_link ? targetUser.image_link : null,
     };
 
     return publicUser;
@@ -78,5 +79,6 @@ export function toUserObject(doc: User | null, depth: number = 0): FilledUser | 
         //friends: doc.friends_id ? doc.friends_id.map(invite => invite.toString()) : [],
         friends: friends,
         friends_request: doc.friends_request_id ? doc.friends_request_id.map(invite => invite.toString()) : [],
+        image_link: doc.image_link ? doc.image_link : null,
     };
 }

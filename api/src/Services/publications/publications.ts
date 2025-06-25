@@ -79,7 +79,7 @@ export async function getAdminPublicationById(pub_id: ObjectID): Promise<FilledP
     return objectToPublication(res)
 }
 
-export async function createPublication(user: User, content: CreatePublicationParam): Promise<boolean> {
+export async function createPublication(user: User, content: CreatePublicationParam, image: Express.Multer.File): Promise<boolean> {
     let acti: string | undefined
     if(content.activity_id){
         const activity = await getActivityById(content.activity_id)
@@ -95,6 +95,7 @@ export async function createPublication(user: User, content: CreatePublicationPa
         body: content.body,
         created_at: new Date(),
         updated_at: new Date(),
+        image_link: image ? image.path : null
     };
     const result = await PublicationTable.create(dataToSave);
     return !!result;
@@ -138,5 +139,6 @@ export function objectToPublication(obj: any): FilledPublication { // Any becaus
         author: obj.author_id ? toUserObject(obj.author_id) : null,
         activity: obj.activity_id ? toActivityObject(obj.activity_id) : undefined,
         body: obj.body,
+        image_link: obj.image_link ? obj.image_link.toString() : null,
     };
 }

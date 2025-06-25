@@ -1,15 +1,8 @@
 // components/LoginRegister/AuthForm.tsx
 import React from "react";
+import { FieldForm } from "../Popup/PopupForm";
 
-type Field = {
-  id?:string;
-  name: string;
-  label: string;
-  type: string;
-  value?: {value: string, label: string}[] | string[]
-  required?: boolean;
-  hide?:boolean
-};
+export type FormDataType = Record<string, string | number | Date | File | null>;
 
 type SwitchButton = {
     text: string;           // Texte affiché avant le bouton
@@ -17,9 +10,9 @@ type SwitchButton = {
     onClick: () => void;    // Action au clic
   };
 
-type FormProps<T extends Record<string, string | number | Date>> = {
+type FormProps<T extends FormDataType> = {
     title: string;
-    fields: Field[];
+    fields: FieldForm[];
     formData: T;
     setFormData: React.Dispatch<React.SetStateAction<T>>;
     errors: string[];
@@ -37,7 +30,7 @@ function valueToString(val: any): string {
 }
 
 
-function Form<T extends Record<string, string | number | Date>>({
+function Form<T extends FormDataType>({
     title,fields,formData,
     setFormData,errors,
     onSubmit,
@@ -46,7 +39,7 @@ function Form<T extends Record<string, string | number | Date>>({
     submitLabel, children
 }: FormProps<T>) {
 
-    function renderField(field: Field) {
+    function renderField(field: FieldForm) {
       switch (field.type) {
         case "select":
           return (
@@ -182,6 +175,24 @@ function Form<T extends Record<string, string | number | Date>>({
                 }
               })}
             </fieldset>
+         );
+
+        case "file":
+          return (
+            <input
+              type="file"
+              onChange={(e) => {
+                const file = e.target.files?.[0] || null;
+                setFormData((prev) => ({
+                  ...prev,
+                  [field.name]: file,
+                }));
+              }}
+              required={field.required !== false}
+              style={field.hide ? { display: "none" } : {}}
+              id={field.id}
+              onClick={onClick}
+            />
           );
         
 

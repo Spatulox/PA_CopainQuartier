@@ -17,6 +17,7 @@ export type Activity = {
     participants_id: ObjectID[],
     location: string,
     max_place: number,
+    image_link?: string | null,
     reserved_place: number,
 }
 

@@ -19,6 +19,7 @@ const UserSchema = new Schema<User>({
         default: new Map(),
     },
     friends_request_id: { type: [Schema.Types.ObjectId], ref: "User", default: [] },
+    image_link: {type: String, default: null, required: false},
 });
 
 

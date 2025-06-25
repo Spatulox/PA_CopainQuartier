@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ActivityClass } from "../../../api/activity";
 import { FieldForm, PopupForm } from "../Popup/PopupForm";
+import { CreateFormData } from "../../../api/utils/formData";
 import "./Activity.css"
 
 type CreateActivityType = {
@@ -19,6 +20,7 @@ function CreateActivity({onUpdate}: CreateActivityType){
         { name: "partial_date_end", label: "Date de fin", type: "date", required: true },
         { name: "hour_end", label: "Heure de fin", type: "time", required: true },
         { name: "max_place", label: "Nombre de Places", type: "number", required: true },
+        { name: "image", label: "Image", type: "file"}
       ];
       
       type ActivityForm = {
@@ -32,6 +34,7 @@ function CreateActivity({onUpdate}: CreateActivityType){
         hour_end: string,
         location: string,
         max_place: number,
+        image?: File | null
       };
     
       async function handleCreateActivity(formData: ActivityForm): Promise<void> {
@@ -47,7 +50,8 @@ function CreateActivity({onUpdate}: CreateActivityType){
             client.errors = "La date de début ne doit pas se situer dans le passé"
             throw []
           }
-          await client.createActivities(formData)
+          const res = CreateFormData(formData)
+          await client.createActivities(res)
           onUpdate("update")
           setErrors([])
         } catch(e){
@@ -61,7 +65,7 @@ function CreateActivity({onUpdate}: CreateActivityType){
           title="Créer une Activité"
           fields={fields}
           APIerrors={err}
-          initialFormData={{ title: "", description: "", date_reservation: "", date: "", hour: "", date_end: "", partial_date_end: "", hour_end: "",  location: "", max_place: 0 }}
+          initialFormData={{ title: "", description: "", date_reservation: "", date: "", hour: "", date_end: "", partial_date_end: "", hour_end: "",  location: "", max_place: 0, image: null }}
           onSubmit={handleCreateActivity}
           submitLabel="Créer"
           buttonLabel="Créer une Activité"

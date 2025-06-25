@@ -83,7 +83,7 @@ export async function getAllPublicActivities(): Promise<PublicFilledActivity[]> 
     });
 }
 
-export async function createActivity(user: User, activity: CreateActivityParam): Promise<FilledActivity | null> {
+export async function createActivity(user: User, activity: CreateActivityParam, image: Express.Multer.File | null = null): Promise<FilledActivity | null> {
     if(await inActivity(user, activity) > 0){
         throw new ForbiddenError("Vous participez déjà à une activité à cette date et heure.");
     }
@@ -125,7 +125,8 @@ export async function createActivity(user: User, activity: CreateActivityParam):
         description: activity.description,
         author_id: user._id,
         created_at: new Date(),
-        updated_at: new Date()
+        updated_at: new Date(),
+        image_link: image ? image.path : null
     };
     const publication = await PublicationTable.create(publicationParam);
     if (!publication || !publication._id) throw new Error("Publication creation failed");
@@ -145,6 +146,7 @@ export async function createActivity(user: User, activity: CreateActivityParam):
         location: activity.location,
         max_place: activity.max_place,
         reserved_place: 1,
+        image_link: image ? image.path : null
     };
     const activityDoc = await ActivityTable.create(activityToSave);
     if (!activityDoc || !activityDoc._id) throw new Error("Activity creation failed");
@@ -333,6 +335,7 @@ export function toActivityObject(activityDoc: any): FilledActivity {
         location: obj.location,
         max_place: obj.max_place,
         reserved_place: obj.reserved_place,
+        image_link: obj?.image_link || null,
     };
 }
 
@@ -350,6 +353,7 @@ export function ActivityToPublicActivity(activity : FilledActivity | null): Publ
         location: activity.location,
         max_place: activity.max_place,
         reserved_place: activity.reserved_place,
+        image_link: activity?.image_link || null,
     }
 }
 

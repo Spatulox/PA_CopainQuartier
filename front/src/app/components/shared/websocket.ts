@@ -1,39 +1,22 @@
 import { Message, MsgType } from "../../../api/chat";
 import { ApiClient } from "../../../api/client";
+import { config } from "../../../api/utils/config";
 
-/*enum MsgType {
-  INIT = "INIT",
-  HISTORY = "HISTORY",
-  MESSAGE = "MESSAGE",
-  ERROR = "ERROR",
-  OFFER = "OFFER",
-  ANSWER = "ANSWER",
-  CANDIDATE = "ICE-CANDIDATE",
-  JOIN_VOCAL = "JOIN_VOCAL",
-  LEAVE_VOCAL = "LEAVE_VOCAL",
-  INIT_CONNECTION = "INIT_CONNECTION", // For the "connected" state (online/offline)
-  CONNECTED_CHANNEL = "CONNECTED_CHANNEL",
-  CONNECTED = "CONNECTED" // For the "connected" state (online/offline)
-}*/
-
-type OfferMsg = {type: MsgType.OFFER, offer: any}
-type IceCandidateMsg = {
+export type OfferMsg = {type: MsgType.OFFER, offer: any}
+export type AnswerMsg = {type: MsgType.ANSWER, answer: any}
+export type IceCandidateMsg = {
   type: MsgType.CANDIDATE,
-  candidate: {
-    candidate: string,
-    sdpMLineIndex: number,
-    sdpMid: string,
-    usernameFragment: string
-  }
+  candidate: any
 }
-type InitMsg = { type: MsgType.INIT; token: string; };
-type ChatMsg = { type: MsgType.MESSAGE; content: string; user_id: string, username: string, date: Date };
-type ErrorMsg = { type: MsgType.ERROR; error: string; };
-type HistoryMsg = { type: MsgType.HISTORY; messages: Message[]; };
-type ConnectedMsg = {type: MsgType.CONNECTED; token: string[]};
-type ConnectedChannelMsg = {type: MsgType.CONNECTED_CHANNEL; token_connected_client: string[]};
-type InitConnectedMsg = {type: MsgType.INIT_CONNECTION; token: string};
-type VocalMsg = { type: MsgType.JOIN_VOCAL | MsgType.LEAVE_VOCAL; token: string; };
+export type InitMsg = { type: MsgType.INIT; token: string; };
+export type ChatMsgRecieve = { type: MsgType.MESSAGE; content: string; user_id: string, username: string, date: Date };
+export type ChatMsgSend = { type: MsgType.MESSAGE; content: string; user_id: string };
+export type ErrorMsg = { type: MsgType.ERROR; error: string; };
+export type HistoryMsg = { type: MsgType.HISTORY; messages: Message[]; };
+export type ConnectedMsg = {type: MsgType.CONNECTED; token: string[]};
+export type ConnectedChannelMsg = {type: MsgType.CONNECTED_CHANNEL; token_connected_client: string[]};
+export type InitConnectedMsg = {type: MsgType.INIT_CONNECTION; token: string};
+export type VocalMsg = { type: MsgType.JOIN_VOCAL | MsgType.LEAVE_VOCAL; user_id: string; };
 
 
 type Props = {
@@ -47,10 +30,10 @@ type Props = {
         onMessage: {
             INIT?: (msg: InitMsg) => void,
             HISTORY?: (msg: HistoryMsg) => void,
-            MESSAGE?: (msg: ChatMsg) => void,
+            MESSAGE?: (msg: ChatMsgRecieve) => void,
             ERROR?: (msg: ErrorMsg) => void,
             OFFER?: (msg: OfferMsg) => void,
-            ANSWER?: (msg: any) => void,
+            ANSWER?: (msg: AnswerMsg) => void,
             CANDIDATE?: (msg: IceCandidateMsg) => void,
             JOIN_VOCAL?: (msg: VocalMsg) => void,
             LEAVE_VOCAL?: (msg: VocalMsg) => void,
@@ -66,7 +49,7 @@ type Props = {
 
 /**
  * Crée une connexion WebSocket avec gestion d’événements et de reconnexion
- * @param {string} wsUrl - URL du serveur WebSocket
+ * @param {string} wsUrl - Partial URL du serveur WebSocket (/online or /channel/:id)
  * @param {React.RefObject} wsRef - Référence pour stocker l’instance WebSocket
  * @param {string} authToken - Token d’authentification à envoyer à l’init
  * @param {object} handlers - Gestionnaires d’événements (onOpen, onClose, onError, onMessage)
@@ -87,16 +70,17 @@ export function setupWebSocket({
 
   if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) return;
   
-  if (!wsUrl.startsWith("/")) {
+  if (!wsUrl.startsWith("/") && !config.websocketUrl.endsWith("/")) {
     wsUrl = `/${wsUrl}`;
   }
-  wsUrl = `ws://localhost:3000${wsUrl}`;
+  //config.websocketUrl && wsUrl.startsWith("ws") && (wsUrl = config.websocketUrl + wsUrl);
+  wsUrl = `${config.websocketUrl}${wsUrl}` || `ws://localhost:3000${wsUrl}`;
 
   const ws = new window.WebSocket(wsUrl);
   wsRef.current = ws;
 
   let reconnectDelay = initialReconnectDelay;
-  let reconnectTimeout: number;
+  let reconnectTimeout: NodeJS.Timeout | null = null;
 
   const openConnection = () => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) return;

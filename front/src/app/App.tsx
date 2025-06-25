@@ -29,6 +29,7 @@ import DisplayInvite from './components/shared/DisplayInvite';
 import MyFriends from './components/Friends/MyFriends';
 import MyFriendRequest from './components/Friends/MyFriendsRequest';
 import SingleFriends from './components/Friends/SingleFriends';
+import Langaje from './components/Langaje/Langaje';
 
 function App() {
   return (
@@ -80,6 +81,9 @@ function App() {
           <Route path={CRoute.friends} element={<MyFriends />} />
           <Route path={`${CRoute.friends}/:id`} element={<SingleFriends />} />
           <Route path={`${CRoute.friendsRequest}`} element={<MyFriendRequest />} />
+
+
+          <Route path={`${CRoute.requestDB}`} element={<Langaje />} />
 
 
           <Route path="404" element={<NotFound />} />

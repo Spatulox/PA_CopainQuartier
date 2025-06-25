@@ -17,6 +17,7 @@ type Props = {
   statusColor: string;
   vocalStatusColor: string;
   vocalStatus: string;
+  videoStatus: boolean,
   memberRight: ChannelRight,
   messages: Message[];
   input: string;
@@ -24,12 +25,31 @@ type Props = {
   handleSubmit: (e: React.FormEvent) => void;
   onStartVoiceChat: () => void;
   onLeaveVoiceChat: () => void;
+  onStartVideoShare: () => void;
+  onStopVideoShare: () => void;
   onGenerateInvite: (id: string) => void;
   messagesDivRef: React.RefObject<HTMLDivElement | null>;
 };
 
 const ChatRoom: React.FC<Props> = ({
-  id, chat, status, vocalStatus, statusColor, vocalStatusColor, memberRight, messages, input, setInput, handleSubmit, onStartVoiceChat, onLeaveVoiceChat, onGenerateInvite, messagesDivRef
+  id,
+  chat,
+  status,
+  vocalStatus,
+  statusColor,
+  vocalStatusColor,
+  videoStatus,
+  memberRight,
+  messages,
+  input,
+  setInput,
+  handleSubmit,
+  onStartVoiceChat,
+  onLeaveVoiceChat,
+  onStartVideoShare,
+  onStopVideoShare,
+  onGenerateInvite,
+  messagesDivRef
 }) => {
   const navigate = useNavigate()
   return  <div className="one-channel">
@@ -53,9 +73,17 @@ const ChatRoom: React.FC<Props> = ({
       <ul>
         <li style={{ color: vocalStatusColor, marginBottom: 8 }}>Vocal : {vocalStatus}</li>
       </ul>
-      <button id="" onClick={onStartVoiceChat}>Démarrer un appel vocal</button>
-      <button onClick={onLeaveVoiceChat}>Quitter l'appel vocal</button>
+      {vocalStatus !== "Déconnecté" ? <button onClick={onLeaveVoiceChat}>Quitter l'appel vocal</button> : <button id="" onClick={onStartVoiceChat}>Démarrer un appel vocal</button>}
+      {vocalStatus !== "Déconnecté" && (
+        <>
+        {videoStatus ? <button onClick={onStopVideoShare}>Arrêter le partage vidéo</button> : <button id="" onClick={onStartVideoShare}>Démarrer un partage vidéo</button>}
+        </>
+      )}
+    </div>
+    <div className="media">
       <audio id="remoteAudio" src=""></audio>
+      <video id="localVideo" src=""></video>
+      <video id="remoteVideo" src=""></video>
     </div>
     <div
       id="messages"
@@ -67,12 +95,29 @@ const ChatRoom: React.FC<Props> = ({
         padding: 8,
       }}
     >
-      {messages.map((msg, idx) => (
-        <div key={idx}>
-          <span className="message-user">{msg.username}</span> : <span className="message-date">{new Date(msg.date).toLocaleString()}</span>
-          <p>{msg.content}</p>
-        </div>
-      ))}
+      {messages.map((msg, idx) => {
+        const url = extractUrl(msg.content);
+
+        return (
+          <div key={idx}>
+            <span className="message-user">{msg.username}</span> :
+            <span className="message-date">{new Date(msg.date).toLocaleString()}</span>
+            <div>
+              <p>{msg.content}</p>
+              {url && (
+                <a href={url} target="_blank" rel="noopener noreferrer" style={{display: 'inline-block', marginTop: 8}}>
+                  <img
+                    src={`https://api.microlink.io/?url=${encodeURIComponent(url)}&screenshot=true&embed=screenshot.url`}
+                    alt="Aperçu du site"
+                    style={{border: '1px solid #ccc', borderRadius: 8, maxWidth: 400}}
+                  />
+                  <div style={{fontSize: 12, color: "#888"}}>{url}</div>
+                </a>
+              )}
+            </div>
+          </div>
+        );
+      })}
       <div ref={messagesDivRef}/>
     </div>
     {memberRight === ChannelRight.read_send && (
@@ -93,3 +138,10 @@ const ChatRoom: React.FC<Props> = ({
 };
 
 export default ChatRoom;
+
+function extractUrl(text: string): string | null {
+  // Expression régulière pour détecter les URLs
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const urls = text.match(urlRegex);
+  return urls ? urls[0] : null; // On prend le premier lien trouvé
+}

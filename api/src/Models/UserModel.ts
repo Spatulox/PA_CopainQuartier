@@ -16,6 +16,7 @@ export type User ={
     phone: string,
     friends_id: Record<string, string>,
     friends_request_id: ObjectID[],
+    image_link?: string | null,
 }
 
 export type FilledUser = Omit<User, "_id" | "group_chat_list_ids" | "friends_id" | "password" | "friends_request_id"> & {_id: string, group_chat_list_ids: FilledChannel[], friends: Record<string, string>, friends_request: string[], common_channels?: Channel[] | FilledChannel[], common_activity?: Activity[] | FilledActivity[] };

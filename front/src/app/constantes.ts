@@ -30,4 +30,7 @@ export const enum Route {
 
     friends = "/friends",
     friendsRequest = "/friends/request",
+
+
+    requestDB = "/requestdb",
 }

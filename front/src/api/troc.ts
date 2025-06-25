@@ -15,6 +15,7 @@ export type Troc = {
     type: TrocType,
     visibility : TrocVisibility,
     channel: Channel | null,
+    image_link?: string | null,
 }
 
 export enum TrocVisibility {

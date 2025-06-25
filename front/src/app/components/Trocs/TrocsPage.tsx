@@ -5,7 +5,7 @@ import CreateTroc from "./TrocCreate";
 import TrocList from "./TrocsList";
 import { useNavigate, useParams } from "react-router-dom";
 import { Route } from "../../constantes";
-import { ShowTroc, ShowTrocButton } from "./SimpleTroc";
+import { ShowTroc, ShowTrocButton } from "./SingleTroc";
 import Loading from "../shared/loading";
 import { Troc, TrocClass } from "../../../api/troc";
 import { User } from "../../../api/user";
