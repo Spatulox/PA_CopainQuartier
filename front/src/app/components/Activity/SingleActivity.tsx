@@ -5,6 +5,7 @@ import { Activity } from "../../../api/activity";
 import { User, UserRole } from "../../../api/user";
 import { Route } from "../../constantes";
 import { useNavigate } from "react-router-dom";
+import { ApiClient } from "../../../api/client";
 
 export enum ShowActivityButton {
     Activity = 1 << 0,        // 1 (0b001)
@@ -37,9 +38,11 @@ export function ShowActivity({
     buttonShow
 }: ShowActivityProps) {
     const navigate = useNavigate();
+    const baseUrl = new ApiClient().baseURL;
     return (
         <div key={activity._id}>
             <h2>{activity.title}</h2>
+            {activity.image_link && (<img src={`${baseUrl}/${activity.image_link}`} alt="" />)}
             <div>
                 <span>{activity.author?.name}</span>
                 <span>{new Date(activity.created_at).toLocaleDateString()}</span>

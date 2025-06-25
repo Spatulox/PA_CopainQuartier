@@ -17,6 +17,7 @@ export type Activity = {
     location: string,
     max_place: number,
     reserved_place: number,
+    image_link?: string | null,
 }
 
 export class ActivityClass extends ApiClient{
