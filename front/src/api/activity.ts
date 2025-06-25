@@ -41,7 +41,7 @@ export class ActivityClass extends ApiClient{
         return await this.Get(`${this.url}/@me`, query)
     }
 
-    async createActivities(option: object): Promise<Activity | null>{
+    async createActivities(option: FormData): Promise<Activity | null>{
         return await this.Post(this.url, option)
     }
 
