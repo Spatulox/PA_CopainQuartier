@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { Troc, TrocClass } from "../../../api/troc"
 import { User } from "../../../api/user"
-import { ShowTroc, ShowTrocButton } from "./SimpleTroc"
+import { ShowTroc, ShowTrocButton } from "./SingleTroc"
 import { useNavigate } from "react-router-dom"
 import { Route } from "../../constantes"
 import Loading from "../shared/loading"
