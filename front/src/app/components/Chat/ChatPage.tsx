@@ -407,7 +407,6 @@ function ChatPage({id_channel}: ChatProps) {
         pc.iceConnectionState === "failed"
       ) {
         setVocalStatus("Déconnecté");
-        setInVoc(false)
       }
     };
   };
@@ -445,7 +444,6 @@ function ChatPage({id_channel}: ChatProps) {
     }
 
     setVocalStatus("Déconnecté");
-    setInVoc(false)
     generateSound(220)
   }
 
@@ -552,7 +550,7 @@ function ChatPage({id_channel}: ChatProps) {
       />
       <div className="members">
         <ul>
-          {channel && channel.members.map((mem: User | string) => {
+          {channel && "members" in channel && channel.members.map((mem: User | string) => {
             if (typeof mem === 'string') {
               return <li key={mem}>{mem}</li>;
             } else if(mem) {
