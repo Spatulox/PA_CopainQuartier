@@ -93,12 +93,29 @@ const ChatRoom: React.FC<Props> = ({
         padding: 8,
       }}
     >
-      {messages.map((msg, idx) => (
-        <div key={idx}>
-          <span className="message-user">{msg.username}</span> : <span className="message-date">{new Date(msg.date).toLocaleString()}</span>
-          <p>{msg.content}</p>
-        </div>
-      ))}
+      {messages.map((msg, idx) => {
+        const url = extractUrl(msg.content);
+
+        return (
+          <div key={idx}>
+            <span className="message-user">{msg.username}</span> :
+            <span className="message-date">{new Date(msg.date).toLocaleString()}</span>
+            <div>
+              <p>{msg.content}</p>
+              {url && (
+                <a href={url} target="_blank" rel="noopener noreferrer" style={{display: 'inline-block', marginTop: 8}}>
+                  <img
+                    src={`https://api.microlink.io/?url=${encodeURIComponent(url)}&screenshot=true&embed=screenshot.url`}
+                    alt="Aperçu du site"
+                    style={{border: '1px solid #ccc', borderRadius: 8, maxWidth: 400}}
+                  />
+                  <div style={{fontSize: 12, color: "#888"}}>{url}</div>
+                </a>
+              )}
+            </div>
+          </div>
+        );
+      })}
       <div ref={messagesDivRef}/>
     </div>
     {memberRight === ChannelRight.read_send && (
@@ -119,3 +136,10 @@ const ChatRoom: React.FC<Props> = ({
 };
 
 export default ChatRoom;
+
+function extractUrl(text: string): string | null {
+  // Expression régulière pour détecter les URLs
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const urls = text.match(urlRegex);
+  return urls ? urls[0] : null; // On prend le premier lien trouvé
+}
