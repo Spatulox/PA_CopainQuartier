@@ -9,7 +9,8 @@ const PublicationSchema = new Schema<Publication>({
     updated_at: { type: Date, default: null },
     author_id: { type: ObjectID, ref: "User", required: true },
     activity_id : { type: ObjectID, ref: "Activity", required: false },
-    body: {type: String, required: true}
+    body: {type: String, required: true},
+    image_link: { type: String, default: null, required: false },
 }, {
     timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }
 });

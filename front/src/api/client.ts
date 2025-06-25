@@ -25,6 +25,7 @@ export class ApiClient {
   private password = ""
   user: User = null
   errors: ErrorMessage | any | null = null
+  private tryConnection = 0;
 
   // You can create an ApiClient instance in two way :
   // new ApiClient(username, password) => Get the token from the API
@@ -32,7 +33,7 @@ export class ApiClient {
   constructor(username: string | null = null, password: string | null = null) {
     this.client = axios.create({
       baseURL: this.baseURL,
-      headers: { 'Content-Type': 'application/json' },
+      //headers: { 'Content-Type': 'application/json' },
     });
     this.setupInterceptors();
     if (username && password) {
@@ -107,6 +108,9 @@ export class ApiClient {
   async connect(): Promise<boolean> {
     try {
       if (!this.getAuthToken()) {
+        if(this.username === "" || this.password === ""){
+          return false;
+        }
         return await this.login(this.username, this.password);
       }
       const userCache = localStorage.getItem(this.userKey);
@@ -166,6 +170,10 @@ export class ApiClient {
   // ----------- CONNECTION ----------- //
 
   isConnected(): boolean {
+    return !!this.getAuthToken();
+  }
+
+  haveLocalToken(): boolean {
     return !!this.getAuthToken();
   }
 

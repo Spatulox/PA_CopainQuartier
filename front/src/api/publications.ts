@@ -11,6 +11,7 @@ export type Publication = {
     author: User | null,
     activity: Activity | undefined,
     body: string
+    image_link?: string | null,
 }
 
 export class PublicationClass extends ApiClient{

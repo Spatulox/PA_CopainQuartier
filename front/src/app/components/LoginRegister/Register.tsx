@@ -5,10 +5,13 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../shared/auth-context';
 import Form from '../Forms/Forms';
 import { Route } from '../../constantes';
+import { CreateFormData } from '../../../api/utils/formData';
+import { FieldForm } from '../Popup/PopupForm';
 
-const registerFields = [
+const registerFields : FieldForm[] = [
   { name: "lastname", label: "Nom", type: "text" },
   { name: "name", label: "Prenom", type: "text" },
+  { name: "image", label: "Profile Image", type: "file", required: false },
   { name: "phone", label: "Téléphone", type: "tel" },
   { name: "address", label: "Adresse", type: "text" },
   { name: "email", label: "Email", type: "email" },
@@ -25,6 +28,7 @@ function Register() {
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log("e")
     e.preventDefault();
     const newErrors = [];
     if (!formData.email.includes('@')) newErrors.push('Email invalide');
@@ -34,7 +38,8 @@ function Register() {
     const client = new ApiClient(formData.email, formData.password);
     let res;
     try {
-      res = await client.register(formData);
+      res = CreateFormData(formData);
+      res = await client.register(res);
     } catch (e: any) {
       if(e.hasOwnProperty("response")){
           for (const err in e.response.data) {

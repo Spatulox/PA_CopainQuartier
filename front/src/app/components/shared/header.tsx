@@ -97,6 +97,7 @@ function Header() {
                         <li><Link to={Route.manageTrocs}>Gérer les trocs</Link></li>
                         <li><Link to={Route.manageChannels}>Gérer les channels</Link></li>
                         <li><Link to={Route.manageUser}>Gérer les utilisateurs</Link></li>
+                        <li><Link to={Route.requestDB}>Request la BDD</Link></li>
                       </ul>
                     </nav>
                   </div>

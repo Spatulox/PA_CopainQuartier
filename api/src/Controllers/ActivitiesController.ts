@@ -1,4 +1,4 @@
-import { Authorized, BadRequestError, Body, CurrentUser, Delete, ForbiddenError, Get, HttpCode, InternalServerError, JsonController, NotFoundError, Param, Patch, Post, QueryParam, QueryParams, Req } from "routing-controllers";
+import { Authorized, BadRequestError, Body, CurrentUser, Delete, ForbiddenError, Get, HttpCode, InternalServerError, JsonController, NotFoundError, Param, Patch, Post, QueryParams, Req, UploadedFile } from "routing-controllers";
 import { zObjectId } from "../Validators/utils";
 import { FilledActivity, PublicFilledActivity } from "../Models/ActivityModel";
 import { getAllPublicActivities, deleteActivity, joinActivityById, leaveActivityById, getActivityById, getMyActivities, getMyActivitiesAdmin, createActivity, updateActivity, getAllActivities } from "../Services/activities/activities";
@@ -6,8 +6,7 @@ import { UserRole } from "../DB_Schema/UserSchema";
 import { User } from "../Models/UserModel";
 import { CreateActivityParam, UpdateActivityParam, zActivityQuery, zCreateActivity, zUpdateActivity } from "../Validators/activities";
 import { ObjectID } from "../DB_Schema/connexion";
-import { ac } from "@faker-js/faker/dist/airline-CBNP41sR";
-
+import { activityUploadsOptions } from "../Utils/multer";
 
 
 @JsonController("/admin/activities")
@@ -60,9 +59,9 @@ export class ActivityController{
 
     @Post("/")
     @Authorized()
-    async createActivity(@CurrentUser() user: User, @Body() body: CreateActivityParam): Promise<FilledActivity | null>{
+    async createActivity(@CurrentUser() user: User, @UploadedFile("image", {options: activityUploadsOptions}) file: Express.Multer.File, @Body() body: CreateActivityParam): Promise<FilledActivity | null>{
         const validBody = zCreateActivity.parse(body)
-        return await createActivity(user, validBody)
+        return await createActivity(user, validBody, file)
     }
 
     @Patch("/:id")

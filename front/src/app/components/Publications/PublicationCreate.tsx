@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Publication, PublicationClass } from "../../../api/publications";
 import { FieldForm, PopupForm } from "../Popup/PopupForm";
 import { Activity, ActivityClass } from "../../../api/activity";
+import { CreateFormData } from "../../../api/utils/formData";
 
 type CreatePublicationType = {
     onUpdate: (message:string) => void
@@ -37,6 +38,7 @@ function CreatePublication({onUpdate}: CreatePublicationType){
     const fields: FieldForm[] = [
         { name: "name", label: "Nom de la publication", type: "text", required: true },
         { name: "description", label: "Description", type: "text", required: true },
+        { name: "image", label: "Image (optionnel)", type: "file", required: false},
         { name: "body", label: "Contenu", type: "textarea", required: true },
         { name: "activity_id", label: "Lier une Activité (optionnal)", type: "select", value: getActivityArrayToValueLabel(), required: false },
     ];
@@ -46,7 +48,8 @@ function CreatePublication({onUpdate}: CreatePublicationType){
         const client = new PublicationClass()
         if(!client){return}
         try{
-            await client.createPublication(formData)
+            const res = CreateFormData(formData)
+            await client.createPublication(res)
             onUpdate("update")
             setErrors([])
         } catch(e){

@@ -19,6 +19,7 @@ export type Troc = {
     visibility : TrocVisibility | z.infer<typeof TrocVisibilitySchema>, // compatibilité avec Zod
     channel_id: ObjectID | null,
     max_user: number | null;
+    image_link?: string | null;
 }
 
 export enum TrocType {

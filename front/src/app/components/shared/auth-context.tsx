@@ -4,14 +4,17 @@ import { User } from "../../../api/user";
 import { popup } from "../../scripts/popup-slide";
 import { setupWebSocket } from "./websocket";
 import { MsgType } from "../../../api/chat";
+import { error } from "console";
 
 type AuthContextType = {
   isConnected: boolean;
   isAdmin: boolean;
   me: User;
+  loading: boolean;
+  error: string | null;
   updateConnection: () => Promise<void>;
-  refreshMe: () => Promise<void>,
-  connectedFriends: string[] | undefined,
+  refreshMe: () => Promise<void>;
+  connectedFriends: string[] | undefined;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,29 +26,55 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const connectedRef = useRef(false);
   const wsRef = useRef<WebSocket | null>(null);
   const [connectedFriends, setWhoIsConnected] = useState<string[]>()
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const refreshMe = useCallback(async () => {
+    console.log("refreshMe")
     const client = new ApiClient();
-    const user = await client.getMe();
-    setMe(prev => {
-      if (JSON.stringify(prev) !== JSON.stringify(user)) {
-        return user;
-      }
-      return prev;
-    });
+    if(!client.isConnected()){
+      return
+    }
+    try{
+      const user = await client.getMe();
+      setMe(prev => {
+        if (JSON.stringify(prev) !== JSON.stringify(user)) {
+          return user;
+        }
+        return prev;
+      });
+      setError(null);
+    } catch (err) {
+      setError("Failed to fetch user data (auth)");
+      setMe(null);
+    }
   }, []);
 
   
   const updateConnection = useCallback(async () => {
-    const client = new ApiClient();
-    setIsConnected(client.isConnected());
-    await client.refreshUser();
-    setIsAdmin(client.isAdmin());
-    await refreshMe();
+
+    setLoading(true);
+
+    try{
+      const client = new ApiClient();
+      setIsConnected(client.isConnected());
+      await client.refreshUser();
+      setIsAdmin(client.isAdmin());
+      await refreshMe();
+    } catch (err) {
+      console.error("Error updating connection:", err);
+      setIsConnected(false);
+      setIsAdmin(false);
+      setMe(null);
+      setError("Failed to update connection");
+    }
   }, [refreshMe]);
       
   const openWebSocket = React.useCallback(() => {
       const user = new ApiClient();
+      if(!user.isConnected()){
+        return
+      }
       console.log("ouverture websocket")
       setupWebSocket({
           wsUrl: `/online`,
@@ -86,7 +115,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         wsRef.current = null;
       }
     };
-  }, [])
+  }, []);
 
   useEffect(() => {
     updateConnection();
@@ -106,10 +135,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, 10000); // 10 sec
   
     return () => clearInterval(interval);
-  }, [updateConnection]);  
+  }, [updateConnection]);
 
   return (
-    <AuthContext.Provider value={{ isConnected, isAdmin, me, updateConnection, refreshMe, connectedFriends }}>
+    <AuthContext.Provider value={{ isConnected, isAdmin, me, loading, error, updateConnection, refreshMe, connectedFriends }}>
       {children}
     </AuthContext.Provider>
   );

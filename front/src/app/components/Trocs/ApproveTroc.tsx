@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { ShowTroc, ShowTrocButton } from "./SimpleTroc"
+import { ShowTroc, ShowTrocButton } from "./SingleTroc"
 import { AdminTrocClass, Troc } from "../../../api/troc"
 import { useAuth } from "../shared/auth-context"
 import NotFound from "../shared/notfound";

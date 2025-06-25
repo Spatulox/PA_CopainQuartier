@@ -2,7 +2,7 @@ import { use, useEffect, useState } from "react";
 import { Route } from "../../constantes";
 import { useNavigate, useParams } from "react-router-dom";
 import { AdminTrocClass, Troc, TrocClass } from "../../../api/troc";
-import { ShowTroc, ShowTrocButton } from "./SimpleTroc";
+import { ShowTroc, ShowTrocButton } from "./SingleTroc";
 import { User } from "../../../api/user";
 import Loading from "../shared/loading";
 import ApproveTroc from "./ApproveTroc";

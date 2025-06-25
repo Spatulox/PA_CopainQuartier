@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Troc, TrocStatus, TrocType } from "../../../api/troc";
 import { useAuth } from "../shared/auth-context";
 import ChatPage from "../Chat/ChatPage";
+import { ApiClient } from "../../../api/client";
 
 // Enum pour les boutons
 export enum ShowTrocButton {
@@ -47,9 +48,11 @@ export function ShowTroc({
 }: ShowTrocProps) {
     const navigate = useNavigate();
     const {isAdmin} = useAuth()
+    const baseUrl = new ApiClient().baseURL;
     return (
         <div key={troc._id}>
             <h2>{troc.title}</h2>
+            {troc.image_link && (<img src={`${baseUrl}/${troc.image_link}`} alt="" />)}
             <div>
                 <span>Auteur : {troc.author ? troc.author.email : ""}</span>
                 <span>Créé le : {new Date(troc.created_at).toLocaleDateString()}</span>
