@@ -30,10 +30,10 @@ export async function getPublicChannelById(channel_id: ObjectID): Promise<Public
 
 export async function getMyChannel(user: User): Promise<FilledChannel[] | null>{
     const res = await ChannelTable.find({
+        private: false,
         $or: [
             { admin_id: user._id },
             { members: user._id },
-            { private : false}
         ]
     }).lean().exec();
 
