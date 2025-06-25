@@ -24,6 +24,9 @@ import ManageUser from './components/Users/UserManage';
 import NotFound from './components/shared/notfound';
 import Users from './components/Users/UserPage';
 import DisplayInvite from './components/shared/DisplayInvite';
+import MyFriends from './components/Friends/MyFriends';
+import MyFriendRequest from './components/Friends/MyFriendsRequest';
+import SingleFriends from './components/Friends/SingleFriends';
 
 function App() {
   return (
@@ -71,6 +74,10 @@ function App() {
           <Route path={`${CRoute.user}/:id`} element={<Users />} />
           <Route path={CRoute.manageUser} element={<ManageUser />} />
           <Route path={`${CRoute.manageUser}/:id`} element={<ManageUser />} />
+
+          <Route path={CRoute.friends} element={<MyFriends />} />
+          <Route path={`${CRoute.friends}/:id`} element={<SingleFriends />} />
+          <Route path={`${CRoute.friendsRequest}`} element={<MyFriendRequest />} />
 
 
           <Route path="404" element={<NotFound />} />

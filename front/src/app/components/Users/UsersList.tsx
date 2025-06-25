@@ -3,7 +3,7 @@ import { Publication, PublicationClass } from "../../../api/publications";
 import { AdminUserClass, User } from "../../../api/user";
 import { useNavigate } from "react-router-dom";
 import { Route } from "../../constantes";
-import { ShowUser, ShowUserButton } from "./SingleUser";
+import { ShowAdditionnalInfo, ShowUser, ShowUserButton } from "./SingleUser";
 import Loading from "../shared/loading";
 import { useAuth } from "../shared/auth-context";
 import NotFound from "../shared/notfound";
@@ -24,7 +24,6 @@ function UserList({message}: UserListType){
 
     useEffect(() => {
         (async () => {
-            console.log('useEffect')
             const client = new AdminUserClass()
             try{
                 const use = await client.getUsers()
@@ -68,6 +67,7 @@ function UserList({message}: UserListType){
                         onViewUser={(id) => navigate(`${Route.user}/${id}`)}
                         onManage={(id) => navigate(`${Route.manageUser}/${id}`)}
                         buttonShow={ShowUserButton.ViewUser | ShowUserButton.Manage}
+                        showAdditionnalInfo={ShowAdditionnalInfo.None}
                     />
                 ))}</section>
         </div>

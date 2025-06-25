@@ -4,6 +4,9 @@ import { objectToChannel } from "../channels/channels";
 import { UpdateAccountType, UpdateAdminAccountType } from "../../Validators/users";
 import { ObjectID } from "../../DB_Schema/connexion";
 import { Channel } from "../../Models/ChannelModel";
+import { getCommonChannels } from "../channels/common";
+import { getCommonActivity } from "../activities/common";
+import { toActivityObject } from "../activities/activities";
 
 export async function getUserById(userId: ObjectID): Promise<FilledUser | null> {
     const obj = await UserTable.findById(userId)
@@ -15,14 +18,8 @@ export async function getPublicUserById(currentUser: User, targetUserId: ObjectI
     const targetUser = await UserTable.findById(targetUserId).populate("group_chat_list_ids").exec();
     if (!targetUser) return null;
 
-    const currentChannels = (currentUser.group_chat_list_ids || []).map(id => id.toString());
-
-    const targetChannels = (targetUser.group_chat_list_ids || []).map((channel: Channel | ObjectID) => {
-        if (channel && channel._id) return channel._id.toString();
-        return channel.toString();
-    });
-
-    const commonChannels = targetChannels.filter(id => currentChannels.includes(id));
+    const commonChannels = await getCommonChannels(currentUser, targetUserId)
+    const commonActivities = await getCommonActivity(currentUser, targetUserId)
 
     const publicUser: PublicUser = {
         _id: targetUser._id.toString(),
@@ -30,9 +27,9 @@ export async function getPublicUserById(currentUser: User, targetUserId: ObjectI
         lastname: targetUser.lastname,
         verified: targetUser.verified,
         role: targetUser.role,
-        group_chat_list_ids: [],
         troc_score: targetUser.troc_score ? targetUser.troc_score.toString() : null,
-        common_channels: commonChannels
+        common_channels: commonChannels ? commonChannels.map(objectToChannel) : undefined,
+        common_activity: commonActivities ? commonActivities.map(toActivityObject) : undefined
     };
 
     return publicUser;
@@ -46,7 +43,7 @@ export async function updateMyAccount(user: User, option: UpdateAccountType): Pr
         );
         return result.modifiedCount === 1 || result.matchedCount === 1
     } catch(e: any){
-        console.log(e)
+        console.error(e)
         return false
     }
 }
@@ -60,6 +57,13 @@ export async function deleteMyAccount(user: User): Promise<boolean>{
 
 export function toUserObject(doc: User | null, depth: number = 0): FilledUser | null {
     if(doc == null){return null}
+
+    const friends = doc.friends_id instanceof Map
+    ? Object.fromEntries(
+        Array.from(doc.friends_id, ([key, value]) => [key.toString(), value.toString()])
+        )
+    : doc.friends_id || {};
+
     return {
         _id: doc._id.toString(),
         name: doc.name,
@@ -71,7 +75,8 @@ export function toUserObject(doc: User | null, depth: number = 0): FilledUser | 
         group_chat_list_ids: (doc.group_chat_list_ids || []).map((item: any) => objectToChannel(item)),
         troc_score: doc.troc_score ? doc.troc_score.toString() : null,
         phone: doc.phone,
-        friends: doc.friends_id ? doc.friends_id.map(invite => invite.toString()) : [],
-        friends_request: doc.friends_request_id ? doc.friends_request_id.map(invite => invite.toString()) : []
+        //friends: doc.friends_id ? doc.friends_id.map(invite => invite.toString()) : [],
+        friends: friends,
+        friends_request: doc.friends_request_id ? doc.friends_request_id.map(invite => invite.toString()) : [],
     };
 }

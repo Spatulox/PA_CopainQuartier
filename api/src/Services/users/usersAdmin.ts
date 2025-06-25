@@ -24,7 +24,7 @@ export async function updateAccountAdmin(user_id: ObjectID, option: UpdateAdminA
         );
         return result.modifiedCount === 1 || result.matchedCount === 1
     } catch(e: any){
-        console.log(e)
+        console.error(e)
         return false
     }
 }

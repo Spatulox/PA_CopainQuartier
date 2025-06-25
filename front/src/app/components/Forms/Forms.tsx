@@ -24,7 +24,7 @@ type FormProps<T extends Record<string, string | number | Date>> = {
     setFormData: React.Dispatch<React.SetStateAction<T>>;
     errors: string[];
     onSubmit: (e: React.FormEvent) => void;
-    onClick: (e: React.MouseEvent<HTMLElement>) => void
+    onClick?: (e: React.MouseEvent<HTMLElement>) => void
     switchButtons?: SwitchButton[];
     submitLabel: string;
     children?: React.ReactNode;

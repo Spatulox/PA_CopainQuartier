@@ -17,7 +17,8 @@ const ChannelSchema = new Schema<Channel>({
     messages: [MessageSchema],
     members: [{ type: Schema.Types.ObjectId, ref: "User", required: true }],
     member_auth: { type: String, enum: ['read_send', 'read_only'], required: true },
-    created_at : {type: Date, required: true},
+    created_at : { type: Date, required: true},
+    private: { type: Boolean, required: true, default: false },
 }, {
     timestamps: { createdAt: 'created_at'}
 });

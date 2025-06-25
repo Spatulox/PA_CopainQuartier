@@ -4,12 +4,10 @@ import { ChannelAuth, ChannelTable } from "../../DB_Schema/ChannelSchema";
 import { CreateChannelParam, PostMessageParam, TransferChannelParam, UpdateChannelParam } from "../../Validators/channels";
 import { FilledUser, User } from "../../Models/UserModel";
 import { UserRole, UserTable } from "../../DB_Schema/UserSchema";
-import { getUserById, toUserObject } from "../users/usersPublic";
+import { toUserObject } from "../users/usersPublic";
 import { getActivityById, toActivityObject } from "../activities/activities";
 import { ObjectID } from "../../DB_Schema/connexion";
 import { ActivityTable } from "../../DB_Schema/ActivitiesSchema";
-import { ac } from "@faker-js/faker/dist/airline-CBNP41sR";
-import { id_ID } from "@faker-js/faker/.";
 import { toTrocObject } from "../trocs/trocs";
 import { TrocTable } from "../../DB_Schema/TrocSchema";
 
@@ -19,7 +17,6 @@ export async function getChannelById(channel_id: ObjectID): Promise<FilledChanne
     .populate("activity_id")
     .populate("members")
     .exec()
-    
     return objectToChannel(res)
 }
 
@@ -35,7 +32,8 @@ export async function getMyChannel(user: User): Promise<FilledChannel[] | null>{
     const res = await ChannelTable.find({
         $or: [
             { admin_id: user._id },
-            { members: user._id }
+            { members: user._id },
+            { private : false}
         ]
     }).lean().exec();
 
@@ -44,7 +42,8 @@ export async function getMyChannel(user: User): Promise<FilledChannel[] | null>{
 
 export async function getAllChannelImInside(user: User): Promise<FilledChannel[] | null>{
     const res = await ChannelTable.find({
-        members: user._id
+        members: user._id,
+        private: false,
     }).lean().exec()
     return res.map(objectToChannel);
 }
@@ -52,15 +51,17 @@ export async function getAllChannelImInside(user: User): Promise<FilledChannel[]
 export async function getAllChannel(user: User): Promise<FilledChannel[] | null>{
     if (user.role != UserRole.admin){return null}
 
-    const res = await ChannelTable.find({
-    }).lean()
+    const res = await ChannelTable.find(
+    {
+        private: false}
+    ).lean()
     .populate("admin_id")
     .populate("members")
     .exec()
     return res.map(objectToChannel);
 }
 
-export async function createChannel(user: User, data: CreateChannelParam): Promise<FilledChannel | null>{
+export async function createChannel(user: User, data: CreateChannelParam, private_chan: boolean = false): Promise<FilledChannel | null>{
     const mes: Message = createMessage("This is the start of the conversation", null)
     const channel_id = new ObjectID()
 
@@ -75,7 +76,8 @@ export async function createChannel(user: User, data: CreateChannelParam): Promi
         member_auth: ChannelAuth.read_send,
         created_at: new Date(),
         activity_id: data.activity_id_linked ? new ObjectID(data.activity_id_linked) : null,
-        troc_id: data.troc_id_linked ? new ObjectID(data.troc_id_linked) : null
+        troc_id: data.troc_id_linked ? new ObjectID(data.troc_id_linked) : null,
+        private: private_chan
 
     }
 
@@ -158,7 +160,7 @@ export async function addSomeoneFromChannel(channel_id: ObjectID, user_id: Objec
         {_id: user_id},
         {$addToSet: {group_chat_list_ids: channel_id}}
     )
-    return (result.modifiedCount > 0 && res.modifiedCount > 0) || result.matchedCount > 0 ? null : false;
+    return (result.modifiedCount > 0 && res.modifiedCount > 0) || (result.matchedCount > 0 ? null : false);
 }
 
 
@@ -167,7 +169,13 @@ export async function removeSomeoneFromChannel(channel_id: ObjectID, user_id: Ob
         { _id: channel_id },
         { $pull: { members: user_id } }
     ).exec();
-    return result.modifiedCount > 0;
+
+    const res = await UserTable.updateOne(
+        {_id: user_id},
+        {$pull: {group_chat_list_ids: channel_id}}
+    ).exec()
+
+    return result.modifiedCount > 0 && res.modifiedCount > 0;
 }
 
 export async function saveMessageToChannel(user: FilledUser , channel_id: ObjectID, content: PostMessageParam): Promise<boolean>{
