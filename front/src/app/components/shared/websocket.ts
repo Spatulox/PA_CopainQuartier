@@ -70,7 +70,7 @@ export function setupWebSocket({
 
   if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) return;
   
-  if (!wsUrl.startsWith("/")) {
+  if (!wsUrl.startsWith("/") && !config.websocketUrl.endsWith("/")) {
     wsUrl = `/${wsUrl}`;
   }
   //config.websocketUrl && wsUrl.startsWith("ws") && (wsUrl = config.websocketUrl + wsUrl);
