@@ -49,7 +49,7 @@ type Props = {
 
 /**
  * Crée une connexion WebSocket avec gestion d’événements et de reconnexion
- * @param {string} wsUrl - URL du serveur WebSocket
+ * @param {string} wsUrl - Partial URL du serveur WebSocket (/online or /channel/:id)
  * @param {React.RefObject} wsRef - Référence pour stocker l’instance WebSocket
  * @param {string} authToken - Token d’authentification à envoyer à l’init
  * @param {object} handlers - Gestionnaires d’événements (onOpen, onClose, onError, onMessage)
