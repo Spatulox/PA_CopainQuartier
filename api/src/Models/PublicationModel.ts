@@ -12,6 +12,7 @@ export type Publication = {
     author_id: ObjectID | User,
     activity_id?: ObjectID | Activity | null,
     body: string
+    image_link?: string | null,
 }
 
 

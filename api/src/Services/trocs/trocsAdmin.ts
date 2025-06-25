@@ -24,6 +24,7 @@ export function toTrocObjectAdmin(doc: any): Troc {
         visibility: doc.visibility,
         channel_id: doc.channel_id ? doc.channel_id : null,
         max_user: doc.max_user ? doc.max_user : null,
+        image_link: doc.image_link || null,
     };
 }
 
