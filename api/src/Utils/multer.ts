@@ -6,6 +6,7 @@ export enum ImgFilepath {
   activity = "img/activity",
   publication = "img/publication",
   troc = "img/troc",
+  profile = "img/profile",
   uploads = "uploads"
 }
 
@@ -49,6 +50,24 @@ export const trocUploadsOptions = {
 export const publicationUploadsOptions = {
   storage: diskStorage({
     destination: ImgFilepath.publication,
+    filename: (req, file, cb) => {
+      cb(null, Date.now() + extname(file.originalname));
+    }
+  }),
+  fileFilter: (req: Request, file: File, cb: Callback) => {
+    // Ok Type (HTML / PNG, ETC...)
+    const isValid = true;
+    cb(null, isValid);
+  },
+  limits: {
+    fileSize: 20 * 1024 * 1024 // 20 Mo
+  }
+};
+
+
+export const profileUploadsOptions = {
+  storage: diskStorage({
+    destination: ImgFilepath.profile,
     filename: (req, file, cb) => {
       cb(null, Date.now() + extname(file.originalname));
     }

@@ -1,9 +1,10 @@
-import {Authorized, Body, BodyParam, CurrentUser, HttpCode, JsonController, Post} from "routing-controllers";
+import {Authorized, Body, BodyParam, CurrentUser, HttpCode, JsonController, Post, UploadedFile} from "routing-controllers";
 import { logout } from "../Services/auth/logout";
 import { loginUser, refreshToken } from "../Services/auth/login";
 import { registerUser } from "../Services/auth/register";
 import { zLoginParams, zRegisterParams, zRefreshToken } from "../Validators/auth";
 import { User } from "../Models/UserModel"
+import { profileUploadsOptions } from "../Utils/multer";
 @JsonController('/auth')
 export class AuthController {
 
@@ -22,9 +23,9 @@ export class AuthController {
 
 	@Post('/register')
 	@HttpCode(201)
-	async register(@Body() body: unknown): Promise<{accessToken: string, refreshToken: string}> {
+	async register(@Body() body: unknown, @UploadedFile("image", { options: profileUploadsOptions }) file: Express.Multer.File): Promise<{accessToken: string, refreshToken: string}> {
 		const registerParams = zRegisterParams.parse(body)
-		const {accessToken, refreshToken} = await registerUser(registerParams)
+		const {accessToken, refreshToken} = await registerUser(registerParams, file)
 
 		return {accessToken, refreshToken}
 	}

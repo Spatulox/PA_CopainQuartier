@@ -27,6 +27,7 @@ async function main(){
   app.use('/img/activity', express.static('img/activity'));
   app.use('/img/publication', express.static('img/publication'));
   app.use('/img/troc', express.static('img/troc'));
+  app.use('/img/profile', express.static('img/profile'));
 
   const routingControllerOptions: RoutingControllersOptions = {
     authorizationChecker: authMiddleware,
