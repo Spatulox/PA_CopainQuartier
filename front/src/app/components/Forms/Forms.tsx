@@ -1,17 +1,8 @@
 // components/LoginRegister/AuthForm.tsx
 import React from "react";
+import { FieldForm } from "../Popup/PopupForm";
 
 export type FormDataType = Record<string, string | number | Date | File | null>;
-
-type Field = {
-  id?:string;
-  name: string;
-  label: string;
-  type: "select" | "textarea" | "checkbox" | "radio" | "text" | "email" | "password" | "number" | "date" | "time" | "file";
-  value?: {value: string, label: string}[] | string[]
-  required?: boolean;
-  hide?:boolean
-};
 
 type SwitchButton = {
     text: string;           // Texte affiché avant le bouton
@@ -21,7 +12,7 @@ type SwitchButton = {
 
 type FormProps<T extends FormDataType> = {
     title: string;
-    fields: Field[];
+    fields: FieldForm[];
     formData: T;
     setFormData: React.Dispatch<React.SetStateAction<T>>;
     errors: string[];
@@ -48,7 +39,7 @@ function Form<T extends FormDataType>({
     submitLabel, children
 }: FormProps<T>) {
 
-    function renderField(field: Field) {
+    function renderField(field: FieldForm) {
       switch (field.type) {
         case "select":
           return (

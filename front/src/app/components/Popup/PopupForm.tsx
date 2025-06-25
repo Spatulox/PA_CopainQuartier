@@ -6,7 +6,7 @@ export type FieldForm = {
   id?: string;
   name: string;
   label: string;
-  type: "select" | "textarea" | "checkbox" | "radio" | "text" | "email" | "password" | "number" | "date" | "time" | "file";
+  type: "select" | "textarea" | "checkbox" | "radio" | "text" | "email" | "password" | "number" | "date" | "time" | "file" | "tel";
   value?: {value: string, label: string}[] | string[]; 
   required?: boolean;
   hide?:boolean;
