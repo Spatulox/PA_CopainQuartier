@@ -1,4 +1,4 @@
-import { Authorized, BadRequestError, Body, CurrentUser, Delete, ForbiddenError, Get, HttpCode, InternalServerError, JsonController, NotFoundError, Param, Patch, Post } from "routing-controllers";
+import { Authorized, BadRequestError, Body, CurrentUser, Delete, ForbiddenError, Get, HttpCode, InternalServerError, JsonController, NotFoundError, Param, Patch, Post, UploadedFile } from "routing-controllers";
 import { FilledPublication, Publication } from "../Models/PublicationModel";
 import { getAllPublications, getPublicationById, deletePublicationById, createPublication, updatePublicationcontent, getAllMyPublications, getAdminPublicationById, getAllAdminPublications, getAllPublicationsByActivityId } from "../Services/publications/publications";
 import { zObjectId } from "../Validators/utils";
@@ -6,6 +6,7 @@ import { User } from "../Models/UserModel";
 import { zCreatePublication, zUpdatePublication } from "../Validators/publications";
 import { UserRole } from "../DB_Schema/UserSchema";
 import { ObjectID } from "../DB_Schema/connexion";
+import { publicationUploadsOptions } from "../Utils/multer";
 
 
 @JsonController("/admin/publications")
@@ -54,9 +55,9 @@ export class PublicationsController {
     @Post("/")
     @Authorized()
     @HttpCode(204)
-    async createPublication(@CurrentUser() user: User, @Body() body: any): Promise<boolean>{
+    async createPublication(@CurrentUser() user: User, @UploadedFile("image", { options: publicationUploadsOptions }) file: Express.Multer.File, @Body() body: any): Promise<boolean>{
         const validBody = zCreatePublication.parse(body)
-        if(!await createPublication(user, validBody)){
+        if(!await createPublication(user, validBody, file)){
             throw new BadRequestError()
         }
         return true

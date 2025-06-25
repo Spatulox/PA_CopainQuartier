@@ -125,7 +125,8 @@ export async function createActivity(user: User, activity: CreateActivityParam, 
         description: activity.description,
         author_id: user._id,
         created_at: new Date(),
-        updated_at: new Date()
+        updated_at: new Date(),
+        image_link: image ? image.path : null
     };
     const publication = await PublicationTable.create(publicationParam);
     if (!publication || !publication._id) throw new Error("Publication creation failed");
