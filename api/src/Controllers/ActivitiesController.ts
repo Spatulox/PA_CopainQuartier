@@ -6,7 +6,7 @@ import { UserRole } from "../DB_Schema/UserSchema";
 import { User } from "../Models/UserModel";
 import { CreateActivityParam, UpdateActivityParam, zActivityQuery, zCreateActivity, zUpdateActivity } from "../Validators/activities";
 import { ObjectID } from "../DB_Schema/connexion";
-import { uploadsOptions } from "../Utils/multer";
+import { activityUploadsOptions } from "../Utils/multer";
 
 
 @JsonController("/admin/activities")
@@ -59,9 +59,9 @@ export class ActivityController{
 
     @Post("/")
     @Authorized()
-    async createActivity(@CurrentUser() user: User, @UploadedFile("image", {options: uploadsOptions}) file: Express.Multer.File, @Body() body: CreateActivityParam): Promise<FilledActivity | null>{
+    async createActivity(@CurrentUser() user: User, @UploadedFile("image", {options: activityUploadsOptions}) file: Express.Multer.File, @Body() body: CreateActivityParam): Promise<FilledActivity | null>{
         const validBody = zCreateActivity.parse(body)
-        return await createActivity(user, validBody)
+        return await createActivity(user, validBody, file)
     }
 
     @Patch("/:id")

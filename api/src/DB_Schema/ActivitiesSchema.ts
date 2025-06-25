@@ -13,6 +13,7 @@ const ActivitySchema = new Schema<Activity>({
     participants_id: [{ type: Schema.Types.ObjectId, ref: "User" }],
     location: {type: String, required: true},
     max_place: {type: Number, required: true},
+    image_link: { type: String, default: null },
     reserved_place: {
         type: Number,
         required: true,
