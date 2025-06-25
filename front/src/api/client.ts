@@ -32,7 +32,7 @@ export class ApiClient {
   constructor(username: string | null = null, password: string | null = null) {
     this.client = axios.create({
       baseURL: this.baseURL,
-      headers: { 'Content-Type': 'application/json' },
+      //headers: { 'Content-Type': 'application/json' },
     });
     this.setupInterceptors();
     if (username && password) {
