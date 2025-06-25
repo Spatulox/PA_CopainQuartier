@@ -24,6 +24,9 @@ async function main(){
 
   const port = 3000
   const app = express()
+  app.use('/img/activity', express.static('img/activity'));
+  app.use('/img/publication', express.static('img/publication'));
+  app.use('/img/troc', express.static('img/troc'));
 
   const routingControllerOptions: RoutingControllersOptions = {
     authorizationChecker: authMiddleware,
