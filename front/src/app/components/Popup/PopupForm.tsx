@@ -70,8 +70,8 @@ export function PopupForm<T extends FormDataType>({
     if (errs.length === 0) {
       try {
         await onSubmit(formData);
-        //setOpen(false);
-        //setFormData(initialFormData);
+        setOpen(false);
+        setFormData(initialFormData);
         setErrors([]);
       } catch (apiErrors: any) {
         if (Array.isArray(apiErrors)) {
