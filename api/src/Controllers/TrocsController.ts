@@ -13,7 +13,8 @@ import {
     HttpCode,
     InternalServerError,
     BadRequestError,
-    QueryParams
+    QueryParams,
+    UploadedFile
   } from "routing-controllers";
 import { FilledTroc, Troc, TrocStatus } from "../Models/TrocModel";
 import { User } from "../Models/UserModel";
@@ -24,6 +25,7 @@ import { UserRole } from "../DB_Schema/UserSchema";
 import { getAllAdminTrocs, getWaitingTrocs, updateWaitingTrocStatus, getAdminTrocById } from "../Services/trocs/trocsAdmin";
 import { ObjectID } from "../DB_Schema/connexion";
 import { z } from "zod";
+import { trocUploadsOptions } from "../Utils/multer";
   
 
 @JsonController("/admin/trocs")
@@ -95,9 +97,10 @@ export class TrocController {
   
     @Post("/")
     @Authorized()
-    async createTroc(@Body() body: CreateTrocBody, @CurrentUser() user: User): Promise<FilledTroc> {
+    async createTroc(@UploadedFile("image", {options: trocUploadsOptions}) file: Express.Multer.File, @Body() body: CreateTrocBody, @CurrentUser() user: User): Promise<FilledTroc> {
         const validData = zCreateTrocSchema.parse(body)
-        return await createTroc(validData, user);
+        console.log(file)
+        return await createTroc(validData, user, file);
     }
   
     @Patch("/:id")

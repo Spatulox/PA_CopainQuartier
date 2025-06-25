@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { TrocClass, TrocType } from "../../../api/troc";
+import { TrocClass } from "../../../api/troc";
 import { FieldForm, PopupForm } from "../Popup/PopupForm";
+import { CreateFormData } from "../../../api/utils/formData";
 
 type CreateTrocType = {
   onUpdate: (message:string) => void
@@ -24,13 +25,15 @@ function CreateTroc({onUpdate} : CreateTrocType){
     const fields: FieldForm[] = [
         { name: "title", label: "Nom du Troc", type: "text", required: true },
         { name: "description", label: "Description", type: "text", required: true },
+        { name: "image", label: "Image", type: "file"},
         { name: "type", label: "type", type: "radio", value:[RadioType.object, RadioType.service, RadioType.multipleService], required: true, id:"switch" },
-        { name: "max_user", label: "Nombre maximum d'utilisateurs", type: "number", hide:true, id:"max_user"}
+        { name: "max_user", label: "Nombre maximum d'utilisateurs", type: "number", hide:true, id:"max_user"},
     ];
     
     type TrocForm = {
         title: string,
         description: string,
+        image?: File | null,
         type: RadioType | RadioTypeToTrocType,
         reserved_at: string
         max_user: number | -1
@@ -62,7 +65,8 @@ function CreateTroc({onUpdate} : CreateTrocType){
                     formData.type = RadioTypeToTrocType.serviceMorethanOnePerson
                     break;
             }
-            if(await client.createTroc(formData)){
+            const res = CreateFormData(formData)
+            if(await client.createTroc(res)){
                 onUpdate("update")
             }
             setError(null)

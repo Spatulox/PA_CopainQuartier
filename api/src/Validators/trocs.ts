@@ -14,7 +14,7 @@ export const zCreateTrocSchema = z.object({
   title: z.string(),
   description: z.string(),
   type: TrocTypeSchema,
-  max_user: z.number().optional()
+  max_user: z.coerce.number().optional()
 });
 
 export const zUpdateTrocSchema = z.object({

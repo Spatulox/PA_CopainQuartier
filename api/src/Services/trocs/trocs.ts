@@ -6,9 +6,7 @@ import { CreateTrocBody, UpdateTrocBody } from "../../Validators/trocs";
 import { toUserObject } from "../users/usersPublic";
 import { ObjectId } from "mongodb";
 import { ObjectID } from "../../DB_Schema/connexion";
-import { Channel } from "../../Models/ChannelModel";
 import { createChannel, objectToChannel } from "../channels/channels";
-import { UserTable } from "../../DB_Schema/UserSchema";
 import { ChannelAuth, ChannelTable } from "../../DB_Schema/ChannelSchema";
 
 export function toTrocObject(doc: any): FilledTroc {
@@ -26,6 +24,7 @@ export function toTrocObject(doc: any): FilledTroc {
         visibility: doc.visibility,
         channel: doc.channel_id ? objectToChannel(doc.channel_id) : null,
         max_user: doc.max_user ? doc.max_user : null,
+        image_link: doc.image_link || null,
     };
 }
 
@@ -69,7 +68,7 @@ export async function getTrocById(id: ObjectId): Promise<FilledTroc | null> {
 }
 
 // POST : Création (toujours waitingForApproval)
-export async function createTroc(trocBody: CreateTrocBody, user: User): Promise<FilledTroc> {
+export async function createTroc(trocBody: CreateTrocBody, user: User, image: Express.Multer.File): Promise<FilledTroc> {
     const troc_id = new ObjectID()
 
     const channel = await createChannel(user, { name: trocBody.title,
@@ -84,13 +83,14 @@ export async function createTroc(trocBody: CreateTrocBody, user: User): Promise<
         title: trocBody.title,
         description: trocBody.description,
         type: trocBody.type,
-        max_user: trocBody.max_user ? trocBody.max_user : null,
+        max_user: trocBody.max_user && trocBody.max_user > 0 ? trocBody.max_user : null,
         author_id: user._id,
         status: TrocStatus.waitingForApproval,
         created_at: new Date(),
         updated_at: new Date(),
         visibility: TrocVisibility.visible,
-        channel_id: new ObjectID(channel?._id)
+        channel_id: new ObjectID(channel?._id),
+        image_link: image ? image.path : null,
     }
     const troc = new TrocTable(data);
     await troc.save();
