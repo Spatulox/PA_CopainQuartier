@@ -43,7 +43,7 @@ export function ShowActivity({
         <div key={activity._id}>
             <h2>{activity.title}</h2>
             {activity.image_link && (<img src={`${baseUrl}/${activity.image_link}`} alt="" />)}
-            <div>
+            <div className="activity-card">
                 <span>{activity.author?.name}</span>
                 <span>{new Date(activity.created_at).toLocaleDateString()}</span>
                 <p>{activity.description}</p>
