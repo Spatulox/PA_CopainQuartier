@@ -13,9 +13,15 @@ function HomePage() {
             <h1>Home Page</h1>
             <span>Parcourez les dernières actualités {me?.name} !</span>
             <div className="section-wrapper">
-                <PublicationList message="" limit={3}/>
-                <ActivityList message="" limit={3}/>
-                <TrocList message="" limit={3}/>
+                <div className="section">
+                    <PublicationList message="" limit={3}/>
+                </div>
+                <div className="section">
+                    <ActivityList message="" limit={3}/>
+                </div>
+                <div className="section">
+                    <TrocList message="" limit={3}/>
+                </div>
             </div>
         </div>
     );
