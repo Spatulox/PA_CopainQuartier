@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { User, UserRole } from "../../../api/user";
 import { Route } from "../../constantes";
 import { Channel } from "../../../api/chat";
+import './Chat.css';
 
 // Enum pour les boutons
 export enum ShowChatButton {
@@ -84,7 +85,7 @@ export function ShowChat({
                 {(buttonShow & ShowChatButton.Join) !== 0 &&
                     onJoin &&
                     user &&
-                    !(channel.members || []).includes(user._id) && (
+                    !isUserInChannel(channel, user) && (
                         <button onClick={() => onJoin(channel._id)}>
                             Rejoindre le channel
                         </button>
@@ -94,7 +95,7 @@ export function ShowChat({
                 {(buttonShow & ShowChatButton.Leave) !== 0 &&
                     onLeave &&
                     user &&
-                    (channel.members || []).includes(user._id) && (
+                    isUserInChannel(channel, user) && (
                         <button onClick={() => onLeave(channel._id)}>
                             Quitter le channel
                         </button>
@@ -104,7 +105,7 @@ export function ShowChat({
                 {(buttonShow & ShowChatButton.Delete) !== 0 &&
                     onLeave &&
                     user &&
-                    (channel.members || []).includes(user._id) && (
+                    isUserInChannel(channel, user) && (
                         <button onClick={() => onLeave(channel._id)}>
                             Quitter le channel
                         </button>
@@ -112,4 +113,18 @@ export function ShowChat({
             </div>
         </div>
     );
+}
+
+
+function isUserInChannel(channel: Channel, user: User): boolean {
+  if (!user) return false;
+  if (!channel.members) return false;
+
+  // If members is an array of strings (user IDs)
+  if (typeof channel.members[0] === 'string') {
+    return (channel.members as string[]).includes(user._id);
+  }
+
+  // If members is an array of User objects
+  return (channel.members as User[]).some((member) => member && member._id === user._id);
 }

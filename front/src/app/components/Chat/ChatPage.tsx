@@ -12,6 +12,7 @@ import { User, UserClass } from "../../../api/user";
 import { Route } from "../../constantes";
 import { FriendsClass } from "../../../api/friend";
 import { AnswerMsg, ChatMsgSend, ConnectedChannelMsg, IceCandidateMsg, OfferMsg, setupWebSocket, VocalMsg } from "../shared/websocket";
+import './Chat.css';
 
 type ChatProps = {
     id_channel?: string
@@ -32,6 +33,7 @@ function ChatPage({id_channel}: ChatProps) {
   const miniUserRef = useRef<HTMLDivElement>(null);
   const [connectedUser, setConnectedUser] = useState<string[]>()
   const [videoStatus, setVideoStatus] = useState(false)
+  const [cameraOrScreen, setCameraOrScreen] = useState<"camera" | "screen" | null>(null)
  
   const wsRef = useRef<WebSocket | null>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
@@ -64,7 +66,6 @@ function ChatPage({id_channel}: ChatProps) {
         onError: () => setStatus("Erreur"),
         onMessage: {
           ERROR(msg) {
-              alert(msg.error);
               wsRef.current?.close();
               return;
           },
@@ -179,7 +180,6 @@ function ChatPage({id_channel}: ChatProps) {
       }
     });
     if(!ws){
-      alert("Pas de ws !")
       return
     }
     const answer = await pc.createAnswer();
@@ -252,10 +252,20 @@ function ChatPage({id_channel}: ChatProps) {
     };
   }
 
-  const startVideoChat = async () => {
+  async function startVideoChat(screen_or_camera: string | null = null){
     let videoStream
     try {
-      videoStream = await navigator.mediaDevices.getUserMedia({ video: true });  
+      if(screen_or_camera == "screen"){
+        setCameraOrScreen("screen")
+        videoStream = await navigator.mediaDevices.getDisplayMedia({ video: true });  
+      } else if(screen_or_camera == "camera" || screen_or_camera == null){
+        setCameraOrScreen("camera")
+        videoStream = await navigator.mediaDevices.getUserMedia({ video: true });  
+      } else {
+        setCameraOrScreen(null)
+        popup("Wrong video input")
+        return
+      }
     } catch (error) {
       popup("L'accès à la caméra a été refusé")
       return
@@ -286,6 +296,7 @@ function ChatPage({id_channel}: ChatProps) {
       popup("Something went wrong when stopping video")
       return
     }
+    setCameraOrScreen(null)
     setVideoStatus(false)
     peerConnectionRef.current.removeTrack(videoSenderRef.current);
     videoSenderRef.current = null;
@@ -407,7 +418,6 @@ function ChatPage({id_channel}: ChatProps) {
         pc.iceConnectionState === "failed"
       ) {
         setVocalStatus("Déconnecté");
-        setInVoc(false)
       }
     };
   };
@@ -445,7 +455,6 @@ function ChatPage({id_channel}: ChatProps) {
     }
 
     setVocalStatus("Déconnecté");
-    setInVoc(false)
     generateSound(220)
   }
 
@@ -538,6 +547,7 @@ function ChatPage({id_channel}: ChatProps) {
         statusColor={statusColor}
         vocalStatusColor={vocalStatusColor}
         videoStatus={videoStatus}
+        shareScreenType={cameraOrScreen}
         memberRight={thechannelAuth}
         messages={messages}
         input={input}
@@ -545,14 +555,14 @@ function ChatPage({id_channel}: ChatProps) {
         handleSubmit={handleSubmit}
         onStartVoiceChat={startVoiceChat}
         onLeaveVoiceChat={leaveVoiceChat}
-        onStartVideoShare={startVideoChat}
+        onStartVideoShare={(screen_or_camera: string | null) => startVideoChat(screen_or_camera)}
         onStopVideoShare={stopVideoChat}
         onGenerateInvite={(id: string) => handleGenerateInvite(id)}
         messagesDivRef={messagesEndRef}
       />
       <div className="members">
         <ul>
-          {channel && channel.members.map((mem: User | string) => {
+          {channel && "members" in channel && channel.members.map((mem: User | string) => {
             if (typeof mem === 'string') {
               return <li key={mem}>{mem}</li>;
             } else if(mem) {

@@ -4,8 +4,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from './auth-context';
 import { ApiClient } from '../../../api/client';
 import { Route } from '../../constantes';
-
 import "../Popup/Popup.css"
+import "./header.css"
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -48,7 +48,7 @@ function Header() {
 
         {/* Partie gauche */}
         <div className="header-section logo">
-          <img src="/logo.png" alt="Logo" className="logo" />
+          <img src="../../../../public/logo.png" alt="Logo" className="logo" />
         </div>
 
         {/* Partie centrale */}

@@ -30,7 +30,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [error, setError] = useState<string | null>(null);
 
   const refreshMe = useCallback(async () => {
-    console.log("refreshMe")
     const client = new ApiClient();
     if(!client.isConnected()){
       return
@@ -62,7 +61,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsAdmin(client.isAdmin());
       await refreshMe();
     } catch (err) {
-      console.error("Error updating connection:", err);
+      //console.error("Error updating connection:", err);
       setIsConnected(false);
       setIsAdmin(false);
       setMe(null);

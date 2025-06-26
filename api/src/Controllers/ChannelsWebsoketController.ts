@@ -30,7 +30,7 @@ enum MsgType {
   CONNECTED = "CONNECTED" // For the "connected" state (online/offline)
 }
 type InitMsg = { type: MsgType.INIT; token: string; };
-type ChatMsg = { type: MsgType.MESSAGE; content: string; user_id: string, username: string, date: Date };
+type ChatMsg = { type: MsgType.MESSAGE; content: string; user_id: string, image_link: string | null | undefined, username: string, date: Date };
 type ErrorMsg = { type: MsgType.ERROR; error: string; };
 type HistoryMsg = { type: MsgType.HISTORY; messages: any[]; };
 type ConnectedMsg = {type: MsgType.CONNECTED; token: string[]};
@@ -156,7 +156,8 @@ export async function handleMessage(
           type: "MESSAGE",
           content: m.content,
           username: userMap.get(m.author?._id.toString()) || "Inconnu",
-          date: m.date
+          date: m.date,
+          image_link: m.image_link,
         }));
         send(ws, { type: MsgType.HISTORY, messages });
       }
@@ -177,9 +178,9 @@ export async function handleMessage(
       }
       // Diffusion
       const clients = channelClients.get(channel_id) || new Set();
-      const chatMsg: ServerMsg = { type: MsgType.MESSAGE, content: msg.content, user_id: user?._id, username: user.name, date: new Date() || "Inconnu" };
+      const chatMsg: ServerMsg = { type: MsgType.MESSAGE, content: msg.content, user_id: user?._id, image_link: user.image_link, username: user.name, date: new Date() || "Inconnu" };
       clients.forEach(client => send(client, chatMsg));
-      await saveMessageToChannel(user, validChannelId, msg);
+      await saveMessageToChannel(user, validChannelId, msg, user.image_link);
       return;
     }
 

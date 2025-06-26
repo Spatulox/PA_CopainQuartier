@@ -1,6 +1,8 @@
 // App.tsx
 import './css/App.css'
 import './css/index.css'
+import './components/Account/Account.css';
+
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Account, { ManageMyAccount } from './components/Account/AccountPage';

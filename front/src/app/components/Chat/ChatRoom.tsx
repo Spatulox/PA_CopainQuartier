@@ -2,6 +2,9 @@ import React, { useRef, useEffect } from "react";
 import { Channel, Message } from "../../../api/chat";
 import { useNavigate } from "react-router-dom";
 import { Route } from "../../constantes";
+import { ApiClient } from "../../../api/client";
+import './Chat.css';
+
 
 export enum ChannelRight {
   read_send = "read_send",
@@ -16,6 +19,7 @@ type Props = {
   vocalStatusColor: string;
   vocalStatus: string;
   videoStatus: boolean,
+  shareScreenType: "camera" | "screen" | null,
   memberRight: ChannelRight,
   messages: Message[];
   input: string;
@@ -23,7 +27,7 @@ type Props = {
   handleSubmit: (e: React.FormEvent) => void;
   onStartVoiceChat: () => void;
   onLeaveVoiceChat: () => void;
-  onStartVideoShare: () => void;
+  onStartVideoShare: (screen_or_camera: string | null) => void;
   onStopVideoShare: () => void;
   onGenerateInvite: (id: string) => void;
   messagesDivRef: React.RefObject<HTMLDivElement | null>;
@@ -37,6 +41,7 @@ const ChatRoom: React.FC<Props> = ({
   statusColor,
   vocalStatusColor,
   videoStatus,
+  shareScreenType,
   memberRight,
   messages,
   input,
@@ -74,7 +79,24 @@ const ChatRoom: React.FC<Props> = ({
       {vocalStatus !== "Déconnecté" ? <button onClick={onLeaveVoiceChat}>Quitter l'appel vocal</button> : <button id="" onClick={onStartVoiceChat}>Démarrer un appel vocal</button>}
       {vocalStatus !== "Déconnecté" && (
         <>
-        {videoStatus ? <button onClick={onStopVideoShare}>Arrêter le partage vidéo</button> : <button id="" onClick={onStartVideoShare}>Démarrer un partage vidéo</button>}
+        {shareScreenType === "camera" && videoStatus && (
+          <button onClick={onStopVideoShare}>Arrêter le partage vidéo</button>
+        )}
+
+        {shareScreenType === "screen" && videoStatus && (
+          <button onClick={onStopVideoShare}>Arrêter le partage d'écran</button>
+        )}
+
+        {!videoStatus && (
+          <>
+            <button onClick={() => onStartVideoShare("camera")}>
+              Démarrer un partage vidéo
+            </button>
+            <button onClick={() => onStartVideoShare("screen")}>
+              Démarrer un partage d'écran
+            </button>
+          </>
+        )}
         </>
       )}
     </div>
@@ -93,16 +115,36 @@ const ChatRoom: React.FC<Props> = ({
         padding: 8,
       }}
     >
-      {messages.map((msg, idx) => (
-        <div key={idx}>
-          <span className="message-user">{msg.username}</span> : <span className="message-date">{new Date(msg.date).toLocaleString()}</span>
-          <p>{msg.content}</p>
-        </div>
-      ))}
+      {messages.map((msg, idx) => {
+        const url = extractUrl(msg.content);
+        const baseUrl = new ApiClient().baseURL
+        return (
+          <div key={idx}>
+            <div>
+              {msg.image_link && (<img src={`${baseUrl}/${msg.image_link}`} alt="" />)}
+              <span className="message-user">{msg.username}</span> :
+              <span className="message-date">{new Date(msg.date).toLocaleString()}</span>
+            </div>
+            <div>
+              <p>{msg.content}</p>
+              {url && (
+                <a href={url} target="_blank" rel="noopener noreferrer" style={{display: 'inline-block', marginTop: 8}}>
+                  <img
+                    src={`https://api.microlink.io/?url=${encodeURIComponent(url)}&screenshot=true&embed=screenshot.url`}
+                    alt="Aperçu du site"
+                    style={{border: '1px solid #ccc', borderRadius: 8, maxWidth: 400}}
+                  />
+                  <div style={{fontSize: 12, color: "#888"}}>{url}</div>
+                </a>
+              )}
+            </div>
+          </div>
+        );
+      })}
       <div ref={messagesDivRef}/>
     </div>
     {memberRight === ChannelRight.read_send && (
-      <form id="formulaire" onSubmit={handleSubmit} style={{ display: "flex", gap: 8 }}>
+      <form id="formulaire" className="formulaire" onSubmit={handleSubmit} style={{ display: "flex", gap: 8 }}>
         <input
           type="text"
           id="input"
@@ -119,3 +161,10 @@ const ChatRoom: React.FC<Props> = ({
 };
 
 export default ChatRoom;
+
+function extractUrl(text: string): string | null {
+  // Expression régulière pour détecter les URLs
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const urls = text.match(urlRegex);
+  return urls ? urls[0] : null; // On prend le premier lien trouvé
+}

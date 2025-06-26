@@ -14,6 +14,7 @@ import NotFound from "../shared/notfound";
 import { ErrorMessage } from "../../../api/client";
 import Errors from "../shared/errors";
 import PublicationList from "../Publications/PublicationsList";
+import "./Activity.css"
 
 function ShowActivityPage() {
     const { id } = useParams<{ id: string }>();

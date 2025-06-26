@@ -67,7 +67,7 @@ export class ApiClient {
             this.errors = {message:""}
             return this.client(originalRequest);
           } else {
-            alert("Déconnexion forcée")
+            popup("Déconnexion forcée")
             this.deconnection();
             
           }
@@ -144,12 +144,19 @@ export class ApiClient {
     }
   }
 
-  async resetPassword(options: any): Promise<boolean> {
+  async resetPassword(email: string): Promise<void> {
     try {
-      await this.Post("/auth/reset", options);
-      return true;
+      await this.Post("/auth/reset-password", {email});
     } catch {
-      return false;
+      throw new Error("Erreur lors de la réinitialisation du mot de passe");
+    }
+  }
+
+  async resetPasswordCode(options: {email: string, id: string, password: string}): Promise<void> {
+    try {
+      await this.Post("/auth/reset-password/valid", options);
+    } catch {
+      throw new Error("Erreur lors de la réinitialisation du mot de passe");
     }
   }
 

@@ -12,36 +12,39 @@ import { AccountClass } from "../../../api/account";
 import Errors from "../shared/errors";
 import MyFriendRequest from "../Friends/MyFriendsRequest";
 import MyFriends from "../Friends/MyFriends";
+import { ApiClient } from "../../../api/client";
+
 
 function Account(){
     const { me } = useAuth();
     const navigate = useNavigate()
-
+    const baseUrl = new ApiClient().baseURL
     if(me){
         return (
-            <div>
-                <div>
-                    <h2>Account Informations</h2>
-                    <p>Nom : {me?.lastname}</p>
-                    <p>Prénom : {me?.name}</p>
-                    <p>Téléphone : {me?.phone}</p>
-                    <p>Email : {me?.email}</p>
-                    <p>Addresse : {me?.address}</p>
-                    <p>Role : {me?.role}</p>
-                    <p>Score de confiance au Troc : {me?.troc_score}</p>
+            <div className="account-container">
+                <div className="account-details">
+                    <h2>Informations du compte</h2>
+                    <img src={`${baseUrl}/${me.image_link}`} alt="pp" />
+                    <div className="account-info">
+                        <p><span>Prénom :</span> {me.name}</p>
+                        <p><span>Nom :</span> {me.lastname}</p>
+                        <p><span>Email :</span> {me.email}</p>
+                        <p><span>Téléphone :</span> {me.phone || "Non renseigné"}</p>
+                        <p><span>Adresse :</span> {me.address || "Non renseignée"}</p>
+                        <p><span>Rôle :</span> {me.role}</p>
+                    </div>
                 </div>
-                <button onClick={() => navigate(Route.manageMyAccount)}>Modifier mon compte</button>
-                <div>
-                    <h2>Gérer </h2>
-                    <p><Link to={Route.manageMyActivity}>Activités</Link></p>
-                    <p><Link to={Route.manageMyPublications}>Publications</Link></p>
-                    <p><Link to={Route.manageMyTrocs}>Trocs</Link></p>
-                    <p><Link to={Route.manageChannels}>Channels</Link></p>
+                <div className="account-actions">
+                    <button onClick={() => navigate(Route.manageMyAccount)}>Modifier mon compte</button>
+                    <Link to={Route.manageMyActivity}>Activités</Link>
+                    <Link to={Route.manageMyPublications}>Publications</Link>
+                    <Link to={Route.manageMyTrocs}>Trocs</Link>
+                    <Link to={Route.manageChannels}>Channels</Link>
                 </div>
-                <div>
-                    <ChannelList/>
+                <div className="channels-section">
+                    <ChannelList />
                 </div>
-                <div>
+                <div className="friends-section">
                     <MyFriends />
                     <MyFriendRequest />
                 </div>
