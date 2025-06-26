@@ -48,7 +48,7 @@ function Header() {
 
         {/* Partie gauche */}
         <div className="header-section logo">
-          <img src="/logo.png" alt="Logo" className="logo" />
+          <img src="../../../../public/logo.png" alt="Logo" className="logo" />
         </div>
 
         {/* Partie centrale */}
