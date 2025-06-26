@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ChatClass } from "../../../api/chat";
 import { FieldForm, PopupForm } from "../Popup/PopupForm";
 import { Activity, ActivityClass } from "../../../api/activity";
+import './Chat.css';
 
 type CreateProps = {
   action: () => void

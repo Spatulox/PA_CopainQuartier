@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ActivityClass } from "../../../api/activity";
 import { FieldForm, PopupForm } from "../Popup/PopupForm";
 import { CreateFormData } from "../../../api/utils/formData";
+import "./Activity.css"
 
 type CreateActivityType = {
   onUpdate: (message:string) => void

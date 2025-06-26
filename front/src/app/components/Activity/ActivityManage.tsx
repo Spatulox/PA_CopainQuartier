@@ -11,6 +11,7 @@ import { UpdateActivity } from "./UpdateActivity";
 import Errors from "../shared/errors";
 import { ErrorMessage } from "../../../api/client";
 import { popup } from "../../scripts/popup-slide";
+import "./Activity.css"
 
 
 export function ManageMyActivity() {

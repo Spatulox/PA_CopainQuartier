@@ -1,0 +1,166 @@
+.account-container {
+    max-width: 900px;
+    margin: 60px auto 40px;
+    padding: 2rem;
+    background-color: #1e1e1e;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    color: white;
+}
+
+
+.account-container h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+}
+
+
+.account-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.account-info p span {
+    font-weight: bold;
+}
+
+.account-actions {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.account-actions a,
+.account-actions button {
+    text-decoration: none;
+    padding: 0.8em 1.2em;
+    border-radius: 8px;
+    background-color: #3a3aff;
+    color: white;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+    border: none;
+}
+
+.account-actions a:hover,
+.account-actions button:hover {
+    background-color: #2c2ccf;
+}
+
+
+.channels-section,
+.friends-section {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background-color: #1f1f1f;
+    border-radius: 12px;
+    box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.05);
+}
+
+
+.update-account-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background-color: #2a2a2a;
+    padding: 2rem;
+    border-radius: 12px;
+    max-width: 600px;
+    margin: 2rem auto;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.update-account-form label {
+    font-weight: bold;
+    color: #dddddd;
+    margin-bottom: 0.4rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.update-account-form input,
+.update-account-form select {
+    padding: 0.6rem;
+    border: 1px solid #444;
+    border-radius: 8px;
+    background-color: #1f1f1f;
+    color: #fff;
+    font-size: 1rem;
+}
+
+.update-account-form input:focus,
+.update-account-form select:focus {
+    outline: none;
+    border-color: #3a3aff;
+}
+
+
+.update-account-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+}
+
+.update-account-buttons button {
+    background-color: #3a3aff;
+    color: #fff;
+    padding: 0.7rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.update-account-buttons button:hover {
+    background-color: #2c2ccf;
+}
+
+
+.error-messages {
+    background-color: #b00020;
+    color: white;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+
+.popup-confirm-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: grid;
+    place-items: center;
+    z-index: 999;
+}
+
+.popup-confirm {
+    background-color: #2c2c2c;
+    padding: 2rem;
+    border-radius: 12px;
+    max-width: 400px;
+    text-align: center;
+    color: white;
+}
+
+.popup-confirm h3 {
+    margin-bottom: 1rem;
+}
+
+.popup-confirm p {
+    margin-bottom: 1.5rem;
+}
+
+.popup-confirm button {
+    margin: 0 0.5rem;
+}

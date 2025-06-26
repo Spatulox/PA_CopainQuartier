@@ -25,6 +25,7 @@ export type Message = {
   username: string;
   type: MsgType
   date: Date;
+  image_link: string | null | undefined
   // autres champs si besoin
 };
 

@@ -5,6 +5,7 @@ import { Route } from "../../constantes";
 import { Channel } from "../../../api/chat";
 import { useEffect, useState } from "react";
 import NotFound from "../shared/notfound";
+import { ApiClient } from "../../../api/client";
 
 type ShowUserProps = {
     theuser: string | null,
@@ -51,11 +52,14 @@ export function MiniUser({
         return <NotFound />
     }
 
+    const baseUrl = new ApiClient().baseURL
+
     if(theUserObject)
     return (
         <div key={theUserObject._id}>
             <div>
                 <h3>{theUserObject.name} {theUserObject.lastname}</h3>
+                <img src={`${baseUrl}/${theUserObject.image_link}`} alt="" />
                 <section>
                     <h3>Coordonnées</h3>
                     <ul>

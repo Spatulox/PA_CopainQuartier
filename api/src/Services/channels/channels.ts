@@ -30,10 +30,10 @@ export async function getPublicChannelById(channel_id: ObjectID): Promise<Public
 
 export async function getMyChannel(user: User): Promise<FilledChannel[] | null>{
     const res = await ChannelTable.find({
+        private: false,
         $or: [
             { admin_id: user._id },
             { members: user._id },
-            { private : false}
         ]
     }).lean().exec();
 
@@ -178,8 +178,8 @@ export async function removeSomeoneFromChannel(channel_id: ObjectID, user_id: Ob
     return result.modifiedCount > 0 && res.modifiedCount > 0;
 }
 
-export async function saveMessageToChannel(user: FilledUser , channel_id: ObjectID, content: PostMessageParam): Promise<boolean>{
-    const message = createMessage(content.content, user)
+export async function saveMessageToChannel(user: FilledUser , channel_id: ObjectID, content: PostMessageParam, image_link: string | null | undefined): Promise<boolean>{
+    const message = createMessage(content.content, user, image_link)
     const result = await ChannelTable.updateOne(
         { _id: channel_id },
         { $push: { messages: message } }
@@ -263,6 +263,7 @@ function objectToMessage(obj: any): FilledMessage {
         content: obj.content,
         author: obj.author_id ? toUserObject(obj.author_id) : null,
         type: obj.type,
+        image_link: obj.image_link ? obj.image_link : null
     };
 }
 

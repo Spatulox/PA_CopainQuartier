@@ -29,27 +29,28 @@ type ShowActivityProps = {
 };
 
 export function ShowActivity({
-    activity,
-    user,
-    onViewPublication,
-    onJoin,
-    onLeave,
-    onManage,
-    buttonShow
-}: ShowActivityProps) {
+                                 activity,
+                                 user,
+                                 onViewPublication,
+                                 onJoin,
+                                 onLeave,
+                                 onManage,
+                                 buttonShow
+                             }: ShowActivityProps) {
     const navigate = useNavigate();
     const baseUrl = new ApiClient().baseURL;
     return (
         <div key={activity._id}>
             <h2>{activity.title}</h2>
             {activity.image_link && (<img src={`${baseUrl}/${activity.image_link}`} alt="" />)}
-            <div>
+            <div className="activity-card">
                 <span>{activity.author?.name}</span>
                 <span>{new Date(activity.created_at).toLocaleDateString()}</span>
                 <p>{activity.description}</p>
                 <span>{new Date(activity.date_reservation).toLocaleString()}</span>
                 <span>{new Date(activity.date_end).toLocaleString()}</span>
-                {!isNaN(activity.max_place - activity.reserved_place) && (<p>Nombre de places restantes : {activity.max_place - activity.reserved_place}</p>)}
+                {!isNaN(activity.max_place - activity.reserved_place) && (
+                    <p>Nombre de places restantes : {activity.max_place - activity.reserved_place}</p>)}
                 <p>Lieu : {activity.location ? activity.location : ""}</p>
             </div>
             <div>
@@ -68,9 +69,11 @@ export function ShowActivity({
                     )}
 
                     {(buttonShow & ShowActivityButton.Join) !== 0 && activity._id && onJoin && (
-                        <button onClick={() => onJoin(activity._id)}>
-                            Rejoindre l'activité
-                        </button>
+                        <div className="activity-buttons">
+                            <button onClick={() => onJoin(activity._id)}>
+                                Rejoindre l'activité
+                            </button>
+                        </div>
                     )}
 
                     {(buttonShow & ShowActivityButton.Leave) !== 0 && activity._id && onLeave && (
@@ -85,7 +88,7 @@ export function ShowActivity({
                             <button onClick={() => onViewPublication(activity.publication._id)}>
                                 Voir la Publication associée
                             </button>
-                    )}
+                        )}
 
                     {(buttonShow & ShowActivityButton.Manage) !== 0 &&
                         onManage &&
@@ -94,7 +97,7 @@ export function ShowActivity({
                             <button onClick={() => onManage(activity._id)}>
                                 Gérer l'activité
                             </button>
-                    )}
+                        )}
                 </div>
             </div>
         </div>
