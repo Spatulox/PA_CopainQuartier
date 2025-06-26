@@ -58,6 +58,8 @@ GenerateFakeData();
 async function FakeUsers() {
     const users = [];
 
+    const profileImagePath = "img/profile/1.png";
+
     // Create 1 admin user
     const adminUser = new UserTable({
         name: faker.person.firstName(),
@@ -72,7 +74,7 @@ async function FakeUsers() {
         password: await hashPassword(faker.internet.password()),
         friends_id: new Map(),
         friends_request_id: [],
-        image_link: null,
+        image_link: profileImagePath,
         resetNumber: null,
     });
     users.push(await adminUser.save());
@@ -92,7 +94,7 @@ async function FakeUsers() {
             password: await hashPassword(faker.internet.password()),
             friends_id: new Map(),
             friends_request_id: [],
-            image_link: null,
+            image_link: profileImagePath,
             resetNumber: null,
         });
         users.push(await user.save());
@@ -167,6 +169,8 @@ async function FakeTrocs(users: User[], channels: Channel[]) {
     const author = faker.helpers.arrayElement(users);
     const reservedByUsers = faker.helpers.arrayElements(users, { min: 0, max: 3 });
 
+    const trocImagePath = `img/activity/${faker.number.int({ min: 1, max: 2 })}.png`;
+
     const troc = new TrocTable({
       title: faker.commerce.productName(),
       description: faker.commerce.productDescription(),
@@ -180,7 +184,7 @@ async function FakeTrocs(users: User[], channels: Channel[]) {
       visibility: faker.helpers.arrayElement(["visible", "hide"]),
       channel_id: faker.helpers.arrayElement(channels)._id,
       max_user: faker.helpers.maybe(() => faker.number.int({ min: 1, max: 5 }), { probability: 0.7 }),
-      image_link: faker.helpers.maybe(() => faker.image.url(), { probability: 0.5 }),
+      image_link: trocImagePath,
     });
 
     trocs.push(await troc.save());
@@ -200,7 +204,7 @@ async function UpdateUserTrocs(trocs: Troc[]) {
 
 async function FakePublications(users: User[]) {
   const publications = [];
-
+  const publicationImagePath = `img/activity/${faker.number.int({ min: 1, max: 2 })}.png`;
   for (let i = 0; i < 40; i++) {
     const author = faker.helpers.arrayElement(users);
 
@@ -211,7 +215,7 @@ async function FakePublications(users: User[]) {
       author_id: author._id,
       created_at: faker.date.past(),
       updated_at: faker.date.recent(),
-      image_link: faker.helpers.maybe(() => faker.image.url(), { probability: 0.5 }),
+      image_link: publicationImagePath,
       activity_id: null, // will be linked later
     });
 
@@ -223,6 +227,7 @@ async function FakePublications(users: User[]) {
 
 async function FakeActivities(users: User[], channels: Channel[], publications: Publication[]) {
   const activities = [];
+  const activityImagePath = `img/activity/${faker.number.int({ min: 1, max: 2 })}.png`;
 
   for (let i = 0; i < 50; i++) {
     const author = faker.helpers.arrayElement(users);
@@ -248,7 +253,7 @@ async function FakeActivities(users: User[], channels: Channel[], publications: 
       location: faker.location.city(),
       max_place: maxPlace,
       reserved_place: reservedPlace,
-      image_link: faker.helpers.maybe(() => faker.image.url(), { probability: 0.5 }),
+      image_link: activityImagePath,
     });
 
     activities.push(await activity.save());
