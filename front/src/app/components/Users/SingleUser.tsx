@@ -5,6 +5,7 @@ import { Route } from "../../constantes";
 import { Channel } from "../../../api/chat";
 import { ShowActivity, ShowActivityButton } from "../Activity/SingleActivity";
 import { Activity } from "../../../api/activity";
+import { ApiClient } from "../../../api/client";
 
 export enum ShowUserButton {
     ViewUser = 1 << 0, // 2 (0b010)
@@ -45,11 +46,13 @@ export function ShowUser({
     showAdditionnalInfo
 }: ShowUserProps) {
     const navigate = useNavigate()
+    const baseUrl = new ApiClient().baseURL
     if(theuser)
     return (
         <div key={theuser._id}>
             <div>
                 <h3>{theuser.name} {theuser.lastname}</h3>
+                <img src={`${baseUrl}/${theuser.image_link}`} alt="" />
                 <section>
                     <h3>Coordonnées</h3>
                     <ul>

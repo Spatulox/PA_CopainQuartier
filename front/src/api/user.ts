@@ -23,6 +23,7 @@ export type User = {
   phone: string,
   friends: Record<string, string>
   friends_request: string[]
+  image_link?: string | null,
 } | null
 
 export class UserClass extends ApiClient{
