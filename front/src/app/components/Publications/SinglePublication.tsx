@@ -2,6 +2,8 @@ import { Publication } from "../../../api/publications";
 import { User, UserRole } from "../../../api/user";
 import { Activity } from "../../../api/activity";
 import { ApiClient } from "../../../api/client";
+import "./Publications.css";
+
 
 export enum ShowPublicationButton {
     Publication = 1 << 0,        // 1 (0b001)
@@ -30,15 +32,15 @@ export function ShowPublication({
 }: ShowPublicationProps) {
     const baseUrl = new ApiClient().baseURL;
     return (
-        <div key={pub._id}>
-            <div>
+        <div key={pub._id} className="publication-card">
+            <div  className="publication-meta">
                 <h3>{pub.name}</h3>
                 <span>{new Date(pub.created_at).toLocaleDateString()}</span>
             </div>
             {pub.image_link && (<img src={`${baseUrl}/${pub.image_link}`} alt="" />)}
             <p>{pub.description}</p>
             <p>{pub.body}</p>
-            <div>
+            <div  className="publication-buttons">
                 {typeof pub.author === "object" && pub.author?._id !== null
                     ? pub.author?.name
                     : pub.author.toString()}
