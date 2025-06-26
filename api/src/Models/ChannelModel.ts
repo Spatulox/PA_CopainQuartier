@@ -54,6 +54,7 @@ export type Message = {
     content: string,
     author_id?: ObjectId | null,
     type: MessageType
+    image_link: string | null | undefined
 }
 
 export type FilledMessage = Omit<Message, "author_id"> & {author: User | FilledUser | null}
@@ -91,11 +92,12 @@ export enum MessageType {
     };
 }*/
 
-export function createMessage(content: string, user: FilledUser | null = null): Message {
+export function createMessage(content: string, user: FilledUser | null = null, image_link: string | null | undefined = null): Message {
     const data: Message = {
         date: new Date(),
         content: content,
         type: MessageType.system,
+        image_link: image_link
     };
     if (user != null) {
         data.author_id = new ObjectId(user._id);

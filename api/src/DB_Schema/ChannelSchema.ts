@@ -6,6 +6,7 @@ const MessageSchema = new Schema<Message>({
     content: {type: String, required: true},
     author_id: { type: Schema.Types.ObjectId, ref: "User", required: false },
     type: { type: String, enum: ['system', 'user'], required: true },
+    image_link: {type: String, required: false}
 })
 
 const ChannelSchema = new Schema<Channel>({
