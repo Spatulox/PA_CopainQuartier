@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from "react";
 import { Channel, Message } from "../../../api/chat";
 import { useNavigate } from "react-router-dom";
 import { Route } from "../../constantes";
+import { ApiClient } from "../../../api/client";
 
 export enum ChannelRight {
   read_send = "read_send",
@@ -52,7 +53,6 @@ const ChatRoom: React.FC<Props> = ({
   messagesDivRef
 }) => {
   const navigate = useNavigate()
-  console.log(shareScreenType)
   return  <div className="one-channel">
     <div>
       <h2>{chat.name}</h2>
@@ -115,11 +115,14 @@ const ChatRoom: React.FC<Props> = ({
     >
       {messages.map((msg, idx) => {
         const url = extractUrl(msg.content);
-
+        const baseUrl = new ApiClient().baseURL
         return (
           <div key={idx}>
-            <span className="message-user">{msg.username}</span> :
-            <span className="message-date">{new Date(msg.date).toLocaleString()}</span>
+            <div>
+              {msg.image_link && (<img src={`${baseUrl}/${msg.image_link}`} alt="" />)}
+              <span className="message-user">{msg.username}</span> :
+              <span className="message-date">{new Date(msg.date).toLocaleString()}</span>
+            </div>
             <div>
               <p>{msg.content}</p>
               {url && (
