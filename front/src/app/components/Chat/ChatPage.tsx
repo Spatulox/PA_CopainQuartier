@@ -12,6 +12,7 @@ import { User, UserClass } from "../../../api/user";
 import { Route } from "../../constantes";
 import { FriendsClass } from "../../../api/friend";
 import { AnswerMsg, ChatMsgSend, ConnectedChannelMsg, IceCandidateMsg, OfferMsg, setupWebSocket, VocalMsg } from "../shared/websocket";
+import './Chat.css';
 
 type ChatProps = {
     id_channel?: string

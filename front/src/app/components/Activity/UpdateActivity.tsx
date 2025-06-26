@@ -4,6 +4,7 @@ import { User } from "../../../api/user";
 import { useEffect, useState } from "react";
 import { Route } from "../../constantes";
 import { ErrorMessage } from "../../../api/client";
+import "./Activity.css"
 
 type UpdateActivityProps = {
     activity: Activity;

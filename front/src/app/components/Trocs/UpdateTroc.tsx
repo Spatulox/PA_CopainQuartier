@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Route } from "../../constantes";
 import { Troc, TrocStatus, TrocType, TrocVisibility } from "../../../api/troc";
 import { useAuth } from "../shared/auth-context";
+import "./Trocs.css"
 
 type UpdateTrocProps = {
     troc: Troc;
@@ -84,7 +85,7 @@ export function UpdateTroc({
     }
 
     return (
-        <div key={troc._id}>
+        <div key={troc._id} className="update-troc-container">
             {err && err.length > 0 && <>
             <div className="error-messages">
               {err && err.length > 0 && err.map((e: any) => (

@@ -12,6 +12,7 @@ import { UpdateTroc } from "./UpdateTroc";
 import { PopupConfirm } from "../Popup/PopupConfirm";
 import { ErrorMessage } from "../../../api/client";
 import Errors from "../shared/errors";
+import "./Trocs.css"
 
 type ManageTrocType = "applied" | "uploaded";
 
