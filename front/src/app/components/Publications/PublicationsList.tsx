@@ -56,7 +56,7 @@ function PublicationList({message, limit, activity_id}: PublicationListMessage){
 
     return <>    
         <h2>Publications {activity_id ? "associés" : ""}</h2>
-        <section>{publications
+        <div className="">{publications
         .slice(0, limit ?? publications.length)
         .map((pub) => (
                 <ShowPublication
@@ -68,7 +68,7 @@ function PublicationList({message, limit, activity_id}: PublicationListMessage){
                     onManage={(id) => navigate(`${Route.managePublications}/${id}`)}
                     buttonShow={ShowPublicationButton.All}
                 />
-            ))}</section>
+            ))}</div>
         
     </>
 }
