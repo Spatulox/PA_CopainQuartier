@@ -67,7 +67,7 @@ export class ApiClient {
             this.errors = {message:""}
             return this.client(originalRequest);
           } else {
-            alert("Déconnexion forcée")
+            popup("Déconnexion forcée")
             this.deconnection();
             
           }

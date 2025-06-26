@@ -65,7 +65,6 @@ function ChatPage({id_channel}: ChatProps) {
         onError: () => setStatus("Erreur"),
         onMessage: {
           ERROR(msg) {
-              alert(msg.error);
               wsRef.current?.close();
               return;
           },
@@ -180,7 +179,6 @@ function ChatPage({id_channel}: ChatProps) {
       }
     });
     if(!ws){
-      alert("Pas de ws !")
       return
     }
     const answer = await pc.createAnswer();
