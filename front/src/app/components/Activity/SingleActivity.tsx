@@ -44,9 +44,9 @@ export function ShowActivity({
 
 
             <div className="activity-card">
+                <span className="none">{activity.author?.name}</span>
+                <span className="end">{new Date(activity.created_at).toLocaleDateString()}</span>
                 {activity.image_link && (<img src={`${baseUrl}/${activity.image_link}`} alt=""/>)}
-                <span>{activity.author?.name}</span>
-                <span>{new Date(activity.created_at).toLocaleDateString()}</span>
                 <p>{activity.description}</p>
                 <span>{new Date(activity.date_reservation).toLocaleString()}</span>
                 <span>{new Date(activity.date_end).toLocaleString()}</span>

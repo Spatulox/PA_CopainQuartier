@@ -7,6 +7,10 @@
     box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
     color: #fff;
 }
+.activity-card .end{
+    display: flex;
+    justify-content: end;
+}
 
 .activity-title {
     font-size: 1.8rem;
