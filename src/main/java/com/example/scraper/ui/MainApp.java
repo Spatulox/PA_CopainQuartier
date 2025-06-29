@@ -20,14 +20,13 @@ public class MainApp extends Application {
         root.setPadding(new Insets(40));
         root.setStyle("-fx-background-color: #1f1f1f;");
 
-        // Boutons de catégories principales en ligne
         HBox categoryRow = new HBox(20);
         categoryRow.setAlignment(Pos.CENTER);
 
-        Button concertButton = createStyledButton(" Concerts");
-        Button museeButton = createStyledButton("️ Musées");
-        Button spectacleButton = createStyledButton(" Spectacles");
-        Button pluginButton = createStyledButton(" Ajouter un plugin");
+        Button concertButton = createStyledButton("Concerts");
+        Button museeButton = createStyledButton("️Musées");
+        Button spectacleButton = createStyledButton("Spectacles");
+        Button pluginButton = createStyledButton("Ajouter un plugin");
 
         concertButton.setOnAction(e -> showCategory(primaryStage, "concert"));
         museeButton.setOnAction(e -> showCategory(primaryStage, "musee"));
