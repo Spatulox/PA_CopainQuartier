@@ -60,7 +60,7 @@ export function ShowTroc({
                 <p>{troc.description}</p>
                 {(isAdmin || user?._id == troc.author?._id) && (
                     <>
-                    <ul>
+                    <ul className="none">
                         <li>Visibilité : {troc.visibility}</li>
                         <li>Status : {troc.status}</li>
                         <li>Type : {troc.type}</li>
