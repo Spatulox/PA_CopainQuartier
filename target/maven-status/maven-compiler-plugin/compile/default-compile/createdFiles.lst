@@ -1,4 +1,3 @@
-com\example\scraper\plugins\AgendaCulturelScraper.class
 com\example\scraper\ui\EventViewer.class
 com\example\scraper\ui\MainApp.class
 com\example\scraper\ui\Event.class
