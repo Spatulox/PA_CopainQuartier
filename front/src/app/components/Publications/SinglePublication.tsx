@@ -34,15 +34,14 @@ export function ShowPublication({
     return (
         <div key={pub._id} className="publication-card">
 
-            <div className="publication-align">
-                <div className="publication-meta">
-                    <h3>{pub.name}</h3>
+                <div className="publication-meta none">
+                    <h3 className="none">{pub.name}</h3>
 
                 </div>
-                <div className="publication-info">
+                <div className=" end">
                     <span>{new Date(pub.created_at).toLocaleDateString()}</span>
                 </div>
-            </div>
+
             {pub.image_link && (<img src={`${baseUrl}/${pub.image_link}`} alt=""/>)}
             <p>{pub.description}</p>
             <p>{pub.body}</p>

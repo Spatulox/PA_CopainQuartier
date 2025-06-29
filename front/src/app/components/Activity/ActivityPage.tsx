@@ -135,13 +135,15 @@ function ActivityComponent() {
 
     return (
         <>
+            <h2>Activités</h2>
+            <div className="activity-buttons">
+            <CreateActivity onUpdate={handleUpdate} />
+            <button onClick={() => navigate(Route.manageMyActivity)}>
+                Gérer mes Activités
+            </button>
+        </div>
             <ActivityList message={message} />
-            <div>
-                <CreateActivity onUpdate={handleUpdate} />
-                <button onClick={() => navigate(Route.manageMyActivity)}>
-                    Gérer mes Activités
-                </button>
-            </div>
+
         </>
     );
 }

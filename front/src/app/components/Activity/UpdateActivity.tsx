@@ -55,59 +55,71 @@ export function UpdateActivity({
             setError([])
         }
     }, [APIerror])
-    
+
 
     return (
-        <div key={activity._id}>
-            {err && err.length > 0 && <>
+        <div className="update-activity-form" key={activity._id}>
+            {err && err.length > 0 && (
                 <div className="error-messages">
-                    {err.map((e: any) => (
-                    <p>{e}</p>
+                    {err.map((e: any, idx) => (
+                        <p key={idx}>{e}</p>
                     ))}
                 </div>
-            </>}
+            )}
+
             <h2>
                 <input
                     type="text"
                     value={title}
-                    onChange={e => setTitle(e.target.value)}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Titre de l'activité"
                 />
             </h2>
+
             <div>
-                <span>
-                    <button onClick={ () => navigate(`${Route.user}/${activity.author?._id}`)}>{activity.author?.email || activity.author?._id == user?._id ? user?.email : "Unknown"}</button>
-                </span>
-                <div>
-                    <span>
-                        Date de création :{new Date(activity.created_at).toLocaleDateString()}
-                    </span>
-                </div>
-                <p>
-                    <textarea
-                        value={description}
-                        onChange={e => setDescription(e.target.value)}
-                    />
-                </p>
-                <span>
-                    <input
-                        type="date"
-                        value={dateReservation}
-                        onChange={e => setDateReservation(e.target.value)}
-                    />
-                </span>
+                <button
+                    onClick={() =>
+                        navigate(`${Route.user}/${activity.author?._id}`)
+                    }
+                >
+                    {activity.author?.email ||
+                        (activity.author?._id === user?._id ? user?.email : "Unknown")}
+                </button>
             </div>
+
+            <div>Date de création : {new Date(activity.created_at).toLocaleDateString()}</div>
+
             <div>
-                <strong>Publication :</strong>
-                {activity.publication?.name}
-                <div>
-                    {activity.publication && (
-                        <button onClick={() => navigate(`${Route.publications}/${activity.publication._id}`)}>Voir la publication</button>
-                    )}
-                    <button onClick={() => window.location.reload()}>Recharger la page</button>
-                    <button onClick={handleUpdate}>Update Activity</button>
-                    <button onClick={() => onDelete(activity._id)}>Supprimer l'activité</button>
-                </div>
+      <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Description"
+      />
+            </div>
+
+            <div>
+                <input
+                    type="date"
+                    value={dateReservation}
+                    onChange={(e) => setDateReservation(e.target.value)}
+                />
+            </div>
+
+            <div>
+                <strong>Publication :</strong> {activity.publication?.name}
+            </div>
+
+            <div className="activity-buttons">
+                {activity.publication && (
+                    <button onClick={() => navigate(`${Route.publications}/${activity.publication._id}`)}>
+                        Voir la publication
+                    </button>
+                )}
+                <button onClick={() => window.location.reload()}>Recharger la page</button>
+                <button onClick={handleUpdate}>Update Activity</button>
+                <button onClick={() => onDelete(activity._id) } className="red">Supprimer l'activité</button>
             </div>
         </div>
     );
+
 }
