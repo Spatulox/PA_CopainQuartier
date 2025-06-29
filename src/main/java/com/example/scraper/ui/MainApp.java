@@ -5,7 +5,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import com.example.scraper.ui.PluginHelper;
+import com.example.scraper.pluginutils.PluginHelper;
 
 
 public class MainApp extends Application {

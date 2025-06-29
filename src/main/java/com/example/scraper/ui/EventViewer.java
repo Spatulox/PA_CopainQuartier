@@ -1,7 +1,7 @@
 package com.example.scraper.ui;
 
-import com.example.scraper.Database;
-import com.example.scraper.EvousScraper;
+import com.example.scraper.core.Database;
+import com.example.scraper.plugins.EvousScraper;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;

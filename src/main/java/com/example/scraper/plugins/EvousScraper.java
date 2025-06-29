@@ -1,4 +1,7 @@
-package com.example.scraper;
+package com.example.scraper.plugins;
+
+import com.example.scraper.core.Database;
+import com.example.scraper.core.SiteScraper;
 
 public class EvousScraper implements SiteScraper {
 

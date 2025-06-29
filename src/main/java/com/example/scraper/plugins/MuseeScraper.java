@@ -1,4 +1,4 @@
-package com.example.scraper;
+package com.example.scraper.plugins;
 
 public class MuseeScraper extends CategoryScraper {
     public MuseeScraper() {

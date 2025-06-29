@@ -1,5 +1,6 @@
-package com.example.scraper;
+package com.example.scraper.plugins;
 
+import com.example.scraper.core.SiteScraper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

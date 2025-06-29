@@ -1,4 +1,6 @@
-package com.example.scraper;
+package com.example.scraper.pluginutils;
+
+import com.example.scraper.core.SiteScraperPlugin;
 
 import java.io.File;
 import java.net.URL;

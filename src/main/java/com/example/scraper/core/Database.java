@@ -1,4 +1,4 @@
-package com.example.scraper;
+package com.example.scraper.core;
 
 import com.example.scraper.ui.Event;
 import org.w3c.dom.*;
