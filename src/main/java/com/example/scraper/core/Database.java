@@ -2,23 +2,29 @@ package com.example.scraper.core;
 
 import com.example.scraper.ui.Event;
 import org.w3c.dom.*;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class Database {
     private static final String FILE_PATH = "events.xml";
     private static final List<RawEvent> events = new ArrayList<>();
 
+
     public static void saveEvent(String title, String url, String date, String type, String source) {
+        for (int i = 0; i < events.size(); i++) {
+            if (events.get(i).title.equalsIgnoreCase(title)) {
+                events.set(i, new RawEvent(title, url, date, type, source));
+                return;
+            }
+        }
         events.add(new RawEvent(title, url, date, type, source));
     }
+
 
     public static void flushToXml() {
         try {
@@ -65,8 +71,10 @@ public class Database {
         }
     }
 
+
     public static List<Event> loadFromXml(String typeFilter) {
-        List<Event> list = new ArrayList<>();
+        Map<String, Event> eventMap = new LinkedHashMap<>();
+
         try {
             File xmlFile = new File(FILE_PATH);
             if (!xmlFile.exists()) return Collections.emptyList();
@@ -89,14 +97,16 @@ public class Database {
                     String date = el.getElementsByTagName("date").item(0).getTextContent();
                     String url = el.getElementsByTagName("url").item(0).getTextContent();
 
-                    list.add(new Event(title, date, url));
+                    eventMap.put(title.toLowerCase(), new Event(title, date, url));
                 }
             }
         } catch (Exception e) {
             System.err.println("Erreur lors de la lecture XML : " + e.getMessage());
         }
-        return list;
+
+        return new ArrayList<>(eventMap.values());
     }
+
 
     private static class RawEvent {
         String title, url, date, type, source;
