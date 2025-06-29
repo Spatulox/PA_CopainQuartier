@@ -27,6 +27,14 @@
     line-height: 1.4;
 }
 
+.activity-card img {
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin: 1rem 0;
+}
+
 .activity-buttons {
     display: flex;
     gap: 0.75rem;
