@@ -10,6 +10,9 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
+import com.example.scraper.core.SiteScraperPlugin;
+import com.example.scraper.pluginutils.PluginManager;
+
 
 import java.awt.Desktop;
 import java.net.URI;
@@ -103,9 +106,34 @@ public class EventViewer {
     }
 
     private void scrapeCurrentCategory() {
-        new EvousScraper().scrape(category);
+        boolean found = false;
+
+        // Scraper natif EvousScraper
+        switch (category) {
+            case "concert", "musee", "spectacle" -> {
+                new EvousScraper().scrape(category);
+                found = true;
+            }
+        }
+
+        // Scraper plugins
+        if (!found) {
+            for (SiteScraperPlugin plugin : PluginManager.loadPlugins()) {
+                if (plugin.getCategory().equals(category)) {
+                    plugin.scrape();
+                    found = true;
+                    break;
+                }
+            }
+        }
+
+        if (!found) {
+            System.err.println("❌ Catégorie inconnue : " + category);
+        }
+
         refresh();
     }
+
 
     private void refresh() {
         VBox newContent = buildEventList();

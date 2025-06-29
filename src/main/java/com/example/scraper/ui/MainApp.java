@@ -10,11 +10,19 @@ import javafx.stage.Stage;
 import com.example.scraper.pluginutils.PluginHelper;
 import com.example.scraper.core.SiteScraperPlugin;
 import com.example.scraper.pluginutils.PluginManager;
+import com.example.scraper.core.PluginDatabase;
+import com.example.scraper.core.Database;
+
 
 public class MainApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+
+        PluginDatabase.setInstance((title, url, date, category ) -> {
+            Database.saveEvent(title, url, date, category ,"plugin");
+        });
+
         VBox root = new VBox(30);
         root.setAlignment(Pos.TOP_CENTER);
         root.setPadding(new Insets(40));
