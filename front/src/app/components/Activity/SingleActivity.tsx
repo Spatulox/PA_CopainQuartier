@@ -1,11 +1,11 @@
 // ShowActivity.tsx
 
-import React, { useState } from "react";
-import { Activity } from "../../../api/activity";
-import { User, UserRole } from "../../../api/user";
-import { Route } from "../../constantes";
-import { useNavigate } from "react-router-dom";
-import { ApiClient } from "../../../api/client";
+import React, {useState} from "react";
+import {Activity} from "../../../api/activity";
+import {User, UserRole} from "../../../api/user";
+import {Route} from "../../constantes";
+import {useNavigate} from "react-router-dom";
+import {ApiClient} from "../../../api/client";
 
 export enum ShowActivityButton {
     Activity = 1 << 0,        // 1 (0b001)
@@ -41,8 +41,8 @@ export function ShowActivity({
     const baseUrl = new ApiClient().baseURL;
     return (
         <div key={activity._id}>
-            <h2>{activity.title}</h2>
-            {activity.image_link && (<img src={`${baseUrl}/${activity.image_link}`} alt="" />)}
+
+            {activity.image_link && (<img src={`${baseUrl}/${activity.image_link}`} alt=""/>)}
             <div className="activity-card">
                 <span>{activity.author?.name}</span>
                 <span>{new Date(activity.created_at).toLocaleDateString()}</span>
@@ -52,52 +52,55 @@ export function ShowActivity({
                 {!isNaN(activity.max_place - activity.reserved_place) && (
                     <p>Nombre de places restantes : {activity.max_place - activity.reserved_place}</p>)}
                 <p>Lieu : {activity.location ? activity.location : ""}</p>
-            </div>
-            <div>
-                <strong>Publication :</strong> {activity.publication?.name}
+
                 <div>
-                    {(buttonShow & ShowActivityButton.Activity) !== 0 && activity._id && (
-                        <button onClick={() => navigate(`${Route.activity}/${activity._id}`)}>
-                            Voir l'activité
-                        </button>
-                    )}
-
-                    {(buttonShow & ShowActivityButton.Chat) !== 0 && activity._id && (
-                        <button onClick={() => navigate(`${Route.chat}/${activity.channel_chat._id}`)}>
-                            Voir le channel associé
-                        </button>
-                    )}
-
-                    {(buttonShow & ShowActivityButton.Join) !== 0 && activity._id && onJoin && (
-                        <div className="activity-buttons">
-                            <button onClick={() => onJoin(activity._id)}>
-                                Rejoindre l'activité
-                            </button>
-                        </div>
-                    )}
-
-                    {(buttonShow & ShowActivityButton.Leave) !== 0 && activity._id && onLeave && (
-                        <button onClick={() => onLeave(activity._id)}>
-                            Quitter l'activité
-                        </button>
-                    )}
-
-                    {(buttonShow & ShowActivityButton.ViewPublication) !== 0 &&
-                        onViewPublication &&
-                        activity.publication?._id && (
-                            <button onClick={() => onViewPublication(activity.publication._id)}>
-                                Voir la Publication associée
+                    <div className="none">
+                        <strong>Publication :</strong> {activity.publication?.name}
+                    </div>
+                    <div className="activity-buttons">
+                        {(buttonShow & ShowActivityButton.Activity) !== 0 && activity._id && (
+                            <button onClick={() => navigate(`${Route.activity}/${activity._id}`)}>
+                                Voir l'activité
                             </button>
                         )}
 
-                    {(buttonShow & ShowActivityButton.Manage) !== 0 &&
-                        onManage &&
-                        user &&
-                        (activity.author?._id === user._id || user.role === UserRole.admin) && (
-                            <button onClick={() => onManage(activity._id)}>
-                                Gérer l'activité
+                        {(buttonShow & ShowActivityButton.Chat) !== 0 && activity._id && (
+                            <button onClick={() => navigate(`${Route.chat}/${activity.channel_chat._id}`)}>
+                                Voir le channel associé
                             </button>
                         )}
+
+                        {(buttonShow & ShowActivityButton.Join) !== 0 && activity._id && onJoin && (
+                            <div>
+                                <button onClick={() => onJoin(activity._id)}>
+                                    Rejoindre l'activité
+                                </button>
+                            </div>
+                        )}
+
+                        {(buttonShow & ShowActivityButton.Leave) !== 0 && activity._id && onLeave && (
+                            <button onClick={() => onLeave(activity._id)}>
+                                Quitter l'activité
+                            </button>
+                        )}
+
+                        {(buttonShow & ShowActivityButton.ViewPublication) !== 0 &&
+                            onViewPublication &&
+                            activity.publication?._id && (
+                                <button onClick={() => onViewPublication(activity.publication._id)}>
+                                    Voir la Publication associée
+                                </button>
+                            )}
+
+                        {(buttonShow & ShowActivityButton.Manage) !== 0 &&
+                            onManage &&
+                            user &&
+                            (activity.author?._id === user._id || user.role === UserRole.admin) && (
+                                <button onClick={() => onManage(activity._id)}>
+                                    Gérer l'activité
+                                </button>
+                            )}
+                    </div>
                 </div>
             </div>
         </div>
