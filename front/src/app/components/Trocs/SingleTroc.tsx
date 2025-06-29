@@ -83,7 +83,7 @@ export function ShowTroc({
                     ))}</span>
                 )}
             </div>
-            <div>
+            <div className="troc-buttons">
                 {/* Bouton "Voir le troc" */}
                 <div className="button-group">
                 {(buttonShow & ShowTrocButton.Troc) !== 0 && (
