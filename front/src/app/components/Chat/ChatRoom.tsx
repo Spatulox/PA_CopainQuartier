@@ -57,21 +57,21 @@ const ChatRoom: React.FC<Props> = ({
       <h2>{chat.name}</h2>
       <div id="chat-info">
         <ul>
-          <li>Chat ID : {chat._id}</li>
-          <li>Admin : {chat.admin?.email}</li>
+          <li className="none">Chat ID : {chat._id}</li>
+          <li  className="none">Admin : {chat.admin?.email}</li>
           {chat.activity && (<li>Activité liée : {chat.activity?.title} <button onClick={() => navigate(`${Route.activity}/${chat.activity?._id}`)} >Voir l'activité</button></li>)}
-          <li>Type : {chat.type}</li>
+          <li  className="none">Type : {chat.type}</li>
           <li>Crée le : {new Date(chat.created_at).toDateString()}</li>
-          <li>Droits : {chat.member_auth}</li>
+          <li  className="none">Droits : {chat.member_auth}</li>
         </ul>
         <p className="chat-description">{chat.description}</p>
       </div>
       <button onClick={() => onGenerateInvite(chat._id)}>Générer une invitation</button>
     </div>
-    <div id="status" style={{ color: statusColor, marginBottom: 8 }}>Chat : {status}</div>
+    <div  className="none" id="status" style={{ color: statusColor, marginBottom: 8 }}>Chat : {status}</div>
     <div className="call-info-div">
       <ul>
-        <li style={{ color: vocalStatusColor, marginBottom: 8 }}>Vocal : {vocalStatus}</li>
+        <li  className="none" style={{ color: vocalStatusColor, marginBottom: 8 }}>Vocal : {vocalStatus}</li>
       </ul>
       {vocalStatus !== "Déconnecté" ? <button onClick={onLeaveVoiceChat}>Quitter l'appel vocal</button> : <button id="" onClick={onStartVoiceChat}>Démarrer un appel vocal</button>}
       {vocalStatus !== "Déconnecté" && (
@@ -80,7 +80,7 @@ const ChatRoom: React.FC<Props> = ({
         </>
       )}
     </div>
-    <div className="media">
+    <div className="media none">
       <audio id="remoteAudio" src=""></audio>
       <video id="localVideo" src=""></video>
       <video id="remoteVideo" src=""></video>
