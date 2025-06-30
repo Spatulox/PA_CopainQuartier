@@ -1,6 +1,7 @@
 package com.example.scraper.ui;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -8,22 +9,18 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import com.example.scraper.pluginutils.PluginHelper;
-import com.example.scraper.core.SiteScraperPlugin;
+import com.example.scraper.core.ScraperPlugin;
 import com.example.scraper.pluginutils.PluginManager;
-import com.example.scraper.core.PluginDatabase;
 import com.example.scraper.core.Database;
 
 
 public class MainApp extends Application {
+    private VBox root;
+    private GridPane pluginGrid;
 
     @Override
     public void start(Stage primaryStage) {
-
-        PluginDatabase.setInstance((title, url, date, category ) -> {
-            Database.saveEvent(title, url, date, category ,"plugin");
-        });
-
-        VBox root = new VBox(30);
+        root = new VBox(30);
         root.setAlignment(Pos.TOP_CENTER);
         root.setPadding(new Insets(40));
         root.setStyle("-fx-background-color: #1f1f1f;");
@@ -31,43 +28,34 @@ public class MainApp extends Application {
         HBox categoryRow = new HBox(20);
         categoryRow.setAlignment(Pos.CENTER);
 
-        Button concertButton = createStyledButton("Concerts");
-        Button museeButton = createStyledButton("️Musées");
-        Button spectacleButton = createStyledButton("Spectacles");
-        Button pluginButton = createStyledButton("Ajouter un plugin");
-
-        concertButton.setOnAction(e -> showCategory(primaryStage, "concert"));
-        museeButton.setOnAction(e -> showCategory(primaryStage, "musee"));
-        spectacleButton.setOnAction(e -> showCategory(primaryStage, "spectacle"));
+        StyledButton styledButton = new StyledButton();
+        Button pluginButton = styledButton.createStyledButton("Ajouter un plugin");
         pluginButton.setOnAction(e -> PluginHelper.showPluginForm(primaryStage));
 
-        categoryRow.getChildren().addAll(concertButton, museeButton, spectacleButton, pluginButton);
+        categoryRow.getChildren().addAll(pluginButton);
 
-
-        GridPane pluginGrid = new GridPane();
+        // Initialisation du GridPane
+        pluginGrid = new GridPane();
         pluginGrid.setHgap(20);
         pluginGrid.setVgap(20);
         pluginGrid.setAlignment(Pos.CENTER);
 
-        int col = 0;
-        int row = 0;
-        for (SiteScraperPlugin plugin : PluginManager.loadPlugins()) {
-            String cat = plugin.getCategory();
-            Button pluginBtn = createStyledButton("🔌 " + cat);
-            pluginBtn.setOnAction(e -> showCategory(primaryStage, cat));
-
-            pluginGrid.add(pluginBtn, col, row);
-
-            col++;
-            if (col == 3) {
-                col = 0;
-                row++;
-            }
-
-            System.out.println("Plugin chargé : " + plugin.getName());
-        }
-
         root.getChildren().addAll(categoryRow, pluginGrid);
+
+        PluginManager.startPeriodicReload(10, plugins -> {
+            Platform.runLater(() -> {
+                // Remplace la boucle par un appel à la méthode de PluginManager
+                GridPane newGrid = PluginManager.createPluginButtonsGrid(
+                        PluginManager.loadPlugins(),
+                        plugin -> viewPlugin(primaryStage, plugin)
+                        //plugin -> plugin.view(new String[]{/* args si besoin */})
+                );
+                // On remplace le GridPane dans la racine
+                root.getChildren().remove(pluginGrid);
+                pluginGrid = newGrid;
+                root.getChildren().add(pluginGrid);
+            });
+        });
 
         Scene menuScene = new Scene(root, 900, 600);
         primaryStage.setScene(menuScene);
