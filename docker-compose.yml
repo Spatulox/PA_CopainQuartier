@@ -6,7 +6,7 @@ services:
     depends_on:
       - mongodb
     environment:
-      - MONGO_URL=mongodb://admin:admin@mongodb:27017/
+      - MONGO_URL=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/
       - JWT_SALT=${JWT_SALT}
       - PASSWORD_SALT=${PASSWORD_SALT}
       - FRONTEND_URL=${FRONTEND_URL}
@@ -29,6 +29,9 @@ services:
       context: ./lang
     ports:
       - "5000:5000"
+
+    environment:
+      MONGO_URI: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/
     restart: always
 
   mongodb:
@@ -36,8 +39,8 @@ services:
     ports:
       - "27017:27017"
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=admin
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
     volumes:
       - mongodb-data:/data/db
     restart: always
