@@ -11,15 +11,17 @@ services:
       - PASSWORD_SALT=${PASSWORD_SALT}
       - FRONTEND_URL=${FRONTEND_URL}
       - MAILER_PASSWORD=${MAILER_PASSWORD}
+    restart: always
 
   frontend:
     build: 
       context: ./front
       args:
         VITE_API_URL: ${API_URL:-http://localhost:3000}
-        WEBSOCKET_URL: ${WEBSOCKET_URL:-ws://localhost:3000}
+        VITE_WEBSOCKET_URL: ${WEBSOCKET_URL:-ws://localhost:3000}
     ports:
       - "5173:5173"
+    restart: always
 
   mongodb:
     image: mongo:4.4
@@ -30,6 +32,7 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=admin
     volumes:
       - mongodb-data:/data/db
+    restart: always
 
 volumes:
   mongodb-data:
