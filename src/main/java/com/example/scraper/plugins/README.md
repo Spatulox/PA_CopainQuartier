@@ -15,7 +15,7 @@ Elle doit implémenter les méthodes suivantes :
 ## Scraping
 
 La méthode scrap() retourne une liste de données, chaque données étant représenté par une Map<String, Object>.
-Cette méthode vous donne un scrapper implémentant les méthodes "scrap(url)" permettant de request une page HTML.
+Cette méthode vous donne un scrapper implémentant les méthodes "scrap(url)" permettant de request une page HTML. Cela permet de ne pas dépendre de jsoup vous même, et de bénéficier des dernières mises à jour au niveau de la connexion à un site web.
 
 ## Affichage
 
