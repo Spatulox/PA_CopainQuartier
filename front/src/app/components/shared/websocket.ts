@@ -80,7 +80,7 @@ export function setupWebSocket({
   wsRef.current = ws;
 
   let reconnectDelay = initialReconnectDelay;
-  let reconnectTimeout: NodeJS.Timeout | null = null;
+  let reconnectTimeout: number | null = null;
 
   const openConnection = () => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) return;
