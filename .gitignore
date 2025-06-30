@@ -8,3 +8,10 @@ DB.drawio
 front/
 api/
 target/
+
+events.xml
+
+*.class
+
+
+build/
