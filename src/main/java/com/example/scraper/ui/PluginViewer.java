@@ -1,5 +1,6 @@
 package com.example.scraper.ui;
 
+import com.example.scraper.core.Database;
 import com.example.scraper.core.ScraperPlugin;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -18,18 +19,17 @@ public class PluginViewer {
     private VBox content;
     private Stage stage;
     private ScraperPlugin plugin;
+    private ScrollPane scrollPane;
 
     public PluginViewer(Stage stage, ScraperPlugin plugin) {
-
         this.plugin = plugin;
         this.stage = stage;
-        this.plugin.view(new String[]{});
     }
 
 
     public BorderPane getView() {
         StyledButton styleButton = new StyledButton();
-        //content = buildEventList();
+        content = buildEventList();
 
         Button backButton = styleButton.createStyledButton("⬅ Retour");
         backButton.setOnAction(e -> {
@@ -43,7 +43,13 @@ public class PluginViewer {
 
         Button scrapeButton = styleButton.createStyledButton("🔄 Scraper la catégorie");
         scrapeButton.setOnAction(e -> {
-            plugin.scrap();
+            List<Map<String, Object>> res = plugin.scrap();
+            if(!res.isEmpty()){
+                Database.saveEvent(res, plugin.name());
+                refreshView();
+                return;
+            }
+            System.out.println("Nothing to scrap wtf");
         });
 
         HBox header = new HBox(20, backButton, scrapeButton);
@@ -51,7 +57,7 @@ public class PluginViewer {
         header.setAlignment(Pos.CENTER_LEFT);
         header.setStyle("-fx-background-color: #e0e0e0; -fx-border-color: #ccc;");
 
-        ScrollPane scrollPane = new ScrollPane(content);
+        scrollPane = new ScrollPane(content);
         scrollPane.setFitToWidth(true);
         scrollPane.setStyle("-fx-background: transparent;");
 
@@ -62,46 +68,16 @@ public class PluginViewer {
         return root;
     }
 
-    /*private VBox buildEventList() {
-        List<Event> events = Database.loadFromXml(category);
+    private VBox buildEventList() {
+        List<Map<String, Object>> res = Database.loadFromJson(plugin.name());
         VBox box = new VBox(20);
         box.setPadding(new Insets(30));
         box.setAlignment(Pos.CENTER);
+        return plugin.view(box, res);
+    }
 
-        for (Event event : events) {
-            Label titleLabel = new Label(event.titleProperty().get());
-            titleLabel.setWrapText(true);
-            titleLabel.setMaxWidth(300);
-            titleLabel.setTextAlignment(TextAlignment.CENTER);
-            titleLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #333;");
-
-            Label dateLabel = new Label("📅 " + event.dateProperty().get());
-            dateLabel.setStyle("-fx-text-fill: #666;");
-
-            Button linkButton = createStyledButton("🔗 Voir l'événement");
-            linkButton.setOnAction(e -> {
-                try {
-                    Desktop.getDesktop().browse(new URI(event.getUrl()));
-                } catch (Exception ex) {
-                    System.err.println("Erreur ouverture du lien : " + ex.getMessage());
-                }
-            });
-
-            VBox card = new VBox(10, titleLabel, dateLabel, linkButton);
-            card.setPadding(new Insets(20));
-            card.setAlignment(Pos.CENTER);
-            card.setStyle(
-                    "-fx-border-color: #ddd;" +
-                            "-fx-border-width: 1;" +
-                            "-fx-background-color: white;" +
-                            "-fx-background-radius: 10;" +
-                            "-fx-border-radius: 10;" +
-                            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 2);"
-            );
-
-            box.getChildren().add(card);
-        }
-
-        return box;
-    }*/
+    private void refreshView() {
+        content = buildEventList();
+        scrollPane.setContent(content);
+    }
 }
