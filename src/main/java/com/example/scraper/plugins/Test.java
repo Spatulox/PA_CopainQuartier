@@ -1,22 +1,27 @@
 package com.example.scraper.plugins;
 import com.example.scraper.core.ScraperPlugin;
+import com.example.scraper.pluginutils.PluginScrap;
 import com.example.scraper.ui.StyledButton;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import org.jsoup.nodes.Document;
 
 import java.awt.*;
 import java.net.URI;
 import java.util.*;
 import java.util.List;
 
-public class Test implements ScraperPlugin {
+public class Test extends ScraperPlugin {
+    protected String url = "";
 
     @Override
-    public List<Map<String, Object>> scrap() {
+    public List<Map<String, Object>> scrap(PluginScrap scrapper) throws Exception {
         List<Map<String, Object>> events = new ArrayList<>();
+
+        Document doc = scrapper.scrap("https://pariseventicket.com/");
 
         // Données factices
         Map<String, Object> event1 = new HashMap<>();

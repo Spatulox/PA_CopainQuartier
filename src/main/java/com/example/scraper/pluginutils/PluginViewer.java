@@ -45,13 +45,20 @@ public class PluginViewer {
 
         Button scrapeButton = styleButton.createStyledButton("🔄 Scraper la catégorie");
         scrapeButton.setOnAction(e -> {
-            List<Map<String, Object>> res = plugin.scrap();
-            if(!res.isEmpty()){
-                Database.saveEvent(res, plugin.name());
-                refreshView();
-                return;
+            PluginScrap scrapper = new PluginScrap();
+            List<Map<String, Object>> res = null;
+            try {
+                res = plugin.scrap(scrapper);
+                if(!res.isEmpty()){
+                    Database.saveEvent(res, plugin.name());
+                    refreshView();
+                    return;
+                }
+                System.out.println("Nothing to scrap wtf");
+            } catch (Exception ex) {
+                System.out.println("Erreur lors du scraping : " + ex.getMessage());
+                throw new RuntimeException(ex);
             }
-            System.out.println("Nothing to scrap wtf");
         });
 
         HBox header = new HBox(20, backButton, scrapeButton);
