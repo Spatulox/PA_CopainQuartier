@@ -14,13 +14,13 @@ function HomePage() {
             <span>Parcourez les dernières actualités {me?.name} !</span>
             <div className="section-wrapper">
                 <div className="section">
-                    <PublicationList message="" limit={3}/>
+                    <PublicationList limit={3}/>
                 </div>
                 <div className="section">
-                    <ActivityList message="" limit={3}/>
+                    <ActivityList limit={3}/>
                 </div>
                 <div className="section">
-                    <TrocList message="" limit={3}/>
+                    <TrocList limit={3}/>
                 </div>
             </div>
         </div>
