@@ -1,5 +1,6 @@
 package com.example.scraper.ui;
 
+import com.example.scraper.pluginutils.PluginViewer;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -8,10 +9,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import com.example.scraper.pluginutils.PluginHelper;
+import com.example.scraper.pluginutils.PluginLoader;
 import com.example.scraper.core.ScraperPlugin;
 import com.example.scraper.pluginutils.PluginManager;
-import com.example.scraper.core.Database;
 
 
 public class MainApp extends Application {
@@ -30,7 +30,7 @@ public class MainApp extends Application {
 
         StyledButton styledButton = new StyledButton();
         Button pluginButton = styledButton.createStyledButton("Ajouter un plugin");
-        pluginButton.setOnAction(e -> PluginHelper.showPluginForm(primaryStage));
+        pluginButton.setOnAction(e -> PluginLoader.showPluginForm(primaryStage));
 
         categoryRow.getChildren().addAll(pluginButton);
 

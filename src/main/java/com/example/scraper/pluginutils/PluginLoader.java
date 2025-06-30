@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
-public class PluginHelper {
+public class PluginLoader {
 
     public static void showPluginForm(Stage stage) {
         FileChooser fileChooser = new FileChooser();
