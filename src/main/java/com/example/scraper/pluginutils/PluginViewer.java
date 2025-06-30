@@ -1,7 +1,9 @@
-package com.example.scraper.ui;
+package com.example.scraper.pluginutils;
 
 import com.example.scraper.core.Database;
 import com.example.scraper.core.ScraperPlugin;
+import com.example.scraper.ui.MainApp;
+import com.example.scraper.ui.StyledButton;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
