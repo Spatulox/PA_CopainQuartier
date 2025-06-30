@@ -117,3 +117,6 @@
 .popup-confirm button {
   margin: 0 0.5rem;
 }
+.none{
+  display: none;
+}
