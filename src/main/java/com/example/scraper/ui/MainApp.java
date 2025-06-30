@@ -34,7 +34,6 @@ public class MainApp extends Application {
 
         categoryRow.getChildren().addAll(pluginButton);
 
-        // Initialisation du GridPane
         pluginGrid = new GridPane();
         pluginGrid.setHgap(20);
         pluginGrid.setVgap(20);
@@ -44,13 +43,10 @@ public class MainApp extends Application {
 
         PluginManager.startPeriodicReload(10, plugins -> {
             Platform.runLater(() -> {
-                // Remplace la boucle par un appel à la méthode de PluginManager
                 GridPane newGrid = PluginManager.createPluginButtonsGrid(
                         PluginManager.loadPlugins(),
                         plugin -> viewPlugin(primaryStage, plugin)
-                        //plugin -> plugin.view(new String[]{/* args si besoin */})
                 );
-                // On remplace le GridPane dans la racine
                 root.getChildren().remove(pluginGrid);
                 pluginGrid = newGrid;
                 root.getChildren().add(pluginGrid);
@@ -67,7 +63,7 @@ public class MainApp extends Application {
         PluginViewer viewer = new PluginViewer(stage, plugin);
         Scene scene = new Scene(viewer.getView(), 900, 600);
         stage.setScene(scene);
-        stage.setTitle("Catégorie : " + plugin.category());
+        stage.setTitle("Nom : " + plugin.name());
     }
 
     public static void main(String[] args) {

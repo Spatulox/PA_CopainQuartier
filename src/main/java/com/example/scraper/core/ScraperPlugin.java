@@ -13,8 +13,4 @@ public abstract class ScraperPlugin {
     public String name(){
         return "Unknown";
     }
-
-    public String category(){
-        return "Unknown";
-    }
 }

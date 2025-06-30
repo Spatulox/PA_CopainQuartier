@@ -39,7 +39,7 @@ public class PluginManager {
                 ServiceLoader<ScraperPlugin> serviceLoader = ServiceLoader.load(ScraperPlugin.class, loader);
                 for (ScraperPlugin plugin : serviceLoader) {
                     plugins.add(plugin);
-                    System.out.println(" Plugin chargé : " + plugin.name() + " (" + plugin.category() + ")");
+                    System.out.println(" Plugin chargé : " + plugin.name() + " : " + jar.toURI().toURL());
                 }
             } catch (Exception e) {
                 System.err.println("Erreur chargement plugin " + jar.getName() + ": " + e.getMessage());
@@ -75,8 +75,7 @@ public class PluginManager {
         int row = 0;
 
         for (ScraperPlugin plugin : plugins) {
-            String cat = plugin.category();
-            Button pluginBtn = styledButton.createStyledButton("🔌 " + cat);
+            Button pluginBtn = styledButton.createStyledButton("🔌 " + plugin.name());
             pluginBtn.setOnAction(e -> pluginAction.accept(plugin));
 
             grid.add(pluginBtn, col, row);
