@@ -12,17 +12,19 @@ import { AccountClass } from "../../../api/account";
 import Errors from "../shared/errors";
 import MyFriendRequest from "../Friends/MyFriendsRequest";
 import MyFriends from "../Friends/MyFriends";
+import { ApiClient } from "../../../api/client";
 
 
 function Account(){
     const { me } = useAuth();
     const navigate = useNavigate()
-
+    const baseUrl = new ApiClient().baseURL
     if(me){
         return (
             <div className="account-container">
                 <div className="account-details">
                     <h2>Informations du compte</h2>
+                    <img src={`${baseUrl}/${me.image_link}`} alt="pp" />
                     <div className="account-info">
                         <p><span>Prénom :</span> {me.name}</p>
                         <p><span>Nom :</span> {me.lastname}</p>

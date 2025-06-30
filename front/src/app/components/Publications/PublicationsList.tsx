@@ -8,18 +8,19 @@ import Loading from "../shared/loading";
 import { useAuth } from "../shared/auth-context";
 import { ErrorMessage } from "../../../api/client";
 import Errors from "../shared/errors";
+import CreatePublication from "./PublicationCreate";
 
 type PublicationListMessage = {
-    message: string
     limit?: number
     activity_id?: string
 }
 
-function PublicationList({message, limit, activity_id}: PublicationListMessage){
+function PublicationList({limit, activity_id}: PublicationListMessage){
     const [publications, setPublications] = useState<Publication[] | null>(null)
     const [err, setErrors] = useState<ErrorMessage | null>(null)
     const navigate = useNavigate()
     const { me, isAdmin } = useAuth();
+    const [refresh, setRefresh] = useState<number>(0)
 
     useEffect(() => {
         (async () => {
@@ -40,7 +41,7 @@ function PublicationList({message, limit, activity_id}: PublicationListMessage){
                 setErrors(client.errors)
             }
         })()
-    }, [message])
+    }, [refresh])
 
     if(err != null){
         return <Errors errors={err} />
@@ -56,6 +57,11 @@ function PublicationList({message, limit, activity_id}: PublicationListMessage){
 
     return <>    
         <h2>Publications {activity_id ? "associés" : ""}</h2>
+        <div className="publication-buttons">
+            <CreatePublication onUpdate={() => setRefresh(r => r+1)}/>
+            <button onClick={() => navigate(Route.manageMyPublications)}>Gérer mes Publications</button>
+        </div>
+
         <div className="">{publications
         .slice(0, limit ?? publications.length)
         .map((pub) => (

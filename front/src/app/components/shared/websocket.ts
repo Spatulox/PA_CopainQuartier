@@ -9,7 +9,7 @@ export type IceCandidateMsg = {
   candidate: any
 }
 export type InitMsg = { type: MsgType.INIT; token: string; };
-export type ChatMsgRecieve = { type: MsgType.MESSAGE; content: string; user_id: string, username: string, date: Date };
+export type ChatMsgRecieve = { type: MsgType.MESSAGE; content: string; user_id: string, image_link: string | null | undefined, username: string, date: Date };
 export type ChatMsgSend = { type: MsgType.MESSAGE; content: string; user_id: string };
 export type ErrorMsg = { type: MsgType.ERROR; error: string; };
 export type HistoryMsg = { type: MsgType.HISTORY; messages: Message[]; };
@@ -80,7 +80,7 @@ export function setupWebSocket({
   wsRef.current = ws;
 
   let reconnectDelay = initialReconnectDelay;
-  let reconnectTimeout: NodeJS.Timeout | null = null;
+  let reconnectTimeout: number | null = null;
 
   const openConnection = () => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) return;

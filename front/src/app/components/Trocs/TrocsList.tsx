@@ -9,17 +9,18 @@ import { useAuth } from "../shared/auth-context"
 import { ErrorMessage } from "../../../api/client"
 import Errors from "../shared/errors"
 import "./Trocs.css"
+import CreateTroc from "./TrocCreate"
 
 type TrocListMessage = {
-    message: string
     limit?: number
 }
 
-function TrocList({message, limit}: TrocListMessage){
+function TrocList({limit}: TrocListMessage){
     const [troc, setTroc] = useState<Troc[] | null>(null)
     const { me, isAdmin } = useAuth();
     const navigate = useNavigate()
     const [err, setErrors] = useState<ErrorMessage | null>(null)
+    const [refresh, setRefresh] = useState<number>(0)
 
     useEffect(() => {
         (async () => {
@@ -32,7 +33,7 @@ function TrocList({message, limit}: TrocListMessage){
                 setErrors(client.errors)
             }
         })()
-    }, [message])
+    }, [refresh])
 
     if(err != null){
         return <Errors errors={err} />
@@ -48,6 +49,12 @@ function TrocList({message, limit}: TrocListMessage){
 
     return <>
         <h2>Trocs</h2>
+        <div>
+            <CreateTroc onUpdate={() => setRefresh(r => r +1)} />
+            <button onClick={() => navigate(Route.manageMyTrocs)}>
+                Mes Trocs
+            </button>
+        </div>
         <section className="troc-container">
             {me && troc
             .slice(0, limit ?? troc.length)

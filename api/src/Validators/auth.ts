@@ -5,6 +5,8 @@ export const zLoginParams = z.object({
 	password: z.string().min(8)
 })
 
+export const zEmail = z.string().email()
+
 export type LoginParams = z.infer<typeof zLoginParams>;
 
 export const zRegisterParams = z.object({
@@ -13,8 +15,8 @@ export const zRegisterParams = z.object({
 	phone: z
 	  .string()
 	  .regex(
-		/^\+?[1-9]\d{1,14}$/,
-		"Numéro de téléphone invalide (format international attendu)"
+		/^\d{10}$/,
+		"Numéro de téléphone invalide"
 	  ),
 	address: z.string().min(5, "Adresse trop courte"),
 	lastname: z.string(),
@@ -22,6 +24,14 @@ export const zRegisterParams = z.object({
 });
 
 export type RegisterParams = z.infer<typeof zRegisterParams>;
+
+export const zResetPassword = z.object({
+	email: z.string().email(),
+	password: z.string(),
+	id: z.coerce.number(),
+})
+
+export type ResetParams = z.infer<typeof zResetPassword>
 
 export const zTokens = z.object({
 	accessToken: z.string(),

@@ -2,7 +2,8 @@ import { UserRole, UserTable } from "../../DB_Schema/UserSchema";
 import type { ConnectionToken, RegisterParams } from "../../Validators/auth";
 import { generateToken, JwtType } from "./jwt";
 import { hashPassword } from "./password";
-import { BadRequestError } from "routing-controllers";
+import { BadRequestError, InternalServerError } from "routing-controllers";
+import { NewsletterSender } from "../../Utils/mailer";
 
 export async function registerUser(params: RegisterParams, file: Express.Multer.File): Promise<ConnectionToken> {
   const user = await saveUser(params, file);
@@ -52,4 +53,54 @@ async function saveUser(params: RegisterParams, file: Express.Multer.File) {
     }
     throw e;
   }
+}
+
+export async function resetPassword(email: string): Promise<void> {
+
+  const user = await UserTable.findOne({ email });
+  if (!user) {
+    return; // No user found, no need to throw an error to avoid sending it to the client
+  }
+  const resetNumber = Math.floor(Math.random() * 1000000).toString()
+  const resetNumberHashed = await hashPassword(resetNumber);
+  const res = await UserTable.updateOne(
+    { email },
+    { $set: { resetNumber: resetNumberHashed } },
+  );
+  if (res.modifiedCount === 0) {
+    throw new InternalServerError("Plz try again later");
+  }
+
+  const newsletterSender = new NewsletterSender();
+  newsletterSender.sendNewsletter(
+    "[REQUESTED] Réinitialisation d'un mot de passe",
+    `Voiçi votre code de réinitialisation : ${resetNumber}`,
+    [user.email]
+  ).then(console.log);
+
+}
+
+export async function resetPasswordValid(email: string, id: string, newPassword: string): Promise<boolean> {
+  const user = await UserTable.findOne({ email });
+  if (!user) {
+    return false; // No user found, no need to throw an error to avoid sending it to the client
+  }
+
+  const hashedPassword = await hashPassword(newPassword);
+  const hashedResetNumber = await hashPassword(id);
+  const res = await UserTable.updateOne(
+    { email, resetNumber: hashedResetNumber},
+    { $set: { password: hashedPassword, resetNumber: null } },
+  );
+  if (res.modifiedCount === 0) {
+    throw new BadRequestError("Wrong reset Code");
+  }
+
+  const newsletterSender = new NewsletterSender();
+  newsletterSender.sendNewsletter(
+    "[SUCCESS] Réinitialisation d'un mot de passe",
+    `Mot de passe réinitialisé avec succès !!`,
+    [user.email]
+  ).then(console.log);
+  return true
 }

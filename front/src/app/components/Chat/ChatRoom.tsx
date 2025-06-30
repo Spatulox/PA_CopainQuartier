@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from "react";
 import { Channel, Message } from "../../../api/chat";
 import { useNavigate } from "react-router-dom";
 import { Route } from "../../constantes";
+import { ApiClient } from "../../../api/client";
 import './Chat.css';
 
 
@@ -18,6 +19,7 @@ type Props = {
   vocalStatusColor: string;
   vocalStatus: string;
   videoStatus: boolean,
+  shareScreenType: "camera" | "screen" | null,
   memberRight: ChannelRight,
   messages: Message[];
   input: string;
@@ -25,7 +27,7 @@ type Props = {
   handleSubmit: (e: React.FormEvent) => void;
   onStartVoiceChat: () => void;
   onLeaveVoiceChat: () => void;
-  onStartVideoShare: () => void;
+  onStartVideoShare: (screen_or_camera: string | null) => void;
   onStopVideoShare: () => void;
   onGenerateInvite: (id: string) => void;
   messagesDivRef: React.RefObject<HTMLDivElement | null>;
@@ -39,6 +41,7 @@ const ChatRoom: React.FC<Props> = ({
   statusColor,
   vocalStatusColor,
   videoStatus,
+  shareScreenType,
   memberRight,
   messages,
   input,
@@ -76,7 +79,24 @@ const ChatRoom: React.FC<Props> = ({
       {vocalStatus !== "Déconnecté" ? <button onClick={onLeaveVoiceChat}>Quitter l'appel vocal</button> : <button id="" onClick={onStartVoiceChat}>Démarrer un appel vocal</button>}
       {vocalStatus !== "Déconnecté" && (
         <>
-        {videoStatus ? <button onClick={onStopVideoShare}>Arrêter le partage vidéo</button> : <button id="" onClick={onStartVideoShare}>Démarrer un partage vidéo</button>}
+        {shareScreenType === "camera" && videoStatus && (
+          <button onClick={onStopVideoShare}>Arrêter le partage vidéo</button>
+        )}
+
+        {shareScreenType === "screen" && videoStatus && (
+          <button onClick={onStopVideoShare}>Arrêter le partage d'écran</button>
+        )}
+
+        {!videoStatus && (
+          <>
+            <button onClick={() => onStartVideoShare("camera")}>
+              Démarrer un partage vidéo
+            </button>
+            <button onClick={() => onStartVideoShare("screen")}>
+              Démarrer un partage d'écran
+            </button>
+          </>
+        )}
         </>
       )}
     </div>
@@ -97,11 +117,14 @@ const ChatRoom: React.FC<Props> = ({
     >
       {messages.map((msg, idx) => {
         const url = extractUrl(msg.content);
-
+        const baseUrl = new ApiClient().baseURL
         return (
           <div key={idx}>
-            <span className="message-user">{msg.username}</span> :
-            <span className="message-date">{new Date(msg.date).toLocaleString()}</span>
+            <div>
+              {msg.image_link && (<img src={`${baseUrl}/${msg.image_link}`} alt="" />)}
+              <span className="message-user">{msg.username}</span> :
+              <span className="message-date">{new Date(msg.date).toLocaleString()}</span>
+            </div>
             <div>
               <p>{msg.content}</p>
               {url && (

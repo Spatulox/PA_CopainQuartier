@@ -9,9 +9,9 @@ import { JavaTable } from "../DB_Schema/JavaSchema";
 export class FileController {
 
     @Get("/version")
-        async getJavaVersion(@Res() res: Response): Promise<JavaModel | null> {
+        async getJavaVersion(@Res() res: Response): Promise<JavaModel[] | null> {
         try {
-            const javaVersion = await JavaTable.findOne().sort({ createdAt: -1 });
+            const javaVersion = await JavaTable.find().sort({ createdAt: -1 });
             if (!javaVersion) {
                 throw new NotFoundError("Java version not found");
             }

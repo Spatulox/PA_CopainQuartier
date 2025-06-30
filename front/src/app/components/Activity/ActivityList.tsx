@@ -8,18 +8,19 @@ import { useAuth } from "../shared/auth-context";
 import { ErrorMessage } from "../../../api/client";
 import Errors from "../shared/errors";
 import "./Activity.css"
+import CreateActivity from "./ActivityCreate";
 
 type ActivityListMessage = {
-    message: string
     limit?: number
 }
 
-function ActivityList({message, limit}: ActivityListMessage){
+function ActivityList({limit}: ActivityListMessage){
     const { me } = useAuth();
 
     const [activity, setActivity] = useState<Activity[] | null>(null)
     const [err, setErrors] = useState<ErrorMessage | null>(null)
     const navigate = useNavigate()
+    const [resfresh, setRefresh] = useState<number>(0)
 
 
     useEffect(() => {
@@ -33,7 +34,7 @@ function ActivityList({message, limit}: ActivityListMessage){
                 setErrors(client.errors)
             }
         })()
-    }, [message])
+    }, [resfresh])
     
     if(err != null){
         return <Errors errors={err} />
@@ -48,7 +49,13 @@ function ActivityList({message, limit}: ActivityListMessage){
     }
 
     return <>
-
+    <h2>Activités</h2>
+    <div className="activity-buttons">
+        <CreateActivity onUpdate={() => setRefresh(r => r + 1)} />
+        <button onClick={() => navigate(Route.manageMyActivity)}>
+            Gérer mes Activités
+        </button>
+    </div>
     <div className="activity-section">
         <section>
             {activity

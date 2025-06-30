@@ -20,6 +20,7 @@ const UserSchema = new Schema<User>({
     },
     friends_request_id: { type: [Schema.Types.ObjectId], ref: "User", default: [] },
     image_link: {type: String, default: null, required: false},
+    resetNumber: { type: String, default: null, required: false },
 });
 
 

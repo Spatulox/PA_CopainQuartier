@@ -1,269 +1,336 @@
-import {faker } from "@faker-js/faker"
+import { faker } from "@faker-js/faker";
 import { UserTable } from "./src/DB_Schema/UserSchema";
 import { TrocTable } from "./src/DB_Schema/TrocSchema";
 import { PublicationTable } from "./src/DB_Schema/PublicationSchema";
 import { ChannelTable } from "./src/DB_Schema/ChannelSchema";
 import { ActivityTable } from "./src/DB_Schema/ActivitiesSchema";
-import { User as UserModel } from "./src/Models/UserModel";
-import { Channel as ChannelModel} from './src/Models/ChannelModel'
-import { Troc as TrocModel } from "./src/Models/TrocModel";
-import { Publication as PublicationModel} from './src/Models/PublicationModel'
-import { Activity as ActivityModel } from './src/Models/ActivityModel'
+import { InviteTable } from "./src/DB_Schema/InviteSchema";
+import { JavaTable } from "./src/DB_Schema/JavaSchema";
 
 import { closeDB, connectDB } from "./src/DB_Schema/connexion";
 import { hashPassword } from "./src/Services/auth/password";
+import { Channel } from "./src/Models/ChannelModel";
+import { User } from "./src/Models/UserModel";
+import { Activity } from "./src/Models/ActivityModel";
+import { Publication } from "./src/Models/PublicationModel";
+import { Troc } from "./src/Models/TrocModel";
 
-export async function GenerateFakeData(){
-    await connectDB()
-    console.log("Generating fake data")
-    const users = await FakeUser()
-    console.log("Users generated...")
+export async function GenerateFakeData() {
+  await connectDB();
+  console.log("Generating fake data...");
 
-    const channels = await FakeChannel(users)
-    console.log("Channels generated...")
+  const users = await FakeUsers();
+  console.log("Users generated...");
 
-    // Update the user part to reflect the channels
-    await UpdateUserChannel(channels)
-    console.log("Users and Channels linked...")
+  const channels = await FakeChannels(users);
+  console.log("Channels generated...");
 
-    const trocs = await FakeTroc(users)
-    console.log("Trocs generated...")
+  await UpdateUserChannelLinks(channels);
+  console.log("Users linked to channels...");
 
-    await UpdateUserTrocs(trocs)
-    console.log("User and Trocs linked...")
+  const trocs = await FakeTrocs(users, channels);
+  console.log("Trocs generated...");
 
-    const publications = await FakePublication(users)
-    console.log("Publications generated...")
+  await UpdateUserTrocs(trocs);
+  console.log("Users linked to trocs...");
 
-    const activities = await FakeActivity(users, channels, publications)
-    console.log("Activity generated...")
+  const publications = await FakePublications(users);
+  console.log("Publications generated...");
 
-    await UpdateActivityPublicationChannelLink(activities, publications, channels)
-    console.log("Publication, activity and channels linked...")
-    
-    closeDB()
+  const activities = await FakeActivities(users, channels, publications);
+  console.log("Activities generated...");
+
+  await UpdateActivityPublicationChannelLinks(activities, publications, channels);
+  console.log("Activities linked with publications and channels...");
+
+  const invites = await FakeInvites(channels, users);
+  console.log("Invites generated...");
+
+  const javas = await FakeJavaVersions();
+  console.log("Java versions generated...");
+
+  await closeDB();
+  console.log("Data generation completed!");
 }
 
-GenerateFakeData()
+GenerateFakeData();
 
-async function FakeUser(){
+async function FakeUsers() {
     const users = [];
 
-    const user = new UserTable({
+    const profileImagePath = "img/profile/1.png";
+
+    // Create 1 admin user
+    const adminUser = new UserTable({
         name: faker.person.firstName(),
         lastname: faker.person.lastName(),
         email: faker.internet.email(),
         phone: faker.phone.number(),
         address: faker.location.streetAddress(),
-        verified: faker.datatype.boolean(),
-        role: 'admin',
-        group_chat_list_ids: [], // Nous le laisserons vide pour l'instant
+        verified: true,
+        role: "admin",
+        group_chat_list_ids: [],
         troc_score: faker.helpers.maybe(() => faker.number.int({ min: 0, max: 100 }).toString(), { probability: 0.7 }),
         password: await hashPassword(faker.internet.password()),
+        friends_id: new Map(),
+        friends_request_id: [],
+        image_link: profileImagePath,
+        resetNumber: null,
     });
+    users.push(await adminUser.save());
 
-    const savedUser = await user.save();
-    users.push(savedUser);
-
-    for (let i = 0; i < 10; i++) {
+  // Create 20 member users
+    for (let i = 0; i < 20; i++) {
         const user = new UserTable({
             name: faker.person.firstName(),
             lastname: faker.person.lastName(),
             email: faker.internet.email(),
+            phone: faker.phone.number(),
             address: faker.location.streetAddress(),
             verified: faker.datatype.boolean(),
-            role: 'member',
-            group_chat_list_ids: [], // Nous le laisserons vide pour l'instant
+            role: "member",
+            group_chat_list_ids: [],
             troc_score: faker.helpers.maybe(() => faker.number.int({ min: 0, max: 100 }).toString(), { probability: 0.7 }),
             password: await hashPassword(faker.internet.password()),
-            phone: faker.phone.number(),
+            friends_id: new Map(),
+            friends_request_id: [],
+            image_link: profileImagePath,
+            resetNumber: null,
         });
-
-        const savedUser = await user.save();
-        users.push(savedUser);
+        users.push(await user.save());
     }
+    for (let i = 0; i < users.length; i++) {
+        const user = users[i];
+        const friends = faker.helpers.arrayElements(
+            users.filter(u => u._id.toString() !== user._id.toString()), 
+            { min: 0, max: 3 }
+        );
+        for (const friend of friends) {
+            user.friends_id[friend._id.toString()] = friend._id.toString();
 
-    return users;
-}
-
-async function FakeTroc(users: UserModel[]) {
-    let lesTrocs = []
-    for (let i = 0; i < 20; i++) {
-        const troc = new TrocTable({
-            title: faker.commerce.productName(),
-            description: faker.commerce.productDescription(),
-            author_id: faker.helpers.arrayElement(users)._id,
-            status: faker.helpers.arrayElement(['pending', 'completed', 'cancelled']),
-            type: faker.helpers.arrayElement(['item', 'service',]),
-            created_at: faker.date.past(),
-            reserved_at: faker.date.recent(),
-            reserved_by: faker.helpers.arrayElement(users)._id
-        });
-        await troc.save();
-        lesTrocs.push(troc)
-    }
-    return lesTrocs
-}
-
-
-async function FakePublication(users: UserModel[]) {
-    let publications = [];
-    for (let i = 0; i < 30; i++) {
-        const publication = new PublicationTable({
-            name: faker.lorem.sentence(),
-            description: faker.lorem.sentence(),
-            body: faker.lorem.paragraphs(),
-            author_id: faker.helpers.arrayElement(users)._id,
-            created_at: faker.date.past(),
-            updated_at: faker.date.recent(),
-        });
-        await publication.save();
-        publications.push(publication);
-    }
-    return publications;
-}
-
-async function FakeChannel(users: UserModel[]) {
-    const channels = [];
-    for (let i = 0; i < 5; i++) {
-        const author = faker.helpers.arrayElement(users)._id
-        let members = faker.helpers.arrayElements(users.map(user => user._id), { min: 2, max: users.length })
-        if(!members.includes(author)){
-            members.push(author)
-        }
-        const channel = new ChannelTable({
-            name: faker.word.noun() + " Channel",
-            type: faker.helpers.arrayElement(['text', 'vocal']),
-            description: faker.lorem.sentence(),
-            admin_id: author,
-            message: [],
-            members: members,
-            created_at: faker.date.past(),
-            member_auth: faker.helpers.arrayElement(['read_send', 'read_only'])
-        });
-        const savedChannel = await channel.save();
-        channels.push(savedChannel);
-    }
-    return channels;
-}
-
-async function FakeActivity(users: UserModel[], channels: ChannelModel[], publication: PublicationModel[]) {
-    let activities = []
-    for (let i = 0; i < 50; i++) {
-        let author = faker.helpers.arrayElement(users)._id
-        let members = faker.helpers.arrayElements(users.map(user => user._id), { min: 2, max: users.length })
-        if(!members.includes(author)){
-            members.push(author)
-        }
-        let chatId = faker.helpers.arrayElement(channels)._id
-        let publicationId = faker.helpers.arrayElement(publication)._id
-        const activity = new ActivityTable({
-            title: faker.word.noun() + " Activity",
-            description: faker.lorem.sentence(),
-            created_at: faker.date.past(),
-            date_reservation: faker.date.future(),
-            author_id: author,
-            channel_chat_id: chatId,
-            publication_id: publicationId,
-            participants_id: members,
-            max_place: faker.number.int({ min: members.length, max: 20 }),
-            reserved_place: members.length,
-            location: faker.location.city(),
-        });
-        await activity.save();
-        activities.push(activity)
-    }
-    return activities
-}
-
-
-async function UpdateUserChannel(channels: ChannelModel[]) {
-
-    for (const channel of channels) {
-        const channelId = channel._id;
-
-        for (const memberId of channel.members) {
-            const user = await UserTable.findById(memberId);
-
-            if (user) {
-                if (!user.group_chat_list_ids.includes(channelId)) {
-                    user.group_chat_list_ids.push(channelId);
-                    await user.save();
-                }
+            if (!friend.friends_id[user._id.toString()]) {
+            friend.friends_id[user._id.toString()] = user._id.toString();
+            await friend.save();
             }
         }
+        await user.save();
     }
 
-    console.log("Users updated with group_chat_list_ids!");
+  return users;
 }
 
-async function UpdateUserTrocs(trocs: TrocModel[]) {
-    const userTrocs = new Map();
+async function FakeChannels(users: User[]) {
+  const channels = [];
 
-    for (const troc of trocs) {
-        if (!userTrocs.has(troc.author_id.toString())) {
-            userTrocs.set(troc.author_id.toString(), { created: [], reserved: [] });
-        }
-        userTrocs.get(troc.author_id.toString()).created.push(troc._id);
-
-        if(!troc.reserved_by) {
-            continue; 
-        }
-        if (!userTrocs.has(troc.reserved_by.toString())) {
-            userTrocs.set(troc.reserved_by.toString(), { created: [], reserved: [] });
-        }
-        userTrocs.get(troc.reserved_by.toString()).reserved.push(troc._id);
+  for (let i = 0; i < 10; i++) {
+    const admin = faker.helpers.arrayElement(users);
+    // Select members including admin
+    let members = faker.helpers.arrayElements(users, { min: 3, max: 10 });
+    if (!members.find(m => m._id.equals(admin._id))) {
+      members.push(admin);
     }
 
-    for (const [userId, userTrocData] of userTrocs) {
-        await UserTable.findByIdAndUpdate(userId, {
-            $push: {
-                trocs_created: { $each: userTrocData.created },
-                trocs_reserved: { $each: userTrocData.reserved }
-            }
-        });
-    }
+    const channel = new ChannelTable({
+      name: faker.word.noun() + " Channel",
+      type: faker.helpers.arrayElement(["text", "vocal"]),
+      description: faker.lorem.sentence(),
+      admin_id: admin._id,
+      messages: [], // empty for now
+      members: members.map(m => m._id),
+      created_at: faker.date.past(),
+      member_auth: faker.helpers.arrayElement(["read_send", "read_only"]),
+      private: faker.datatype.boolean(),
+    });
+
+    channels.push(await channel.save());
+  }
+
+  return channels;
 }
 
-async function UpdateActivityPublicationChannelLink(
-    activities: ActivityModel[],
-    publications: PublicationModel[],
-    channels: ChannelModel[]
-) {
-    // Créer une copie des publications pour pouvoir les retirer au fur et à mesure
-    let availablePublications = [...publications];
-    let availableChannels = [...channels];
-
-    for (const activity of activities) {
-        // Associer une publication si disponible
-        if (availablePublications.length > 0) {
-            const randomIndex = Math.floor(Math.random() * availablePublications.length);
-            const publication = availablePublications[randomIndex];
-
-            // Mettre à jour l'activité avec l'ID de la publication
-            await ActivityTable.findByIdAndUpdate(activity._id, {
-                publication_id: publication._id
-            });
-
-            // Mettre à jour la publication avec l'ID de l'activité
-            await PublicationTable.findByIdAndUpdate(publication._id, {
-                activity_id: activity._id
-            });
-
-            // Retirer la publication utilisée de la liste des disponibles
-            availablePublications.splice(randomIndex, 1);
+async function UpdateUserChannelLinks(channels: Channel[]) {
+  for (const channel of channels) {
+    for (const memberId of channel.members) {
+      const user = await UserTable.findById(memberId);
+      if (user) {
+        if (!user.group_chat_list_ids.includes(channel._id)) {
+          user.group_chat_list_ids.push(channel._id);
+          await user.save();
         }
-
-        // Associer un channel obligatoirement
-        if (availableChannels.length > 0) {
-            const randomChannel = faker.helpers.arrayElement(availableChannels);
-
-            // Mettre à jour l'activité avec l'ID du channel
-            await ActivityTable.findByIdAndUpdate(activity._id, {
-                channel_chat_id: randomChannel._id
-            });
-        } else {
-            throw new Error("Pas assez de channels disponibles pour associer toutes les activités.");
-        }
+      }
     }
+  }
+}
+
+async function FakeTrocs(users: User[], channels: Channel[]) {
+  const trocs = [];
+
+  for (let i = 0; i < 30; i++) {
+    const author = faker.helpers.arrayElement(users);
+    const reservedByUsers = faker.helpers.arrayElements(users, { min: 0, max: 3 });
+
+    const trocImagePath = `img/activity/${faker.number.int({ min: 1, max: 2 })}.png`;
+
+    const troc = new TrocTable({
+      title: faker.commerce.productName(),
+      description: faker.commerce.productDescription(),
+      author_id: author._id,
+      status: faker.helpers.arrayElement(["pending", "completed", "cancelled"]),
+      type: faker.helpers.arrayElement(["item", "service"]),
+      created_at: faker.date.past(),
+      reserved_at: reservedByUsers.length > 0 ? faker.date.recent() : null,
+      reserved_by: reservedByUsers.map(u => u._id),
+      updated_at: faker.date.recent(),
+      visibility: faker.helpers.arrayElement(["visible", "hide"]),
+      channel_id: faker.helpers.arrayElement(channels)._id,
+      max_user: faker.helpers.maybe(() => faker.number.int({ min: 1, max: 5 }), { probability: 0.7 }),
+      image_link: trocImagePath,
+    });
+
+    trocs.push(await troc.save());
+  }
+
+  return trocs;
+}
+
+async function UpdateUserTrocs(trocs: Troc[]) {
+  // Assuming you want to link trocs to users in fields trocs_created and trocs_reserved
+  // But these fields are not defined in UserSchema you shared,
+  // so either add them or skip this step.
+
+  // If you want, you can add these fields dynamically or ignore this update.
+  // For demonstration, skipping this step.
+}
+
+async function FakePublications(users: User[]) {
+  const publications = [];
+  const publicationImagePath = `img/activity/${faker.number.int({ min: 1, max: 2 })}.png`;
+  for (let i = 0; i < 40; i++) {
+    const author = faker.helpers.arrayElement(users);
+
+    const publication = new PublicationTable({
+      name: faker.lorem.sentence(3),
+      description: faker.lorem.sentence(),
+      body: faker.lorem.paragraphs(2),
+      author_id: author._id,
+      created_at: faker.date.past(),
+      updated_at: faker.date.recent(),
+      image_link: publicationImagePath,
+      activity_id: null, // will be linked later
+    });
+
+    publications.push(await publication.save());
+  }
+
+  return publications;
+}
+
+async function FakeActivities(users: User[], channels: Channel[], publications: Publication[]) {
+  const activities = [];
+  const activityImagePath = `img/activity/${faker.number.int({ min: 1, max: 2 })}.png`;
+
+  for (let i = 0; i < 50; i++) {
+    const author = faker.helpers.arrayElement(users);
+    let participants = faker.helpers.arrayElements(users, { min: 2, max: 10 });
+    if (!participants.find(p => p._id.equals(author._id))) {
+      participants.push(author);
+    }
+
+    const maxPlace = faker.number.int({ min: participants.length, max: 20 });
+    const reservedPlace = faker.number.int({ min: 0, max: maxPlace });
+    const publication = faker.helpers.arrayElement(publications);
+
+    const activity = new ActivityTable({
+      title: faker.word.noun() + " Activity",
+      description: faker.lorem.sentence(),
+      created_at: faker.date.past(),
+      date_reservation: faker.date.future(),
+      date_end: faker.date.future(),
+      author_id: author._id,
+      channel_chat_id: faker.helpers.arrayElement(channels)._id,
+      publication_id: publication._id,
+      participants_id: participants.map(p => p._id),
+      location: faker.location.city(),
+      max_place: maxPlace,
+      reserved_place: reservedPlace,
+      image_link: activityImagePath,
+    });
+
+    activities.push(await activity.save());
+    await PublicationTable.findByIdAndUpdate(publication._id, { activity_id: activity._id });
+  }
+
+  return activities;
+}
+
+async function UpdateActivityPublicationChannelLinks(activities: Activity[], publications: Publication[], channels: Channel[]) {
+  // Shuffle publications and channels to distribute them randomly
+  let availablePublications = [...publications];
+  let availableChannels = [...channels];
+
+  for (const activity of activities) {
+    // Link publication if available
+    if (availablePublications.length > 0) {
+      const randomIndex = Math.floor(Math.random() * availablePublications.length);
+      const publication = availablePublications[randomIndex];
+
+      await ActivityTable.findByIdAndUpdate(activity._id, {
+        publication_id: publication._id,
+      });
+
+      await PublicationTable.findByIdAndUpdate(publication._id, {
+        activity_id: activity._id,
+      });
+
+      availablePublications.splice(randomIndex, 1);
+    }
+
+    // Link channel (override if needed)
+    if (availableChannels.length > 0) {
+      const randomChannel = faker.helpers.arrayElement(availableChannels);
+
+      await ActivityTable.findByIdAndUpdate(activity._id, {
+        channel_chat_id: randomChannel._id,
+      });
+    } else {
+      throw new Error("Not enough channels to link all activities.");
+    }
+  }
+}
+
+async function FakeInvites(channels: Channel[], users: User[]) {
+  const invites = [];
+
+  for (let i = 0; i < 20; i++) {
+    const channel = faker.helpers.arrayElement(channels);
+    // Randomly decide if invite has a channel or null
+    const hasChannel = faker.datatype.boolean();
+
+    const invite = new InviteTable({
+      channel_id: hasChannel ? channel._id : null,
+    });
+
+    invites.push(await invite.save());
+  }
+
+  return invites;
+}
+
+async function FakeJavaVersions() {
+  const javas = [];
+
+  for (let i = 0; i < 5; i++) {
+    const version = `Java-${faker.system.semver()}`;
+    const executable_path = `/usr/lib/jvm/${version}/bin/java`;
+
+    const java = new JavaTable({
+      version,
+      executable_path,
+      createdAt: faker.date.past(),
+    });
+
+    javas.push(await java.save());
+  }
+
+  return javas;
 }
