@@ -1,5 +1,6 @@
 FROM node:alpine AS builder
 ARG VITE_API_URL
+ARG WEBSOCKET_URL
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -12,7 +13,7 @@ RUN npm ci
 COPY . .
 
 ENV VITE_API_URL=${VITE_API_URL}
-RUN echo "VITE_API_URL=${VITE_API_URL}"  > test
+ENV WEBSOCKET_URL=${WEBSOCKET_URL}
 
 RUN npm run build
 
