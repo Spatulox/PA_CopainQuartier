@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 
 public class ParisMusee extends ScraperPlugin {
-    protected String url = "";
 
     @Override
     public List<Map<String, Object>> scrap(PluginScrap scrapper) throws Exception {

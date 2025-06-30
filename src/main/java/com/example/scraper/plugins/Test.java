@@ -15,7 +15,6 @@ import java.util.*;
 import java.util.List;
 
 public class Test extends ScraperPlugin {
-    protected String url = "";
 
     @Override
     public List<Map<String, Object>> scrap(PluginScrap scrapper) throws Exception {
@@ -88,11 +87,6 @@ public class Test extends ScraperPlugin {
 
     @Override
     public String name() {
-        return "ParisEventTicket";
-    }
-
-    @Override
-    public String category() {
-        return "sport";
+        return "Test";
     }
 }

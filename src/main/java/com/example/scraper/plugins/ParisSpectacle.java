@@ -20,13 +20,12 @@ import java.util.List;
 import java.util.Map;
 
 public class ParisSpectacle extends ScraperPlugin {
-    protected String url = "";
 
     @Override
     public List<Map<String, Object>> scrap(PluginScrap scrapper) throws Exception {
         List<Map<String, Object>> events = new ArrayList<>();
 
-        Document doc = scrapper.scrap("https://paris.evous.fr/musees-de-paris/");
+        Document doc = scrapper.scrap("https://www.evous.fr/paris/Spectacles/");
         Elements eventElements = doc.select("h3.event-title");
 
         for (Element h3 : eventElements) {
@@ -98,6 +97,6 @@ public class ParisSpectacle extends ScraperPlugin {
 
     @Override
     public String name() {
-        return "ParisMusée";
+        return "ParisSpectacle";
     }
 }
