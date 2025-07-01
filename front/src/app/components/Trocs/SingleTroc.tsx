@@ -60,7 +60,7 @@ export function ShowTroc({
                 <p>{troc.description}</p>
                 {(isAdmin || user?._id == troc.author?._id) && (
                     <>
-                    <ul>
+                    <ul className="none">
                         <li>Visibilité : {troc.visibility}</li>
                         <li>Status : {troc.status}</li>
                         <li>Type : {troc.type}</li>
@@ -83,7 +83,7 @@ export function ShowTroc({
                     ))}</span>
                 )}
             </div>
-            <div>
+            <div className="troc-buttons">
                 {/* Bouton "Voir le troc" */}
                 <div className="button-group">
                 {(buttonShow & ShowTrocButton.Troc) !== 0 && (

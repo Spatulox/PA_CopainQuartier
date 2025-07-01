@@ -111,17 +111,13 @@ function ShowActivityPage() {
             onLeave={(actiId) => handleLeave(actiId)}
             buttonShow={buttonShow}
         />
-        <PublicationList message="" activity_id={activity._id} />
+        <PublicationList activity_id={activity._id} />
         </>
     );
 }
 
 function ActivityComponent() {
-    const [message, setMessage] = useState("");
     const { id } = useParams<{ id: string }>();
-    const handleUpdate = (newMsg: string) => {
-        setMessage(newMsg);
-    };
     const navigate = useNavigate();
 
     if(id == "me"){
@@ -134,15 +130,7 @@ function ActivityComponent() {
     }
 
     return (
-        <>
-            <ActivityList message={message} />
-            <div>
-                <CreateActivity onUpdate={handleUpdate} />
-                <button onClick={() => navigate(Route.manageMyActivity)}>
-                    Gérer mes Activités
-                </button>
-            </div>
-        </>
+        <ActivityList />
     );
 }
 

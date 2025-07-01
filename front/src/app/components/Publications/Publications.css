@@ -8,8 +8,9 @@
     color: #fff;
 }
 
-.publication-align{
+.publication-card .end{
     display: flex;
+    justify-content: end;
 }
 
 .publication-card img {
