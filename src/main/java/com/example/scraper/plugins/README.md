@@ -1,6 +1,6 @@
 # Héritage & Interfaces
 
-Cette classe dérive de la classe abstraite ScraperPlugin.
+Cette classe dérive de la classe abstraite Plugin.
 Elle doit implémenter les méthodes suivantes :
 
     scrap() : Méthode principale de scraping qui récupère les données des événements.
@@ -9,7 +9,13 @@ Elle doit implémenter les méthodes suivantes :
 
     name() : Retourne le nom du plugin.
 
-    category() : Retourne la catégorie du plugin (ex : "sport").
+    HeaderButton() : Pour ajouter un bouton dans le header
+
+Vous pouvez importer le module Database permettant de sauvegarder des données sous forme de JSON
+    
+    Database.save()    
+    
+    Database.loadFromJson()
 
 # Fonctionnement
 ## Scraping
