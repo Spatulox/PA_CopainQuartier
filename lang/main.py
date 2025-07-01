@@ -9,11 +9,10 @@ def process_query(query_string):
     query = parse_query(query_string)
 
     mongo_query, collection_name = query.mongo_query()
-    print(f"Executing MongoDB query: {json.dumps(mongo_query, indent=2)} on collection: {collection_name}")
+    print(f"Executing MongoDB query: {json.dumps(mongo_query, indent=2, default=str)} on collection: {collection_name}")
     collection = db[collection_name]
     result = collection.aggregate(mongo_query)
     return list(result)
-    
 
 
 app = Flask(__name__)
@@ -27,6 +26,7 @@ def handle_query():
     if not query:
         return jsonify({'error': 'No query provided'}), 400
     
+    print('Executing query', query)
     try:
         result = process_query(query)
         return jsonify({'result': result})
