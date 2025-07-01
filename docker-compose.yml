@@ -32,6 +32,7 @@ services:
 
     environment:
       MONGO_URI: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/
+      FRONT_URL: "https://copain-quartier.fr"
     restart: always
 
   mongodb:
