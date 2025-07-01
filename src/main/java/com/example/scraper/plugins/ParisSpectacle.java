@@ -2,7 +2,7 @@ package com.example.scraper.plugins;
 
 import com.example.scraper.core.ScraperPlugin;
 import com.example.scraper.core.ThemePlugin;
-import com.example.scraper.pluginutils.PluginScrap;
+import com.example.scraper.pluginutils.InternetRequest;
 import com.example.scraper.themeutils.ThemeManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -30,7 +30,7 @@ public class ParisSpectacle extends ScraperPlugin {
 
 
     @Override
-    public List<Map<String, Object>> scrap(PluginScrap scrapper) throws Exception {
+    public List<Map<String, Object>> execute(InternetRequest scrapper) throws Exception {
         List<Map<String, Object>> events = new ArrayList<>();
 
         Document doc = scrapper.scrap("https://www.evous.fr/paris/Spectacles/");

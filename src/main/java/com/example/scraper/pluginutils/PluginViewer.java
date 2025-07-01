@@ -47,10 +47,10 @@ public class PluginViewer {
 
         Button scrapeButton = theme.createButton("🔄 Scraper la catégorie");
         scrapeButton.setOnAction(e -> {
-            PluginScrap scrapper = new PluginScrap();
+            InternetRequest scrapper = new InternetRequest();
             List<Map<String, Object>> res = null;
             try {
-                res = plugin.scrap(scrapper);
+                res = plugin.execute(scrapper);
                 if(!res.isEmpty()){
                     Database.saveEvent(res, plugin.name());
                     refreshView();

@@ -1,6 +1,6 @@
 package com.example.scraper.core;
 
-import com.example.scraper.pluginutils.PluginScrap;
+import com.example.scraper.pluginutils.InternetRequest;
 import com.example.scraper.themeutils.ThemeManager;
 import javafx.scene.layout.VBox;
 
@@ -12,12 +12,11 @@ public abstract class ScraperPlugin {
     public ScraperPlugin() {
         this.theme = ThemeManager.getTheme();
     }
-
     public ThemePlugin getTheme() {
         return theme;
     }
 
-    public abstract List<Map<String, Object>> scrap(PluginScrap scrapper) throws Exception;
+    public abstract List<Map<String, Object>> execute(InternetRequest scrapper) throws Exception;
     public abstract VBox view(VBox box, List<Map<String, Object>> data);
 
     public String name(){
