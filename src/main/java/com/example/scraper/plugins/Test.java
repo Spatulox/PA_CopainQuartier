@@ -47,7 +47,7 @@ public class Test extends Plugin {
     }
 
     @Override
-    public VBox view(Plugin plugin) {
+    public VBox view() {
 
         List<Map<String, Object>> data = Database.loadFromJson(plugin.name());
         VBox box = new VBox(20);

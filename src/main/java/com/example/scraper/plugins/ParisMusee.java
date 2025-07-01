@@ -57,9 +57,9 @@ public class ParisMusee extends Plugin {
     }
 
     @Override
-    public VBox view(Plugin plugin) {
+    public VBox view() {
 
-        List<Map<String, Object>> data = Database.loadFromJson(plugin.name());
+        List<Map<String, Object>> data = Database.loadFromJson(name());
         VBox box = new VBox(20);
         box.setPadding(new Insets(30));
         box.setAlignment(Pos.CENTER);

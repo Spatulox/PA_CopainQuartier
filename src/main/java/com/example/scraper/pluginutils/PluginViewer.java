@@ -33,7 +33,7 @@ public class PluginViewer {
 
 
     public BorderPane getView() {
-        content = plugin.view(this.plugin);
+        content = plugin.view();
 
         Button backButton = theme.createButton("⬅ Retour");
         backButton.setOnAction(e -> {
@@ -64,7 +64,7 @@ public class PluginViewer {
     }
 
     private void refreshView() {
-        content = plugin.view(this.plugin);
+        content = plugin.view();
         scrollPane.setContent(content);
     }
 }
