@@ -1,7 +1,9 @@
 import datetime
+import os
 
+front_url = os.getenv("FRONT_URL", "http://localhost:5173")
 legal_fields = {
-    'publications': ['name', 'created_at', 'description', 'body', 'updated_at', 'author.name', 'author.lastname', 'author'],
+    'publications': ['name', 'created_at', 'description', 'body', 'updated_at', 'author.name', 'author.lastname', 'author', 'link'],
 }
 
 
@@ -47,10 +49,20 @@ class Query:
                 'created_at': 1,
                 'description': 1,
                 'body': 1,
-                'updated_at': 1
+                'updated_at': 1,
+                    'link': {
+                        '$concat': [
+                            front_url,
+                            '/publications/',
+                        {
+                            '$toString': '$_id'
+                        }
+
+                        ]
+                    }
                 }
             }
-        ]
+        ]        
         if self.if_clause:
             query.append(self.if_clause.to_aggregation_stage(self.collection))
         if self.sort:
