@@ -38,7 +38,7 @@ public class PluginManager {
             if (jar.getName().contains("_active") && jar.getName().endsWith(".jar")) {
                 try {
                     URL[] urls = { jar.toURI().toURL() };
-                    URLClassLoader loader = new URLClassLoader(urls, ScraperPlugin.class.getClassLoader());
+                    URLClassLoader loader = new URLClassLoader(urls, ThemePlugin.class.getClassLoader());
                     ServiceLoader<ThemePlugin> serviceLoader = ServiceLoader.load(ThemePlugin.class, loader);
                     for (ThemePlugin theme : serviceLoader) {
                         System.out.println("Thème actif trouvé : " + theme.getClass().getName() + " depuis " + jar.getName());
