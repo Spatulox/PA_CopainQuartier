@@ -1,7 +1,8 @@
 package com.example.scraper.pluginutils;
 
 import com.example.scraper.core.ScraperPlugin;
-import com.example.scraper.ui.StyledButton;
+import com.example.scraper.core.ThemePlugin;
+import com.example.scraper.themeutils.DefaultTheme;
 import javafx.geometry.Pos;
 import javafx.scene.layout.GridPane;
 
@@ -19,9 +20,42 @@ import java.util.function.Consumer;
 
 public class PluginManager {
 
+    public static ThemePlugin loadTheme(){
+        List<ThemePlugin> plugins = new ArrayList<>();
+        File pluginsDir = new File("plugins/themes");
+
+        if (!pluginsDir.exists() || !pluginsDir.isDirectory()) {
+            System.out.println("Aucun dossier de plugins trouvé.");
+            return new DefaultTheme();
+        }
+
+        File[] jars = pluginsDir.listFiles((dir, name) -> name.endsWith(".jar"));
+        if (jars == null){
+            return new DefaultTheme();
+        }
+
+        for (File jar : jars) {
+            if (jar.getName().contains("_active") && jar.getName().endsWith(".jar")) {
+                try {
+                    URL[] urls = { jar.toURI().toURL() };
+                    URLClassLoader loader = new URLClassLoader(urls, ScraperPlugin.class.getClassLoader());
+                    ServiceLoader<ThemePlugin> serviceLoader = ServiceLoader.load(ThemePlugin.class, loader);
+                    for (ThemePlugin theme : serviceLoader) {
+                        System.out.println("Thème actif trouvé : " + theme.getClass().getName() + " depuis " + jar.getName());
+                        return theme;
+                    }
+                } catch (Exception e) {
+                    System.err.println("Erreur chargement thème " + jar.getName() + ": " + e.getMessage());
+                }
+            }
+        }
+        System.out.println("Loading default theme");
+        return new DefaultTheme();
+    }
+
     public static List<ScraperPlugin> loadPlugins() {
         List<ScraperPlugin> plugins = new ArrayList<>();
-        File pluginsDir = new File("plugins");
+        File pluginsDir = new File("plugins/mod");
 
         if (!pluginsDir.exists() || !pluginsDir.isDirectory()) {
             System.out.println("Aucun dossier de plugins trouvé.");
@@ -39,7 +73,7 @@ public class PluginManager {
                 ServiceLoader<ScraperPlugin> serviceLoader = ServiceLoader.load(ScraperPlugin.class, loader);
                 for (ScraperPlugin plugin : serviceLoader) {
                     plugins.add(plugin);
-                    System.out.println(" Plugin chargé : " + plugin.name() + " : " + jar.toURI().toURL());
+                    //System.out.println(" Plugin chargé : " + plugin.name() + " : " + jar.toURI().toURL());
                 }
             } catch (Exception e) {
                 System.err.println("Erreur chargement plugin " + jar.getName() + ": " + e.getMessage());
@@ -55,7 +89,6 @@ public class PluginManager {
                 () -> {
                     System.out.println("Chargement des plugins...");
                     List<ScraperPlugin> plugins = loadPlugins();
-                    // Appelle le callback avec la nouvelle liste de plugins
                     onReload.accept(plugins);
                 },
                 0,
@@ -70,12 +103,12 @@ public class PluginManager {
         grid.setVgap(20);
         grid.setAlignment(Pos.CENTER);
 
-        StyledButton styledButton = new StyledButton();
+        DefaultTheme defaultTheme = new DefaultTheme();
         int col = 0;
         int row = 0;
 
         for (ScraperPlugin plugin : plugins) {
-            Button pluginBtn = styledButton.createStyledButton("🔌 " + plugin.name());
+            Button pluginBtn = defaultTheme.createButton("🔌 " + plugin.name());
             pluginBtn.setOnAction(e -> pluginAction.accept(plugin));
 
             grid.add(pluginBtn, col, row);
