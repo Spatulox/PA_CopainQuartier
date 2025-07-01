@@ -12,10 +12,14 @@ Elle doit implémenter les méthodes suivantes :
     HeaderButton() : Pour ajouter un bouton dans le header
 
 Vous pouvez importer le module Database permettant de sauvegarder des données sous forme de JSON
+
+    Database.save(List<Map<String, Object>>, filename)    
     
-    Database.save()    
+    Database.loadFromJson(filename)
+
+Vous pouvez importer le module InternetRequest permettant de réaliser des requêtes internet
     
-    Database.loadFromJson()
+    InternetRequest.getHtmlDocument()
 
 # Fonctionnement
 ## Scraping
