@@ -9,7 +9,7 @@ import "./header.css"
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isConnected, isAdmin, updateConnection } = useAuth();
+  const { isConnected, isAdmin, updateConnection, clearConnection } = useAuth();
   const [isAdminMenuOpen, setIsAdminMenuOpen] = useState(false);
 
   const navigate = useNavigate();
@@ -20,6 +20,7 @@ function Header() {
     const user = new ApiClient
     user.deconnection()
     updateConnection()
+    clearConnection()
     navigate("/");
   }
 
