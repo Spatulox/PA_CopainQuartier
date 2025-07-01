@@ -11,14 +11,22 @@ import { MiniUser } from "../Users/MiniUser";
 import { User, UserClass } from "../../../api/user";
 import { Route } from "../../constantes";
 import { FriendsClass } from "../../../api/friend";
-import { AnswerMsg, ChatMsgSend, ConnectedChannelMsg, IceCandidateMsg, OfferMsg, setupWebSocket, VocalMsg } from "../shared/websocket";
-import './Chat.css';
+import {
+  AnswerMsg,
+  ChatMsgSend,
+  ConnectedChannelMsg,
+  IceCandidateMsg,
+  OfferMsg,
+  setupWebSocket,
+  VocalMsg,
+} from "../shared/websocket";
+import "./Chat.css";
 
 type ChatProps = {
-    id_channel?: string
+  id_channel?: string;
 };
 
-function ChatPage({id_channel}: ChatProps) {
+function ChatPage({ id_channel }: ChatProps) {
   const { me } = useAuth();
   const { id } = useParams();
   const navigate = useNavigate();
@@ -29,20 +37,22 @@ function ChatPage({id_channel}: ChatProps) {
   const [status, setStatus] = useState("Déconnecté");
   const [vocalStatus, setVocalStatus] = useState("Déconnecté");
   const [channel, setChannel] = useState<Channel | null>(null);
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const miniUserRef = useRef<HTMLDivElement>(null);
-  const [connectedUser, setConnectedUser] = useState<string[]>()
-  const [videoStatus, setVideoStatus] = useState(false)
-  const [cameraOrScreen, setCameraOrScreen] = useState<"camera" | "screen" | null>(null)
- 
+  const [connectedUser, setConnectedUser] = useState<string[]>();
+  const [videoStatus, setVideoStatus] = useState(false);
+  const [cameraOrScreen, setCameraOrScreen] = useState<
+    "camera" | "screen" | null
+  >(null);
+
   const wsRef = useRef<WebSocket | null>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
-  const videoSenderRef = useRef<RTCRtpSender | null>(null)
+  const videoSenderRef = useRef<RTCRtpSender | null>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
-  
+
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  const chatID = id_channel || id 
+  const chatID = id_channel || id;
   // Fonction pour ouvrir la connexion WebSocket
   const openWebSocket = React.useCallback(() => {
     if (!chatID) return;
@@ -66,41 +76,41 @@ function ChatPage({id_channel}: ChatProps) {
         onError: () => setStatus("Erreur"),
         onMessage: {
           ERROR(msg) {
-              wsRef.current?.close();
-              return;
+            wsRef.current?.close();
+            return;
           },
           HISTORY(msg) {
-              setMessages(msg.messages)
+            setMessages(msg.messages);
           },
           MESSAGE(msg) {
-              setMessages(prev => [...prev, msg])
+            setMessages((prev) => [...prev, msg]);
           },
           OFFER(msg) {
-              onOffer(msg)
+            onOffer(msg);
           },
           ANSWER(msg) {
-              onAnswer(msg)
+            onAnswer(msg);
           },
           CANDIDATE(msg) {
-              onCandidate(msg)
+            onCandidate(msg);
           },
           CONNECTED_CHANNEL(msg) {
-              onConnected(msg)
+            onConnected(msg);
           },
           JOIN_VOCAL(msg) {
-            popup("qqun a rejoind")
+            popup("qqun a rejoind");
           },
           LEAVE_VOCAL(msg) {
-            onLeave(msg)
-            popup("qqun a quitté")
+            onLeave(msg);
+            popup("qqun a quitté");
           },
-        }
-      }
+        },
+      },
     });
   }, [chatID]);
 
-  function startAutoNegotiation(){
-    if(peerConnectionRef.current){
+  function startAutoNegotiation() {
+    if (peerConnectionRef.current) {
       peerConnectionRef.current.onnegotiationneeded = async () => {
         const pc = peerConnectionRef.current;
         const ws = wsRef.current;
@@ -110,7 +120,7 @@ function ChatPage({id_channel}: ChatProps) {
         try {
           const offer = await pc.createOffer();
           await pc.setLocalDescription(offer);
-          const data: OfferMsg= {
+          const data: OfferMsg = {
             type: MsgType.OFFER,
             offer,
           };
@@ -122,20 +132,22 @@ function ChatPage({id_channel}: ChatProps) {
     }
   }
 
-  async function onOffer(msg: OfferMsg){
+  async function onOffer(msg: OfferMsg) {
     let pc = peerConnectionRef.current;
     if (!pc) {
       pc = new RTCPeerConnection({
-        iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
       });
       peerConnectionRef.current = pc;
-      startAutoNegotiation()
+      startAutoNegotiation();
 
-      pc.ontrack = event => {
+      pc.ontrack = (event) => {
         setVocalStatus("Connecté");
 
         // Affichage audio
-        const audio = document.getElementById("remoteAudio") as HTMLAudioElement;
+        const audio = document.getElementById(
+          "remoteAudio"
+        ) as HTMLAudioElement;
         if (audio && event.track.kind === "audio") {
           audio.srcObject = event.streams[0];
           audio.muted = false;
@@ -145,7 +157,9 @@ function ChatPage({id_channel}: ChatProps) {
         }
 
         // Affichage vidéo
-        const video = document.getElementById("remoteVideo") as HTMLVideoElement;
+        const video = document.getElementById(
+          "remoteVideo"
+        ) as HTMLVideoElement;
         if (video && event.track.kind === "video") {
           video.srcObject = event.streams[0];
           video.muted = false;
@@ -155,12 +169,12 @@ function ChatPage({id_channel}: ChatProps) {
         }
       };
 
-      pc.onicecandidate = event => {
+      pc.onicecandidate = (event) => {
         if (event.candidate && wsRef.current) {
           const data: IceCandidateMsg = {
             type: MsgType.CANDIDATE,
-            candidate: event.candidate
-          }
+            candidate: event.candidate,
+          };
           wsRef.current.send(JSON.stringify(data));
         }
       };
@@ -174,25 +188,25 @@ function ChatPage({id_channel}: ChatProps) {
       localStreamRef.current = stream;
     }
 
-    stream.getTracks().forEach(track => {
-      if (!pc.getSenders().find(sender => sender.track === track)) {
+    stream.getTracks().forEach((track) => {
+      if (!pc.getSenders().find((sender) => sender.track === track)) {
         pc.addTrack(track, stream);
       }
     });
-    if(!ws){
-      return
+    if (!ws) {
+      return;
     }
     const answer = await pc.createAnswer();
     await pc.setLocalDescription(answer);
     const data: AnswerMsg = {
       type: MsgType.ANSWER,
       answer,
-    }
+    };
     ws.send(JSON.stringify(data));
   }
 
   // For futur (?) multi voc support
-  async function onLeave(msg: any){
+  async function onLeave(msg: any) {
     /*if (peerConnectionRef.current) {
       peerConnectionRef.current.close();
       peerConnectionRef.current = null;
@@ -209,14 +223,14 @@ function ChatPage({id_channel}: ChatProps) {
     if (video) video.srcObject = null;*/
   }
 
-  async function onAnswer(msg: any){
+  async function onAnswer(msg: any) {
     const pc = peerConnectionRef.current;
     if (pc) {
       await pc.setRemoteDescription(new RTCSessionDescription(msg.answer));
     }
   }
 
-  async function onCandidate(msg: IceCandidateMsg){
+  async function onCandidate(msg: IceCandidateMsg) {
     const pc = peerConnectionRef.current;
     if (pc && msg.candidate) {
       try {
@@ -227,21 +241,22 @@ function ChatPage({id_channel}: ChatProps) {
     }
   }
 
-  async function onConnected(msg: ConnectedChannelMsg){
-    setConnectedUser(msg.token_connected_client)
+  async function onConnected(msg: ConnectedChannelMsg) {
+    setConnectedUser(msg.token_connected_client);
   }
 
   let audioCtx: AudioContext | null = null;
   async function generateSound(freq: number) {
     if (!audioCtx) {
-      audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      audioCtx = new (window.AudioContext ||
+        (window as any).webkitAudioContext)();
     }
-    if (audioCtx.state === 'suspended') {
+    if (audioCtx.state === "suspended") {
       await audioCtx.resume();
     }
 
     const osc = audioCtx.createOscillator();
-    osc.type = 'sine';
+    osc.type = "sine";
     osc.frequency.value = freq;
     osc.connect(audioCtx.destination);
     osc.start();
@@ -252,34 +267,41 @@ function ChatPage({id_channel}: ChatProps) {
     };
   }
 
-  async function startVideoChat(screen_or_camera: string | null = null){
-    let videoStream
+  async function startVideoChat(screen_or_camera: string | null = null) {
+    let videoStream;
     try {
-      if(screen_or_camera == "screen"){
-        setCameraOrScreen("screen")
-        videoStream = await navigator.mediaDevices.getDisplayMedia({ video: true });  
-      } else if(screen_or_camera == "camera" || screen_or_camera == null){
-        setCameraOrScreen("camera")
-        videoStream = await navigator.mediaDevices.getUserMedia({ video: true });  
+      if (screen_or_camera == "screen") {
+        setCameraOrScreen("screen");
+        videoStream = await navigator.mediaDevices.getDisplayMedia({
+          video: true,
+        });
+      } else if (screen_or_camera == "camera" || screen_or_camera == null) {
+        setCameraOrScreen("camera");
+        videoStream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+        });
       } else {
-        setCameraOrScreen(null)
-        popup("Wrong video input")
-        return
+        setCameraOrScreen(null);
+        popup("Wrong video input");
+        return;
       }
     } catch (error) {
-      popup("L'accès à la caméra a été refusé")
-      return
+      popup("L'accès à la caméra a été refusé");
+      return;
     }
     const videoTrack = videoStream.getVideoTracks()[0];
-    if(!peerConnectionRef.current || !localStreamRef.current){
-      popup("Something went wrong when starting video sharing")
-      return
+    if (!peerConnectionRef.current || !localStreamRef.current) {
+      popup("Something went wrong when starting video sharing");
+      return;
     }
-    setVideoStatus(true)
-    videoSenderRef.current = peerConnectionRef.current.addTrack(videoTrack, localStreamRef.current);
+    setVideoStatus(true);
+    videoSenderRef.current = peerConnectionRef.current.addTrack(
+      videoTrack,
+      localStreamRef.current
+    );
     localStreamRef.current.addTrack(videoTrack);
 
-    const videoElem = document.getElementById('localVideo') as HTMLVideoElement
+    const videoElem = document.getElementById("localVideo") as HTMLVideoElement;
     if (videoElem) {
       videoElem.srcObject = localStreamRef.current;
       videoElem.muted = true;
@@ -288,39 +310,43 @@ function ChatPage({id_channel}: ChatProps) {
     }
   }
 
-  async function stopVideoChat(){
-    if(!videoSenderRef.current){
-      return
+  async function stopVideoChat() {
+    if (!videoSenderRef.current) {
+      return;
     }
-    if(!peerConnectionRef.current || !videoSenderRef.current || !localStreamRef.current){
-      popup("Something went wrong when stopping video")
-      return
+    if (
+      !peerConnectionRef.current ||
+      !videoSenderRef.current ||
+      !localStreamRef.current
+    ) {
+      popup("Something went wrong when stopping video");
+      return;
     }
-    setCameraOrScreen(null)
-    setVideoStatus(false)
+    setCameraOrScreen(null);
+    setVideoStatus(false);
     peerConnectionRef.current.removeTrack(videoSenderRef.current);
     videoSenderRef.current = null;
 
     const videoTracks = localStreamRef.current.getVideoTracks();
-    videoTracks.forEach(track => {
+    videoTracks.forEach((track) => {
       track.stop();
       localStreamRef.current && localStreamRef.current.removeTrack(track);
     });
 
-    const videoElem = document.getElementById('localVideo') as HTMLVideoElement;
+    const videoElem = document.getElementById("localVideo") as HTMLVideoElement;
     if (videoElem) {
       videoElem.srcObject = null;
     }
   }
 
   const startVoiceChat = async () => {
-    if(!wsRef || !wsRef.current){
-      popup("Impossible de se connecter au vocal")
+    if (!wsRef || !wsRef.current) {
+      popup("Impossible de se connecter au vocal");
       return;
     }
-    if(!me || !me._id){
-      popup("Veuillez réessayer dans 5 secondes")
-      return
+    if (!me || !me._id) {
+      popup("Veuillez réessayer dans 5 secondes");
+      return;
     }
     const data: VocalMsg = {
       type: MsgType.JOIN_VOCAL,
@@ -335,37 +361,35 @@ function ChatPage({id_channel}: ChatProps) {
     }
 
     const pc = new RTCPeerConnection({
-      iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
     });
     peerConnectionRef.current = pc;
-    startAutoNegotiation()
+    startAutoNegotiation();
 
-    stream.getTracks().forEach(track => pc.addTrack(track, stream));
-    const ws = wsRef
-    if(!ws || !ws.current){
-      popup("Impossible se se connecter")
-      return
+    stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+    const ws = wsRef;
+    if (!ws || !ws.current) {
+      popup("Impossible se se connecter");
+      return;
     }
 
-    pc.onicecandidate = event => {
+    pc.onicecandidate = (event) => {
       if (event.candidate && ws.current) {
-
-      const data: IceCandidateMsg = {
+        const data: IceCandidateMsg = {
           type: MsgType.CANDIDATE,
-          candidate: event.candidate
+          candidate: event.candidate,
         };
         ws.current.send(JSON.stringify(data));
       }
     };
 
-
-    pc.ontrack = event => {
+    pc.ontrack = (event) => {
       setVocalStatus("Connecté");
       // Affichage audio
       const audio = document.getElementById("remoteAudio") as HTMLAudioElement;
-      if(!audio){
-        popup("Problème d'audio")
-        return
+      if (!audio) {
+        popup("Problème d'audio");
+        return;
       }
       if (audio && event.track.kind === "audio") {
         audio.srcObject = event.streams[0];
@@ -377,12 +401,12 @@ function ChatPage({id_channel}: ChatProps) {
 
       // Affichage vidéo
       const video = document.getElementById("remoteVideo") as HTMLVideoElement;
-      if(!video){
-        popup("Problème de video")
-        return
+      if (!video) {
+        popup("Problème de video");
+        return;
       }
       if (video && event.track.kind === "video") {
-        const remoteVideo = event.streams[0]
+        const remoteVideo = event.streams[0];
         video.srcObject = remoteVideo;
         video.muted = false;
         video.autoplay = true;
@@ -399,7 +423,7 @@ function ChatPage({id_channel}: ChatProps) {
     };
 
     setVocalStatus("En attente d'une autre personne");
-    generateSound(880)
+    generateSound(880);
 
     pc.oniceconnectionstatechange = () => {
       if (
@@ -408,38 +432,34 @@ function ChatPage({id_channel}: ChatProps) {
       ) {
         setVocalStatus("Connecté");
       }
-      if (
-        pc.iceConnectionState === "disconnected"
-      ) {
+      if (pc.iceConnectionState === "disconnected") {
         setVocalStatus("En attente d'une autre personne");
       }
 
-      if (
-        pc.iceConnectionState === "failed"
-      ) {
+      if (pc.iceConnectionState === "failed") {
         setVocalStatus("Déconnecté");
       }
     };
   };
 
   function leaveVoiceChat() {
-    const ws = wsRef.current
-    if(!ws){
-      popup("Impossible de terminer le chat vocal correctement")
-      return
+    const ws = wsRef.current;
+    if (!ws) {
+      popup("Impossible de terminer le chat vocal correctement");
+      return;
     }
-    if(!me || !me._id){
-      popup("Erreur, veuillez réessayer dans 5 secondes")
-      return
+    if (!me || !me._id) {
+      popup("Erreur, veuillez réessayer dans 5 secondes");
+      return;
     }
     const data: VocalMsg = {
       type: MsgType.LEAVE_VOCAL,
       user_id: me?._id,
     };
     ws.send(JSON.stringify(data));
-    stopVideoChat()
+    stopVideoChat();
     if (localStreamRef.current) {
-      localStreamRef.current.getTracks().forEach(track => track.stop());
+      localStreamRef.current.getTracks().forEach((track) => track.stop());
       localStreamRef.current = null;
     }
 
@@ -448,17 +468,17 @@ function ChatPage({id_channel}: ChatProps) {
       peerConnectionRef.current = null;
     }
 
-    const audio = document.getElementById("remoteAudio") as HTMLAudioElement | null;
+    const audio = document.getElementById(
+      "remoteAudio"
+    ) as HTMLAudioElement | null;
     if (audio) {
       audio.srcObject = null;
-      audio.volume = 0
+      audio.volume = 0;
     }
 
     setVocalStatus("Déconnecté");
-    generateSound(220)
+    generateSound(220);
   }
-
-
 
   // useEffect principal, automatic reconnect
   useEffect(() => {
@@ -467,69 +487,87 @@ function ChatPage({id_channel}: ChatProps) {
 
   // Scroll auto
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollTop = messagesEndRef.current.scrollHeight;
+    }
   }, [messages]);
 
   // For the users display
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (miniUserRef.current && !miniUserRef.current.contains(event.target as Node)) {
+      if (
+        miniUserRef.current &&
+        !miniUserRef.current.contains(event.target as Node)
+      ) {
         setSelectedUserId(null);
       }
     }
     // Ajoute le listener si selectedUserId est non null
     if (selectedUserId) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
     // Nettoie le listener
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [selectedUserId]);
 
   // Send a message
   const handleSubmit = (e: any) => {
     e.preventDefault();
-    if (input && wsRef.current && wsRef.current.readyState === 1 && me && me._id) {
+    if (
+      input &&
+      wsRef.current &&
+      wsRef.current.readyState === 1 &&
+      me &&
+      me._id
+    ) {
       const data: ChatMsgSend = {
         type: MsgType.MESSAGE,
         content: input,
-        user_id: me._id
-      }
+        user_id: me._id,
+      };
       wsRef.current.send(JSON.stringify(data));
       setInput("");
     }
   };
 
-  async function handleGenerateInvite(id: string){
+  async function handleGenerateInvite(id: string) {
     try {
-      const client = new InviteClass()
-      const invite = await client.generateInvite(id)
+      const client = new InviteClass();
+      const invite = await client.generateInvite(id);
       if (typeof invite === "string") {
         await navigator.clipboard.writeText(invite);
-        popup("Invitation générée et copiée ! Vous pouvez la coller n'importe où");
+        popup(
+          "Invitation générée et copiée ! Vous pouvez la coller n'importe où"
+        );
       }
     } catch (e) {
-      popup("Une erreur est survenue")
-      console.error(e)
+      popup("Une erreur est survenue");
+      console.error(e);
     }
   }
 
-  async function handleSendRequest(id: string | null){
-    if(!id) return
-    const client = new FriendsClass()
+  async function handleSendRequest(id: string | null) {
+    if (!id) return;
+    const client = new FriendsClass();
     try {
-      await client.sendAFriendsRequest(id)
-      popup("Demande envoyée")
+      await client.sendAFriendsRequest(id);
+      popup("Demande envoyée");
     } catch (e) {
-      console.error(e)
+      console.error(e);
     }
   }
 
-  if (!chatID) return <div><ChannelList /></div>;
+  if (!chatID)
+    return (
+      <div>
+        <ChannelList />
+      </div>
+    );
   if (!me) return <NotFound />;
-  if(!channel){
-    return <NotFound />
+  if (!channel) {
+    return <NotFound />;
   }
   const statusColor = status === "Connecté" ? "#00FF00" : "#FF0000";
   const vocalStatusColor = vocalStatus === "Connecté" ? "#00FF00" : "#FF0000";
@@ -555,31 +593,42 @@ function ChatPage({id_channel}: ChatProps) {
         handleSubmit={handleSubmit}
         onStartVoiceChat={startVoiceChat}
         onLeaveVoiceChat={leaveVoiceChat}
-        onStartVideoShare={(screen_or_camera: string | null) => startVideoChat(screen_or_camera)}
+        onStartVideoShare={(screen_or_camera: string | null) =>
+          startVideoChat(screen_or_camera)
+        }
         onStopVideoShare={stopVideoChat}
         onGenerateInvite={(id: string) => handleGenerateInvite(id)}
         messagesDivRef={messagesEndRef}
       />
       <div className="members">
         <ul>
-          {channel && "members" in channel && channel.members.map((mem: User | string) => {
-            if (typeof mem === 'string') {
-              return <li key={mem}>{mem}</li>;
-            } else if(mem) {
-              return (
-                <li key={mem._id}>
-                  <button
-                    onClick={() => setSelectedUserId(mem._id)}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: connectedUser?.includes(mem._id) ? "greenyellow" : "red" }}
-                  >
-                    {mem.name}
-                  </button>
-                </li>
-              );
-            } else {
-              return (<li>Unknown</li>)
-            }
-          })}
+          {channel &&
+            "members" in channel &&
+            channel.members.map((mem: User | string) => {
+              if (typeof mem === "string") {
+                return <li key={mem}>{mem}</li>;
+              } else if (mem) {
+                return (
+                  <li key={mem._id}>
+                    <button
+                      onClick={() => setSelectedUserId(mem._id)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        color: connectedUser?.includes(mem._id)
+                          ? "greenyellow"
+                          : "red",
+                      }}
+                    >
+                      {mem.name}
+                    </button>
+                  </li>
+                );
+              } else {
+                return <li>Unknown</li>;
+              }
+            })}
         </ul>
 
         {/* Affiche l'iframe en dehors de la liste, pour éviter les bugs de layout */}
