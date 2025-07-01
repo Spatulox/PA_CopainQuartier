@@ -1,6 +1,7 @@
 package com.example.scraper.plugins;
 
-import com.example.scraper.core.ScraperPlugin;
+import com.example.scraper.core.Database;
+import com.example.scraper.core.Plugin;
 import com.example.scraper.core.ThemePlugin;
 import com.example.scraper.pluginutils.InternetRequest;
 import com.example.scraper.themeutils.ThemeManager;
@@ -20,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ParisMusee extends ScraperPlugin {
+public class ParisMusee extends Plugin {
 
     private ThemePlugin theme;
 
@@ -32,7 +33,7 @@ public class ParisMusee extends ScraperPlugin {
     public List<Map<String, Object>> execute(InternetRequest scrapper) throws Exception {
         List<Map<String, Object>> events = new ArrayList<>();
 
-        Document doc = scrapper.scrap("https://paris.evous.fr/musees-de-paris/");
+        Document doc = scrapper.getHtmlDocument("https://paris.evous.fr/musees-de-paris/");
         Elements eventElements = doc.select("h3.event-title");
 
         for (Element h3 : eventElements) {
@@ -92,6 +93,27 @@ public class ParisMusee extends ScraperPlugin {
         }
 
         return box;
+    }
+    @Override
+    public Button HeaderButton(Runnable refreshView){
+        Button scrapeButton = theme.createButton("🔄 Scraper la catégorie");
+        scrapeButton.setOnAction(e -> {
+            InternetRequest scrapper = new InternetRequest();
+            List<Map<String, Object>> res = null;
+            try {
+                res = execute(scrapper);
+                if(!res.isEmpty()){
+                    Database.saveEvent(res, name());
+                    refreshView.run();
+                    return;
+                }
+                System.out.println("Nothing to scrap wtf");
+            } catch (Exception ex) {
+                System.out.println("Erreur lors du scraping : " + ex.getMessage());
+                throw new RuntimeException(ex);
+            }
+        });
+        return scrapeButton;
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.example.scraper.pluginutils;
 
 import com.example.scraper.core.Database;
-import com.example.scraper.core.ScraperPlugin;
+import com.example.scraper.core.Plugin;
 import com.example.scraper.core.ThemePlugin;
 import com.example.scraper.themeutils.ThemeManager;
 import com.example.scraper.ui.MainApp;
@@ -21,11 +21,11 @@ public class PluginViewer {
     //private final String category;
     private VBox content;
     private Stage stage;
-    private ScraperPlugin plugin;
+    private Plugin plugin;
     private ScrollPane scrollPane;
     private ThemePlugin theme;
 
-    public PluginViewer(Stage stage, ScraperPlugin plugin) {
+    public PluginViewer(Stage stage, Plugin plugin) {
         this.plugin = plugin;
         this.stage = stage;
         theme = ThemeManager.getTheme();
@@ -45,25 +45,9 @@ public class PluginViewer {
             }
         });
 
-        Button scrapeButton = theme.createButton("🔄 Scraper la catégorie");
-        scrapeButton.setOnAction(e -> {
-            InternetRequest scrapper = new InternetRequest();
-            List<Map<String, Object>> res = null;
-            try {
-                res = plugin.execute(scrapper);
-                if(!res.isEmpty()){
-                    Database.saveEvent(res, plugin.name());
-                    refreshView();
-                    return;
-                }
-                System.out.println("Nothing to scrap wtf");
-            } catch (Exception ex) {
-                System.out.println("Erreur lors du scraping : " + ex.getMessage());
-                throw new RuntimeException(ex);
-            }
-        });
+        Button button = this.plugin.HeaderButton(this::refreshView);
 
-        HBox header = new HBox(20, backButton, scrapeButton);
+        HBox header = new HBox(20, backButton, button);
         header.setPadding(new Insets(20));
         header.setAlignment(Pos.CENTER_LEFT);
         header.setStyle("-fx-background-color: #e0e0e0; -fx-border-color: #ccc;");

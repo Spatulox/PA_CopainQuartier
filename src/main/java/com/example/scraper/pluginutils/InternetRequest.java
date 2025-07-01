@@ -4,7 +4,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 public class InternetRequest {
-    public Document scrap(String url) throws Exception {
+    public Document getHtmlDocument(String url) throws Exception {
         return Jsoup.connect(url).userAgent("Mozilla/5.0").get();
     }
 }

@@ -14,7 +14,7 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import com.example.scraper.pluginutils.PluginLoader;
-import com.example.scraper.core.ScraperPlugin;
+import com.example.scraper.core.Plugin;
 import com.example.scraper.pluginutils.PluginManager;
 
 
@@ -80,7 +80,7 @@ public class MainApp extends Application {
         primaryStage.show();
     }
 
-    private void viewPlugin(Stage stage, ScraperPlugin plugin) {
+    private void viewPlugin(Stage stage, Plugin plugin) {
         PluginViewer viewer = new PluginViewer(stage, plugin);
         Scene scene = new Scene(viewer.getView(), theme.width(), theme.height());
         stage.setScene(scene);

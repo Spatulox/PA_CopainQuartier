@@ -1,6 +1,6 @@
 package com.example.scraper.pluginutils;
 
-import com.example.scraper.core.ScraperPlugin;
+import com.example.scraper.core.Plugin;
 import com.example.scraper.core.ThemePlugin;
 import com.example.scraper.themeutils.DefaultTheme;
 import com.example.scraper.themeutils.ThemeManager;
@@ -59,8 +59,8 @@ public class PluginManager {
         return new DefaultTheme();
     }
 
-    public static List<ScraperPlugin> loadPlugins() {
-        List<ScraperPlugin> plugins = new ArrayList<>();
+    public static List<Plugin> loadPlugins() {
+        List<Plugin> plugins = new ArrayList<>();
         File pluginsDir = new File("plugins/mod");
 
         if (!pluginsDir.exists() || !pluginsDir.isDirectory()) {
@@ -74,10 +74,10 @@ public class PluginManager {
         for (File jar : jars) {
             try {
                 URL[] urls = { jar.toURI().toURL() };
-                URLClassLoader loader = new URLClassLoader(urls, ScraperPlugin.class.getClassLoader());
+                URLClassLoader loader = new URLClassLoader(urls, Plugin.class.getClassLoader());
 
-                ServiceLoader<ScraperPlugin> serviceLoader = ServiceLoader.load(ScraperPlugin.class, loader);
-                for (ScraperPlugin plugin : serviceLoader) {
+                ServiceLoader<Plugin> serviceLoader = ServiceLoader.load(Plugin.class, loader);
+                for (Plugin plugin : serviceLoader) {
                     plugins.add(plugin);
                     //System.out.println(" Plugin chargé : " + plugin.name() + " : " + jar.toURI().toURL());
                 }
@@ -89,14 +89,14 @@ public class PluginManager {
         return plugins;
     }
 
-    public static void startPeriodicReload(int periodInSeconds, Consumer<List<ScraperPlugin>> onReload) {
+    public static void startPeriodicReload(int periodInSeconds, Consumer<List<Plugin>> onReload) {
         if(scheduler!= null){
             scheduler.shutdownNow();
         }
         scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(
                 () -> {
-                    List<ScraperPlugin> plugins = loadPlugins();
+                    List<Plugin> plugins = loadPlugins();
                     onReload.accept(plugins);
                 },
                 0,
@@ -105,7 +105,7 @@ public class PluginManager {
         );
     }
 
-    public static GridPane createPluginButtonsGrid(List<ScraperPlugin> plugins, Consumer<ScraperPlugin> pluginAction) {
+    public static GridPane createPluginButtonsGrid(List<Plugin> plugins, Consumer<Plugin> pluginAction) {
         GridPane grid = new GridPane();
         grid.setHgap(20);
         grid.setVgap(20);
@@ -115,7 +115,7 @@ public class PluginManager {
         int row = 0;
         ThemePlugin theme = ThemeManager.getTheme();
 
-        for (ScraperPlugin plugin : plugins) {
+        for (Plugin plugin : plugins) {
             Button pluginBtn = theme.createButton("🔌 " + plugin.name());
             pluginBtn.setOnAction(e -> pluginAction.accept(plugin));
 
