@@ -9,7 +9,8 @@ Elle doit implémenter les méthodes suivantes :
 
     name() : Retourne le nom du plugin.
 
-    HeaderButton() : Pour ajouter un bouton dans le header
+    HeaderButton(Runnable refreshView) : Pour ajouter un bouton dans le header
+    refreshView.run() permet de rafraichir l'affichage automatiquement
 
 Vous pouvez importer le module Database permettant de sauvegarder des données sous forme de JSON
 
