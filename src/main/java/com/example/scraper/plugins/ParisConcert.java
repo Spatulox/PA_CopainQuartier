@@ -24,7 +24,7 @@ public class ParisConcert extends ScraperPlugin {
     private ThemePlugin theme;
 
     public ParisConcert(){
-        theme = ThemeManager.getTheme();
+        theme = getTheme();
     }
 
     @Override

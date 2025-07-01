@@ -20,7 +20,7 @@ public class Test extends ScraperPlugin {
     private ThemePlugin theme;
 
     public Test(){
-        theme = ThemeManager.getTheme();
+        theme = getTheme();
     }
 
     @Override

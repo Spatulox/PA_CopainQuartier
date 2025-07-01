@@ -25,7 +25,7 @@ public class ParisMusee extends ScraperPlugin {
     private ThemePlugin theme;
 
     public ParisMusee(){
-        theme = ThemeManager.getTheme();
+        theme = getTheme();
     }
 
     @Override

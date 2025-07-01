@@ -25,7 +25,7 @@ public class ParisSpectacle extends ScraperPlugin {
     private ThemePlugin theme;
 
     public ParisSpectacle(){
-        theme = ThemeManager.getTheme();
+        theme = getTheme();
     }
 
 
