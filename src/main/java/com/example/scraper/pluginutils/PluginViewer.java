@@ -2,6 +2,8 @@ package com.example.scraper.pluginutils;
 
 import com.example.scraper.core.Database;
 import com.example.scraper.core.ScraperPlugin;
+import com.example.scraper.core.ThemePlugin;
+import com.example.scraper.themeutils.ThemeManager;
 import com.example.scraper.ui.MainApp;
 import com.example.scraper.ui.StyledButton;
 import javafx.geometry.Insets;
@@ -22,10 +24,12 @@ public class PluginViewer {
     private Stage stage;
     private ScraperPlugin plugin;
     private ScrollPane scrollPane;
+    private ThemePlugin theme;
 
     public PluginViewer(Stage stage, ScraperPlugin plugin) {
         this.plugin = plugin;
         this.stage = stage;
+        theme = ThemeManager.getTheme();
     }
 
 
@@ -33,7 +37,7 @@ public class PluginViewer {
         StyledButton styleButton = new StyledButton();
         content = buildEventList();
 
-        Button backButton = styleButton.createStyledButton("⬅ Retour");
+        Button backButton = theme.createButton("⬅ Retour");
         backButton.setOnAction(e -> {
             MainApp app = new MainApp();
             try {
@@ -43,7 +47,7 @@ public class PluginViewer {
             }
         });
 
-        Button scrapeButton = styleButton.createStyledButton("🔄 Scraper la catégorie");
+        Button scrapeButton = theme.createButton("🔄 Scraper la catégorie");
         scrapeButton.setOnAction(e -> {
             PluginScrap scrapper = new PluginScrap();
             List<Map<String, Object>> res = null;
