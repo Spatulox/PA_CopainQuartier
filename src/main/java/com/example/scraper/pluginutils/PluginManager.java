@@ -59,7 +59,7 @@ public class PluginManager {
         return new DefaultTheme();
     }
 
-    public static List<Plugin> loadPlugins() {
+    public static List<Plugin> loadPlugins(Stage mainStage) {
         List<Plugin> plugins = new ArrayList<>();
         File pluginsDir = new File("plugins/mod");
 
@@ -70,7 +70,6 @@ public class PluginManager {
 
         File[] jars = pluginsDir.listFiles((dir, name) -> name.endsWith(".jar"));
         if (jars == null) return plugins;
-
         for (File jar : jars) {
             try {
                 URL[] urls = { jar.toURI().toURL() };
@@ -78,6 +77,7 @@ public class PluginManager {
 
                 ServiceLoader<Plugin> serviceLoader = ServiceLoader.load(Plugin.class, loader);
                 for (Plugin plugin : serviceLoader) {
+                    plugin.setStage(mainStage);
                     plugins.add(plugin);
                     //System.out.println(" Plugin chargé : " + plugin.name() + " : " + jar.toURI().toURL());
                 }
@@ -89,14 +89,14 @@ public class PluginManager {
         return plugins;
     }
 
-    public static void startPeriodicReload(int periodInSeconds, Consumer<List<Plugin>> onReload) {
+    public static void startPeriodicReload(int periodInSeconds, Consumer<List<Plugin>> onReload, Stage mainStage) {
         if(scheduler!= null){
             scheduler.shutdownNow();
         }
         scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(
                 () -> {
-                    List<Plugin> plugins = loadPlugins();
+                    List<Plugin> plugins = loadPlugins(mainStage);
                     onReload.accept(plugins);
                 },
                 0,

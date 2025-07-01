@@ -64,14 +64,14 @@ public class MainApp extends Application {
         PluginManager.startPeriodicReload(10, plugins -> {
             Platform.runLater(() -> {
                 GridPane newGrid = PluginManager.createPluginButtonsGrid(
-                        PluginManager.loadPlugins(),
+                        PluginManager.loadPlugins(primaryStage),
                         plugin -> viewPlugin(primaryStage, plugin)
                 );
                 root.getChildren().remove(pluginGrid);
                 pluginGrid = newGrid;
                 root.getChildren().add(pluginGrid);
             });
-        });
+        }, primaryStage);
 
         // 7. Recréer la scène
         Scene menuScene = new Scene(root, theme.width(), theme.height());
