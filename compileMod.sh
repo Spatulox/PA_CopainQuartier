@@ -8,8 +8,8 @@ JAVAFX_BASE="$HOME/.m2/repository/org/openjfx/javafx-base/21.0.1/javafx-base-21.
 JAVAFX_GRAPHICS="$HOME/.m2/repository/org/openjfx/javafx-graphics/21.0.1/javafx-graphics-21.0.1-linux.jar"
 
 BUILD_DIR="build"
-PLUGINS_DIR="plugins"
-mkdir -p "$BUILD_DIR" "$PLUGINS_DIR"
+PLUGINS_DIR="plugins/mod"
+mkdir -p "$BUILD_DIR" "$PLUGINS_DIR/"
 
 # Liste des plugins à compiler et packager
 PLUGINS=("ParisConcert" "ParisMusee" "ParisSpectacle" "Test")
@@ -18,7 +18,8 @@ PLUGINS=("ParisConcert" "ParisMusee" "ParisSpectacle" "Test")
 COMMON_SOURCES=(
     "src/main/java/com/example/scraper/core/ScraperPlugin.java"
     "src/main/java/com/example/scraper/pluginutils/PluginScrap.java"
-    "src/main/java/com/example/scraper/ui/StyledButton.java"
+    "src/main/java/com/example/scraper/themeutils/ThemeManager.java"
+    "src/main/java/com/example/scraper/core/ThemePlugin.java"
 )
 
 for PLUGIN in "${PLUGINS[@]}"; do
