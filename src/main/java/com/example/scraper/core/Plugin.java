@@ -17,7 +17,7 @@ public abstract class Plugin {
         return theme;
     }
 
-    public abstract List<Map<String, Object>> execute(InternetRequest scrapper) throws Exception;
+    public abstract List<Map<String, Object>> execute() throws Exception;
     public abstract VBox view();
     public abstract Button HeaderButton(Runnable refreshView);
 

@@ -30,9 +30,10 @@ public class ParisMusee extends Plugin {
     }
 
     @Override
-    public List<Map<String, Object>> execute(InternetRequest scrapper) throws Exception {
+    public List<Map<String, Object>> execute() throws Exception {
         List<Map<String, Object>> events = new ArrayList<>();
 
+        InternetRequest scrapper = new InternetRequest();
         Document doc = scrapper.getHtmlDocument("https://paris.evous.fr/musees-de-paris/");
         Elements eventElements = doc.select("h3.event-title");
 
@@ -103,10 +104,9 @@ public class ParisMusee extends Plugin {
     public Button HeaderButton(Runnable refreshView){
         Button scrapeButton = theme.createButton("🔄 Scraper la catégorie");
         scrapeButton.setOnAction(e -> {
-            InternetRequest scrapper = new InternetRequest();
             List<Map<String, Object>> res = null;
             try {
-                res = execute(scrapper);
+                res = execute();
                 if(!res.isEmpty()){
                     Database.save(res, name());
                     refreshView.run();
