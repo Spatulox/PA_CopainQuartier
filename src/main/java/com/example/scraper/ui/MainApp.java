@@ -3,6 +3,7 @@ package com.example.scraper.ui;
 import com.example.scraper.core.ThemePlugin;
 import com.example.scraper.pluginutils.PluginViewer;
 import com.example.scraper.themeutils.DefaultTheme;
+import com.example.scraper.themeutils.ThemeChooser;
 import com.example.scraper.themeutils.ThemeManager;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -24,26 +25,34 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-
-        try{
+        try {
             theme = PluginManager.loadTheme();
             ThemeManager.setTheme(theme);
-        } catch (Exception e){
+        } catch (Exception e) {
             theme = new DefaultTheme();
         }
+        refreshUI(primaryStage);
+    }
 
+    private void refreshUI(Stage primaryStage) {
         root = new VBox(30);
         root.setAlignment(Pos.TOP_CENTER);
         root.setPadding(new Insets(40));
         root.setStyle(theme.rootStyle());
 
-        HBox categoryRow = new HBox(20);
-        categoryRow.setAlignment(Pos.CENTER);
-
         Button pluginButton = theme.createButton("Ajouter un plugin");
         pluginButton.setOnAction(e -> PluginLoader.showPluginForm(primaryStage));
 
-        categoryRow.getChildren().addAll(pluginButton);
+        Button themeButton = theme.createButton("Choisir un theme");
+        themeButton.setOnAction(e -> {
+            ThemeChooser.chooseTheme();
+            theme = ThemeManager.getTheme();
+            refreshUI(primaryStage);
+        });
+
+        HBox categoryRow = new HBox(20);
+        categoryRow.setAlignment(Pos.CENTER);
+        categoryRow.getChildren().addAll(pluginButton, themeButton);
 
         pluginGrid = new GridPane();
         pluginGrid.setHgap(20);
@@ -64,6 +73,7 @@ public class MainApp extends Application {
             });
         });
 
+        // 7. Recréer la scène
         Scene menuScene = new Scene(root, theme.width(), theme.height());
         primaryStage.setScene(menuScene);
         primaryStage.setTitle("Menu des événements");
