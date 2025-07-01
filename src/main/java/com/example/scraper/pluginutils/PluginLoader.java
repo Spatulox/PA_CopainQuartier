@@ -21,7 +21,7 @@ public class PluginLoader {
         File selectedFile = fileChooser.showOpenDialog(stage);
         if (selectedFile != null) {
             try {
-                File pluginsDir = new File("plugins");
+                File pluginsDir = new File("plugins/mod");
                 if (!pluginsDir.exists()) pluginsDir.mkdir();
 
                 File target = new File(pluginsDir, selectedFile.getName());
@@ -30,7 +30,7 @@ public class PluginLoader {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Succès");
                 alert.setHeaderText("Plugin ajouté !");
-                alert.setContentText("Le plugin a été copié dans le dossier /plugins.");
+                alert.setContentText("Le plugin a été copié dans le dossier /plugins/mod.");
                 alert.showAndWait();
             } catch (IOException ex) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
