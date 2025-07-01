@@ -108,7 +108,7 @@ public class ParisMusee extends Plugin {
             try {
                 res = execute(scrapper);
                 if(!res.isEmpty()){
-                    Database.saveEvent(res, name());
+                    Database.save(res, name());
                     refreshView.run();
                     return;
                 }

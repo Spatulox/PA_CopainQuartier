@@ -5,7 +5,7 @@ import java.io.File;
 import java.util.*;
 
 public class Database {
-    public static void saveEvent(List<Map<String, Object>> events, String fileName) {
+    public static void save(List<Map<String, Object>> events, String fileName) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             mapper.writeValue(new File(fileName), events);
