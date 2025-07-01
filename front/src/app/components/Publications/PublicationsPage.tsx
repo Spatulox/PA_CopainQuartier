@@ -18,16 +18,11 @@ import Errors from "../shared/errors";
 
 function Publications() {
     const navigate = useNavigate()
-    const [message, setMessage] = useState("");
     const {id} = useParams<{ id: string }>();
     const [publications, setPublications] = useState<Publication | null>(null)
     const [err, setErrors] = useState<ErrorMessage | null>(null)
     const [notFound, setNotFound] = useState<boolean>(false)
     const {me, isAdmin} = useAuth();
-
-    const handleUpdate = (newMsg: string) => {
-        setMessage(newMsg);
-    };
 
     useEffect(() => {
         (async () => {
@@ -95,13 +90,7 @@ function Publications() {
     }
 
     return <>
-        <h2>Publications</h2>
-        <div className="publication-buttons">
-            <CreatePublication onUpdate={handleUpdate}/>
-            <button onClick={() => navigate(Route.manageMyPublications)}>Gérer mes Publications</button>
-        </div>
-        <PublicationList message={message}/>
-
+        <PublicationList/>
     </>
 }
 
