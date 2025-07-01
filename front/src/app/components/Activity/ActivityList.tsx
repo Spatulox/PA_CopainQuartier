@@ -12,9 +12,10 @@ import CreateActivity from "./ActivityCreate";
 
 type ActivityListMessage = {
     limit?: number
+    buttonView?: boolean
 }
 
-function ActivityList({limit}: ActivityListMessage){
+function ActivityList({limit, buttonView}: ActivityListMessage){
     const { me } = useAuth();
 
     const [activity, setActivity] = useState<Activity[] | null>(null)
@@ -50,12 +51,15 @@ function ActivityList({limit}: ActivityListMessage){
 
     return <>
     <h2>Activités</h2>
-    <div className="activity-buttons">
-        <CreateActivity onUpdate={() => setRefresh(r => r + 1)} />
-        <button onClick={() => navigate(Route.manageMyActivity)}>
-            Gérer mes Activités
-        </button>
-    </div>
+    {buttonView && (
+        <div className="activity-buttons">
+            <CreateActivity onUpdate={() => setRefresh(r => r + 1)} />
+            <button onClick={() => navigate(Route.manageMyActivity)}>
+                Gérer mes Activités
+            </button>
+        </div>
+    )}
+
     <div className="activity-section">
         <section>
             {activity

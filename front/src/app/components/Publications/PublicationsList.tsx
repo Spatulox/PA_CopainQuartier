@@ -13,9 +13,10 @@ import CreatePublication from "./PublicationCreate";
 type PublicationListMessage = {
     limit?: number
     activity_id?: string
+    buttonView?: boolean
 }
 
-function PublicationList({limit, activity_id}: PublicationListMessage){
+function PublicationList({limit, activity_id, buttonView}: PublicationListMessage){
     const [publications, setPublications] = useState<Publication[] | null>(null)
     const [err, setErrors] = useState<ErrorMessage | null>(null)
     const navigate = useNavigate()
@@ -57,10 +58,12 @@ function PublicationList({limit, activity_id}: PublicationListMessage){
 
     return <>    
         <h2>Publications {activity_id ? "associés" : ""}</h2>
-        <div className="publication-buttons">
-            <CreatePublication onUpdate={() => setRefresh(r => r+1)}/>
-            <button onClick={() => navigate(Route.manageMyPublications)}>Gérer mes Publications</button>
-        </div>
+        {buttonView && (
+            <div className="publication-buttons">
+                <CreatePublication onUpdate={() => setRefresh(r => r+1)}/>
+                <button onClick={() => navigate(Route.manageMyPublications)}>Gérer mes Publications</button>
+            </div>
+        )}
 
         <div className="">{publications
         .slice(0, limit ?? publications.length)
