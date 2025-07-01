@@ -25,7 +25,7 @@ public class Test extends Plugin {
     }
 
     @Override
-    public List<Map<String, Object>> execute() throws Exception {
+    public void execute() throws Exception {
         List<Map<String, Object>> events = new ArrayList<>();
 
         InternetRequest scrapper = new InternetRequest();
@@ -44,7 +44,9 @@ public class Test extends Plugin {
         event2.put("date", "2025-08-20");
         events.add(event2);
 
-        return events;
+        if(!events.isEmpty()){
+            Database.save(events, name());
+        }
     }
 
     @Override
@@ -97,12 +99,8 @@ public class Test extends Plugin {
         scrapeButton.setOnAction(e -> {
             List<Map<String, Object>> res = null;
             try {
-                res = execute();
-                if(!res.isEmpty()){
-                    Database.save(res, name());
-                    refreshView.run();
-                    return;
-                }
+                execute();
+                refreshView.run();
                 System.out.println("Nothing to scrap wtf");
             } catch (Exception ex) {
                 System.out.println("Erreur lors du scraping : " + ex.getMessage());

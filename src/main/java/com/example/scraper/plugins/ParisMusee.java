@@ -30,7 +30,7 @@ public class ParisMusee extends Plugin {
     }
 
     @Override
-    public List<Map<String, Object>> execute() throws Exception {
+    public void execute() throws Exception {
         List<Map<String, Object>> events = new ArrayList<>();
 
         InternetRequest scrapper = new InternetRequest();
@@ -52,9 +52,9 @@ public class ParisMusee extends Plugin {
             event.put("date", date);
             events.add(event);
         }
-
-        // Si aucune donnée n'est trouvée, tu peux ajouter un message ou retourner une liste vide
-        return events;
+        if(!events.isEmpty()){
+            Database.save(events, name());
+        }
     }
 
     @Override
@@ -106,12 +106,8 @@ public class ParisMusee extends Plugin {
         scrapeButton.setOnAction(e -> {
             List<Map<String, Object>> res = null;
             try {
-                res = execute();
-                if(!res.isEmpty()){
-                    Database.save(res, name());
-                    refreshView.run();
-                    return;
-                }
+                execute();
+                refreshView.run();
                 System.out.println("Nothing to scrap wtf");
             } catch (Exception ex) {
                 System.out.println("Erreur lors du scraping : " + ex.getMessage());

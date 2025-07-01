@@ -10,6 +10,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -29,7 +30,7 @@ public class ParisConcert extends Plugin {
     }
 
     @Override
-    public List<Map<String, Object>> execute() throws Exception {
+    public void execute() throws Exception {
         List<Map<String, Object>> events = new ArrayList<>();
 
         InternetRequest scrapper = new InternetRequest();
@@ -52,8 +53,9 @@ public class ParisConcert extends Plugin {
             events.add(event);
         }
 
-        // Si aucune donnée n'est trouvée, tu peux ajouter un message ou retourner une liste vide
-        return events;
+        if(!events.isEmpty()){
+            Database.save(events, name());
+        }
     }
 
     @Override
@@ -106,12 +108,8 @@ public class ParisConcert extends Plugin {
         scrapeButton.setOnAction(e -> {
             List<Map<String, Object>> res = null;
             try {
-                res = execute();
-                if(!res.isEmpty()){
-                    Database.save(res, name());
-                    refreshView.run();
-                    return;
-                }
+                execute();
+                refreshView.run();
                 System.out.println("Nothing to scrap wtf");
             } catch (Exception ex) {
                 System.out.println("Erreur lors du scraping : " + ex.getMessage());
