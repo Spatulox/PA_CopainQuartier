@@ -33,7 +33,7 @@ public class PluginViewer {
 
 
     public BorderPane getView() {
-        content = buildEventList();
+        content = plugin.view(this.plugin);
 
         Button backButton = theme.createButton("⬅ Retour");
         backButton.setOnAction(e -> {
@@ -63,16 +63,8 @@ public class PluginViewer {
         return root;
     }
 
-    private VBox buildEventList() {
-        List<Map<String, Object>> res = Database.loadFromJson(plugin.name());
-        VBox box = new VBox(20);
-        box.setPadding(new Insets(30));
-        box.setAlignment(Pos.CENTER);
-        return plugin.view(box, res);
-    }
-
     private void refreshView() {
-        content = buildEventList();
+        content = plugin.view(this.plugin);
         scrollPane.setContent(content);
     }
 }

@@ -47,7 +47,12 @@ public class Test extends Plugin {
     }
 
     @Override
-    public VBox view(VBox box, List<Map<String, Object>> data) {
+    public VBox view(Plugin plugin) {
+
+        List<Map<String, Object>> data = Database.loadFromJson(plugin.name());
+        VBox box = new VBox(20);
+        box.setPadding(new Insets(30));
+        box.setAlignment(Pos.CENTER);
 
         // Parcours chaque événement
         for (Map<String, Object> event : data) {

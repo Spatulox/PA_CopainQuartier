@@ -18,7 +18,7 @@ public abstract class Plugin {
     }
 
     public abstract List<Map<String, Object>> execute(InternetRequest scrapper) throws Exception;
-    public abstract VBox view(VBox box, List<Map<String, Object>> data);
+    public abstract VBox view(Plugin plugin);
     public abstract Button HeaderButton(Runnable refreshView);
 
     public String name(){
