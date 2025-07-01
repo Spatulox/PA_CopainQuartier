@@ -1,7 +1,8 @@
 package com.example.scraper.plugins;
 import com.example.scraper.core.ScraperPlugin;
+import com.example.scraper.core.ThemePlugin;
 import com.example.scraper.pluginutils.PluginScrap;
-import com.example.scraper.ui.StyledButton;
+import com.example.scraper.themeutils.ThemeManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -15,6 +16,12 @@ import java.util.*;
 import java.util.List;
 
 public class Test extends ScraperPlugin {
+
+    private ThemePlugin theme;
+
+    public Test(){
+        theme = ThemeManager.getTheme();
+    }
 
     @Override
     public List<Map<String, Object>> scrap(PluginScrap scrapper) throws Exception {
@@ -40,7 +47,6 @@ public class Test extends ScraperPlugin {
 
     @Override
     public VBox view(VBox box, List<Map<String, Object>> data) {
-        StyledButton styledButton = new StyledButton();
 
         // Parcours chaque événement
         for (Map<String, Object> event : data) {
@@ -58,7 +64,7 @@ public class Test extends ScraperPlugin {
             Label dateLabel = new Label("📅 " + date);
             dateLabel.setStyle("-fx-text-fill: #666;");
 
-            Button linkButton = styledButton.createStyledButton("🔗 Voir l'événement");
+            Button linkButton = theme.createButton("🔗 Voir l'événement");
             linkButton.setOnAction(e -> {
                 try {
                     Desktop.getDesktop().browse(new URI(url));
@@ -70,14 +76,7 @@ public class Test extends ScraperPlugin {
             VBox card = new VBox(10, titleLabel, dateLabel, linkButton);
             card.setPadding(new Insets(20));
             card.setAlignment(Pos.CENTER);
-            card.setStyle(
-                    "-fx-border-color: #ddd;" +
-                            "-fx-border-width: 1;" +
-                            "-fx-background-color: white;" +
-                            "-fx-background-radius: 10;" +
-                            "-fx-border-radius: 10;" +
-                            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 2);"
-            );
+            card.setStyle(theme.card());
 
             box.getChildren().add(card);
         }
