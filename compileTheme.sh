@@ -27,7 +27,7 @@ for PLUGIN in "${PLUGINS[@]}"; do
 
     # Crée le dossier META-INF/services pour le plugin
     mkdir -p "$BUILD_DIR/META-INF/services"
-    echo "com.example.scraper.plugins.$PLUGIN" > "$BUILD_DIR/META-INF/services/com.example.scraper.core.ScraperPlugin"
+    echo "com.example.scraper.themes.$PLUGIN" > "$BUILD_DIR/META-INF/services/com.example.scraper.core.ThemePlugin"
 
     # Crée le JAR du plugin
     cd "$BUILD_DIR"
