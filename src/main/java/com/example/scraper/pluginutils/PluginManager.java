@@ -4,7 +4,9 @@ import com.example.scraper.core.ScraperPlugin;
 import com.example.scraper.core.ThemePlugin;
 import com.example.scraper.themeutils.DefaultTheme;
 import com.example.scraper.themeutils.ThemeManager;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
 
 import java.io.File;
@@ -17,9 +19,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javafx.scene.control.Button;
+import javafx.stage.Stage;
+
 import java.util.function.Consumer;
 
 public class PluginManager {
+
+    private static ScheduledExecutorService scheduler = null;
 
     public static ThemePlugin loadTheme(){
         File pluginsDir = new File("plugins/themes");
@@ -84,7 +90,10 @@ public class PluginManager {
     }
 
     public static void startPeriodicReload(int periodInSeconds, Consumer<List<ScraperPlugin>> onReload) {
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        if(scheduler!= null){
+            scheduler.shutdownNow();
+        }
+        scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(
                 () -> {
                     List<ScraperPlugin> plugins = loadPlugins();
