@@ -38,22 +38,23 @@ const preBuiltQueries = [
     name: "Nom complet de l'auteur et taille du contenu de la publication",
     query:
       `publications
-      PROJECT {
-      full_name: author.name + " " + author.lastname,
-      content_size: len(body)
-    }`,
+PROJECT {
+  full_name: author.name + " " + author.lastname,
+  content_size: len(body)
+}`,
   },
   {
     name: "Requête complexe",
     query: `publications
-    IF len(body) > 250 AND NOT (author.name MATCHES "U")
-    SORT updated_at
-    LIMIT 100
-    PROJECT {
-      author: author.name + " " + author.lastname,
-      body,
-      body_size: len(body)
-    }`,
+IF len(body) > 250 AND NOT (author.name MATCHES "U")
+SORT updated_at
+LIMIT 100
+PROJECT {
+  author: author.name + " " + author.lastname,
+  body,
+  body_size: len(body),
+  link
+}`,
   },
 ];
 
