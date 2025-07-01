@@ -14,3 +14,27 @@ target/
 
 .env
 api/uploads/
+
+.idea/
+
+front/
+api/
+target/
+
+events.xml
+
+*.class
+
+
+build/
+old_plugins/
+
+plugins/mod/.fuse_hidden*
+plugins/themes/.fuse_hidden*
+ParisMusée
+
+ParisConcert
+
+ParisSpectacle
+
+Test
