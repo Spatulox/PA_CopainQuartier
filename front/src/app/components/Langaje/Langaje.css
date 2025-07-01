@@ -1,0 +1,17 @@
+.langaje-result-display {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: left;
+    overflow: hidden;
+}
+.langaje-result-row {
+    white-space: pre-wrap;
+    max-width: 100%;
+    overflow: hiddenj;
+}
+#sql-input {
+    height: 10rem;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 2rem;
+}

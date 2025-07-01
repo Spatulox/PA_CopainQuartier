@@ -1,16 +1,21 @@
+import { InternalServerError } from "routing-controllers";
+import { config } from "../../Utils/config";
 import { LangajeRequest } from "../../Validators/langaje";
 
-export type Result = {
-  message: string;
-  query: string;
-  rows: Array<{ id: number; name: string }>;
-};
-
+export type Result = any[];
 export async function requestDB(query: LangajeRequest): Promise<Result | null> {
-    const placeholderResult: Result = {
-        message: "Query executed successfully",
-        query: "SELECT * FROM users",
-        rows: [ { id: 1, name: "John Doe" }, { id: 2, name: "Jane Smith" } ]
-    };
-    return placeholderResult;
+  const response = await fetch(`${config.langajeUrl}/query`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify( query ),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new InternalServerError(`Error executing query: ${errorText}`);
+  }
+  const data = await response.json();
+  return data.result as Result;
 }
