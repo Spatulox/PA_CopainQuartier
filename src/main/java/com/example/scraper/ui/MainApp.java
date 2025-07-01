@@ -40,8 +40,7 @@ public class MainApp extends Application {
         HBox categoryRow = new HBox(20);
         categoryRow.setAlignment(Pos.CENTER);
 
-        StyledButton styledButton = new StyledButton();
-        Button pluginButton = styledButton.createButton("Ajouter un plugin");
+        Button pluginButton = theme.createButton("Ajouter un plugin");
         pluginButton.setOnAction(e -> PluginLoader.showPluginForm(primaryStage));
 
         categoryRow.getChildren().addAll(pluginButton);

@@ -5,7 +5,6 @@ import com.example.scraper.core.ScraperPlugin;
 import com.example.scraper.core.ThemePlugin;
 import com.example.scraper.themeutils.ThemeManager;
 import com.example.scraper.ui.MainApp;
-import com.example.scraper.ui.StyledButton;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -34,7 +33,6 @@ public class PluginViewer {
 
 
     public BorderPane getView() {
-        StyledButton styleButton = new StyledButton();
         content = buildEventList();
 
         Button backButton = theme.createButton("⬅ Retour");

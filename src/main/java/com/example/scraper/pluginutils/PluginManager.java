@@ -3,6 +3,7 @@ package com.example.scraper.pluginutils;
 import com.example.scraper.core.ScraperPlugin;
 import com.example.scraper.core.ThemePlugin;
 import com.example.scraper.themeutils.DefaultTheme;
+import com.example.scraper.themeutils.ThemeManager;
 import javafx.geometry.Pos;
 import javafx.scene.layout.GridPane;
 
@@ -21,7 +22,6 @@ import java.util.function.Consumer;
 public class PluginManager {
 
     public static ThemePlugin loadTheme(){
-        List<ThemePlugin> plugins = new ArrayList<>();
         File pluginsDir = new File("plugins/themes");
 
         if (!pluginsDir.exists() || !pluginsDir.isDirectory()) {
@@ -87,7 +87,6 @@ public class PluginManager {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(
                 () -> {
-                    System.out.println("Chargement des plugins...");
                     List<ScraperPlugin> plugins = loadPlugins();
                     onReload.accept(plugins);
                 },
@@ -103,12 +102,12 @@ public class PluginManager {
         grid.setVgap(20);
         grid.setAlignment(Pos.CENTER);
 
-        DefaultTheme defaultTheme = new DefaultTheme();
         int col = 0;
         int row = 0;
+        ThemePlugin theme = ThemeManager.getTheme();
 
         for (ScraperPlugin plugin : plugins) {
-            Button pluginBtn = defaultTheme.createButton("🔌 " + plugin.name());
+            Button pluginBtn = theme.createButton("🔌 " + plugin.name());
             pluginBtn.setOnAction(e -> pluginAction.accept(plugin));
 
             grid.add(pluginBtn, col, row);
