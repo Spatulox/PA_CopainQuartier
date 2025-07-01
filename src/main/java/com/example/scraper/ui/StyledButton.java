@@ -3,7 +3,7 @@ package com.example.scraper.ui;
 import javafx.scene.control.Button;
 
 public class StyledButton {
-    public Button createStyledButton(String label) {
+    public Button createButton(String label) {
         Button button = new Button(label);
         button.setStyle(
                 "-fx-font-size: 16px;" +
