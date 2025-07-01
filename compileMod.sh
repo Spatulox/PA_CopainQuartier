@@ -15,7 +15,7 @@ PLUGINS_DIR="plugins/mod"
 mkdir -p "$BUILD_DIR" "$PLUGINS_DIR/"
 
 # Liste des plugins à compiler et packager
-PLUGINS=("ParisConcert" "ParisMusee" "ParisSpectacle" "Test")
+PLUGINS=("ParisConcert" "ParisMusee" "ParisSpectacle" "Test" "Popup")
 
 # Fichiers communs à tous les plugins
 COMMON_SOURCES=(
