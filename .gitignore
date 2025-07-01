@@ -17,4 +17,5 @@ events.xml
 build/
 old_plugins/
 
-plugins/.fuse_hidden*
+plugins/mod/.fuse_hidden*
+plugins/themes/.fuse_hidden*
