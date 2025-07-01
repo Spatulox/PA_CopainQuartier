@@ -16,7 +16,7 @@ PLUGINS=("ParisConcert" "ParisMusee" "ParisSpectacle" "Test")
 
 # Fichiers communs à tous les plugins
 COMMON_SOURCES=(
-    "src/main/java/com/example/scraper/core/ScraperPlugin.java"
+    "src/main/java/com/example/scraper/core/Plugin.java"
     "src/main/java/com/example/scraper/pluginutils/PluginScrap.java"
     "src/main/java/com/example/scraper/themeutils/ThemeManager.java"
     "src/main/java/com/example/scraper/core/ThemePlugin.java"
@@ -32,7 +32,7 @@ for PLUGIN in "${PLUGINS[@]}"; do
 
     # Crée le dossier META-INF/services pour le plugin
     mkdir -p "$BUILD_DIR/META-INF/services"
-    echo "com.example.scraper.plugins.$PLUGIN" > "$BUILD_DIR/META-INF/services/com.example.scraper.core.ScraperPlugin"
+    echo "com.example.scraper.plugins.$PLUGIN" > "$BUILD_DIR/META-INF/services/com.example.scraper.core.Plugin"
 
     # Crée le JAR du plugin
     cd "$BUILD_DIR"
