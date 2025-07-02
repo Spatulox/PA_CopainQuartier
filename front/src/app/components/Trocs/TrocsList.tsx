@@ -47,10 +47,9 @@ function TrocList({limit, buttonView}: TrocListMessage){
     if(troc && troc.length == 0){
         return <p>Aucun Troc à afficher</p>
     }
-
     return <>
         <h2>Trocs</h2>
-        {buttonView && (
+        {buttonView != false && (
             <div>
                 <CreateTroc onUpdate={() => setRefresh(r => r +1)} />
                 <button onClick={() => navigate(Route.manageMyTrocs)}>

@@ -1,17 +1,14 @@
 // app/pages/publications.tsx
 
 import {useNavigate, useParams} from "react-router-dom";
-import CreatePublication from "./PublicationCreate";
 import {Route} from "../../constantes";
 import PublicationList from "./PublicationsList";
 import {useEffect, useState} from "react";
 import {ShowPublication, ShowPublicationButton} from "./SinglePublication";
 import {AdminPublicationClass, Publication, PublicationClass} from "../../../api/publications";
-import {User} from "../../../api/user";
 import Loading from "../shared/loading";
 import {useAuth} from "../shared/auth-context";
 import NotFound from "../shared/notfound";
-import {AdminActivityClass} from "../../../api/activity";
 import {ErrorMessage} from "../../../api/client";
 import Errors from "../shared/errors";
 

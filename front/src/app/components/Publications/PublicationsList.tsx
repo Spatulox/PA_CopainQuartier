@@ -58,7 +58,7 @@ function PublicationList({limit, activity_id, buttonView}: PublicationListMessag
 
     return <>    
         <h2>Publications {activity_id ? "associés" : ""}</h2>
-        {buttonView && (
+        {buttonView != false && (
             <div className="publication-buttons">
                 <CreatePublication onUpdate={() => setRefresh(r => r+1)}/>
                 <button onClick={() => navigate(Route.manageMyPublications)}>Gérer mes Publications</button>

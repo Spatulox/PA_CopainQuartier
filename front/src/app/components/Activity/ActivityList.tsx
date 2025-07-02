@@ -51,7 +51,7 @@ function ActivityList({limit, buttonView}: ActivityListMessage){
 
     return <>
     <h2>Activités</h2>
-    {buttonView && (
+    {buttonView != false && (
         <div className="activity-buttons">
             <CreateActivity onUpdate={() => setRefresh(r => r + 1)} />
             <button onClick={() => navigate(Route.manageMyActivity)}>
