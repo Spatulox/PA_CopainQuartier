@@ -1,16 +1,18 @@
 import './header.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from './auth-context';
 import { ApiClient } from '../../../api/client';
 import { Route } from '../../constantes';
 import "../Popup/Popup.css"
 import "./header.css"
+import { SearchClass } from '../../../api/search';
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isConnected, isAdmin, updateConnection, clearConnection } = useAuth();
   const [isAdminMenuOpen, setIsAdminMenuOpen] = useState(false);
+  const [search, setSearch] = useState<string>()
 
   const navigate = useNavigate();
 
@@ -29,6 +31,30 @@ function Header() {
   const toggleAdminMenu = (e: any) => {
     e.stopPropagation();
     setIsAdminMenuOpen((v) => !v);
+  };
+
+  useEffect(() => {
+    if (search === "") return;
+
+    if(search != undefined){
+      const handler = setTimeout(() => {
+        searchData(search);
+      }, 500);
+      return () => clearTimeout(handler);
+    }
+  }, [search]);
+
+  async function searchData(data: string) {
+    const client = new SearchClass();
+    try {
+      await client.searchData(data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const handleInput = (event: any) => {
+    setSearch(event.currentTarget.value);
   };
 
 
@@ -58,6 +84,8 @@ function Header() {
             type="search"
             placeholder="Rechercher..."
             className="search-bar"
+            value={search}
+            onInput={handleInput}
           />
         </div>
 
