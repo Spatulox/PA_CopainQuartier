@@ -49,7 +49,7 @@ function Header() {
 
         {/* Partie gauche */}
         <div className="header-section logo">
-          <img src="/logo.png" alt="Logo" className="logo" />
+          <img src="/logo.png" alt="Logo" className="logo" onClick={() => navigate(Route.base)} />
         </div>
 
         {/* Partie centrale */}

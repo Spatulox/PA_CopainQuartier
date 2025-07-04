@@ -24,6 +24,7 @@
   height: 60px;
   background: white;
   border-radius: 50%;
+  cursor: pointer;
 }
 
 .search-section {
