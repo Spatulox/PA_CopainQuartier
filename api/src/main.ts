@@ -18,6 +18,7 @@ import { AuthController } from './Controllers/AuthController';
 import { InviteController } from './Controllers/InviteController';
 import { FriendsController } from './Controllers/FriendsController';
 import { LangajeController } from './Controllers/LangajeController';
+import { SearchController } from './Controllers/SearchController';
 
 async function main(){
   await connectDB()
@@ -52,6 +53,7 @@ async function main(){
       InviteController,
       LangajeController,
       PublicationsController,
+      SearchController,
       TrocController,
       UserController],
     defaultErrorHandler: false
