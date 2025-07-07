@@ -16,7 +16,6 @@ export async function searchDataFromPrincipalSearchBar(param: SearchParam): Prom
     ActivityTable.find({
       $or: [
         { title: regex },
-        { description: regex },
         { location: regex }
       ]
     })
@@ -27,7 +26,6 @@ export async function searchDataFromPrincipalSearchBar(param: SearchParam): Prom
       $or: [
         { name: regex },
         { description: regex },
-        { body: regex }
       ]
     })
       .sort({ created_at: -1 })
