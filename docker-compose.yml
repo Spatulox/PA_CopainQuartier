@@ -1,0 +1,50 @@
+services:
+  nodejs:
+    build: ./api
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongodb
+    environment:
+      - MONGO_URL=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/
+      - JWT_SALT=${JWT_SALT}
+      - PASSWORD_SALT=${PASSWORD_SALT}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - MAILER_PASSWORD=${MAILER_PASSWORD}
+      - LANGAJE_URL=http://langaje:5000
+    restart: always
+
+  frontend:
+    build: 
+      context: ./front
+      args:
+        VITE_API_URL: ${API_URL:-http://localhost:3000}
+        VITE_WEBSOCKET_URL: ${WEBSOCKET_URL:-ws://localhost:3000}
+    ports:
+      - "5173:5173"
+    restart: always
+
+  langaje:
+    build:
+      context: ./lang
+    ports:
+      - "5000:5000"
+
+    environment:
+      MONGO_URI: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/
+      FRONT_URL: "https://copain-quartier.fr"
+    restart: always
+
+  mongodb:
+    image: mongo:4.4
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+    volumes:
+      - mongodb-data:/data/db
+    restart: always
+
+volumes:
+  mongodb-data:

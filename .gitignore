@@ -3,10 +3,20 @@
 
 DB.drawio
 
+node_modules/
+
+api/config.json
+
+front/.vite
 .idea/
 
-front/
-api/
+target/
+
+.env
+api/uploads/
+
+.idea/
+
 target/
 
 events.xml
@@ -26,3 +36,6 @@ ParisConcert
 ParisSpectacle
 
 Test
+
+
+.fuse*

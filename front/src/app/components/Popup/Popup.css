@@ -1,0 +1,40 @@
+.popup-slide {
+    position: absolute;
+    top: 80px;
+    transform: translateX(-100%);
+    padding: 5px 10px;
+    width: auto;
+    height: auto;
+
+    border-radius: 0 0 10px 0;
+
+    background-color: #444;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.5s ease-in-out;
+}
+
+.popup-slide.active {
+    transform: translateX(0);
+    transition: all 0.5s ease-in-out;
+}
+
+.popup-form {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.popup-confirm-card, .popup-info-card {
+    background: #444;
+    position: relative;
+    min-width: 300px;
+    border-radius: 8px;
+    padding: 24px;
+}
