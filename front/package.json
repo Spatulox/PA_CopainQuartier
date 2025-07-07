@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "start": "http-server dist -p 5173",
+    "start": "http-server dist -p 5173 -P http://localhost:5173?",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"

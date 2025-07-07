@@ -3,8 +3,6 @@ import { ApiClient } from "../../../api/client";
 import { User } from "../../../api/user";
 import { popup } from "../../scripts/popup-slide";
 import { setupWebSocket } from "./websocket";
-import { MsgType } from "../../../api/chat";
-import { error } from "console";
 
 type AuthContextType = {
   isConnected: boolean;
@@ -14,6 +12,7 @@ type AuthContextType = {
   error: string | null;
   updateConnection: () => Promise<void>;
   refreshMe: () => Promise<void>;
+  clearConnection: () => void;
   connectedFriends: string[] | undefined;
 };
 
@@ -49,6 +48,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
+  function clearConnection(){
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+  }
   
   const updateConnection = useCallback(async () => {
 
@@ -137,7 +142,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [updateConnection]);
 
   return (
-    <AuthContext.Provider value={{ isConnected, isAdmin, me, loading, error, updateConnection, refreshMe, connectedFriends }}>
+    <AuthContext.Provider value={{ isConnected, isAdmin, me, loading, error, updateConnection, refreshMe, connectedFriends, clearConnection }}>
       {children}
     </AuthContext.Provider>
   );

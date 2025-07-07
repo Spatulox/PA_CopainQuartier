@@ -1,25 +1,27 @@
 import { ApiClient } from "./client";
 
 export type Result = {
-  message: string;
   query: string;
-  rows: Array<{ id: number; name: string }>;
+  rows: Record<string, any>[];
 };
 
+export class AdminLangajeClass extends ApiClient {
+  protected urlAdmin = "/admin/langaje";
 
-export class AdminLangajeClass extends ApiClient{
-    protected urlAdmin = "/admin/langaje"
+  constructor() {
+    super();
+    this.refreshUser().then(() => {
+      if (!this.isAdmin()) {
+        throw new Error("User is not admin");
+      }
+    });
+  }
 
-    constructor() {
-        super();
-        this.refreshUser().then(() => {
-            if (!this.isAdmin()) {
-                throw new Error("User is not admin");
-            }
-        })
-    }
-
-    async requestLangaje(query: string): Promise<Result> {
-        return await this.Post(this.urlAdmin, { query });
-    }
+  async requestLangaje(query: string): Promise<Result> {
+    const rows = await this.Post(this.urlAdmin, { query });
+    return {
+      query,
+      rows,
+    };
+  }
 }
