@@ -13,9 +13,10 @@ import CreateTroc from "./TrocCreate"
 
 type TrocListMessage = {
     limit?: number
+    buttonView?: boolean
 }
 
-function TrocList({limit}: TrocListMessage){
+function TrocList({limit, buttonView}: TrocListMessage){
     const [troc, setTroc] = useState<Troc[] | null>(null)
     const { me, isAdmin } = useAuth();
     const navigate = useNavigate()
@@ -46,15 +47,16 @@ function TrocList({limit}: TrocListMessage){
     if(troc && troc.length == 0){
         return <p>Aucun Troc à afficher</p>
     }
-
     return <>
         <h2>Trocs</h2>
-        <div>
-            <CreateTroc onUpdate={() => setRefresh(r => r +1)} />
-            <button onClick={() => navigate(Route.manageMyTrocs)}>
-                Mes Trocs
-            </button>
-        </div>
+        {buttonView != false && (
+            <div>
+                <CreateTroc onUpdate={() => setRefresh(r => r +1)} />
+                <button onClick={() => navigate(Route.manageMyTrocs)}>
+                    Mes Trocs
+                </button>
+            </div>
+        )}
         <section className="troc-container">
             {me && troc
             .slice(0, limit ?? troc.length)

@@ -106,6 +106,8 @@ const ChatRoom: React.FC<Props> = ({
       <video id="remoteVideo" src=""></video>
     </div>
     <div
+    ref={messagesDivRef}
+    
       id="messages"
       style={{
         border: "1px solid #ccc",
@@ -141,7 +143,6 @@ const ChatRoom: React.FC<Props> = ({
           </div>
         );
       })}
-      <div ref={messagesDivRef}/>
     </div>
     {memberRight === ChannelRight.read_send && (
       <form id="formulaire" className="formulaire" onSubmit={handleSubmit} style={{ display: "flex", gap: 8 }}>

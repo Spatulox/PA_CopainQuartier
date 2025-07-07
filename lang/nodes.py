@@ -1,7 +1,9 @@
 import datetime
+import os
 
+front_url = os.getenv("FRONT_URL", "http://localhost:5173")
 legal_fields = {
-    'publications': ['name', 'created_at', 'description', 'body', 'updated_at', 'author.name', 'author.lastname', 'author'],
+    'publications': ['name', 'created_at', 'description', 'body', 'updated_at', 'author.name', 'author.lastname', 'author', 'link'],
 }
 
 
@@ -47,10 +49,20 @@ class Query:
                 'created_at': 1,
                 'description': 1,
                 'body': 1,
-                'updated_at': 1
+                'updated_at': 1,
+                    'link': {
+                        '$concat': [
+                            front_url,
+                            '/publications/',
+                        {
+                            '$toString': '$_id'
+                        }
+
+                        ]
+                    }
                 }
             }
-        ]
+        ]        
         if self.if_clause:
             query.append(self.if_clause.to_aggregation_stage(self.collection))
         if self.sort:
@@ -169,12 +181,21 @@ class Projection:
     def __init__(self, fields):
         self.fields = fields
 
+    def check_validity(self ):
+        field_names = [field.field_name for field in self.fields if isinstance(field, ProjectionField)]
+        for field_name in field_names:
+            conflicting_name = next((f for f in field_names if f.startswith(f"{field_name}.")), None)
+            if conflicting_name:
+                raise ValueError(f"Field '{field_name}' conflicts with another field in the projection: {conflicting_name}")
+            
+
     def to_aggregation_stage(self, collection_name):
+        self.check_validity()
         projection_dict = {}
         for field in self.fields:
             if isinstance(field, ProjectionField):
                 if field.expression:
-                    projection_dict[field.field_name] = field.expression.to_mongo_query(collection_name)
+                    projection_dict[field.field_name] = expression_to_mongo(field.expression, collection_name)
                 else:
                     if field.field_name not in legal_fields.get(collection_name, []):
                         raise ValueError(f"Field '{field.field_name}' is not allowed in collection '{collection_name}'")

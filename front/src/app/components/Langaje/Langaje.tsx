@@ -12,14 +12,14 @@ const preBuiltQueries = [
   },
   {
     name: "Filter par date",
-    query: 'publications IF updated_at > 2025-06-15',
+    query: "publications IF updated_at > 2025-06-15",
   },
   {
     name: "Filtrer par taille",
     query: "publications IF len(body) > 450",
   },
   {
-    name: 'Nombre de caractères dans le prénom de l\'auteur pair',
+    name: "Nombre de caractères dans le prénom de l'auteur pair",
     query: "publications IF len(author.name) % 2 = 0",
   },
   {
@@ -36,8 +36,26 @@ const preBuiltQueries = [
   },
   {
     name: "Nom complet de l'auteur et taille du contenu de la publication",
-    query: "publications PROJECT {full_name: author.name + \" \" + author.lastname, content_size: len(body)}",
-  }
+    query:
+      `publications
+PROJECT {
+  full_name: author.name + " " + author.lastname,
+  content_size: len(body)
+}`,
+  },
+  {
+    name: "Requête complexe",
+    query: `publications
+IF len(body) > 250 AND NOT (author.name MATCHES "U")
+SORT updated_at
+LIMIT 100
+PROJECT {
+  author: author.name + " " + author.lastname,
+  body,
+  body_size: len(body),
+  link
+}`,
+  },
 ];
 
 export default function Langaje() {

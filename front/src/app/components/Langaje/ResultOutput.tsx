@@ -15,7 +15,7 @@ export default function ResultOutput({ result }: Props) {
       {result.map((res, idx) => (
         <div key={idx} className="result-item">
           <div>
-            <strong>Requête :</strong> <pre>{res.query}</pre>
+            <strong >Requête :</strong> <pre className="langaje-result-row">{res.query}</pre>
           </div>
           <div>
             <strong>Rows :</strong>
