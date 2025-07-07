@@ -17,8 +17,6 @@ api/uploads/
 
 .idea/
 
-front/
-api/
 target/
 
 events.xml

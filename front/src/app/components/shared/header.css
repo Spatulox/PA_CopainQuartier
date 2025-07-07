@@ -24,6 +24,7 @@
   height: 60px;
   background: white;
   border-radius: 50%;
+  cursor: pointer;
 }
 
 .search-section {
@@ -37,6 +38,18 @@
   border: none;
   width: 100%;
   max-width: 400px;
+}
+
+.search-result {
+  position: absolute;
+  transform: translateY(90px);
+  background-color: lightgray;
+  width: 400px;
+  color: black;
+}
+
+.search-item {
+
 }
 
 .nav-links nav {

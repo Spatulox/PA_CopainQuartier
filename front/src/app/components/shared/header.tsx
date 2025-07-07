@@ -1,16 +1,19 @@
 import './header.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from './auth-context';
 import { ApiClient } from '../../../api/client';
 import { Route } from '../../constantes';
 import "../Popup/Popup.css"
 import "./header.css"
+import { SearchClass, SearchReturn } from '../../../api/search';
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isConnected, isAdmin, updateConnection, clearConnection } = useAuth();
   const [isAdminMenuOpen, setIsAdminMenuOpen] = useState(false);
+  const [search, setSearch] = useState<string>()
+  const [results, setResults] = useState<SearchReturn | null>()
 
   const navigate = useNavigate();
 
@@ -31,6 +34,32 @@ function Header() {
     setIsAdminMenuOpen((v) => !v);
   };
 
+  useEffect(() => {
+    if (search === "") return;
+
+    if(search != undefined){
+      const handler = setTimeout(() => {
+        searchData(search);
+      }, 500);
+      return () => clearTimeout(handler);
+    }
+  }, [search]);
+
+  async function searchData(data: string) {
+    const client = new SearchClass();
+    try {
+      const res = await client.searchData(data);
+      setResults(res)
+    } catch (error) {
+      console.error(error);
+      setResults(null)
+    }
+  }
+
+  const handleInput = (event: any) => {
+    setSearch(event.currentTarget.value);
+  };
+
 
   return (
     <>
@@ -49,7 +78,7 @@ function Header() {
 
         {/* Partie gauche */}
         <div className="header-section logo">
-          <img src="/logo.png" alt="Logo" className="logo" />
+          <img src="/logo.png" alt="Logo" className="logo" onClick={() => navigate(Route.base)} />
         </div>
 
         {/* Partie centrale */}
@@ -58,7 +87,34 @@ function Header() {
             type="search"
             placeholder="Rechercher..."
             className="search-bar"
+            value={search}
+            onInput={handleInput}
           />
+          {search && results && (
+            <div className='search-result'>
+              {results.activity.length > 0 && (
+                <div className='search-item'>Activities:
+                {results.activity.map((act) => (
+                  <div>{act.title}</div>
+                ))}
+                </div>
+              )}
+              {results.publication.length > 0 && (
+                <div className='search-item'>Publications:
+                {results.publication.map((act) => (
+                  <div>{act.name}</div>
+                ))}
+              </div>
+              )}
+              {results.troc.length > 0 && (
+                <div className='search-item'>Trocs
+                {results.troc.map((act) => (
+                  <div>{act.title}</div>
+                ))}
+              </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Partie droite */}
