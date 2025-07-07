@@ -5,35 +5,47 @@ import { join } from "path";
 import { JavaModel } from "../Models/JavaModel";
 import { JavaTable } from "../DB_Schema/JavaSchema";
 
+function javaToObject(java: any): JavaModel{
+    const res: JavaModel = {
+        _id: java._id.toString(),
+        version: java.version.toString(),
+        createdAt: java.createdAt.toString(),
+    }
+    return res
+}
+
 @JsonController("/java")
-export class FileController {
+export class JavaController {
 
     @Get("/version")
-        async getJavaVersion(@Res() res: Response): Promise<JavaModel[] | null> {
+        async getJavaVersion(): Promise<JavaModel[] | null> {
         try {
             const javaVersion = await JavaTable.find().sort({ createdAt: -1 });
             if (!javaVersion) {
                 throw new NotFoundError("Java version not found");
             }
-            return javaVersion;
+            return javaVersion.map(javaToObject);
         } catch (err) {
             throw new InternalServerError("Error retrieving Java version");
         }
     }
+}
 
-    @Get("/executable/:version")
-    getJavaExecutable(@Param("version") version: string, @Res() res: Response ): void {
-        const filePath = join(__dirname, "../../java", `java_${version}.java`);
-
-        if (!existsSync(filePath)) {
-            throw new NotFoundError(`Java executable for version ${version} not found`);
-        }
-
-        // Forcer le téléchargement du fichier
-        res.download(filePath, `java_${version}.java`, (err) => {
-        if (err) {
-            throw new InternalServerError("Error downloading the file");
-        }
-        });
+export function getJavaExecutable(res: Response, version: string){
+    version = version.trim()
+    if (!/^[\w\-.]+$/.test(version)) {
+        throw new NotFoundError("Invalid version format");
     }
+
+    const filePath = join(__dirname, "../../java", `${version}.java`);
+    if (!existsSync(filePath)) {
+        res.status(404).send({ message: `Java executable not found` });
+        return
+    }
+
+    res.download(filePath, (err) => {
+        if (err) {
+            console.error("Error sending the file:", err);
+        }
+    });
 }

@@ -39,3 +39,6 @@ Test
 
 
 .fuse*
+*.lst
+
+webscrapper.jar

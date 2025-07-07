@@ -5,6 +5,7 @@ import com.example.scraper.pluginutils.PluginViewer;
 import com.example.scraper.themeutils.DefaultTheme;
 import com.example.scraper.themeutils.ThemeChooser;
 import com.example.scraper.themeutils.ThemeManager;
+import com.example.scraper.updates.Updater;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -16,9 +17,12 @@ import javafx.stage.Stage;
 import com.example.scraper.pluginutils.PluginLoader;
 import com.example.scraper.core.Plugin;
 import com.example.scraper.pluginutils.PluginManager;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MainApp extends Application {
+    private static final Logger log = LoggerFactory.getLogger(MainApp.class);
+    private String currentVersion = "1.0.0";
     private VBox root;
     private GridPane pluginGrid;
     private ThemePlugin theme;
@@ -30,6 +34,16 @@ public class MainApp extends Application {
             ThemeManager.setTheme(theme);
         } catch (Exception e) {
             theme = new DefaultTheme();
+        }
+        try{
+            String latestVersion = Updater.getLatestVersion();
+            if (!currentVersion.equals(latestVersion)) {
+                System.out.println("Nouvelle version disponible : " + latestVersion);
+                Updater.downloadExecutable(latestVersion);
+            }
+        } catch (Exception e){
+            log.error("e: ", e);
+            System.out.println("No internet connection");
         }
         refreshUI(primaryStage);
     }

@@ -5,8 +5,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../shared/auth-context';
 import Form from '../Forms/Forms';
 import { Route } from '../../constantes';
+import { FieldForm } from '../Popup/PopupForm';
 
-const loginFields = [
+const loginFields: FieldForm[] = [
   { name: "email", label: "Email", type: "email" },
   { name: "password", label: "Mot de passe", type: "password" },
 ];
