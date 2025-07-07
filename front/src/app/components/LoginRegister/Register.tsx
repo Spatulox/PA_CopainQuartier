@@ -22,20 +22,19 @@ const registerFields : FieldForm[] = [
 function Register() {
   const { updateConnection } = useAuth();
   const [formData, setFormData] = useState({
-    name: '', lastname: '', phone: '', address: '', email: '', password: '', confirmPassword: ''
+    name: 'test', lastname: 'test', phone: '0783173505', address: '12 rue', email: 'test@test.com', password: '123456789', confirmPassword: '123456789'
   });
   const [errors, setErrors] = useState<string[]>([]);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    console.log("e")
     e.preventDefault();
     const newErrors = [];
     if (!formData.email.includes('@')) newErrors.push('Email invalide');
     if (formData.password.length < 8) newErrors.push('Le mot de passe doit contenir au moins 8 caractères');
     if (formData.password !== formData.confirmPassword) newErrors.push('Les mots de passe ne correspondent pas');
     if (newErrors.length > 0) { setErrors(newErrors); return; }
-    const client = new ApiClient(formData.email, formData.password);
+    const client = new ApiClient(formData.email, formData.password, "register");
     let res;
     try {
       res = CreateFormData(formData);
@@ -49,10 +48,12 @@ function Register() {
       }
       return;
     }
+
     if (res) {
-      updateConnection();
-      setErrors([]);
-      navigate('/account');
+      await client.connect()
+      await updateConnection()
+      setErrors([])
+      navigate('/account')
     }
   };
 

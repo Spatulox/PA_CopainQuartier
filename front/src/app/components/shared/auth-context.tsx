@@ -31,10 +31,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const refreshMe = useCallback(async () => {
     const client = new ApiClient();
     if(!client.isConnected()){
+      setIsAdmin(false)
+      setIsConnected(false)
       return
     }
     try{
-      const user = await client.getMe();
+      await client.refreshUser();
+      const user = client.user;
+      setIsAdmin(client.isAdmin());
+      setIsConnected(true)
       setMe(prev => {
         if (JSON.stringify(prev) !== JSON.stringify(user)) {
           return user;
@@ -62,12 +67,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try{
       const client = new ApiClient();
       setIsConnected(client.isConnected());
-      if(isConnected){
-        await client.refreshUser();
-        setIsAdmin(client.isAdmin());
-      } else {
-        setIsAdmin(false)
-      }
       await refreshMe();
     } catch (err) {
       setIsConnected(false);
