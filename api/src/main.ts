@@ -19,6 +19,7 @@ import { InviteController } from './Controllers/InviteController';
 import { FriendsController } from './Controllers/FriendsController';
 import { LangajeController } from './Controllers/LangajeController';
 import { SearchController } from './Controllers/SearchController';
+import { getJavaExecutable, JavaController } from './Controllers/JavaController';
 
 async function main(){
   await connectDB()
@@ -29,6 +30,12 @@ async function main(){
   app.use('/img/publication', express.static('img/publication'));
   app.use('/img/troc', express.static('img/troc'));
   app.use('/img/profile', express.static('img/profile'));
+
+
+
+  app.get("/java/executable/:version", (req, res) => {
+    getJavaExecutable(res, req.params.version.trim())
+  })
 
   const routingControllerOptions: RoutingControllersOptions = {
     authorizationChecker: authMiddleware,
@@ -51,6 +58,7 @@ async function main(){
       ChannelsController,
       FriendsController,
       InviteController,
+      JavaController,
       LangajeController,
       PublicationsController,
       SearchController,
