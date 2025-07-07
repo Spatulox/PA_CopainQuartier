@@ -40,6 +40,18 @@
   max-width: 400px;
 }
 
+.search-result {
+  position: absolute;
+  transform: translateY(90px);
+  background-color: lightgray;
+  width: 400px;
+  color: black;
+}
+
+.search-item {
+
+}
+
 .nav-links nav {
   display: flex;
   align-items: center;
