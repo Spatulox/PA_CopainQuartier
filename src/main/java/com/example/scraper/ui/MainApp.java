@@ -35,17 +35,17 @@ public class MainApp extends Application {
         } catch (Exception e) {
             theme = new DefaultTheme();
         }
+        refreshUI(primaryStage);
         try{
             String latestVersion = Updater.getLatestVersion();
             if (!currentVersion.equals(latestVersion)) {
                 System.out.println("Nouvelle version disponible : " + latestVersion);
                 Updater.downloadExecutable(latestVersion);
+                Updater.replaceExecutableByNewVersion((primaryStage));
             }
         } catch (Exception e){
             log.error("e: ", e);
-            System.out.println("No internet connection");
         }
-        refreshUI(primaryStage);
     }
 
     private void refreshUI(Stage primaryStage) {
