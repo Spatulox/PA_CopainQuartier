@@ -30,7 +30,7 @@ export class ApiClient {
   // You can create an ApiClient instance in two way :
   // new ApiClient(username, password) => Get the token from the API
   // new ApiClient() => Get the Token from the localStorage
-  constructor(username: string | null = null, password: string | null = null) {
+  constructor(username: string | null = null, password: string | null = null, type: "register" | "login" = "login") {
     this.client = axios.create({
       baseURL: this.baseURL,
       //headers: { 'Content-Type': 'application/json' },
@@ -40,7 +40,9 @@ export class ApiClient {
       this.username = username;
       this.password = password;
     }
-    this.connect()
+    if(type == "login"){
+      this.connect()
+    }
   }
 
 
@@ -161,8 +163,7 @@ export class ApiClient {
   }
 
   async getMe(): Promise<User> {
-    const res = await this.Get('/users/@me');
-    return res//.data;
+    return await this.Get('/users/@me');
   }
 
   async updateUser(id: string, data: any): Promise<void> {
