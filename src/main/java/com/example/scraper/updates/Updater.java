@@ -32,7 +32,7 @@ public class Updater {
     public static void downloadExecutable(String version) throws Exception {
         URL url = new URL(apiUrl + "/executable/" + version);
         InputStream in = url.openStream();
-        FileOutputStream fos = new FileOutputStream("nouvelle-version.jar");
+        FileOutputStream fos = new FileOutputStream("webscrapper.jar");
         byte[] buffer = new byte[4096];
         int bytesRead;
         while ((bytesRead = in.read(buffer)) != -1) {
