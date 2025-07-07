@@ -62,11 +62,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try{
       const client = new ApiClient();
       setIsConnected(client.isConnected());
-      await client.refreshUser();
-      setIsAdmin(client.isAdmin());
+      if(isConnected){
+        await client.refreshUser();
+        setIsAdmin(client.isAdmin());
+      } else {
+        setIsAdmin(false)
+      }
       await refreshMe();
     } catch (err) {
-      //console.error("Error updating connection:", err);
       setIsConnected(false);
       setIsAdmin(false);
       setMe(null);

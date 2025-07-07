@@ -161,8 +161,7 @@ export class ApiClient {
   }
 
   async getMe(): Promise<User> {
-    const res = await this.Get('/users/@me');
-    return res//.data;
+    return await this.Get('/users/@me');
   }
 
   async updateUser(id: string, data: any): Promise<void> {
