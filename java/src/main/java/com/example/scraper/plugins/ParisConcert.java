@@ -10,6 +10,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -21,11 +22,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ParisMusee extends Plugin {
-
+public class ParisConcert extends Plugin {
     private ThemePlugin theme;
 
-    public ParisMusee(){
+    public ParisConcert(){
         theme = getTheme();
     }
 
@@ -34,7 +34,7 @@ public class ParisMusee extends Plugin {
         List<Map<String, Object>> events = new ArrayList<>();
 
         InternetRequest scrapper = new InternetRequest();
-        Document doc = scrapper.getHtmlDocument("https://paris.evous.fr/musees-de-paris/");
+        Document doc = scrapper.getHtmlDocument("https://www.evous.fr/paris/concerts/");
         Elements eventElements = doc.select("h3.event-title");
 
         for (Element h3 : eventElements) {
@@ -52,6 +52,7 @@ public class ParisMusee extends Plugin {
             event.put("date", date);
             events.add(event);
         }
+
         if(!events.isEmpty()){
             Database.save(events, name());
         }
@@ -100,6 +101,7 @@ public class ParisMusee extends Plugin {
 
         return box;
     }
+
     @Override
     public Button HeaderButton(Runnable refreshView){
         Button scrapeButton = theme.createButton("🔄 Scraper la catégorie");
@@ -108,7 +110,7 @@ public class ParisMusee extends Plugin {
             try {
                 execute();
                 refreshView.run();
-                System.out.println("Nothing to scrap wtf");
+                
             } catch (Exception ex) {
                 System.out.println("Erreur lors du scraping : " + ex.getMessage());
                 throw new RuntimeException(ex);
@@ -119,6 +121,6 @@ public class ParisMusee extends Plugin {
 
     @Override
     public String name() {
-        return "ParisMusée";
+        return "ParisConcert";
     }
 }

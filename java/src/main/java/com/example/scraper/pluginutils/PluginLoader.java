@@ -1,5 +1,6 @@
 package com.example.scraper.pluginutils;
 
+import com.example.scraper.core.AppFilesPath;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
@@ -8,7 +9,9 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 public class PluginLoader {
@@ -44,7 +47,16 @@ public class PluginLoader {
         File selectedFile = fileChooser.showOpenDialog(stage);
         if (selectedFile != null) {
             try {
-                File pluginsDir = new File("plugins/" + pluginType);
+                Path basePath;
+                if(pluginType.equals("themes")){
+                    basePath = AppFilesPath.getThemesPath();
+                } else if(pluginType.equals("mod")){
+                    basePath = AppFilesPath.getPluginsPath();
+                } else {
+                    throw  new RuntimeException("You need to specify the type when saving a file");
+                }
+
+                File pluginsDir = basePath.toFile();
                 if (!pluginsDir.exists()) pluginsDir.mkdirs();
 
                 File target = new File(pluginsDir, selectedFile.getName());
@@ -58,6 +70,8 @@ public class PluginLoader {
                 alert.showAndWait();
                 System.out.println("Échec de l'ajout du plugin");
                 System.out.println("Erreur : " + ex.getMessage());
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
             }
         }
     }

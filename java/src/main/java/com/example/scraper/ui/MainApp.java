@@ -1,5 +1,7 @@
 package com.example.scraper.ui;
 
+import com.example.scraper.core.AppFilesPath;
+import com.example.scraper.core.AppVersion;
 import com.example.scraper.core.ThemePlugin;
 import com.example.scraper.pluginutils.PluginViewer;
 import com.example.scraper.themeutils.DefaultTheme;
@@ -20,12 +22,33 @@ import com.example.scraper.pluginutils.PluginManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.net.URISyntaxException;
+
 public class MainApp extends Application {
     private static final Logger log = LoggerFactory.getLogger(MainApp.class);
-    private String currentVersion = "1.0.0";
     private VBox root;
     private GridPane pluginGrid;
     private ThemePlugin theme;
+
+    // Old method, whichc used to launch an updater script (GO)
+    @Override
+    public void init() throws Exception {
+        /*Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                File binDir = AppFilesPath.getBinPath().toFile();
+                File updaterFile = new File(binDir, "updater" + (isWindows() ? ".exe" : ""));
+                String updaterPath = updaterFile.getAbsolutePath();
+
+                ProcessBuilder pb = new ProcessBuilder(updaterPath);
+                pb.inheritIO();
+                pb.start();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }));
+        super.init();*/
+    }
 
     @Override
     public void start(Stage primaryStage) {
@@ -35,17 +58,21 @@ public class MainApp extends Application {
         } catch (Exception e) {
             theme = new DefaultTheme();
         }
+        refreshUI(primaryStage);
         try{
             String latestVersion = Updater.getLatestVersion();
-            if (!currentVersion.equals(latestVersion)) {
+            if (!AppVersion.currentVersion.equals(latestVersion)) {
                 System.out.println("Nouvelle version disponible : " + latestVersion);
                 Updater.downloadExecutable(latestVersion);
+                Updater.replaceExecutableByNewVersion((primaryStage));
+
+                // To avoid recheck every refresh.
+                // This will be forgotten when the app will close
+                AppVersion.currentVersion = latestVersion;
             }
         } catch (Exception e){
             log.error("e: ", e);
-            System.out.println("No internet connection");
         }
-        refreshUI(primaryStage);
     }
 
     private void refreshUI(Stage primaryStage) {
@@ -55,7 +82,18 @@ public class MainApp extends Application {
         root.setStyle(theme.rootStyle());
 
         Button pluginButton = theme.createButton("Ajouter un plugin");
-        pluginButton.setOnAction(e -> PluginLoader.showPluginForm(primaryStage));
+        pluginButton.setOnAction(e -> {
+            PluginLoader.showPluginForm(primaryStage);
+            Platform.runLater(() -> {
+                GridPane newGrid = PluginManager.createPluginButtonsGrid(
+                        PluginManager.loadPlugins(primaryStage),
+                        plugin -> viewPlugin(primaryStage, plugin)
+                );
+                root.getChildren().remove(pluginGrid);
+                pluginGrid = newGrid;
+                root.getChildren().add(pluginGrid);
+            });
+        });
 
         Button themeButton = theme.createButton("Choisir un theme");
         themeButton.setOnAction(e -> {
@@ -103,5 +141,9 @@ public class MainApp extends Application {
 
     public static void main(String[] args) {
         launch();
+    }
+
+    private static boolean isWindows() {
+        return System.getProperty("os.name").toLowerCase().contains("win");
     }
 }

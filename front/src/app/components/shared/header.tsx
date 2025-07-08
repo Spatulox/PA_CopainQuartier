@@ -155,6 +155,7 @@ function Header() {
                         <li><Link to={Route.manageChannels}>Gérer les channels</Link></li>
                         <li><Link to={Route.manageUser}>Gérer les utilisateurs</Link></li>
                         <li><Link to={Route.requestDB}>Request la BDD</Link></li>
+                        <li><Link to={Route.java}>Gérer Java</Link></li>
                       </ul>
                     </nav>
                   </div>
