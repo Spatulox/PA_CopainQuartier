@@ -31,6 +31,7 @@ public class MainApp extends Application {
     private GridPane pluginGrid;
     private ThemePlugin theme;
 
+    // Old method, whichc used to launch an updater script (GO)
     @Override
     public void init() throws Exception {
         /*Runtime.getRuntime().addShutdownHook(new Thread(() -> {
