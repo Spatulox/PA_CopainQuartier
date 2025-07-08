@@ -13,7 +13,7 @@ JSON_JAR="$HOME/.m2/repository/org/json/json/20240303/json-20240303.jar"
 SLF4J_JAR="$HOME/.m2/repository/org/slf4j/slf4j-api/2.0.13/slf4j-api-2.0.13.jar"
 
 BUILD_DIR="build_main"
-JAR_NAME="webscrapper.jar"
+JAR_NAME="javaapp.jar"
 MAIN_CLASS="com.example.scraper.ui.MainApp"
 
 # Variable d'environnement pour mon Java, sachant que mon Java par défaut n'est pas le java demandé (Java21)

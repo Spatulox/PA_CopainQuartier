@@ -28,13 +28,13 @@ MAIN_CLASS="com.example.scraper.ui.MainApp"
 #java --module-path dist --add-modules javafx.controls,javafx.fxml,javafx.base,javafx.graphics -cp "dist/*" $MAIN_CLASS
 echo "--------TERMINATED---------"
 echo "Compiling app..."
-sudo rm -r WebScrapper
+sudo rm -r JavaApp
 
 jpackage \
   --type app-image \
   --input dist \
-  --main-jar webscrapper.jar \
+  --main-jar javaapp.jar \
   --main-class com.example.scraper.ui.MainApp \
-  --name WebScrapper \
+  --name JavaApp \
   --module-path "dist" \
   --add-modules javafx.controls,javafx.fxml,javafx.base,javafx.graphics
