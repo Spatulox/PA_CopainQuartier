@@ -321,11 +321,11 @@ async function FakeJavaVersions() {
 
   for (let i = 0; i < 5; i++) {
     const version = `Java-${faker.system.semver()}`;
-    const executable_path = `/usr/lib/jvm/${version}/bin/java`;
+    const filename = `/usr/lib/jvm/${version}/bin/java`;
 
     const java = new JavaTable({
       version,
-      executable_path,
+      filename,
       createdAt: faker.date.past(),
     });
 
