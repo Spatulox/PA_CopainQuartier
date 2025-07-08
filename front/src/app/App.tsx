@@ -30,6 +30,7 @@ import MyFriends from './components/Friends/MyFriends';
 import MyFriendRequest from './components/Friends/MyFriendsRequest';
 import SingleFriends from './components/Friends/SingleFriends';
 import Langaje from './components/Langaje/Langaje';
+import JavaList from './components/Java/JavaList';
 
 function App() {
   return (
@@ -84,6 +85,7 @@ function App() {
 
 
           <Route path={`${CRoute.requestDB}`} element={<Langaje />} />
+          <Route path={`${CRoute.java}`} element={<JavaList />} />
 
 
           <Route path="404" element={<NotFound />} />
