@@ -88,7 +88,7 @@ export const javaUploadsOptions = {
   storage: diskStorage({
     destination: ImgFilepath.java,
     filename: (req, file, cb) => {
-      cb(null, Date.now() + extname("jar-file" + new ObjectID().toString()));
+      cb(null, "Java" + Date.now() + extname(file.originalname))
     }
   }),
   fileFilter: (req: Request, file: File, cb: Callback) => {

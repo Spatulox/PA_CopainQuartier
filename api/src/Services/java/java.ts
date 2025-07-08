@@ -1,9 +1,14 @@
+import { JavaTable } from "../../DB_Schema/JavaSchema"
 import { JavaModel } from "../../Models/JavaModel"
 
-export function getJavaFilenameFromVersion(version: string){
+export async function getJavaFilenameByVersion(version: string){
 
+    const java = await JavaTable.findOne(
+        {version: version}
+    )
+    console.log(java)
+    return javaToObject(java).filename
 }
-
 
 export function javaToObject(java: any): JavaModel{
     const res: JavaModel = {

@@ -7,7 +7,7 @@ import { JavaTable } from "../DB_Schema/JavaSchema";
 import { javaUploadsOptions } from "../Utils/multer";
 import { zJavaUpload } from "../Validators/java";
 import { UserRole } from "../DB_Schema/UserSchema";
-import { javaToObject } from "../Services/java/java";
+import { getJavaFilenameByVersion, javaToObject } from "../Services/java/java";
 
 @JsonController("/java")
 export class JavaController {
@@ -28,7 +28,12 @@ export class JavaController {
     @Post("/")
     @Authorized(UserRole.admin)
     @HttpCode(201)
-    async uploadNewJavaVersion(@Body() body: string, @UploadedFile("file", { options: javaUploadsOptions }) javafile: Express.Multer.File): Promise<boolean> {
+    async uploadNewJavaVersion(@Body() body: string, @UploadedFile("jar", { options: javaUploadsOptions }) javafile: Express.Multer.File): Promise<boolean> {
+
+        if(!javafile){
+            return false
+        }
+
         const validBody = zJavaUpload.parse(body)
         const java = await JavaTable.create(
             {
@@ -37,18 +42,19 @@ export class JavaController {
                 filename: javafile.filename,
             },
         )
-
         return !!java && !!java._id
     }
 }
 
-export function getJavaJarUpdate(res: Response, version: string){
+export async function getJavaJarUpdate(res: Response, version: string){
     version = version.trim()
     if (!/^[\w\-.]+$/.test(version)) {
         throw new NotFoundError("Invalid version format");
     }
 
-    const filePath = join(__dirname, "../../java/versions", `${version}.jar`);
+    const filename = await getJavaFilenameByVersion(version)
+
+    const filePath = join(__dirname, "../../java/versions", `${filename}`);
     if (!existsSync(filePath)) {
         res.status(404).send({ message: `Java executable not found` });
         return
