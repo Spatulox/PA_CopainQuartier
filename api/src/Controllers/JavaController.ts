@@ -56,7 +56,7 @@ export async function getJavaJarUpdate(res: Response, version: string){
 
     const filePath = join(__dirname, "../../java/versions", `${filename}`);
     if (!existsSync(filePath)) {
-        res.status(404).send({ message: `Java executable not found` });
+        res.status(404).send({ message: `Java jar not found` });
         return
     }
 
@@ -71,5 +71,21 @@ export function getJavaExecutable(res: Response, os: string){
     if(os!= "win" && os != "linux"){
         return
     }
-    console.log(os)
+
+    let name = "JavaApp-Setup-Win.exe"
+    if(os == "linux"){
+        name = "JavaApp-Setup-deb.deb"
+    }
+
+    const filePath = join(__dirname, "../../java", name);
+    if (!existsSync(filePath)) {
+        res.status(404).send({ message: `Java executable not found` });
+        return
+    }
+
+    res.download(filePath, (err) => {
+        if (err) {
+            console.error("Error sending the file:", err);
+        }
+    });
 }
