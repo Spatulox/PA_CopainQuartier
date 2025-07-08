@@ -39,6 +39,11 @@ Test
 
 
 .fuse*
+
 *.lst
 
 webscrapper.jar
+
+
+java/dist
+java/WebScrapper
