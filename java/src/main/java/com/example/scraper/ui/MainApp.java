@@ -1,5 +1,6 @@
 package com.example.scraper.ui;
 
+import com.example.scraper.core.AppVersion;
 import com.example.scraper.core.ThemePlugin;
 import com.example.scraper.pluginutils.PluginViewer;
 import com.example.scraper.themeutils.DefaultTheme;
@@ -22,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 public class MainApp extends Application {
     private static final Logger log = LoggerFactory.getLogger(MainApp.class);
-    private String currentVersion = "Java-4.6.17";
     private VBox root;
     private GridPane pluginGrid;
     private ThemePlugin theme;
@@ -38,10 +38,14 @@ public class MainApp extends Application {
         refreshUI(primaryStage);
         try{
             String latestVersion = Updater.getLatestVersion();
-            if (!currentVersion.equals(latestVersion)) {
+            if (!AppVersion.currentVersion.equals(latestVersion)) {
                 System.out.println("Nouvelle version disponible : " + latestVersion);
                 Updater.downloadExecutable(latestVersion);
                 Updater.replaceExecutableByNewVersion((primaryStage));
+
+                // To avoid recheck every refresh.
+                // This will be forgotten when the app will close
+                AppVersion.currentVersion = latestVersion;
             }
         } catch (Exception e){
             log.error("e: ", e);
