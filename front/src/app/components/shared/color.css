@@ -1,0 +1,15 @@
+:root {
+  --text-color: white;
+  --secondary-text-color: #dddddd;
+  --button-background: #3a3aff;
+  --button-background-hover: #3a3aff;
+
+  --error-background: #b00020;
+
+  --grey: #444;
+
+  --dark-color0: #2c2c2c;
+  --dark-color1: #2a2a2a;
+  --dark-color2: #1f1f1f;
+  --dark-color4: #1e1e1e;
+}
