@@ -1,6 +1,7 @@
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, ResponseType } from 'axios';
 import { User } from "./user"
 import { popup } from '../app/scripts/popup-slide';
+
 
 
 export type Query = Record<string, string | number | boolean | undefined | null>
@@ -235,17 +236,23 @@ export class ApiClient {
 
   // ----------- INTERNET REQUESTS ----------- //
 
-  protected async Get(endpoint: string, query?: object): Promise<any> {
-    if(query){
-      endpoint +=this.queryToString(query)
+  protected async Get(endpoint: string, query?: object, responseType?: ResponseType): Promise<any> {
+    if (query) {
+      endpoint += this.queryToString(query);
     }
-    try{
-      return (await this.client.get(endpoint)).data
-    } catch(e){
-      //console.error(e)
-      throw e
+    try {
+      const config: AxiosRequestConfig = {};
+      if (responseType) {
+        config.responseType = responseType;
+        return await this.client.get(endpoint, config);
+      }
+      return (await this.client.get(endpoint)).data;
+      
+    } catch (e) {
+      throw e;
     }
   }
+
 
   protected async Post(endpoint: string, options: object, query?: object): Promise<any> {
     if(query){
