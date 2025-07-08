@@ -41,8 +41,14 @@ rm -rf "$BUILD_DIR" sources.txt
 # Copie toutes les dépendances dans dist/
 cp "$JSOUP_JAR" "$JAVAFX_CONTROLS" "$JAVAFX_BASE" "$JAVAFX_GRAPHICS" "$JAVAFX_FXML" "$JACKSON_CORE" "$JACKSON_DATABIND" "$JSON_JAR" "$SLF4J_JAR" dist/
 
+echo "---------------------------"
 echo "Test manuel de lancement..."
+echo "Pour sortir de l'application
+      et continuer le build, veuiller
+      presser CTRL + C dans la console
+      et non juste fermer l'application."
 java --module-path dist --add-modules javafx.controls,javafx.fxml,javafx.base,javafx.graphics -cp "dist/*" $MAIN_CLASS
+echo "--------TERMINATED---------"
 
 sudo rm -r WebScrapper
 
