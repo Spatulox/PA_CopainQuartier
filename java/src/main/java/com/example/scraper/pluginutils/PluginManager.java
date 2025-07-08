@@ -1,5 +1,6 @@
 package com.example.scraper.pluginutils;
 
+import com.example.scraper.core.AppFilesPath;
 import com.example.scraper.core.Plugin;
 import com.example.scraper.core.ThemePlugin;
 import com.example.scraper.themeutils.DefaultTheme;
@@ -28,7 +29,12 @@ public class PluginManager {
     private static ScheduledExecutorService scheduler = null;
 
     public static ThemePlugin loadTheme(){
-        File pluginsDir = new File("plugins/themes");
+        File pluginsDir;
+        try{
+            pluginsDir = AppFilesPath.getThemesPath().toFile();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         if (!pluginsDir.exists() || !pluginsDir.isDirectory()) {
             System.out.println("Aucun dossier de plugins trouvé.");
@@ -61,7 +67,13 @@ public class PluginManager {
 
     public static List<Plugin> loadPlugins(Stage mainStage) {
         List<Plugin> plugins = new ArrayList<>();
-        File pluginsDir = new File("plugins/mod");
+
+        File pluginsDir;
+        try{
+            pluginsDir = AppFilesPath.getPluginsPath().toFile();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         if (!pluginsDir.exists() || !pluginsDir.isDirectory()) {
             System.out.println("Aucun dossier de plugins trouvé.");
