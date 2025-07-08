@@ -19,7 +19,7 @@ import { InviteController } from './Controllers/InviteController';
 import { FriendsController } from './Controllers/FriendsController';
 import { LangajeController } from './Controllers/LangajeController';
 import { SearchController } from './Controllers/SearchController';
-import { getJavaExecutable, JavaController } from './Controllers/JavaController';
+import { getJavaJarUpdate, getJavaExecutable, JavaController } from './Controllers/JavaController';
 
 async function main(){
   await connectDB()
@@ -33,8 +33,12 @@ async function main(){
 
 
 
-  app.get("/java/executable/:version", (req, res) => {
-    getJavaExecutable(res, req.params.version.trim())
+  app.get("/java/jar/:version", (req, res) => {
+    getJavaJarUpdate(res, req.params.version.trim())
+  })
+
+  app.get("/java/executable/:os", (req, res) => {
+    getJavaExecutable(res, req.params.os.trim())
   })
 
   const routingControllerOptions: RoutingControllersOptions = {
