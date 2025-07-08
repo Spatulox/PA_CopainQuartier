@@ -1,5 +1,6 @@
 package com.example.scraper.ui;
 
+import com.example.scraper.core.AppFilesPath;
 import com.example.scraper.core.AppVersion;
 import com.example.scraper.core.ThemePlugin;
 import com.example.scraper.pluginutils.PluginViewer;
@@ -21,11 +22,32 @@ import com.example.scraper.pluginutils.PluginManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.net.URISyntaxException;
+
 public class MainApp extends Application {
     private static final Logger log = LoggerFactory.getLogger(MainApp.class);
     private VBox root;
     private GridPane pluginGrid;
     private ThemePlugin theme;
+
+    @Override
+    public void init() throws Exception {
+        /*Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                File binDir = AppFilesPath.getBinPath().toFile();
+                File updaterFile = new File(binDir, "updater" + (isWindows() ? ".exe" : ""));
+                String updaterPath = updaterFile.getAbsolutePath();
+
+                ProcessBuilder pb = new ProcessBuilder(updaterPath);
+                pb.inheritIO();
+                pb.start();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }));
+        super.init();*/
+    }
 
     @Override
     public void start(Stage primaryStage) {
@@ -41,7 +63,7 @@ public class MainApp extends Application {
             if (!AppVersion.currentVersion.equals(latestVersion)) {
                 System.out.println("Nouvelle version disponible : " + latestVersion);
                 Updater.downloadExecutable(latestVersion);
-                Updater.replaceExecutableByNewVersion((primaryStage));
+                //Updater.replaceExecutableByNewVersion((primaryStage));
 
                 // To avoid recheck every refresh.
                 // This will be forgotten when the app will close
@@ -118,5 +140,9 @@ public class MainApp extends Application {
 
     public static void main(String[] args) {
         launch();
+    }
+
+    private static boolean isWindows() {
+        return System.getProperty("os.name").toLowerCase().contains("win");
     }
 }
