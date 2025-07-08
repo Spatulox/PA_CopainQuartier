@@ -110,7 +110,7 @@ public class ParisConcert extends Plugin {
             try {
                 execute();
                 refreshView.run();
-                System.out.println("Nothing to scrap wtf");
+                
             } catch (Exception ex) {
                 System.out.println("Erreur lors du scraping : " + ex.getMessage());
                 throw new RuntimeException(ex);
