@@ -3,6 +3,7 @@ package com.example.scraper.updates;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.Optional;
 
 import javafx.scene.control.Alert;
@@ -10,6 +11,8 @@ import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import com.example.scraper.core.AppFilesPath;
 
 public class Updater {
     private static String apiUrl = "http://localhost:3000/java";
@@ -32,9 +35,12 @@ public class Updater {
     }
 
     public static void downloadExecutable(String version) throws Exception {
+        Path basePath = AppFilesPath.getBinPath();
+        File outputFile = new File(basePath.toFile(), "new-version.jar");
+
         URL url = new URL(apiUrl + "/executable/" + version);
         InputStream in = url.openStream();
-        FileOutputStream fos = new FileOutputStream("new-version.jar");
+        FileOutputStream fos = new FileOutputStream(outputFile);
         byte[] buffer = new byte[4096];
         int bytesRead;
         while ((bytesRead = in.read(buffer)) != -1) {
