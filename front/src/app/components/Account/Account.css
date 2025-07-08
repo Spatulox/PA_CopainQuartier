@@ -79,7 +79,7 @@
 
 .update-account-form label {
     font-weight: bold;
-    color: #dddddd;
+    color: var(--secondary-text-color);
     margin-bottom: 0.4rem;
     display: flex;
     flex-direction: column;

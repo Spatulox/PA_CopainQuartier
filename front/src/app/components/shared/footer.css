@@ -57,7 +57,7 @@
 }
 
 .copyright {
-  border-top: 1px solid #444;
+  border-top: 1px solid var(--grey);
   text-align: center;
   color: #bbb;
 }
