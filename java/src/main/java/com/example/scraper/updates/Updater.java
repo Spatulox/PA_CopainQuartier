@@ -2,8 +2,12 @@ package com.example.scraper.updates;
 
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 
 import javafx.scene.control.Alert;
@@ -35,7 +39,7 @@ public class Updater {
     }
 
     public static void downloadExecutable(String version) throws Exception {
-        Path basePath = AppFilesPath.getBinPath();
+        Path basePath = AppFilesPath.getAppFile();
         File outputFile = new File(basePath.toFile(), "new-version.jar");
 
         URL url = new URL(apiUrl + "/executable/" + version);
@@ -52,25 +56,28 @@ public class Updater {
 
     public static void replaceExecutableByNewVersion(Stage stage) {
         try {
-            java.nio.file.Files.move(
-                    java.nio.file.Paths.get("new-version.jar"),
-                    java.nio.file.Paths.get("webscrapper.jar"),
-                    java.nio.file.StandardCopyOption.REPLACE_EXISTING
-            );
+            Path appPath = AppFilesPath.getAppFile();
+            Path binPath = AppFilesPath.getBinPath();
 
-            // Afficher une alerte de confirmation JavaFX
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            String os = System.getProperty("os.name").toLowerCase();
+            boolean isWindows = os.contains("win");
+            Path executable = isWindows
+                    ? binPath.resolve("WebScrapper.exe")
+                    : binPath.resolve("WebScrapper");
+
+
+            Path source = appPath.resolve("new-version.jar");
+            Path target = appPath.resolve("webscrapper.jar");
+            Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
+
+            // Afficher l'alerte de confirmation
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.initOwner(stage);
-            alert.setTitle("Redémarrage requis");
+            alert.setTitle("Redémarrage de l'application requis");
             alert.setHeaderText("Mise à jour réussie !");
-            alert.setContentText("Voulez-vous redémarrer l'application maintenant ?");
+            alert.setContentText("La mise à jour prendra effet lors de la prochaine ouverture de l'application");
+            alert.showAndWait();
 
-            Optional<ButtonType> result = alert.showAndWait();
-            if (result.isPresent() && result.get() == ButtonType.OK) {
-                // Redémarrage accepté
-                new ProcessBuilder("java", "-jar", "app.jar").start();
-                System.exit(0);
-            }
         } catch (IOException e) {
             e.printStackTrace();
             Alert error = new Alert(Alert.AlertType.ERROR);
@@ -79,6 +86,8 @@ public class Updater {
             error.setHeaderText("Erreur lors de la mise à jour");
             error.setContentText(e.getMessage());
             error.showAndWait();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
         }
     }
 }

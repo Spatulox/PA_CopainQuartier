@@ -25,7 +25,6 @@ public class AppFilesPath {
         ).getParent();
 
         Path basePath = Paths.get(jarPath).getParent().getParent().resolve(path);
-
         try {
             Files.createDirectories(basePath);
         } catch (Exception e) {
@@ -38,7 +37,21 @@ public class AppFilesPath {
         return getPath("plugins");
     }
 
-    public static java.nio.file.Path getThemesPath() throws URISyntaxException {
+    public static Path getThemesPath() throws URISyntaxException {
         return getPath("themes");
+    }
+
+    public static Path getAppFile() throws URISyntaxException {
+        String jarPath = new File(
+                Updater.class.getProtectionDomain().getCodeSource().getLocation().toURI()
+        ).getParent();
+
+        Path basePath = Paths.get(jarPath);
+        try {
+            Files.createDirectories(basePath);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return basePath;
     }
 }
