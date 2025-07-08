@@ -34,7 +34,7 @@ public class MainApp extends Application {
     // Old method, whichc used to launch an updater script (GO)
     @Override
     public void init() throws Exception {
-        /*Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
                 File binDir = AppFilesPath.getBinPath().toFile();
                 File updaterFile = new File(binDir, "updater" + (isWindows() ? ".exe" : ""));
@@ -47,7 +47,7 @@ public class MainApp extends Application {
                 e.printStackTrace();
             }
         }));
-        super.init();*/
+        super.init();
     }
 
     @Override
@@ -64,7 +64,7 @@ public class MainApp extends Application {
             if (!AppVersion.currentVersion.equals(latestVersion)) {
                 System.out.println("Nouvelle version disponible : " + latestVersion);
                 Updater.downloadExecutable(latestVersion);
-                Updater.replaceExecutableByNewVersion((primaryStage));
+                //Updater.replaceExecutableByNewVersion((primaryStage));
 
                 // To avoid recheck every refresh.
                 // This will be forgotten when the app will close
