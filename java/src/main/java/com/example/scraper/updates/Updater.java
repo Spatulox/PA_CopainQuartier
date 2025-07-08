@@ -42,7 +42,7 @@ public class Updater {
         Path basePath = AppFilesPath.getAppFile();
         File outputFile = new File(basePath.toFile(), "new-version.jar");
 
-        URL url = new URL(apiUrl + "/executable/" + version);
+        URL url = new URL(apiUrl + "/jar/" + version);
         InputStream in = url.openStream();
         FileOutputStream fos = new FileOutputStream(outputFile);
         byte[] buffer = new byte[4096];
@@ -62,8 +62,8 @@ public class Updater {
             String os = System.getProperty("os.name").toLowerCase();
             boolean isWindows = os.contains("win");
             Path executable = isWindows
-                    ? binPath.resolve("WebScrapper.exe")
-                    : binPath.resolve("WebScrapper");
+                    ? binPath.resolve("JavaApp.exe")
+                    : binPath.resolve("JavaApp");
 
 
             Path source = appPath.resolve("new-version.jar");
