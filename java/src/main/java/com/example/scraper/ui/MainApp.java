@@ -63,7 +63,7 @@ public class MainApp extends Application {
             if (!AppVersion.currentVersion.equals(latestVersion)) {
                 System.out.println("Nouvelle version disponible : " + latestVersion);
                 Updater.downloadExecutable(latestVersion);
-                //Updater.replaceExecutableByNewVersion((primaryStage));
+                Updater.replaceExecutableByNewVersion((primaryStage));
 
                 // To avoid recheck every refresh.
                 // This will be forgotten when the app will close

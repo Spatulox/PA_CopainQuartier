@@ -67,7 +67,7 @@ public class Updater {
 
 
             Path source = appPath.resolve("new-version.jar");
-            Path target = appPath.resolve("webscrapper.jar");
+            Path target = appPath.resolve("javaapp.jar");
             Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
 
             // Afficher l'alerte de confirmation
