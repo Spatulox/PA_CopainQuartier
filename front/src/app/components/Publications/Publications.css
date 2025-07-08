@@ -5,7 +5,7 @@
     margin: 60px auto 40px;
     max-width: 800px;
     box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
-    color: #fff;
+    color: var(--text-color);
 }
 
 .publication-card .end{
@@ -52,7 +52,7 @@ justify-content: center;
     background-color: #3a3aff;
     border: none;
     padding: 0.6rem 1.2rem;
-    color: white;
+    color: var(--text-color);
     border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
@@ -78,7 +78,7 @@ justify-content: center;
     border-radius: 8px;
     background-color: #2a2a2a;
     border: 1px solid #444;
-    color: white;
+    color: var(--text-color);
 }
 
 .publication-edit-form textarea {
@@ -91,5 +91,5 @@ justify-content: center;
     padding: 0.8rem;
     border-radius: 8px;
     margin-bottom: 1rem;
-    color: white;
+    color: var(--text-color);
 }
