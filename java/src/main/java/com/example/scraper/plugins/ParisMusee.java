@@ -21,21 +21,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ParisSpectacle extends Plugin {
+public class ParisMusee extends Plugin {
 
     private ThemePlugin theme;
 
-    public ParisSpectacle(){
+    public ParisMusee(){
         theme = getTheme();
     }
-
 
     @Override
     public void execute() throws Exception {
         List<Map<String, Object>> events = new ArrayList<>();
 
         InternetRequest scrapper = new InternetRequest();
-        Document doc = scrapper.getHtmlDocument("https://www.evous.fr/paris/Spectacles/");
+        Document doc = scrapper.getHtmlDocument("https://paris.evous.fr/musees-de-paris/");
         Elements eventElements = doc.select("h3.event-title");
 
         for (Element h3 : eventElements) {
@@ -53,7 +52,6 @@ public class ParisSpectacle extends Plugin {
             event.put("date", date);
             events.add(event);
         }
-
         if(!events.isEmpty()){
             Database.save(events, name());
         }
@@ -102,7 +100,6 @@ public class ParisSpectacle extends Plugin {
 
         return box;
     }
-
     @Override
     public Button HeaderButton(Runnable refreshView){
         Button scrapeButton = theme.createButton("🔄 Scraper la catégorie");
@@ -111,7 +108,7 @@ public class ParisSpectacle extends Plugin {
             try {
                 execute();
                 refreshView.run();
-                System.out.println("Nothing to scrap wtf");
+                
             } catch (Exception ex) {
                 System.out.println("Erreur lors du scraping : " + ex.getMessage());
                 throw new RuntimeException(ex);
@@ -122,6 +119,6 @@ public class ParisSpectacle extends Plugin {
 
     @Override
     public String name() {
-        return "ParisSpectacle";
+        return "ParisMusée";
     }
 }

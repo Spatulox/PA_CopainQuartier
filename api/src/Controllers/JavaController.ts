@@ -1,18 +1,13 @@
 import { Response } from "express";
-import { Get, Param, Res, JsonController, NotFoundError, InternalServerError } from "routing-controllers";
+import { Get, Param, Res, JsonController, NotFoundError, InternalServerError, Post, HttpCode, UploadedFile, Body, Authorized } from "routing-controllers";
 import { existsSync } from "fs";
 import { join } from "path";
 import { JavaModel } from "../Models/JavaModel";
 import { JavaTable } from "../DB_Schema/JavaSchema";
-
-function javaToObject(java: any): JavaModel{
-    const res: JavaModel = {
-        _id: java._id.toString(),
-        version: java.version.toString(),
-        createdAt: java.createdAt.toString(),
-    }
-    return res
-}
+import { javaUploadsOptions } from "../Utils/multer";
+import { zJavaUpload } from "../Validators/java";
+import { UserRole } from "../DB_Schema/UserSchema";
+import { getJavaFilenameByVersion, javaToObject } from "../Services/java/java";
 
 @JsonController("/java")
 export class JavaController {
@@ -29,15 +24,37 @@ export class JavaController {
             throw new InternalServerError("Error retrieving Java version");
         }
     }
+
+    @Post("/")
+    @Authorized(UserRole.admin)
+    @HttpCode(201)
+    async uploadNewJavaVersion(@Body() body: string, @UploadedFile("jar", { options: javaUploadsOptions }) javafile: Express.Multer.File): Promise<boolean> {
+
+        if(!javafile){
+            return false
+        }
+
+        const validBody = zJavaUpload.parse(body)
+        const java = await JavaTable.create(
+            {
+                version: validBody.version,
+                createdAt: new Date(),
+                filename: javafile.filename,
+            },
+        )
+        return !!java && !!java._id
+    }
 }
 
-export function getJavaExecutable(res: Response, version: string){
+export async function getJavaJarUpdate(res: Response, version: string){
     version = version.trim()
     if (!/^[\w\-.]+$/.test(version)) {
         throw new NotFoundError("Invalid version format");
     }
 
-    const filePath = join(__dirname, "../../java", `${version}.java`);
+    const filename = await getJavaFilenameByVersion(version)
+
+    const filePath = join(__dirname, "../../java/versions", `${filename}`);
     if (!existsSync(filePath)) {
         res.status(404).send({ message: `Java executable not found` });
         return
@@ -48,4 +65,11 @@ export function getJavaExecutable(res: Response, version: string){
             console.error("Error sending the file:", err);
         }
     });
+}
+
+export function getJavaExecutable(res: Response, os: string){
+    if(os!= "win" && os != "linux"){
+        return
+    }
+    console.log(os)
 }

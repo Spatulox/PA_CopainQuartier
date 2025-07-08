@@ -33,4 +33,5 @@ export const enum Route {
 
 
     requestDB = "/requestdb",
+    java = "/java",
 }
