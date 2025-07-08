@@ -16,13 +16,13 @@ BUILD_DIR="build_main"
 JAR_NAME="webscrapper.jar"
 MAIN_CLASS="com.example.scraper.ui.MainApp"
 
-
+# Variable d'environnement pour mon Java, sachant que mon Java par défaut n'est pas le java demandé (Java21)
 export JAVA_HOME="$HOME/.jdks/ms-21.0.7"
 export PATH="$JAVA_HOME/bin:$PATH"
 
 mkdir -p "$BUILD_DIR"
 
-# Compilation de toutes les sources principales
+# Compilation avec toutes les sources principales
 find src/main/java -name "*.java" > sources.txt
 javac -d "$BUILD_DIR" -cp "$JSOUP_JAR:$JAVAFX_CONTROLS:$JAVAFX_BASE:$JAVAFX_GRAPHICS:$JACKSON_CORE:$JACKSON_DATABIND:$JACKSON_ANNOTATION:$JSON_JAR:$SLF4J_JAR" @sources.txt
 
@@ -37,11 +37,10 @@ cd ..
 # Nettoyage
 rm -rf "$BUILD_DIR" sources.txt
 
-#echo "Le JAR exécutable $JAR_NAME a été créé à la racine du projet."
-
-# Copie toutes les dépendances dans dist/
+# Copie toutes les dépendances dans dist/ pour jpackage
 cp "$JSOUP_JAR" "$JAVAFX_CONTROLS" "$JAVAFX_BASE" "$JAVAFX_GRAPHICS" "$JAVAFX_FXML" "$JACKSON_CORE" "$JACKSON_DATABIND" "$JACKSON_ANNOTATION" "$JSON_JAR" "$SLF4J_JAR" dist/
 
+# Execute l'application, pour savoir si elle peut compiler avec jpackage
 echo "---------------------------"
 echo "Test manuel de lancement..."
 echo "Pour sortir de l'application

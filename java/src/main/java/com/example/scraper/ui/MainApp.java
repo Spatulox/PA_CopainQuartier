@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 public class MainApp extends Application {
     private static final Logger log = LoggerFactory.getLogger(MainApp.class);
-    private String currentVersion = "1.0.0";
+    private String currentVersion = "Java-4.6.17";
     private VBox root;
     private GridPane pluginGrid;
     private ThemePlugin theme;
@@ -55,7 +55,18 @@ public class MainApp extends Application {
         root.setStyle(theme.rootStyle());
 
         Button pluginButton = theme.createButton("Ajouter un plugin");
-        pluginButton.setOnAction(e -> PluginLoader.showPluginForm(primaryStage));
+        pluginButton.setOnAction(e -> {
+            PluginLoader.showPluginForm(primaryStage);
+            Platform.runLater(() -> {
+                GridPane newGrid = PluginManager.createPluginButtonsGrid(
+                        PluginManager.loadPlugins(primaryStage),
+                        plugin -> viewPlugin(primaryStage, plugin)
+                );
+                root.getChildren().remove(pluginGrid);
+                pluginGrid = newGrid;
+                root.getChildren().add(pluginGrid);
+            });
+        });
 
         Button themeButton = theme.createButton("Choisir un theme");
         themeButton.setOnAction(e -> {
