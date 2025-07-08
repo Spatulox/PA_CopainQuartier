@@ -1,3 +1,5 @@
+@import url(../shared//color.css);
+
 .troc-card {
     background-color: var(--dark-color2);
     border-radius: 12px;
@@ -11,7 +13,7 @@
 .troc-title {
     font-size: 1.8rem;
     margin-bottom: 1rem;
-    color: #61dafb;
+    color: var(--text-header);
     text-align: center;
 }
 
@@ -19,7 +21,7 @@
 .troc-content p {
     display: block;
     margin: 0.3rem 0;
-    color: #d0d0d0;
+    color: var(--light-grey);
 }
 
 .troc-content p {
@@ -84,7 +86,7 @@
     font-size: 1.6rem;
     padding: 0.4rem;
     border: none;
-    background-color: #333;
+    background-color: var(--dark-color3);
     color: var(--text-color);
     border-radius: 6px;
     width: 100%;
@@ -94,7 +96,7 @@
     width: 100%;
     min-height: 120px;
     padding: 0.6rem;
-    background-color: #333;
+    background-color: var(--dark-color3);
     color: var(--text-color);
     border-radius: 6px;
     border: none;
@@ -103,7 +105,7 @@
 .update-troc-form input[type="date"],
 .update-troc-form input[type="time"] {
     padding: 0.6rem;
-    background-color: #333;
+    background-color: var(--dark-color3);
     color: var(--text-color);
     border-radius: 6px;
     border: none;

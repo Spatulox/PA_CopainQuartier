@@ -1,3 +1,5 @@
+@import url(../shared//color.css);
+
 .publication-card {
     background-color: var(--dark-color2);
     border-radius: 12px;
@@ -30,7 +32,7 @@
     display: flex;
     justify-content: center;
     font-size: 0.9rem;
-    color: #aaa;
+    color: var(--light-grey);
     margin-bottom: 1rem;
 }
 

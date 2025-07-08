@@ -1,3 +1,5 @@
+@import url(../components//shared/color.css);
+
 #root {
   width: 100vw;
   height: 100vh;
@@ -18,7 +20,7 @@
 }
 
 .read-the-docs {
-  color: #888;
+  color: var(--light-grey);
 }
 
 
@@ -35,7 +37,7 @@
   padding: 2rem;
   max-width: 900px;
   margin: 0 auto;
-  background-color: #2e2e2e;
+  background-color: var(--dark-color6);
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
@@ -43,13 +45,13 @@
 .account-container h2 {
   font-size: 1.8rem;
   margin-bottom: 1rem;
-  color: #ffffff;
+  color: var(--text-color);
 }
 
 .account-details p {
   font-size: 1rem;
   margin: 0.4rem 0;
-  color: #d0d0d0;
+  color: var(--light-grey);
 }
 
 .account-actions {

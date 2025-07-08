@@ -1,15 +1,29 @@
 :root {
   --text-color: white;
+  --text-link: #646cff;
+  --text-link-hover: #747bff;
   --secondary-text-color: #dddddd;
+  --text-message-user: #4aa3ff;
+  --text-header: #61dafb;
+
   --button-background: #3a3aff;
   --button-background-hover: #2c2ccf;
+  --button-submit: #368de2;
 
   --error-background: #b00020;
 
+  --light-grey: #aaa;
   --grey: #444;
+  --dark-grey: #333;
 
   --dark-color0: #2c2c2c;
   --dark-color1: #2a2a2a;
   --dark-color2: #1f1f1f;
+  --dark-color3: #2b2b2b;
   --dark-color4: #1e1e1e;
+  --dark-color5: #1a1a1a;
+  --dark-color6: #2e2e2e;
+  
+  
+  --dark-color-root: #242424;
 }

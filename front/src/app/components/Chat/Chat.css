@@ -1,3 +1,5 @@
+@import url(../shared//color.css);
+
 .one-channel {
     background-color: var(--dark-color2);
     color: #f0f0f0;
@@ -56,7 +58,7 @@
 
 
 #messages {
-    background-color: #2b2b2b;
+    background-color: var(--dark-color3);
     border: 1px solid var(--grey);
     border-radius: 8px;
     padding: 1rem;
@@ -73,12 +75,12 @@
 
 .message-user {
     font-weight: bold;
-    color: #4aa3ff;
+    color: var(--text-message-user);
 }
 
 .message-date {
     font-size: 0.8rem;
-    color: #ccc;
+    color: var(--grey);
     margin-left: 0.5rem;
 }
 
@@ -91,14 +93,14 @@
 .formulaire input[type="text"] {
     flex: 1;
     padding: 0.6rem;
-    background-color: #1a1a1a;
+    background-color: var(--dark-color5);
     color: var(--text-color);
     border: 1px solid var(--grey);
     border-radius: 8px;
 }
 
 .formulaire input[type="submit"] {
-    background-color: #4aa3ff;
+    background-color: var(--text-message-user);
     border: none;
     padding: 0.6rem 1.2rem;
     border-radius: 8px;
@@ -108,7 +110,7 @@
 }
 
 .formulaire input[type="submit"]:hover {
-    background-color: #368de2;
+    background-color: var(--button-submit);
 }
 
 
@@ -136,7 +138,7 @@
 
 .channel-card p {
     font-style: italic;
-    color: #ccc;
+    color: var(--grey);
 }
 
 .channel-card button {
