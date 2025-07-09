@@ -96,7 +96,7 @@ main > .auth-container > .auth-card {
     background: linear-gradient(120deg, #6a11cb, #2575fc, #6a11cb);
     background-size: 200% 100%;
     background-position: 100% 0;
-    color: white;
+    color: var(--text-color);
     border: none;
     border-radius: 8px;
     font-size: 1rem;

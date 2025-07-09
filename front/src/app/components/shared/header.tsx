@@ -7,6 +7,7 @@ import { Route } from '../../constantes';
 import "../Popup/Popup.css"
 import "./header.css"
 import { SearchClass, SearchReturn } from '../../../api/search';
+import { useTheme } from './theme';
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -14,6 +15,7 @@ function Header() {
   const [isAdminMenuOpen, setIsAdminMenuOpen] = useState(false);
   const [search, setSearch] = useState<string>()
   const [results, setResults] = useState<SearchReturn | null>()
+  const [theme, setTheme] = useTheme()
 
   const navigate = useNavigate();
 

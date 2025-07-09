@@ -31,6 +31,9 @@ import MyFriendRequest from './components/Friends/MyFriendsRequest';
 import SingleFriends from './components/Friends/SingleFriends';
 import Langaje from './components/Langaje/Langaje';
 import JavaList from './components/Java/JavaList';
+import Service from './components/App/Services';
+import Contact from './components/App/Contact';
+import Legal from './components/App/Legal';
 
 function App() {
   return (
@@ -86,6 +89,15 @@ function App() {
 
           <Route path={`${CRoute.requestDB}`} element={<Langaje />} />
           <Route path={`${CRoute.java}`} element={<JavaList />} />
+
+
+          <Route path={`${CRoute.java}`} element={<JavaList />} />
+          <Route path={`${CRoute.java}`} element={<JavaList />} />
+          
+          
+          <Route path={`/services`} element={<Service />} />
+          <Route path={`/contact`} element={<Contact />} />
+          <Route path={`/mentions-legales`} element={<Legal />} /> 
 
 
           <Route path="404" element={<NotFound />} />
