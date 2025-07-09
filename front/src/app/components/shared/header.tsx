@@ -1,5 +1,5 @@
 import './header.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from './auth-context';
 import { ApiClient } from '../../../api/client';
@@ -15,7 +15,11 @@ function Header() {
   const [isAdminMenuOpen, setIsAdminMenuOpen] = useState(false);
   const [search, setSearch] = useState<string>()
   const [results, setResults] = useState<SearchReturn | null>()
-  const [theme, setTheme] = useTheme()
+  const [theme, setTheme] = useTheme() // Unused here, but it run in the background once imported, so we need to import it here
+  const [open, setOpen] = useState(false)
+
+  const searchResultRef = useRef<HTMLDivElement>(null);
+  const searchBarRef = useRef<HTMLInputElement>(null);
 
   const navigate = useNavigate();
 
@@ -47,14 +51,44 @@ function Header() {
     }
   }, [search]);
 
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      const popup = searchResultRef.current;
+      const input = searchBarRef.current;
+      const target = event.target as Node;
+
+      if (
+        (popup && popup.contains(target)) ||
+        (input && input.contains(target))
+      ) {
+        setOpen(true);
+      } else {
+        setOpen(false);
+      }
+    }
+
+    if (search && results) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [search, results]);
+
+
   async function searchData(data: string) {
     const client = new SearchClass();
     try {
       const res = await client.searchData(data);
       setResults(res)
+      setOpen(true)
     } catch (error) {
       console.error(error);
       setResults(null)
+      setOpen(false)
     }
   }
 
@@ -62,6 +96,10 @@ function Header() {
     setSearch(event.currentTarget.value);
   };
 
+  function handleNavigate(link: string){
+      navigate(link)
+      setOpen(false)
+  }
 
   return (
     <>
@@ -86,32 +124,33 @@ function Header() {
         {/* Partie centrale */}
         <div className="header-section search-section">
           <input
+            ref={searchBarRef}
             type="search"
             placeholder="Rechercher..."
             className="search-bar"
             value={search}
             onInput={handleInput}
           />
-          {search && results && (
-            <div className='search-result'>
+          {results && open && (
+            <div className='search-result' ref={searchResultRef}>
               {results.activity.length > 0 && (
                 <div className='search-item'>Activities:
                 {results.activity.map((act) => (
-                  <div>{act.title}</div>
+                  <div onClick={() => handleNavigate(`${Route.activity}/${act._id}`)}>{act.title}</div>
                 ))}
                 </div>
               )}
               {results.publication.length > 0 && (
                 <div className='search-item'>Publications:
                 {results.publication.map((act) => (
-                  <div>{act.name}</div>
+                  <div onClick={() => handleNavigate(`${Route.publications}/${act._id}`)}>{act.name}</div>
                 ))}
               </div>
               )}
               {results.troc.length > 0 && (
                 <div className='search-item'>Trocs
                 {results.troc.map((act) => (
-                  <div>{act.title}</div>
+                  <div onClick={() => handleNavigate(`${Route.troc}/${act._id}`)}>{act.title}</div>
                 ))}
               </div>
               )}
