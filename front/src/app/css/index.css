@@ -1,6 +1,7 @@
 @import url(../components/shared/color.css);
 
-:root {
+/*if :root here, the CSS doesn't apply for the :root (because it's defined in ":root .dark" and not in ":root")*/
+body {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;

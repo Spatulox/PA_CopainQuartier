@@ -38,12 +38,13 @@
   border: none;
   width: 100%;
   max-width: 400px;
+  background-color: var(--grey);
 }
 
 .search-result {
   position: absolute;
   transform: translateY(90px);
-  background-color: lightgray;
+  background-color: var(--light-grey);
   width: 400px;
   color: black;
 }
@@ -66,7 +67,7 @@
 }
 
 .nav-links a:hover {
-  color: #00bcd4;
+  color: var(--text-header);
 }
 
 /* Burger Menu */
@@ -167,7 +168,7 @@
 }
 
 #manageListHeaderContent a:hover {
-  color: #00bcd4;
+  color: var(--text-header);
 }
 
 /* Popup Slide */
