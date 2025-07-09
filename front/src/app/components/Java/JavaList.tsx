@@ -33,10 +33,20 @@ export default function JavaList(){
         })()
     }, [resfresh])
 
-    function onClickVersion(){
+    async function onClickVersion(){
         const client = new JavaClass()
         try {
-            client.downloadJavaApp("win")
+            //await client.downloadJavaApp("win")
+            const response = await client.downloadJavaApp("win");
+            const url = window.URL.createObjectURL(response.data);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'application-java.exe';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+
         } catch (error) {
             console.error(error)
             setError(client.errors)
@@ -54,7 +64,7 @@ export default function JavaList(){
     if(error != null){
         return <Errors errors={error} />
     }
-
+    console.log(java)
     return <>
         <h1>JavaList</h1>
         <ul>

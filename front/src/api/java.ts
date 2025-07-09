@@ -14,8 +14,8 @@ export class JavaClass extends ApiClient {
         return await this.Get(`${this.url}/version`)
     }
 
-    async downloadJavaApp(version: "win" | "linux"){
-        return await this.Get(`${this.url}/executable/${version}`)
+    async downloadJavaApp(version: "win" | "linux",){
+        return await this.Get(`${this.url}/executable/${version}`, undefined, "blob")
     }
 }
 

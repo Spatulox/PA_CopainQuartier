@@ -13,12 +13,15 @@ import Errors from "../shared/errors";
 import MyFriendRequest from "../Friends/MyFriendsRequest";
 import MyFriends from "../Friends/MyFriends";
 import { ApiClient } from "../../../api/client";
+import { useTheme } from "../shared/theme";
 
 
 function Account(){
     const { me } = useAuth();
     const navigate = useNavigate()
     const baseUrl = new ApiClient().baseURL
+    const [theme, setTheme] = useTheme();
+
     if(me){
         return (
             <div className="account-container">
@@ -40,6 +43,17 @@ function Account(){
                     <Link to={Route.manageMyPublications}>Publications</Link>
                     <Link to={Route.manageMyTrocs}>Trocs</Link>
                     <Link to={Route.manageChannels}>Channels</Link>
+                </div>
+                <div className="theme-select">
+                    <label htmlFor="theme-select">Thème :</label>
+                    <select
+                    id="theme-select"
+                    value={theme}
+                    onChange={e => setTheme(e.target.value as "light" | "dark")}
+                    >
+                    <option value="light">Light mode</option>
+                    <option value="dark">Dark mode</option>
+                    </select>
                 </div>
                 <div className="channels-section">
                     <ChannelList />

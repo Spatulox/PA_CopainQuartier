@@ -321,7 +321,7 @@ async function FakeJavaVersions() {
 
   for (let i = 0; i < 5; i++) {
     const version = `Java-${faker.system.semver()}`;
-    const filename = `/usr/lib/jvm/${version}/bin/java`;
+    const filename = `javaapp.jar`;
 
     const java = new JavaTable({
       version,
