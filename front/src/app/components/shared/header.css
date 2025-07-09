@@ -49,8 +49,9 @@
   color: black;
 }
 
-.search-item {
-
+.search-item div {
+  cursor: pointer;
+  margin: 10px 0;
 }
 
 .nav-links nav {
