@@ -1,11 +1,13 @@
+@import url(../shared//color.css);
+
 .publication-card {
-    background-color: #1f1f1f;
+    background-color: var(--dark-color2);
     border-radius: 12px;
     padding: 1.5rem;
     margin: 60px auto 40px;
     max-width: 800px;
     box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
-    color: #fff;
+    color: var(--text-color);
 }
 
 .publication-card .end{
@@ -30,7 +32,7 @@
     display: flex;
     justify-content: center;
     font-size: 0.9rem;
-    color: #aaa;
+    color: var(--light-grey);
     margin-bottom: 1rem;
 }
 
@@ -49,10 +51,10 @@ justify-content: center;
 }
 
 .publication-buttons button {
-    background-color: #3a3aff;
+    background-color: var(--button-background);
     border: none;
     padding: 0.6rem 1.2rem;
-    color: white;
+    color: var(--text-color);
     border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
@@ -61,7 +63,7 @@ justify-content: center;
 }
 
 .publication-buttons button:hover {
-    background-color: #2c2ccf;
+    background-color: var(--button-background-hover);
 }
 
 .publication-edit-form {
@@ -76,9 +78,9 @@ justify-content: center;
     width: 100%;
     padding: 0.7rem;
     border-radius: 8px;
-    background-color: #2a2a2a;
-    border: 1px solid #444;
-    color: white;
+    background-color: var(--dark-color1);
+    border: 1px solid var(--grey);
+    color: var(--text-color);
 }
 
 .publication-edit-form textarea {
@@ -87,9 +89,9 @@ justify-content: center;
 }
 
 .error-messages {
-    background-color: #b00020;
+    background-color: var(--error-background);
     padding: 0.8rem;
     border-radius: 8px;
     margin-bottom: 1rem;
-    color: white;
+    color: var(--text-color);
 }

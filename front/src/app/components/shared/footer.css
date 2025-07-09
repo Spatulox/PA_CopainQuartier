@@ -1,6 +1,8 @@
+@import url(./color.css);
+
 .footer {
-  background-color: #222;
-  color: #f1f1f1;
+  background-color: var(--dark-color2);
+  color: var(--text-color);
   padding: 1rem 2rem;
   font-size: 0.95rem;
 }
@@ -57,7 +59,7 @@
 }
 
 .copyright {
-  border-top: 1px solid #444;
+  border-top: 1px solid var(--grey);
   text-align: center;
   color: #bbb;
 }
