@@ -68,7 +68,6 @@
 .troc-buttons .red:hover {
     background-color: darkred;
 }
-
 .update-troc-form {
     background-color: var(--dark-color2);
     padding: 2rem;
@@ -82,34 +81,29 @@
     gap: 1rem;
 }
 
-.update-troc-form h2 input {
-    font-size: 1.6rem;
-    padding: 0.4rem;
-    border: none;
+.update-troc-form h2 {
+    margin-bottom: 1rem;
+    font-size: 1.8rem;
+    color: var(--text-header);
+}
+
+.update-troc-form input[type="text"],
+.update-troc-form input[type="number"],
+.update-troc-form input[type="date"],
+.update-troc-form select,
+.update-troc-form textarea {
+    width: 100%;
+    padding: 0.6rem;
     background-color: var(--dark-color3);
     color: var(--text-color);
     border-radius: 6px;
-    width: 100%;
+    border: none;
+    font-size: 1rem;
 }
 
 .update-troc-form textarea {
-    width: 100%;
     min-height: 120px;
-    padding: 0.6rem;
-    background-color: var(--dark-color3);
-    color: var(--text-color);
-    border-radius: 6px;
-    border: none;
-}
-
-.update-troc-form input[type="date"],
-.update-troc-form input[type="time"] {
-    padding: 0.6rem;
-    background-color: var(--dark-color3);
-    color: var(--text-color);
-    border-radius: 6px;
-    border: none;
-    margin-top: 0.5rem;
+    resize: vertical;
 }
 
 .update-troc-form button {
@@ -127,6 +121,7 @@
 .update-troc-form button:hover {
     background-color: var(--button-background-hover);
 }
+
 
 .error-messages {
     background-color: var(--error-background);
