@@ -10,6 +10,7 @@ import { ErrorMessage } from "../../../api/client"
 import Errors from "../shared/errors"
 import "./Trocs.css"
 import CreateTroc from "./TrocCreate"
+import { useLocation } from "react-router-dom";
 
 type TrocListMessage = {
     limit?: number
@@ -22,6 +23,8 @@ function TrocList({limit, buttonView}: TrocListMessage){
     const navigate = useNavigate()
     const [err, setErrors] = useState<ErrorMessage | null>(null)
     const [refresh, setRefresh] = useState<number>(0)
+    const location = useLocation();
+
 
     useEffect(() => {
         (async () => {
@@ -45,8 +48,22 @@ function TrocList({limit, buttonView}: TrocListMessage){
     }
 
     if(troc && troc.length == 0){
-        return <p>Aucun Troc à afficher</p>
+        if(location.pathname ===  Route.base){
+            return <p>Aucun Troc à afficher</p>
+        }else {
+            return  <> <div>
+                <CreateTroc onUpdate={() => setRefresh(r => r +1)} />
+                <button onClick={() => navigate(Route.manageMyTrocs)}>
+                    Mes Trocs
+                </button>
+            </div>
+
+                <p>Aucun Troc à afficher</p>
+            </>
+        }
+
     }
+
     return <>
         <h2>Trocs</h2>
         {buttonView != false && (
