@@ -9,6 +9,7 @@ import { ErrorMessage } from "../../../api/client";
 import Errors from "../shared/errors";
 import "./Activity.css"
 import CreateActivity from "./ActivityCreate";
+import { useLocation } from "react-router-dom";
 
 type ActivityListMessage = {
     limit?: number
@@ -22,7 +23,7 @@ function ActivityList({limit, buttonView}: ActivityListMessage){
     const [err, setErrors] = useState<ErrorMessage | null>(null)
     const navigate = useNavigate()
     const [resfresh, setRefresh] = useState<number>(0)
-
+    const location = useLocation();
 
     useEffect(() => {
         (async () => {
@@ -46,7 +47,19 @@ function ActivityList({limit, buttonView}: ActivityListMessage){
     }
 
     if(activity && activity.length == 0){
-        return <>Aucune Activités trouvées</>
+        if(location.pathname ===  Route.base){
+            return <p>Aucune Activités trouvées</p>
+        }else {
+            return <>
+                <div className="activity-buttons">
+                    <CreateActivity onUpdate={() => setRefresh(r => r + 1)}/>
+                    <button onClick={() => navigate(Route.manageMyActivity)}>
+                        Gérer mes Activités
+                    </button>
+                </div>
+                <p>Aucune Activités trouvées</p>
+            </>
+        }
     }
 
     return <>
