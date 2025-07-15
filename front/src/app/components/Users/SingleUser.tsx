@@ -6,7 +6,7 @@ import { Channel } from "../../../api/chat";
 import { ShowActivity, ShowActivityButton } from "../Activity/SingleActivity";
 import { Activity } from "../../../api/activity";
 import { ApiClient } from "../../../api/client";
-import "./user.css"
+import "./User.css"
 
 export enum ShowUserButton {
     ViewUser = 1 << 0, // 2 (0b010)
