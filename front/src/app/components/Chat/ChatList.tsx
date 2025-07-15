@@ -81,14 +81,14 @@ export function ChannelList(/*{ channels }: ListSimpleProps*/) {
   }
 
   return (
-  <div>
+  <div className="channel-list-container">
     <h2>Mes channels</h2>
-    <div>
+    <div className="channel-list">
       {channel.length === 0 ? (
         <p>Aucun channel trouvé.</p>
       ) : (
         channel.map((channel) => (
-          <p key={channel._id}>
+          <p key={channel._id} className="channel-item">
             <button><Link to={`${Route.chat}/${channel._id}`}>{channel.name}</Link></button>
             <button onClick={()=>handlAction(channel, me?._id)}>
                 {me?._id == channel.admin?._id ? "Supprimer le Chat" : "Quitter le Chat"}
@@ -97,7 +97,7 @@ export function ChannelList(/*{ channels }: ListSimpleProps*/) {
         ))
       )}
     </div>
-    <div>
+    <div className="create-channel-container">
       <CreateChannel update={onDelete} action={() => setRefresh(r => r+1)} />
     </div>
   </div>
