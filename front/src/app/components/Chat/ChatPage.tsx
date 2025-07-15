@@ -613,7 +613,7 @@ function ChatPage({ id_channel }: ChatProps) {
                     <button
                       onClick={() => setSelectedUserId(mem._id)}
                       style={{
-                        background: "none",
+                        background: "black",
                         border: "none",
                         cursor: "pointer",
                         color: connectedUser?.includes(mem._id)
