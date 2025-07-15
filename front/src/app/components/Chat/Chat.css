@@ -1,6 +1,6 @@
 @import url(../shared//color.css);
 
-/* ---------- Chat Container ---------- */
+
 .one-channel {
     background-color: var(--dark-color2);
     color: #f0f0f0;
@@ -16,7 +16,7 @@
     margin-bottom: 1rem;
 }
 
-/* ---------- Channel Info ---------- */
+
 #chat-info ul {
     list-style: none;
     padding: 0;
@@ -32,13 +32,13 @@
     margin-bottom: 1rem;
 }
 
-/* ---------- Status Display ---------- */
+
 #status {
     font-weight: bold;
     margin-bottom: 0.8rem;
 }
 
-/* ---------- Call Buttons ---------- */
+
 .call-info-div {
     margin-bottom: 1.5rem;
 }
@@ -58,7 +58,7 @@
     background-color: var(--button-background-hover);
 }
 
-/* ---------- Messages ---------- */
+
 #messages {
     background-color: var(--dark-color3);
     border: 1px solid var(--grey);
@@ -86,7 +86,7 @@
     margin-left: 0.5rem;
 }
 
-/* ---------- Formulaire de message ---------- */
+
 .formulaire {
     display: flex;
     gap: 1rem;
@@ -115,7 +115,7 @@
     background-color: var(--button-submit);
 }
 
-/* ---------- Channel Card ---------- */
+
 .channel-card {
     background-color: var(--dark-color1);
     border-radius: 12px;
@@ -159,7 +159,7 @@
     background-color: var(--button-background-hover);
 }
 
-/* ---------- Media (audio + vidéo) ---------- */
+
 .media {
     display: flex;
     flex-wrap: wrap;
@@ -171,7 +171,7 @@
 }
 
 .media video {
-    width: 100%;
+
     max-width: 100%;
     height: auto;
     object-fit: contain;
@@ -194,10 +194,10 @@
 }
 
 audio {
-    display: none; /* masqué sauf si nécessaire */
+    display: none;
 }
 
-/* ---------- Members ---------- */
+
 .members-box {
     background-color: var(--dark-color3);
     border: 1px solid var(--grey);
