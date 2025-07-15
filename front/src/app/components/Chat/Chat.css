@@ -156,3 +156,40 @@
 .channel-card button:hover {
     background-color: var(--button-background-hover);
 }
+
+.media {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.media video {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+@media (min-width: 768px) {
+    .media {
+        flex-direction: row;
+        justify-content: space-evenly;
+    }
+
+    .media video {
+        height: auto;
+    }
+}
+
+.media.two-videos video {
+    width: 48%;
+}
+
+audio {
+    display: none; /* Cacher si non nécessaire */
+}

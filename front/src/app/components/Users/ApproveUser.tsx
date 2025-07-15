@@ -69,7 +69,7 @@ function ApproveUser({onUpdate}: ApproveUserType){
     }
     
     return <>
-        <div>
+        <div className="user-card">
             <h2>Approuver les utilisateurs</h2>
             {user && user.map((use) => (
                 <ShowUser
