@@ -1,5 +1,6 @@
 @import url(../shared//color.css);
 
+
 .one-channel {
     background-color: var(--dark-color2);
     color: #f0f0f0;
@@ -7,13 +8,14 @@
     padding: 2rem;
     margin: 60px auto 40px;
     max-width: 900px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 .one-channel h2 {
     font-size: 1.6rem;
     margin-bottom: 1rem;
 }
+
 
 #chat-info ul {
     list-style: none;
@@ -119,7 +121,7 @@
     border-radius: 12px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
-    box-shadow: 0 0 6px rgba(0,0,0,0.3);
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
 }
 
 .channel-card h2 {
@@ -157,6 +159,7 @@
     background-color: var(--button-background-hover);
 }
 
+
 .media {
     display: flex;
     flex-wrap: wrap;
@@ -168,7 +171,7 @@
 }
 
 .media video {
-    width: 100%;
+
     max-width: 100%;
     height: auto;
     object-fit: contain;
@@ -191,5 +194,53 @@
 }
 
 audio {
-    display: none; /* Cacher si non nécessaire */
+    display: none;
+}
+
+
+.members-box {
+    background-color: var(--dark-color3);
+    border: 1px solid var(--grey);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 2rem auto;
+    max-width: 600px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.members-box ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+}
+
+.members-box li {
+    margin: 0.5rem 0;
+    text-align: center;
+    list-style: none;
+}
+
+.members-box button {
+    background: var(--dark-color5);
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: bold;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    transition: color 0.2s, background-color 0.2s;
+}
+
+.members-box button:hover {
+    background-color: var(--dark-color5);
+    color: var(--text-color);
+}
+
+.members-box .connected {
+    color: limegreen;
+}
+
+.members-box .disconnected {
+    color: crimson;
 }

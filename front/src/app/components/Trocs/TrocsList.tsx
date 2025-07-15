@@ -51,7 +51,7 @@ function TrocList({limit, buttonView}: TrocListMessage){
         if(location.pathname ===  Route.base){
             return <p>Aucun Troc à afficher</p>
         }else {
-            return  <> <div>
+            return  <> <div className="troc-buttons">
                 <CreateTroc onUpdate={() => setRefresh(r => r +1)} />
                 <button onClick={() => navigate(Route.manageMyTrocs)}>
                     Mes Trocs
@@ -67,7 +67,7 @@ function TrocList({limit, buttonView}: TrocListMessage){
     return <>
         <h2>Trocs</h2>
         {buttonView != false && (
-            <div>
+            <div className="troc-buttons ">
                 <CreateTroc onUpdate={() => setRefresh(r => r +1)} />
                 <button onClick={() => navigate(Route.manageMyTrocs)}>
                     Mes Trocs

@@ -600,7 +600,7 @@ function ChatPage({ id_channel }: ChatProps) {
         onGenerateInvite={(id: string) => handleGenerateInvite(id)}
         messagesDivRef={messagesEndRef}
       />
-      <div className="members">
+      <div className="members-box">
         <ul>
           {channel &&
             "members" in channel &&
@@ -613,7 +613,7 @@ function ChatPage({ id_channel }: ChatProps) {
                     <button
                       onClick={() => setSelectedUserId(mem._id)}
                       style={{
-                        background: "none",
+                        background: "black",
                         border: "none",
                         cursor: "pointer",
                         color: connectedUser?.includes(mem._id)
