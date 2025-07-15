@@ -9,6 +9,7 @@ import { useAuth } from "../shared/auth-context";
 import { ErrorMessage } from "../../../api/client";
 import Errors from "../shared/errors";
 import CreatePublication from "./PublicationCreate";
+import { useLocation } from "react-router-dom";
 
 type PublicationListMessage = {
     limit?: number
@@ -22,6 +23,7 @@ function PublicationList({limit, activity_id, buttonView}: PublicationListMessag
     const navigate = useNavigate()
     const { me, isAdmin } = useAuth();
     const [refresh, setRefresh] = useState<number>(0)
+    const location = useLocation();
 
     useEffect(() => {
         (async () => {
@@ -53,7 +55,17 @@ function PublicationList({limit, activity_id, buttonView}: PublicationListMessag
     }
 
     if(publications.length == 0){
-        return <p>Pas de publications trouvée...</p>
+        if(location.pathname ===  Route.base){
+            return <p>Pas de publications trouvée...</p>
+        }else {
+            return<>
+                <div className="publication-buttons">
+                    <CreatePublication onUpdate={() => setRefresh(r => r+1)}/>
+                    <button onClick={() => navigate(Route.manageMyPublications)}>Gérer mes Publications</button>
+                </div>
+                <p>Pas de publications trouvée...</p>
+            </>
+        }
     }
 
     return <>    

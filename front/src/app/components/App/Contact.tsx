@@ -32,48 +32,6 @@ export default function Contact() {
           <li><strong>Email :</strong> contact@example.com</li>
         </ul>
       </section>
-
-      <section>
-        <h3>Formulaire de contact</h3>
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <label>
-            Nom :
-            <input
-              type="text"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              required
-              style={{ width: '100%', padding: 8, marginTop: 4 }}
-            />
-          </label>
-          <label>
-            Email :
-            <input
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              required
-              style={{ width: '100%', padding: 8, marginTop: 4 }}
-            />
-          </label>
-          <label>
-            Message :
-            <textarea
-              name="message"
-              value={form.message}
-              onChange={handleChange}
-              required
-              rows={5}
-              style={{ width: '100%', padding: 8, marginTop: 4 }}
-            />
-          </label>
-          <button type="submit" style={{ padding: 10, background: '#0070f3', color: '#fff', border: 'none', borderRadius: 4 }}>
-            Envoyer
-          </button>
-        </form>
-      </section>
     </div>
   );
 }

@@ -1,9 +1,8 @@
 @import url(../components//shared/color.css);
 
 #root {
-  width: 100vw;
-  height: 100vh;
-  margin: 0 auto;
+
+  min-height: 100vh;
   margin: 0px;
   text-align: center;
   display: grid;

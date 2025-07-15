@@ -85,7 +85,7 @@ export function UpdateTroc({
     }
 
     return (
-        <div key={troc._id} className="update-troc-container">
+        <div key={troc._id} className="update-troc-form">
             {err && err.length > 0 && <>
             <div className="error-messages">
               {err && err.length > 0 && err.map((e: any) => (

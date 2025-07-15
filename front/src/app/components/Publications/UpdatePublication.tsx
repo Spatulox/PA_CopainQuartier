@@ -50,7 +50,7 @@ export function UpdatePublication({
         }, [APIerror])
 
     return (
-        <div key={publication._id}>
+        <div key={publication._id} className="update-publication-form">
             {err && err.length > 0 && (
                 <div className="error-messages">
                     {err && err.length > 0 && err.map((e: any) => (

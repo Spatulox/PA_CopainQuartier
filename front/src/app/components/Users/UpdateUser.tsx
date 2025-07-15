@@ -74,7 +74,7 @@ export function UpdateUser({
     
     if(theuser && user)
     return (
-        <div key={theuser._id}>
+        <div key={theuser._id} className="user-card">
             {err && err.length > 0 && <>
             <div className="error-messages">
               {err && err.length > 0 && err.map((e: any) => (
