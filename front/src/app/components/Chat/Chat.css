@@ -310,3 +310,63 @@ audio {
     margin-top: 2rem;
     text-align: center;
 }
+
+.show-chat-container {
+    background-color: var(--dark-color3);
+    color: var(--text-color);
+    padding: 2rem;
+    margin: 3rem auto;
+    max-width: 800px;
+    border-radius: 12px;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+}
+
+.show-chat-container h2 {
+    font-size: 1.8rem;
+    color: var(--text-header);
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--grey);
+    padding-bottom: 0.5rem;
+}
+
+.show-chat-container > div {
+    margin-bottom: 1rem;
+}
+
+.show-chat-container span {
+    display: block;
+    margin-bottom: 0.4rem;
+}
+
+.show-chat-container p {
+    font-style: italic;
+    color: var(--secondary-text-color);
+    margin-bottom: 1rem;
+}
+
+.show-chat-container ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0 0 1rem 0;
+}
+
+.show-chat-container ul li {
+    margin-bottom: 0.3rem;
+}
+
+.show-chat-container button {
+    margin-right: 0.6rem;
+    margin-top: 0.6rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--button-background);
+    color: var(--text-color);
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.show-chat-container button:hover {
+    background-color: var(--button-background-hover);
+}
