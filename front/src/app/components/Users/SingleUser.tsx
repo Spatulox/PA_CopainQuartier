@@ -53,7 +53,7 @@ export function ShowUser({
         <div key={theuser._id} className="user-card">
             <div>
                 <h3>{theuser.name} {theuser.lastname}</h3>
-                <img src={`${baseUrl}/${theuser.image_link}`} alt="" />
+                <img className="profile-picture" src={`${baseUrl}/${theuser.image_link}`} alt="profile picture" />
                 <section>
                     <h3>Coordonnées</h3>
                     <ul>
