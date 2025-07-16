@@ -39,7 +39,7 @@ export function ShowChat({
 }: ShowChatProps) {
     const navigate = useNavigate();
     return (
-        <div key={channel._id}>
+        <div key={channel._id} className="channel-card">
             <h2>{channel.name}</h2>
             <div>
                 <span>Créé par : {channel.admin ? channel.admin.email : ""}</span>
