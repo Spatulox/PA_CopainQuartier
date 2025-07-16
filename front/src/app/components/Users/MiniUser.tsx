@@ -59,7 +59,7 @@ export function MiniUser({
         <div key={theUserObject._id}>
             <div>
                 <h3>{theUserObject.name} {theUserObject.lastname}</h3>
-                <img src={`${baseUrl}/${theUserObject.image_link}`} alt="" />
+                <img className="profile-picture" src={`${baseUrl}/${theUserObject.image_link}`} alt="image profile" />
                 <section>
                     <h3>Coordonnées</h3>
                     <ul>
