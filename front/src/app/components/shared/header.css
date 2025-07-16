@@ -47,6 +47,8 @@
   background-color: var(--light-grey);
   width: 400px;
   color: black;
+  max-height: 200px;
+  overflow: auto;
 }
 
 .search-item div {
