@@ -30,6 +30,7 @@
 .search-section {
   flex: 1;
   justify-content: center;
+  position: relative;
 }
 
 .search-bar {
@@ -43,12 +44,18 @@
 
 .search-result {
   position: absolute;
-  transform: translateY(90px);
+  top: 110%;
+  left: 50%;
+  transform: translateX(-50%);
   background-color: var(--light-grey);
-  width: 400px;
+  width: 100%;
+  max-width: 400px;
   color: black;
   max-height: 200px;
-  overflow: auto;
+  overflow-y: auto;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  z-index: 10;
 }
 
 .search-item div {
