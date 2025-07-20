@@ -79,6 +79,24 @@ async function FakeUsers() {
     });
     users.push(await adminUser.save());
 
+    const memberUser = new UserTable({
+        name: faker.person.firstName(),
+        lastname: faker.person.lastName(),
+        email: "member@member.com",
+        phone: faker.phone.number(),
+        address: faker.location.streetAddress(),
+        verified: true,
+        role: "member",
+        group_chat_list_ids: [],
+        troc_score: faker.helpers.maybe(() => faker.number.int({ min: 0, max: 100 }).toString(), { probability: 0.7 }),
+        password: await hashPassword("123456789"),
+        friends_id: new Map(),
+        friends_request_id: [],
+        image_link: profileImagePath,
+        resetNumber: null,
+    });
+    users.push(await memberUser.save());
+
   // Create 20 member users
     for (let i = 0; i < 20; i++) {
         const user = new UserTable({
