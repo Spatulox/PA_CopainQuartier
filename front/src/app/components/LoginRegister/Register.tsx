@@ -22,7 +22,7 @@ const registerFields : FieldForm[] = [
 function Register() {
   const { updateConnection } = useAuth();
   const [formData, setFormData] = useState({
-    name: 'test', lastname: 'test', phone: '0783173505', address: '12 rue', email: 'test@test.com', password: '123456789', confirmPassword: '123456789'
+    name: '', lastname: '', phone: '', address: '', email: '', password: '', confirmPassword: ''
   });
   const [errors, setErrors] = useState<string[]>([]);
   const navigate = useNavigate();
