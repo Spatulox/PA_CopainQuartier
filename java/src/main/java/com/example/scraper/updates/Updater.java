@@ -19,7 +19,7 @@ import org.json.JSONObject;
 import com.example.scraper.core.AppFilesPath;
 
 public class Updater {
-    private static String apiUrl = "http://localhost:3000/java";
+    private static String apiUrl = "https://api.copain-quartier.fr/java";
 
     public static String getLatestVersion() throws Exception {
         URL url = new URL(apiUrl + "/version");
