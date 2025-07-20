@@ -5,16 +5,6 @@ import React, { useState } from 'react';
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', message: '' });
 
-  const handleChange = (e:any) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e:any) => {
-    e.preventDefault();
-    alert('Message envoyé ! (simulation)');
-    setForm({ name: '', email: '', message: '' });
-  };
-
   return (
     <div style={{ maxWidth: 600, margin: '0 auto', padding: 24 }}>
       <h1>Contactez-nous</h1>
