@@ -13,6 +13,9 @@ services:
       - MAILER_PASSWORD=${MAILER_PASSWORD}
       - LANGAJE_URL=http://langaje:5000
     restart: always
+    volumes:
+      - api-images:/usr/src/app/img
+      - api-java-versions:/usr/src/app/java
 
   frontend:
     build: 
