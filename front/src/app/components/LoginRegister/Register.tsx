@@ -9,14 +9,14 @@ import { CreateFormData } from '../../../api/utils/formData';
 import { FieldForm } from '../Popup/PopupForm';
 
 const registerFields : FieldForm[] = [
-  { name: "lastname", label: "Nom", type: "text" },
-  { name: "name", label: "Prenom", type: "text" },
+  { name: "lastname", label: "Nom", type: "text", required: true },
+  { name: "name", label: "Prenom", type: "text", required: true },
   { name: "image", label: "Profile Image", type: "file", required: false },
-  { name: "phone", label: "Téléphone", type: "tel" },
-  { name: "address", label: "Adresse", type: "text" },
-  { name: "email", label: "Email", type: "email" },
-  { name: "password", label: "Mot de passe", type: "password" },
-  { name: "confirmPassword", label: "Confirmer le mot de passe", type: "password" },
+  { name: "phone", label: "Téléphone", type: "tel", required: true },
+  { name: "address", label: "Adresse", type: "text", required: true },
+  { name: "email", label: "Email", type: "email", required: true },
+  { name: "password", label: "Mot de passe", type: "password", required: true },
+  { name: "confirmPassword", label: "Confirmer le mot de passe", type: "password", required: true },
 ];
 
 function Register() {
