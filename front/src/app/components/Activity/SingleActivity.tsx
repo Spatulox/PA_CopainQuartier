@@ -43,7 +43,7 @@ export function ShowActivity({
     <div key={activity._id}>
       <div className="activity-card">
         <span className="none">{activity.author?.name}</span>
-        <div className="header">
+        <div className="activity-header">
           <span></span>
           <span>{activity.title}</span>
           <span>{new Date(activity.created_at).toLocaleDateString()}</span>

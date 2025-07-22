@@ -9,7 +9,7 @@
     box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
     color: var(--text-color);
 }
-.activity-card .header{
+.activity-card .activity-header{
     display: flex;
     justify-content: space-between;
     align-items: center;
