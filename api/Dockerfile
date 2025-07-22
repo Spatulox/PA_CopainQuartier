@@ -25,8 +25,8 @@ COPY package.json package-lock.json ./
 RUN npm install --only=production --no-audit 
 
 COPY --from=builder /usr/src/app/dist ./dist
-COPY /usr/src/app/img ./img
-COPY /usr/src/app/java ./java
+COPY ./img ./img
+COPY ./java ./java
 
 EXPOSE 8080
 CMD [ "node", "dist/src/main.js" ]
