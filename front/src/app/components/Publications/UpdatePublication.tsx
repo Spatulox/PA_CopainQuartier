@@ -30,6 +30,7 @@ export function UpdatePublication({
             onUpdate(publication._id, {
                 name,
                 body,
+                description,
             });
         }
         setError([])
