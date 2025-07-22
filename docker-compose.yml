@@ -51,3 +51,5 @@ services:
 
 volumes:
   mongodb-data:
+  api-images:
+  api-java-versions:
