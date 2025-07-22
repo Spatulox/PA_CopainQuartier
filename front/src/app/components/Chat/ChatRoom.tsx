@@ -133,7 +133,7 @@ const ChatRoom: React.FC<Props> = ({
             const url = extractUrl(msg.content);
             return (
                 <div key={idx}>
-                  <div style={{ display: "flex", alignItems: "center" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                     {msg.image_link && (
                         <img className="profile-picture" src={`${baseUrl}/${msg.image_link}`} alt="" />
                     )}
