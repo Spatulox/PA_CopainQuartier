@@ -13,7 +13,7 @@ function CreateActivity({onUpdate}: CreateActivityType){
 
     const fields: FieldForm[] = [
         { name: "title", label: "Nom de l'activité", type: "text", required: true },
-        { name: "description", label: "Description", type: "text", required: true },
+        { name: "description", label: "Description", type: "textarea", required: true },
         { name: "location", label: "Lieu", type: "text", required: true },
         { name: "date", label: "Date", type: "date", required: true },
         { name: "hour", label: "Heure", type: "time", required: true },
