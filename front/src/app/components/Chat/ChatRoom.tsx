@@ -133,9 +133,9 @@ const ChatRoom: React.FC<Props> = ({
             const url = extractUrl(msg.content);
             return (
                 <div key={idx}>
-                  <div>
+                  <div style={{ display: "flex", alignItems: "center" }}>
                     {msg.image_link && (
-                        <img src={`${baseUrl}/${msg.image_link}`} alt="" />
+                        <img className="profile-picture" src={`${baseUrl}/${msg.image_link}`} alt="" />
                     )}
                     <span className="message-user">{msg.username}</span> :
                     <span className="message-date">{new Date(msg.date).toLocaleString()}</span>
