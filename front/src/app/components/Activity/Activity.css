@@ -9,9 +9,10 @@
     box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
     color: var(--text-color);
 }
-.activity-card .end{
+.activity-card .header{
     display: flex;
-    justify-content: end;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .activity-title {
